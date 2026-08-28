@@ -1,0 +1,15 @@
+# 텍스트 파일은 저장소에 LF 로 정규화한다. Windows 와 macOS 를 오가며 작업하기 때문에
+# 이 설정이 없으면 줄바꿈만 바뀐 diff 가 통째로 생긴다.
+* text=auto
+
+*.md   text
+*.txt  text
+
+# 바이너리는 변환 대상에서 제외한다.
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.docx binary
+*.xlsx binary
+*.pptx binary
