@@ -35,6 +35,10 @@ CAP = {  # 시간당 처리 용량(명). 관측값은 baseline.subway_capacity_o
     "마포역 도보(마포대교)": 15000,                                        # 추정: 보행로 1차로 폭 기준
 }
 ESTIMATED = {"신길(1·5)", "여의도(9)", "샛강(9)", "국회의사당(9)", "마포역 도보(마포대교)"}
+# 불꽃쇼 종료 시각 앵커. 베이스라인(2024·2025)은 19:20~20:30 진행 → 유출 피크 20시.
+# 2026은 20:00~21:10(영국 20:00, 미국 20:20, 한국 ~20:40) → 종료가 +40분 늦다. 유출 곡선을 그만큼 뒤로 민다.
+SHOW_END_BASE, SHOW_END_2026 = (20, 30), (21, 10)
+SHIFT_MIN = (SHOW_END_2026[0] * 60 + SHOW_END_2026[1]) - (SHOW_END_BASE[0] * 60 + SHOW_END_BASE[1])
 CLOSED = {("여의나루(5)", 20), ("여의나루(5)", 21)}   # 2026 공식 공지(hanwhafireworks.com/notice/6): 여의나루역 임시 통제 20:40~21:40. 2024·2025 실적은 19~20시대 하차 ≈0
 
 
@@ -72,7 +76,10 @@ def main():
     # 공원→역 도달 지연: OD 출발시각 기준 유출의 40%가 같은 시간대, 60%가 다음 시간대에 역에 닿는다(추정).
     # 근거: KT 유출 피크 20시 vs 여의도역 승차 피크 21시(2024·2025 동일). 보행 20~40분 + 대기.
     LAG_SAME, LAG_NEXT = 0.4, 0.6
-    total = {h: a * out_base.get(h, 0) for h in range(18, 24)}
+    # 베이스라인 유출 곡선을 SHIFT_MIN 만큼 뒤로 민다 (시간대 선형 배분)
+    f = (SHIFT_MIN % 60) / 60; k = SHIFT_MIN // 60
+    shifted = {h: (1 - f) * out_base.get(h - k, 0) + f * out_base.get(h - k - 1, 0) for h in range(17, 25)}
+    total = {h: a * shifted.get(h, 0) for h in range(17, 25)}
     exits = collections.OrderedDict(); backlog = collections.Counter()
     for h in hours:
         arriving = LAG_SAME * total[h] + LAG_NEXT * total[h - 1]
@@ -97,15 +104,16 @@ def main():
     seoul_fcst = (city.get("여의도한강공원") or {}).get("fcst", [])
     result = {
         "ts": now.isoformat(timespec="seconds"), "date": date, "alpha": a, "alpha_reason": why,
-        "outflow_forecast": {str(h): round(a * out_base[h]) for h in hours},
+        "outflow_forecast": {str(h): round(total[h]) for h in hours},
         "outflow_baseline": {str(h): out_base[h] for h in hours},
+        "show_shift_min": SHIFT_MIN, "show_end_2026": "21:10", "show_end_baseline": "20:30",
         "direction_share": dirs, "subway_share": sub_share,
         "exits": exits, "ranking_by_hour": ranking,
         "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
         "alerts_live": alerts[:10],
         "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx")} for k, v in city.items()},
         "seoul_fcst_snapshot": seoul_fcst,
-        "notes": ["용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 40%/60%(같은/다음 시간대)는 추정 — 유출 피크 20시 vs 승차 피크 21시 근거", "대기열은 시간대를 넘어 누적(backlog)", "α 는 여의나루 누적 하차 기준, 19:00 이후 동결", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
+        "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 40%/60%(같은/다음 시간대)는 추정 — 유출 피크 20시 vs 승차 피크 21시 근거", "대기열은 시간대를 넘어 누적(backlog)", "α 는 여의나루 누적 하차 기준, 19:00 이후 동결", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
     }
     (LIVE / "forecast_latest.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"α={a} ({why})"); print("유출 예측:", result["outflow_forecast"])
