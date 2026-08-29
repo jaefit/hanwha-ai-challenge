@@ -111,7 +111,7 @@ def lag_table(zone_density=None):
 
 
 def zone_density_from_cctv(date):
-    """오늘 CCTV 로그의 카메라별 최신 등급 → 400m 안 구역의 밀도(최대). count<20 이거나 등급 없음은 무시."""
+    """오늘 CCTV 로그의 캘리브레이션된 카메라별 최신 등급 → 500m 안 구역의 밀도(최대). 미캘리브레이션·저신뢰·count<20 은 무시."""
     fn = LIVE / f"cctv_{date}.jsonl"
     cams_fn = DER / "topis_yeouido_cams.json"
     if not fn.exists() or not cams_fn.exists(): return {}, {}
@@ -120,7 +120,8 @@ def zone_density_from_cctv(date):
     for l in fn.read_text(encoding="utf-8").splitlines():
         if not l.strip(): continue
         r = json.loads(l)
-        if r.get("ok") and r.get("level") in DENSITY_BY_LEVEL and (r.get("count") or 0) >= MIN_COUNT_FOR_DENSITY: latest[r["cam_id"]] = r
+        # 모델 입력 조건: 캘리브레이션된 카메라(ROI+roi_m2 → density 있음) · 신뢰도 ok · count≥20. 미캘리브레이션 카메라는 화면 참고용.
+        if r.get("ok") and r.get("level") in DENSITY_BY_LEVEL and r.get("density") is not None and r.get("confidence", "ok") == "ok" and (r.get("count") or 0) >= MIN_COUNT_FOR_DENSITY: latest[r["cam_id"]] = r
     zd, used = {}, {}
     for cid, r in latest.items():
         c = cams.get(str(cid)) or cams.get(cid)

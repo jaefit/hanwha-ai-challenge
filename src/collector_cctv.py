@@ -10,6 +10,9 @@
 신뢰도(confidence ok/low, flags): 저조도(brightness<40) · 배경차분 실패(occupancy≥0.9) · 밀도 포화(≥5명/m², 개체 검출 붕괴 구간) ·
 count<20 인데 점유율 높음(불일치). bg_fail 이면 등급을 "보정전"으로 내린다. 하류(nowcast)는 count<20 등급을 구역 밀도에 쓰지 않는다. (benchmark §4-6)
      roi_m2 가 없으면 등급은 점유율 기준 임시값(0.15/0.30/0.45)으로 매긴다. 캘리브레이션 전까지는 '추세' 용도다.
+ROI 마스크: cams.json 의 roi = [[x,y],...] (픽셀 폴리곤, 보행 영역만). 있으면 폴리곤 밖을 검게 지운 뒤 count·점유율·흐름을 계산한다.
+  도로 카메라는 차량·노면 질감이 count 에 섞이므로(낮에 여의교남단 87.7 등) ROI 없는 카메라의 등급은 화면 참고용이고 nowcast 구역 밀도엔 쓰지 않는다.
+  ROI 좌표 잡기: src/cam_calib.py (격자 프레임 1장을 저장소 밖에 저장).
 모델: lwcc DM-Count(SHA). 720x480 원거리 고각이라 절대값 오차 ±30% 가정. 출처·한계는 topic-fireworks.md §6.
 """
 import os, sys, json, time, datetime, pathlib
@@ -41,6 +44,14 @@ def grab(url, n=8):
     cap.release()
     if len(frames) < 2: return (frames[0], None) if frames else (None, None)
     return frames[0], frames[-1]
+
+
+def apply_roi(frame, roi):
+    """ROI 폴리곤(픽셀) 밖을 0 으로. roi 없으면 원본."""
+    if not roi: return frame
+    m = np.zeros(frame.shape[:2], dtype=np.uint8)
+    cv2.fillPoly(m, [np.array(roi, dtype=np.int32)], 255)
+    return cv2.bitwise_and(frame, frame, mask=m)
 
 
 def count_people(frame):
@@ -102,12 +113,15 @@ def tick(cams):
             try:
                 f0, f1 = grab(c["hls"])
                 if f0 is None: raise RuntimeError("no frame")
-                cnt = count_people(f0); occ = occupancy(c["camId"], f0); fl = flow(f0, f1)
+                roi = c.get("roi"); f0m, f1m = apply_roi(f0, roi), apply_roi(f1, roi) if f1 is not None else None
+                cnt = count_people(f0m); occ = occupancy(c["camId"], f0m); fl = flow(f0m, f1m)
+                if roi and occ is not None:                       # 점유율은 ROI 면적 기준으로 재정규화
+                    m = np.zeros(f0.shape[:2], dtype=np.uint8); cv2.fillPoly(m, [np.array(roi, dtype=np.int32)], 1); occ = min(1.0, occ / max(1e-6, float(m.mean())))
                 lv, dens = level(cnt, occ, c.get("roi_m2"))
                 conf, flags, bright = confidence(cnt, occ, dens, f0)
-                if "bg_fail" in flags: lv = "보정전"
+                if "bg_fail" in flags or "count_vs_occ" in flags: lv = "보정전"   # 계측 자체가 깨진 경우만 등급을 내린다(저조도는 플래그만)
                 rec.update(ok=True, count=round(cnt, 1), occupancy=None if occ is None else round(occ, 4), flow=None if fl is None else round(fl, 3), density=dens, level=lv,
-                           confidence=conf, flags=flags, brightness=bright)
+                           confidence=conf, flags=flags, brightness=bright, calibrated=bool(roi and c.get("roi_m2")))
             except Exception as e:
                 rec["error"] = str(e)[:120]
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
