@@ -31,6 +31,7 @@
 
 ## 3. 브랜드 — 한화 **그룹** CI (한화투자증권 CI 아님. 그룹 연수 과제)
 
+`brand/hanwha/group/` — **한화 그룹 로고(이걸 쓴다)**: `Hanwha_RGB_4_EH.png/.JPG`(트라이서클 + 영문 워드마크 "Hanwha", 가로조합) · `좌우조합_Hanwha_CI.ai` · `상하조합_Hanwha_CI.ai`(벡터).
 `brand/hanwha/` — 공식 파일. `ci_colors.jpg`(공식 색상표), `ci_symbol.jpg`(트라이서클 구성), `ci_prohibition.jpg`(금지 사례), `01_CI_hanwha.zip` → `ci_zip/`(AI·JPG, 국문/영문). `Hanwha Corporation_RGB_4_KH.ai`는 ㈜한화 국문 로고타입("(주)한화"). **그룹 표기는 "한화"만** — "(주)"는 빼고 쓰거나 심볼+워드마크 "한화"로.
 
 | 이름 | HEX | RGB | CMYK | 용도 |
@@ -39,6 +40,8 @@
 | Hanwha Orange 70% | `#F89B6C` | 248·155·108 | C0 M47 Y70 K0 | 심볼 ②원, 보조 강조 |
 | Hanwha Orange 50% | `#FBB584` | 251·181·132 | C0 M34 Y50 K0 | 심볼 ③원, 배경 틴트 |
 | Hanwha Black | `#000000` | — | K100 | 워드마크, 본문 |
+
+서체: `fonts/Pretendard/`(Regular·Medium·SemiBold·Bold·ExtraBold, OFL) 본문·숫자 기본 권장 — 한화 전용서체는 비공개. 대안 `fonts/WantedSans-1.0.3/variable/`(OFL). 데이터 숫자는 탭ular 숫자 지원 서체(Pretendard는 `font-variant-numeric: tabular-nums` 가능).
 
 심볼 = 트라이서클(세 원, 위→아래 100/70/50%). 규정: 원 순서·색 변경 금지, 배경은 백색 원칙(어두운 배경이면 흰색 반전 로고 — `ci_prohibition.jpg` 참고). 전용서체는 공개 안 됨 → 워드마크는 이미지로만.
 
