@@ -31,10 +31,16 @@ ASSIGN = {
 CAP = {  # 시간당 처리 용량(명). 관측값은 baseline.subway_capacity_obs_max_per_hour, 9호선·도보는 추정(표기)
     "여의도(5)": BASE["subway_capacity_obs_max_per_hour"]["여의도"],
     "여의나루(5)": BASE["subway_capacity_obs_max_per_hour"]["여의나루"],
-    "신길(1·5)": BASE["subway_capacity_obs_max_per_hour"]["신길"] * 2,   # 1호선 경부선 합산 추정
-    "여의도(9)": 12000, "샛강(9)": 4000, "국회의사당(9)": 4000,          # 추정: 9호선 시간대 실적 미공개
+    "신길(1·5)": BASE["subway_capacity_obs_max_per_hour"]["신길"] * 2,   # 1호선 경부선 합산 추정 (line9_capacity.json 있으면 대체)
+    "여의도(9)": 12000, "샛강(9)": 4000, "국회의사당(9)": 4000,          # 수기 추정 (line9_capacity.json 있으면 대체)
     "마포역 도보(마포대교)": 15000,                                        # 추정: 보행로 1차로 폭 기준
 }
+# 교통카드 일별 승차비로 비례 추정한 9호선·신길 용량 (src/line9_capacity.py, OA-12914). 여전히 추정이라 ESTIMATED 유지
+_L9 = DER / "line9_capacity.json"
+CAP_BASIS = {}
+if _L9.exists():
+    for _st, _v in json.loads(_L9.read_text(encoding="utf-8")).get("capacity", {}).items():
+        if _st in CAP: CAP[_st] = int(_v["value"]); CAP_BASIS[_st] = _v["basis"]
 ESTIMATED = {"신길(1·5)", "여의도(9)", "샛강(9)", "국회의사당(9)", "마포역 도보(마포대교)"}
 # 불꽃쇼 종료 시각 앵커. 베이스라인(2024·2025)은 19:20~20:30 진행 → 유출 피크 20시.
 # 2026은 20:00~21:10(영국 20:00, 미국 20:20, 한국 ~20:40) → 종료가 +40분 늦다. 유출 곡선을 그만큼 뒤로 민다.
@@ -227,7 +233,7 @@ def main():
         "lag_model": {"method": "구역→출구 거리 ÷ Weidmann 밀도별 속도, 첫 300m 구역 밀도·이후 1.5명/m²(추정), 구역 균등 가중(추정)", "zone_density": zd, "zone_density_source": zd_src,
                       "lag_by_exit": {st: {str(o): round(fr, 3) for o, fr in v.items()} for st, v in lags.items()}},
         "direction_share": dirs, "subway_share": sub_share, "direction_basis": dir_basis,
-        "exits": exits, "ranking_by_hour": ranking,
+        "exits": exits, "ranking_by_hour": ranking, "capacity_basis": CAP_BASIS,
         "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
         "alerts_live": alerts[:10],
         "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx")} for k, v in city.items()},

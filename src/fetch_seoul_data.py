@@ -9,6 +9,7 @@ datafile.seoul.go.kr 에 infId / infSeq / seq 를 POST 한다.
   python src/fetch_seoul_data.py od 20250927 20241005   # OA-22300 일별 출발-도착 OD zip
   python src/fetch_seoul_data.py mode 20250927     # OA-22657 일별 수단 OD zip
   python src/fetch_seoul_data.py move 202509       # OA-22298 월별 도착지 기준 성연령 zip
+  python src/fetch_seoul_data.py card 202509 202410 # OA-12914 교통카드 역별 일별 승하차 월파일(1~9호선) — 9호선 용량 비례추정용
 
 인증키 불필요. 각 파일 60~90MB. 출처·기준일은 data/README.md 참고.
 """
@@ -30,6 +31,7 @@ SETS = {
     "od":     ("OA-22300", lambda d: d[2:],               "od_{k}.zip"),
     "mode":   ("OA-22657", lambda d: d[2:],               "mode_{k}.zip"),
     "move":   ("OA-22298", lambda d: d,                   "move_{k}.zip"),
+    "card":   ("OA-12914", "scrape",                      "card_{k}.csv"),   # 교통카드 역별 일별 승하차(1~9호선). k=YYYYMM, seq 는 페이지에서 파일명으로 찾는다
 }
 
 
@@ -38,20 +40,26 @@ def session_for(inf):
     opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
     opener.addheaders = list(UA.items())
     page = opener.open(VIEW.format(inf=inf), timeout=60).read().decode("utf-8", "ignore")
-    inf_seq = re.search(r'name="infSeq" value="(\d+)"', page)
-    return opener, (inf_seq.group(1) if inf_seq else "1")
+    # 파일 다운로드 폼(frmFile)의 infSeq 를 쓴다 — 데이터셋마다 다르다(OA-12921=1, OA-12914=3). API 폼(frmApiDown)의 값과 혼동 금지
+    m = re.search(r'name="frmFile".*?name="infSeq"\s+value="(\d+)"', page, re.S)
+    return opener, (m.group(1) if m else "1"), page
 
 
 def download(kind, keys):
     inf, rule, name = SETS[kind]
-    opener, inf_seq = session_for(inf)
+    opener, inf_seq, page_cache = session_for(inf)
     RAW.mkdir(parents=True, exist_ok=True)
     for k in keys:
-        seq = rule[k] if isinstance(rule, dict) else rule(k)
+        if rule == "scrape":   # 파일명 → downloadFile('seq') 매핑을 데이터셋 페이지에서 읽는다
+            m = re.search(r"CARD_SUBWAY_MONTH_%s\.csv\"\s+onclick=\"javascript:downloadFile\('(\d+)'\)" % k, page_cache)
+            if not m: print("seq not found for", k); continue
+            seq = m.group(1)
+        else:
+            seq = rule[k] if isinstance(rule, dict) else rule(k)
         out = RAW / name.format(k=k)
         if out.exists() and out.stat().st_size > 1_000_000:
             print("skip (exists)", out.name); continue
-        body = urllib.parse.urlencode({"infId": inf, "seqNo": "", "infSeq": "1", "seq": seq}).encode()
+        body = urllib.parse.urlencode({"infId": inf, "seqNo": "", "infSeq": inf_seq, "seq": seq}).encode()
         req = urllib.request.Request(DOWN, data=body, headers={**UA, "Referer": VIEW.format(inf=inf)})
         data = opener.open(req, timeout=900).read()
         if len(data) < 1_000_000 or data[:20].lower().startswith(b"<html"):

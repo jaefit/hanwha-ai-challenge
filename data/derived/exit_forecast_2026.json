@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-29T14:46:15",
+ "generated": "2026-08-29T16:41:16",
  "method": "src/backtrack.py — 출발지 회랑 구성 × 유출곡선(+40분) × 지하철 비중 × 회랑→역 배정 ÷ 용량, 연도별 계산 후 2년 평균·범위",
  "alpha": 1.0,
  "alpha_reason": "사전 예측(2024·2025 출발지 구성 기반) — 당일 보정 전",
@@ -352,275 +352,275 @@
    "19": {
     "load": 0.08,
     "load_lo": 0.06,
-    "load_hi": 0.1,
+    "load_hi": 0.09,
     "demand": 1012,
-    "capacity": 12000,
+    "capacity": 13208,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.087,
-     "2025": 0.082
+     "2024": 0.079,
+     "2025": 0.075
     },
     "by_year_outflow_basis": {
-     "2024": 0.071,
-     "2025": 0.068
+     "2024": 0.064,
+     "2025": 0.062
     }
    },
    "20": {
-    "load": 0.18,
-    "load_lo": 0.13,
-    "load_hi": 0.2,
+    "load": 0.16,
+    "load_lo": 0.11,
+    "load_hi": 0.19,
     "demand": 2118,
-    "capacity": 12000,
+    "capacity": 13208,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.186,
-     "2025": 0.167
+     "2024": 0.169,
+     "2025": 0.152
     },
     "by_year_outflow_basis": {
-     "2024": 0.152,
-     "2025": 0.139
+     "2024": 0.138,
+     "2025": 0.126
     }
    },
    "21": {
-    "load": 0.41,
-    "load_lo": 0.3,
-    "load_hi": 0.47,
+    "load": 0.38,
+    "load_lo": 0.27,
+    "load_hi": 0.42,
     "demand": 4970,
-    "capacity": 12000,
+    "capacity": 13208,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.425,
-     "2025": 0.403
+     "2024": 0.386,
+     "2025": 0.366
     },
     "by_year_outflow_basis": {
-     "2024": 0.348,
-     "2025": 0.335
+     "2024": 0.316,
+     "2025": 0.304
     }
    },
    "22": {
-    "load": 0.49,
-    "load_lo": 0.36,
-    "load_hi": 0.55,
+    "load": 0.45,
+    "load_lo": 0.33,
+    "load_hi": 0.5,
     "demand": 5897,
-    "capacity": 12000,
+    "capacity": 13208,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.499,
-     "2025": 0.484
+     "2024": 0.454,
+     "2025": 0.439
     },
     "by_year_outflow_basis": {
-     "2024": 0.409,
-     "2025": 0.402
+     "2024": 0.371,
+     "2025": 0.365
     }
    },
    "23": {
-    "load": 0.23,
-    "load_lo": 0.16,
-    "load_hi": 0.26,
+    "load": 0.21,
+    "load_lo": 0.15,
+    "load_hi": 0.24,
     "demand": 2750,
-    "capacity": 12000,
+    "capacity": 13208,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.238,
-     "2025": 0.22
+     "2024": 0.216,
+     "2025": 0.2
     },
     "by_year_outflow_basis": {
-     "2024": 0.195,
-     "2025": 0.183
+     "2024": 0.177,
+     "2025": 0.166
     }
    }
   },
   "샛강(9)": {
    "19": {
-    "load": 0.08,
-    "load_lo": 0.07,
-    "load_hi": 0.09,
+    "load": 0.04,
+    "load_lo": 0.03,
+    "load_hi": 0.05,
     "demand": 336,
-    "capacity": 4000,
+    "capacity": 8455,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.086,
-     "2025": 0.083
+     "2024": 0.041,
+     "2025": 0.039
     },
     "by_year_outflow_basis": {
-     "2024": 0.08,
-     "2025": 0.078
+     "2024": 0.038,
+     "2025": 0.037
     }
    },
    "20": {
-    "load": 0.16,
-    "load_lo": 0.13,
-    "load_hi": 0.19,
+    "load": 0.08,
+    "load_lo": 0.06,
+    "load_hi": 0.09,
     "demand": 653,
-    "capacity": 4000,
+    "capacity": 8455,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.172,
-     "2025": 0.154
+     "2024": 0.082,
+     "2025": 0.073
     },
     "by_year_outflow_basis": {
-     "2024": 0.161,
-     "2025": 0.146
+     "2024": 0.076,
+     "2025": 0.069
     }
    },
    "21": {
-    "load": 0.4,
-    "load_lo": 0.33,
-    "load_hi": 0.46,
+    "load": 0.19,
+    "load_lo": 0.16,
+    "load_hi": 0.22,
     "demand": 1610,
-    "capacity": 4000,
+    "capacity": 8455,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.414,
-     "2025": 0.391
+     "2024": 0.196,
+     "2025": 0.185
     },
     "by_year_outflow_basis": {
-     "2024": 0.387,
-     "2025": 0.37
+     "2024": 0.183,
+     "2025": 0.175
     }
    },
    "22": {
-    "load": 0.52,
-    "load_lo": 0.44,
-    "load_hi": 0.58,
-    "demand": 2082,
-    "capacity": 4000,
-    "wait_min": 0,
-    "closed": false,
-    "estimated_capacity": true,
-    "by_year_origin_basis": {
-     "2024": 0.528,
-     "2025": 0.513
-    },
-    "by_year_outflow_basis": {
-     "2024": 0.493,
-     "2025": 0.485
-    }
-   },
-   "23": {
     "load": 0.25,
     "load_lo": 0.21,
     "load_hi": 0.28,
-    "demand": 1000,
-    "capacity": 4000,
+    "demand": 2082,
+    "capacity": 8455,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
-     "2024": 0.259,
-     "2025": 0.241
+     "2024": 0.25,
+     "2025": 0.243
     },
     "by_year_outflow_basis": {
-     "2024": 0.242,
-     "2025": 0.228
+     "2024": 0.233,
+     "2025": 0.23
+    }
+   },
+   "23": {
+    "load": 0.12,
+    "load_lo": 0.1,
+    "load_hi": 0.13,
+    "demand": 1000,
+    "capacity": 8455,
+    "wait_min": 0,
+    "closed": false,
+    "estimated_capacity": true,
+    "by_year_origin_basis": {
+     "2024": 0.122,
+     "2025": 0.114
+    },
+    "by_year_outflow_basis": {
+     "2024": 0.114,
+     "2025": 0.108
     }
    }
   },
   "국회의사당(9)": {
    "19": {
+    "load": 0.02,
+    "load_lo": 0.01,
+    "load_hi": 0.02,
+    "demand": 114,
+    "capacity": 7373,
+    "wait_min": 0,
+    "closed": false,
+    "estimated_capacity": true,
+    "by_year_origin_basis": {
+     "2024": 0.016,
+     "2025": 0.015
+    },
+    "by_year_outflow_basis": {
+     "2024": 0.012,
+     "2025": 0.013
+    }
+   },
+   "20": {
     "load": 0.03,
     "load_lo": 0.02,
     "load_hi": 0.03,
-    "demand": 114,
-    "capacity": 4000,
+    "demand": 200,
+    "capacity": 7373,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
      "2024": 0.029,
-     "2025": 0.028
+     "2025": 0.025
     },
     "by_year_outflow_basis": {
      "2024": 0.022,
-     "2025": 0.023
+     "2025": 0.021
     }
    },
-   "20": {
+   "21": {
+    "load": 0.07,
+    "load_lo": 0.05,
+    "load_hi": 0.08,
+    "demand": 517,
+    "capacity": 7373,
+    "wait_min": 0,
+    "closed": false,
+    "estimated_capacity": true,
+    "by_year_origin_basis": {
+     "2024": 0.072,
+     "2025": 0.068
+    },
+    "by_year_outflow_basis": {
+     "2024": 0.056,
+     "2025": 0.056
+    }
+   },
+   "22": {
+    "load": 0.1,
+    "load_lo": 0.07,
+    "load_hi": 0.11,
+    "demand": 736,
+    "capacity": 7373,
+    "wait_min": 0,
+    "closed": false,
+    "estimated_capacity": true,
+    "by_year_origin_basis": {
+     "2024": 0.101,
+     "2025": 0.099
+    },
+    "by_year_outflow_basis": {
+     "2024": 0.078,
+     "2025": 0.081
+    }
+   },
+   "23": {
     "load": 0.05,
     "load_lo": 0.04,
     "load_hi": 0.06,
-    "demand": 200,
-    "capacity": 4000,
+    "demand": 382,
+    "capacity": 7373,
     "wait_min": 0,
     "closed": false,
     "estimated_capacity": true,
     "by_year_origin_basis": {
      "2024": 0.053,
-     "2025": 0.047
+     "2025": 0.05
     },
     "by_year_outflow_basis": {
      "2024": 0.041,
-     "2025": 0.039
-    }
-   },
-   "21": {
-    "load": 0.13,
-    "load_lo": 0.09,
-    "load_hi": 0.15,
-    "demand": 517,
-    "capacity": 4000,
-    "wait_min": 0,
-    "closed": false,
-    "estimated_capacity": true,
-    "by_year_origin_basis": {
-     "2024": 0.133,
-     "2025": 0.125
-    },
-    "by_year_outflow_basis": {
-     "2024": 0.103,
-     "2025": 0.103
-    }
-   },
-   "22": {
-    "load": 0.18,
-    "load_lo": 0.13,
-    "load_hi": 0.21,
-    "demand": 736,
-    "capacity": 4000,
-    "wait_min": 0,
-    "closed": false,
-    "estimated_capacity": true,
-    "by_year_origin_basis": {
-     "2024": 0.187,
-     "2025": 0.182
-    },
-    "by_year_outflow_basis": {
-     "2024": 0.144,
-     "2025": 0.15
-    }
-   },
-   "23": {
-    "load": 0.1,
-    "load_lo": 0.07,
-    "load_hi": 0.11,
-    "demand": 382,
-    "capacity": 4000,
-    "wait_min": 0,
-    "closed": false,
-    "estimated_capacity": true,
-    "by_year_origin_basis": {
-     "2024": 0.098,
-     "2025": 0.093
-    },
-    "by_year_outflow_basis": {
-     "2024": 0.076,
-     "2025": 0.076
+     "2025": 0.041
     }
    }
   },
@@ -720,22 +720,22 @@
  "ranking_by_hour": {
   "19": [
    [
+    "국회의사당(9)",
+    0.02,
+    0
+   ],
+   [
     "마포역 도보(마포대교)",
     0.02,
     0
    ],
    [
-    "국회의사당(9)",
-    0.03,
+    "샛강(9)",
+    0.04,
     0
    ],
    [
     "여의도(9)",
-    0.08,
-    0
-   ],
-   [
-    "샛강(9)",
     0.08,
     0
    ],
@@ -757,13 +757,18 @@
   ],
   "20": [
    [
+    "국회의사당(9)",
+    0.03,
+    0
+   ],
+   [
     "마포역 도보(마포대교)",
     0.03,
     0
    ],
    [
-    "국회의사당(9)",
-    0.05,
+    "샛강(9)",
+    0.08,
     0
    ],
    [
@@ -772,13 +777,8 @@
     0
    ],
    [
-    "샛강(9)",
-    0.16,
-    0
-   ],
-   [
     "여의도(9)",
-    0.18,
+    0.16,
     0
    ],
    [
@@ -789,13 +789,18 @@
   ],
   "21": [
    [
+    "국회의사당(9)",
+    0.07,
+    0
+   ],
+   [
     "마포역 도보(마포대교)",
     0.08,
     0
    ],
    [
-    "국회의사당(9)",
-    0.13,
+    "샛강(9)",
+    0.19,
     0
    ],
    [
@@ -804,13 +809,8 @@
     0
    ],
    [
-    "샛강(9)",
-    0.4,
-    0
-   ],
-   [
     "여의도(9)",
-    0.41,
+    0.38,
     0
    ],
    [
@@ -821,23 +821,23 @@
   ],
   "22": [
    [
+    "국회의사당(9)",
+    0.1,
+    0
+   ],
+   [
     "마포역 도보(마포대교)",
     0.13,
     0
    ],
    [
-    "국회의사당(9)",
-    0.18,
+    "샛강(9)",
+    0.25,
     0
    ],
    [
     "여의도(9)",
-    0.49,
-    0
-   ],
-   [
-    "샛강(9)",
-    0.52,
+    0.45,
     0
    ],
    [
@@ -858,28 +858,28 @@
   ],
   "23": [
    [
+    "국회의사당(9)",
+    0.05,
+    0
+   ],
+   [
     "마포역 도보(마포대교)",
     0.07,
     0
    ],
    [
-    "국회의사당(9)",
-    0.1,
+    "샛강(9)",
+    0.12,
+    0
+   ],
+   [
+    "여의도(9)",
+    0.21,
     0
    ],
    [
     "여의나루(5)",
     0.23,
-    0
-   ],
-   [
-    "여의도(9)",
-    0.23,
-    0
-   ],
-   [
-    "샛강(9)",
-    0.25,
     0
    ],
    [

@@ -10,6 +10,10 @@
 
 **Spec:** `docs/superpowers/specs/2026-08-29-submission-design.md`
 
+## Priority (2026-08-29 오차 예산 기준)
+
+성능(9/5 순위·부하율 정확도)에 실제로 기여하는 순서: **① 9호선 용량(T1b) → ② 순차 데이터동화(T1c) → ③ CCTV ROI(T2, 야간 테스트 조건부) → ⑤ 쇼 종료 시각 기입(T9)**. 나머지 태스크는 산출물·점수용. 학술 접목 중 conformal 구간·아날로그·JuPedSim·CLIP은 보류(`benchmark-crowd-systems.md` 참조).
+
 ## Global Constraints
 
 - 숫자엔 출처·기준일. 모르는 값은 비운다. 추정은 "추정" 표기. (CLAUDE.md)
@@ -35,7 +39,37 @@
 - [ ] **Step 2: 실행해 실패/통과 확인** — `.venv/bin/python -m pytest tests -q` (신규 테스트라 첫 실행에서 통과가 정상. 의도적 회귀 1건: `V_MIN`을 0으로 바꾸고 kladek 테스트가 실패하는지 확인 후 되돌림)
 - [ ] **Step 3: 커밋** — `git add tests requirements.txt README.md && git commit -m "test: 모델 불변식 pytest 10건"`
 
-### Task 2: 야간 CCTV 테스트 판정 + 캘리브레이션 (8/30, 사용자 절반)
+### Task 1b: 9호선 용량 데이터화 (8/29~30) — 오차 예산 1순위
+
+**Files:**
+- Modify: `src/nowcast.py` `CAP` (9호선 3역), `data/derived/baseline.json`(`subway_capacity_obs_max_per_hour`에 9호선 추정 근거), `src/fetch_seoul_data.py`(교통카드 역별 데이터 다운로드)
+- Create: `data/derived/line9_capacity.json`
+
+**Interfaces:**
+- Consumes: 서울 열린데이터광장 교통카드 역별 승하차(전 노선, 9호선 포함) — 일별(`CardSubwayStatsNew`) 및 시간대별 월집계(`CardSubwayTime`) — 서비스명은 검색으로 확정
+- Produces: `CAP["여의도(9)"|"샛강(9)"|"국회의사당(9)"]` = 5호선 여의도 축제일 시간당 최대 승차 × (축제일 9호선 역 일 승차 ÷ 5호선 여의도 일 승차). `estimated_capacity` 는 유지하되 근거를 "비례 추정(교통카드 일별)"으로
+
+- [ ] **Step 1: 데이터 존재 확인(spike)** — 서비스명·9호선 포함 여부·2025-09-27 일자 조회 가능 여부. 없으면 국토부 지침 pph × 게이트 수로 대체하고 "추정"
+- [ ] **Step 2: 다운로드 스크립트** — `fetch_seoul_data.py card 20250927 20241005` → `data/raw/card_YYYYMMDD.json`
+- [ ] **Step 3: 비례 추정 계산** — `src/line9_capacity.py` → `line9_capacity.json`(역별 비율·추정 용량·출처·기준일). `nowcast.CAP` 가 파일 있으면 읽도록
+- [ ] **Step 4: 검증** — `pytest` 통과, `backtrack.py` 재실행 후 21시 순위 변화 기록, 커밋
+
+### Task 1c: 순차 데이터동화 (particle filter) — 오차 예산 2순위 (8/30~9/1)
+
+**Files:**
+- Modify: `src/nowcast.py` (`alpha()` → `assimilate()`), `tests/test_model.py` (입자 가중 정규화·관측 없을 때 사전 유지 테스트)
+- Output 필드: `forecast_latest.json.assimilation` = {n_particles, eff_sample_size, posterior: {alpha: [p10,p50,p90], zone_density_scale, lag_shift_min}}, 출구별 `load_lo/hi` = 입자 예측의 p10/p90
+
+**Interfaces:**
+- Consumes: 오늘 `api_*.jsonl`(핫스팟 인구 min~max·여의나루 누적 하차), 사전표 밴드(사전 분포 폭), `compute_exits`
+- Produces: 라이브 `load/lo/hi` 가 관측 누적에 따라 좁아짐. 관측 없으면 사전표와 동일(회귀 테스트)
+
+- [ ] **Step 1: 설계 제시 → 승인** — 입자 200개: α~LogNormal(0, 0.25), 지연 밀도 배율~U(0.7,1.4), 방향 비중 Dirichlet(사전×50). 우도: 관측 인구가 [min,max] 안이면 1, 밖이면 exp(−(거리/폭)²); 누적 하차는 정규(σ=15%). 매 틱 가중 갱신, ESS<50 이면 재표집
+- [ ] **Step 2: 테스트 먼저** — 관측 0건 → p50 = 사전표 load ±0.01; 관측이 유입 2배면 α p50 > 1.5; 가중 합 1
+- [ ] **Step 3: 구현·실행** — 8/29 로그로 돌려 `assimilation` 필드 확인. `run_all.sh` 경로 변경 없음
+- [ ] **Step 4: 커밋. 대시보드는 필드 그대로 밴드 표시(변경 없음)**
+
+### Task 2: 야간 CCTV 테스트 판정 + 캘리브레이션 (8/30, 사용자 절반) — 오차 예산 3순위(조건부)
 
 **Files:**
 - Read: `logs/night_test_20260829.log`, `data/live/cctv_20260829.jsonl`
@@ -126,7 +160,7 @@
 
 - [ ] **Step 1: 11:30 준비** — 전원·뚜껑·네트워크·`git pull`·`pytest`·`./run_all.sh`
 - [ ] **Step 2: 매시 확인** — Pages 기준 시각 ≤15분, 오류 로그, 도시데이터 α 값. 20:00~21:40 통제 실물 확인해 `closures` 규칙과 다르면 메모
-- [ ] **Step 3: 쇼 종료 시각 기입** — `echo 21:1x > data/live/show_end.txt`
+- [ ] **Step 3 (오차 예산 5순위, 비용 0 — 가장 큰 타이밍 레버): 쇼 종료 실제 시각 기입** — 마지막 불꽃 직후 `echo HH:MM > data/live/show_end.txt`. 담당 1명 지정, 20:55부터 알람. 다음 nowcast 틱(≤5분)에 `show_end_source: file` 확인
 - [ ] **Step 4: 24:00 종료·백업** — `data/live/*_20260905.jsonl` 커밋·push
 
 ### Task 10: 오차표·영상·편집기 초안 (9/6~7)
