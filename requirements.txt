@@ -1,0 +1,8 @@
+# 수집기·모델 실행 환경. python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+# lwcc 0.0.x 는 가중치 경로가 "/.lwcc" 절대경로로 박혀 있는 버그가 있다 → src/patch_lwcc.py 로 패치 후 사용.
+requests
+opencv-python-headless
+torch
+torchvision
+lwcc
+numpy
