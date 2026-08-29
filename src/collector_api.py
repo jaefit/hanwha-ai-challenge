@@ -6,6 +6,12 @@
 
 출력: data/live/api_YYYYMMDD.jsonl (1줄 = 1핫스팟 1시각). 키는 .env 에서 읽는다.
 예산: 핫스팟 3 × 5분 × 24h = 864회/일 (일반키), 지하철 4역 × 5분 × 18~24시 = 288회/일 (지하철키, 상한 1,000).
+
+환경변수:
+  INTERVAL=300        틱 간격(초)
+  FEEDERS=강남역,...   피더 핫스팟(유입 출발지 역) 추가 수집 — 실명은 서울 120장소 목록과 정확히 일치해야 함
+  UNTIL=2026-08-30T00:10   이 시각 이후 종료(일 쿼터 보호)
+  핫스팟 수 × (24h×3600/INTERVAL) 이 일반키 상한 1,000 을 넘지 않게 잡을 것.
 """
 import os, sys, json, time, datetime, pathlib, urllib.request, urllib.parse
 
@@ -16,10 +22,13 @@ for line in (ROOT / ".env").read_text().splitlines():
         k, v = line.split("=", 1); ENV[k.strip()] = v.strip()
 KG, KS = ENV["SEOUL_KEY_GENERAL"], ENV["SEOUL_KEY_SUBWAY"]
 
-HOTSPOTS = ["여의도한강공원", "여의도", "여의서로"]
+CORE = ["여의도한강공원", "여의도", "여의서로"]
+FEEDERS = [x.strip() for x in os.environ.get("FEEDERS", "").split(",") if x.strip()]   # 피더 핫스팟(선행지표)
+HOTSPOTS = CORE + FEEDERS
 STATIONS = ["여의나루", "여의도", "샛강", "국회의사당"]
 SUBWAY_HOURS = range(17, 24)          # 지하철키 예산 보호: 17~23시만
 INTERVAL = int(os.environ.get("INTERVAL", "300"))
+UNTIL = datetime.datetime.fromisoformat(os.environ["UNTIL"]) if os.environ.get("UNTIL") else None
 OUT = ROOT / "data" / "live"; OUT.mkdir(parents=True, exist_ok=True)
 
 
@@ -34,7 +43,7 @@ def citydata(name):
     road = c.get("ROAD_TRAFFIC_STTS", {}).get("AVG_ROAD_DATA", {})
     w = (c.get("WEATHER_STTS") or [{}])[0]
     return {
-        "area": c["AREA_NM"], "area_cd": c["AREA_CD"],
+        "area": c["AREA_NM"], "area_cd": c["AREA_CD"], "role": "core" if c["AREA_NM"] in CORE else "feeder",
         "ppltn_time": p["PPLTN_TIME"], "congest": p["AREA_CONGEST_LVL"],
         "ppltn_min": int(p["AREA_PPLTN_MIN"]), "ppltn_max": int(p["AREA_PPLTN_MAX"]),
         "non_resnt_rate": float(p.get("NON_RESNT_PPLTN_RATE") or 0),
@@ -81,8 +90,12 @@ def tick():
 if __name__ == "__main__":
     if "--once" in sys.argv:
         tick(); sys.exit(0)
+    print(f"hotspots={len(HOTSPOTS)} interval={INTERVAL}s until={UNTIL}", flush=True)
     while True:
+        if UNTIL and datetime.datetime.now() >= UNTIL:
+            print("UNTIL reached, exit", flush=True); break
         t0 = time.time()
         try: tick()
         except Exception as e: print("tick error", e)
+        sys.stdout.flush()
         time.sleep(max(1, INTERVAL - (time.time() - t0)))
