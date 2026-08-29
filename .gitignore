@@ -31,3 +31,6 @@ data/**/*.csv
 __pycache__/
 .venv/
 handoff.zip
+
+# 실행 로그
+logs/

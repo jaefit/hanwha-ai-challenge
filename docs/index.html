@@ -83,8 +83,10 @@ h1{grid-area:title;margin:24px 0 0;font-size:44px;font-weight:800;letter-spacing
 .row .dg{font-size:12px;color:var(--ink-2)}
 .row .ds{font-size:12px;color:var(--ink-2);margin-top:4px}
 .row .note{color:var(--note)}
-.row .hair{height:2px;background:var(--hair);margin-top:10px}
-.row .hair i{display:block;height:2px;background:var(--gc);max-width:100%}
+.row .hair{height:2px;background:var(--hair);margin-top:10px;position:relative}
+.row .hair i{display:block;height:2px;background:var(--gc);max-width:100%;position:relative}
+.row .hair b{position:absolute;top:-2px;height:6px;background:var(--gc);opacity:.22}
+.row .num small{display:block;font-size:11px;font-weight:600;letter-spacing:0;color:var(--ink-2);margin-top:4px}
 .row .tag{font-size:11px;font-weight:800;letter-spacing:2.5px;color:var(--gc)}
 .row .num{text-align:right;font-size:46px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--gc)}
 .row[data-g="여유"]{--gc:var(--g-여유)} .row[data-g="주의"]{--gc:var(--g-주의)} .row[data-g="경계"]{--gc:var(--g-경계)} .row[data-g="심각"]{--gc:var(--g-심각)}
@@ -265,7 +267,7 @@ const $=id=>document.getElementById(id);
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const gc=lv=>css("--g-"+lv)||"#6B7280";
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let DATA=null,hour=null,CAMS=[],fallback=false,offline=false;
+let DATA=null,hour=null,CAMS=[],fallback=false,offline=false,PRIOR=null;
 
 // ── 테마 (4a light / 4b dark) ──
 const theme=()=>document.documentElement.getAttribute("data-theme")||"dark";
@@ -291,10 +293,12 @@ function render(){
   const open=rows.filter(r=>!r.closed).sort((a,b)=>a.load-b.load),closed=rows.filter(r=>r.closed);
   const html=open.map((r,i)=>{const lv=LV(r.load,false);const est=r.c.estimated_capacity??r.e.est;const w=Math.min(100,Math.round(r.load*100));
     let note="";if(r.e.k==="naru"&&hour==="21")note="· 임시 통제 21:40까지, 이후 정차";if(r.c.wait_min>0)note+=` · 대기 +${r.c.wait_min}분`;
-    return`<div class="row" data-g="${lv}" style="--lc:${r.e.lc}"><div class="rk">${String(i+1).padStart(2,"0")}</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span>${est?'<span class="dg">†</span>':""}</div><div class="ds">${esc(r.e.desc)}${note?` <span class="note">${esc(note)}</span>`:""}</div><div class="hair"><i style="width:${w}%"></i></div></div><div class="tag">${lv}</div><div class="num">${r.load.toFixed(2)}</div></div>`;}).join("")
+    const hasBand=r.c.load_lo!=null&&r.c.load_hi!=null&&r.c.load_hi>r.c.load_lo;
+    const band=hasBand?`<b style="left:${Math.min(100,Math.round(r.c.load_lo*100))}%;width:${Math.max(1,Math.min(100,Math.round((r.c.load_hi-r.c.load_lo)*100)))}%"></b>`:"";
+    return`<div class="row" data-g="${lv}" style="--lc:${r.e.lc}"><div class="rk">${String(i+1).padStart(2,"0")}</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span>${est?'<span class="dg">†</span>':""}</div><div class="ds">${esc(r.e.desc)}${note?` <span class="note">${esc(note)}</span>`:""}</div><div class="hair">${band}<i style="width:${w}%"></i></div></div><div class="tag">${lv}</div><div class="num">${r.load.toFixed(2)}${hasBand?`<small>${r.c.load_lo.toFixed(2)}–${r.c.load_hi.toFixed(2)}</small>`:""}</div></div>`;}).join("")
    +closed.map(r=>`<div class="row closed" style="--lc:${r.e.lc}"><div class="rk">—</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span></div><div class="ds">무정차 통과 · 통제 20:40~21:40 · 여의도역으로</div></div><div class="tag">통제</div><div class="num">—</div></div>`).join("");
   $("board").innerHTML=html||`<div class="row empty">예측 데이터 없음 — 수집 시작 전</div>`;
-  $("alpha-line").textContent=fallback?"실적 모드 · 2024·2025 KT 생활이동 × α=1 (실시간 수집 시작 전)":(fc.alpha_reason||"");
+  $("alpha-line").textContent=fc.prior?"사전 예측 · 2024·2025 출발지 구성 기반(backtrack.py) · 작은 숫자 = 범위(2년 × 방향 기준 2)":fallback?"실적 모드 · 2024·2025 KT 생활이동 × α=1 (실시간 수집 시작 전)":(fc.alpha_reason||"");
   $("s-alpha").textContent=fc.alpha!=null?Number(fc.alpha).toFixed(2):"—";
   $("s-20").textContent=fc.outflow_forecast?.["20"]!=null?fc.outflow_forecast["20"].toLocaleString():"—";
   $("s-21").textContent=fc.outflow_forecast?.["21"]!=null?fc.outflow_forecast["21"].toLocaleString():"—";
@@ -365,15 +369,18 @@ function plans(){$("plans").innerHTML=PLANS.map(([c,t,s,items])=>`<div class="pl
 // ── 로드 · 상태 4종 (수집 전 / LIVE / 오래됨 / 오프라인) ──
 async function load(){
   try{CAMS=await(await fetch("data/cams.json",{cache:"no-store"})).json();}catch(e){}
+  if(!PRIOR){try{PRIOR=await(await fetch("data/exit_forecast_2026.json",{cache:"no-store"})).json();}catch(e){}}
   let d=null;offline=false;
   try{const r=await fetch("data/latest.json?"+Date.now(),{cache:"no-store"});if(r.ok){d=await r.json();try{localStorage.setItem("navi-latest",JSON.stringify(d))}catch(e){}}}catch(e){}
   if(!d){try{d=JSON.parse(localStorage.getItem("navi-latest"));offline=!!d;}catch(e){}}
   if(!d)d={forecast:{},cctv:{}};
+  const staleLive=d.generated&&(Date.now()-new Date(d.generated))>12*3600e3;
+  if((!d.forecast||!Object.keys(d.forecast.exits||{}).length||staleLive)&&PRIOR){d.forecast={...PRIOR,prior:true};if(staleLive)d.generated=null;}   // 라이브 전(또는 12h 넘게 오래됨): 역추적 사전 예측표
   DATA=d;const g=d.generated?new Date(d.generated):null;const age=g?Math.round((Date.now()-g)/60000):null;
   const hm=g?g.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false}):"";
   const a=d.forecast&&d.forecast.alpha!=null?` · α ${Number(d.forecast.alpha).toFixed(1)}`:"";
   let txt,live=false;
-  if(!g)txt="실시간 시작 전 · 2024·2025 실적";
+  if(!g)txt=d.forecast&&d.forecast.prior?"실시간 시작 전 · 사전 예측(2024·2025 출발지 기반)":"실시간 시작 전 · 2024·2025 실적";
   else if(offline)txt=`통신 끊김 · ${hm} 데이터${a}`;
   else if(age<=15){txt=`${hm} 기준 · ${age}분 전${a}`;live=true;}
   else txt=`${hm} 기준 · ${age<120?age+"분":Math.round(age/60)+"시간"} 전 · 오래됨${a}`;

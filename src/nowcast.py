@@ -71,7 +71,12 @@ def main():
     city, alerts = latest_api(date)
     a, why = alpha(city, now)
     out_base = {int(k): v for k, v in BASE["outflow_by_hour_mean"].items()}
-    dirs = BASE["outflow_direction_share_mean"]; sub_share = BASE["outflow_mode_share_20250927"].get("지하철", 0.45)
+    # 방향·지하철 비중: 역추적 사전 예측표(src/backtrack.py, 유입 출발지 기준)가 있으면 그것을, 없으면 baseline(유출 도착지 기준)
+    prior_fn = DER / "exit_forecast_2026.json"
+    if prior_fn.exists():
+        PRIOR = json.loads(prior_fn.read_text(encoding="utf-8")); dirs = PRIOR["direction_share"]; sub_share = PRIOR["subway_share"]; dir_basis = "backtrack:inflow_origin"
+    else:
+        dirs = BASE["outflow_direction_share_mean"]; sub_share = BASE["outflow_mode_share_20250927"].get("지하철", 0.45); dir_basis = "baseline:outflow_dest"
     hours = [19, 20, 21, 22, 23]
     # 공원→역 도달 지연: OD 출발시각 기준 유출의 40%가 같은 시간대, 60%가 다음 시간대에 역에 닿는다(추정).
     # 근거: KT 유출 피크 20시 vs 여의도역 승차 피크 21시(2024·2025 동일). 보행 20~40분 + 대기.
@@ -107,7 +112,7 @@ def main():
         "outflow_forecast": {str(h): round(total[h]) for h in hours},
         "outflow_baseline": {str(h): out_base[h] for h in hours},
         "show_shift_min": SHIFT_MIN, "show_end_2026": "21:10", "show_end_baseline": "20:30",
-        "direction_share": dirs, "subway_share": sub_share,
+        "direction_share": dirs, "subway_share": sub_share, "direction_basis": dir_basis,
         "exits": exits, "ranking_by_hour": ranking,
         "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
         "alerts_live": alerts[:10],
