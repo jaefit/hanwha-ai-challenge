@@ -1,0 +1,12 @@
+{"ts": "2026-08-29T10:21:56", "cam_id": "331", "name": "63빌딩", "ok": true, "count": 1.0, "occupancy": 1.0, "flow": 0.93, "density": null, "level": "심각"}
+{"ts": "2026-08-29T10:21:56", "cam_id": "192", "name": "마포대교남단", "ok": true, "count": 1.1, "occupancy": 1.0, "flow": 0.138, "density": null, "level": "심각"}
+{"ts": "2026-08-29T10:21:56", "cam_id": "310", "name": "여의공원", "ok": true, "count": 0.8, "occupancy": 1.0, "flow": 0.331, "density": null, "level": "심각"}
+{"ts": "2026-08-29T10:21:56", "cam_id": "725", "name": "원효대교남단", "ok": true, "count": 3.9, "occupancy": 1.0, "flow": 0.115, "density": null, "level": "심각"}
+{"ts": "2026-08-29T10:23:08", "cam_id": "192", "name": "마포대교남단", "ok": true, "count": 0.9, "occupancy": null, "flow": 0.189, "density": null, "level": "보정전"}
+{"ts": "2026-08-29T10:23:08", "cam_id": "725", "name": "원효대교남단", "ok": true, "count": 6.0, "occupancy": null, "flow": 0.703, "density": null, "level": "보정전"}
+{"ts": "2026-08-29T10:23:12", "cam_id": "192", "name": "마포대교남단", "ok": true, "count": 0.9, "occupancy": null, "flow": 0.189, "density": null, "level": "보정전"}
+{"ts": "2026-08-29T10:23:12", "cam_id": "725", "name": "원효대교남단", "ok": true, "count": 6.0, "occupancy": null, "flow": 0.703, "density": null, "level": "보정전"}
+{"ts": "2026-08-29T10:23:15", "cam_id": "192", "name": "마포대교남단", "ok": true, "count": 0.9, "occupancy": null, "flow": 0.189, "density": null, "level": "보정전"}
+{"ts": "2026-08-29T10:23:15", "cam_id": "725", "name": "원효대교남단", "ok": true, "count": 2.9, "occupancy": null, "flow": 0.894, "density": null, "level": "보정전"}
+{"ts": "2026-08-29T10:23:18", "cam_id": "192", "name": "마포대교남단", "ok": true, "count": 2.0, "occupancy": 0.0121, "flow": 0.229, "density": null, "level": "여유"}
+{"ts": "2026-08-29T10:23:18", "cam_id": "725", "name": "원효대교남단", "ok": true, "count": 2.9, "occupancy": 0.0, "flow": 0.894, "density": null, "level": "여유"}
