@@ -2,7 +2,7 @@
 
 한화 신입사원 AI 실습 과제 · 정리 2026-08-27
 
-원본: `assignment/ai-challenge-brief.pdf` (6쪽) · 쪽별 이미지 `assignment/pages/page01~06.png`
+원본: 배포받은 `ai-challenge-brief.pdf` (6쪽) · 쪽별 이미지 page01~06.png — 사내 자료라 저장소 밖(로컬)에 보관, 2026-08-29 공개 전환 시 히스토리에서 제거
 
 > PDF 텍스트가 글리프로 박혀 있어 복사·검색이 안 된다. Windows 내장 PDF 렌더러로 6쪽을 PNG 로 뽑아
 > 판독한 결과가 이 문서다. 원문을 눈으로 확인해야 하면 `pages/` 를 봐라.
