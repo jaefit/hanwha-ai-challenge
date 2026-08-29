@@ -1,217 +1,388 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>불꽃축제 귀가 내비 · 여의도 2026</title>
 <meta name="description" content="서울세계불꽃축제 2026(9/5 여의도) 관람객용 귀가 출구 추천. 서울시 실시간 도시데이터·KT 생활이동·TOPIS CCTV 기반.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<meta name="color-scheme" content="dark light">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <style>
+/* ── 테마 토큰 · 4a 페이퍼 에디토리얼(light) / 4b 블랙 에디토리얼(dark) ── */
 :root{
-  --sky:#0B1026; --sky-2:#141B3A; --line:#26305A; --ink:#F3EBDD; --ink-2:#AEB4CC; --mute:#6F779A;
-  --orange:#F37321; --amber:#F5C451; --ok:#5BD1B3; --warn:#F5C451; --alert:#F37321; --danger:#E5484D;
-  --board:#0A0D1C; --board-glow:#FFB347;
-  --font-body:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo",sans-serif; --font-disp:"Do Hyeon",var(--font-body); --font-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --orange:#F37321;
+  --bg:#F2F0EB; --ink:#111; --ink-2:#767066; --ink-3:#9B958A; --eyebrow:#111; --rank:#B1AB9F;
+  --rule:rgba(17,17,17,.25); --rule-soft:rgba(17,17,17,.12); --hair:rgba(17,17,17,.08);
+  --tabs-rule:3px solid #111; --tab:rgba(17,17,17,.4); --tab-on:#111;
+  --note:#8A5A00; --closed-tag:#8A5A00; --closed-num:#B7B2A8; --closed-name:#8F897D; --closed-tick:#B7B2A8;
+  --map-border:#111; --ctrl-rule:3px solid var(--orange); --ctrl-ink:#333;
+  --g-여유:#00843D; --g-주의:#B7791F; --g-경계:#C05621; --g-심각:#C81E1E; --g-보정전:#9B958A; --live:#00843D; --stale:#B1AB9F;
+  --walk:#2563EB; --mk-border:#fff; --pill-bg:rgba(255,255,255,.95); --pill-ink:#111; --pill-border:rgba(0,0,0,.18); --zone:#4A463E; --zone-shadow:0 1px 2px #fff;
+  --bar-base:rgba(17,17,17,.14); --bar-today:#111;
+}
+[data-theme="dark"]{
+  --bg:#0A0A0A; --ink:#F5F4F1; --ink-2:rgba(245,244,241,.45); --ink-3:rgba(245,244,241,.35); --eyebrow:rgba(245,244,241,.6); --rank:rgba(255,255,255,.14);
+  --rule:rgba(255,255,255,.14); --rule-soft:rgba(255,255,255,.1); --hair:rgba(255,255,255,.1);
+  --tabs-rule:1px solid rgba(255,255,255,.25); --tab:rgba(255,255,255,.4); --tab-on:#fff;
+  --note:#FACC15; --closed-tag:#9CA3AF; --closed-num:#4B5563; --closed-name:rgba(245,244,241,.45); --closed-tick:#4B5563;
+  --map-border:rgba(255,255,255,.3); --ctrl-rule:1px solid rgba(255,255,255,.25); --ctrl-ink:rgba(245,244,241,.7);
+  --g-여유:#34D399; --g-주의:#FACC15; --g-경계:#FB923C; --g-심각:#F87171; --g-보정전:#6B7280; --live:#34D399; --stale:#6B7280;
+  --walk:#8FB8E8; --mk-border:#0B0E13; --pill-bg:rgba(10,12,16,.9); --pill-ink:#fff; --pill-border:rgba(255,255,255,.22); --zone:rgba(255,255,255,.8); --zone-shadow:0 1px 3px #000;
+  --bar-base:rgba(255,255,255,.14); --bar-today:#F5F4F1;
 }
 *{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--sky);color:var(--ink);font-family:var(--font-body);line-height:1.5;font-size:15px}
-a{color:var(--amber)} a:focus-visible,button:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
-.wrap{max-width:1120px;margin:0 auto;padding:16px}
-header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 24px;padding:8px 0 16px;border-bottom:1px solid var(--line)}
-h1{font-family:var(--font-disp);font-weight:400;font-size:clamp(28px,5vw,44px);margin:0;letter-spacing:.5px;line-height:1.1}
-h1 small{display:block;font-family:var(--font-body);font-size:13px;color:var(--ink-2);letter-spacing:0;margin-top:4px}
-.live{margin-left:auto;font-family:var(--font-mono);font-size:12px;color:var(--ink-2);text-align:right}
-.live b{color:var(--ink);font-weight:600}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger);margin-right:6px;animation:pulse 1.6s infinite}
-.dot.off{background:var(--mute);animation:none}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",system-ui,sans-serif;line-height:1.45;font-size:14px;font-variant-numeric:tabular-nums}
+[data-theme="dark"] body{border-top:4px solid var(--orange)}
+a{color:inherit} a:hover{color:var(--orange)}
+button{font-family:inherit}
+a:focus-visible,button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.page{max-width:1440px;margin:0 auto;padding-bottom:40px}
+
+/* ── 헤더 · 제목 · 상태 ── */
+.head{display:grid;grid-template-columns:1fr auto auto;grid-template-areas:"eyebrow live logo" "title title title";column-gap:14px;align-items:center;padding:22px 40px 0}
+[data-theme="light"] .head{grid-template-areas:"eyebrow eyebrow logo" "title title live";align-items:end}
+.eyebrow{grid-area:eyebrow;font-size:11px;font-weight:800;letter-spacing:3px;color:var(--eyebrow)}
+.logo{grid-area:logo;display:flex;align-items:center;align-self:center}
+.logo img{height:20px;display:block}
+[data-theme="dark"] .logo{background:#fff;padding:5px 10px}
+[data-theme="dark"] .logo img{height:14px}
+h1{grid-area:title;margin:24px 0 0;font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1.05}
+[data-theme="light"] h1{margin-top:26px}
+.live{grid-area:live;display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--ink);white-space:nowrap}
+[data-theme="dark"] .live{color:rgba(245,244,241,.8)}
+[data-theme="light"] .live{font-size:13px;padding-bottom:8px;justify-self:end}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--live);animation:pulse 1.6s infinite;flex:none}
+.dot.off{background:var(--stale);animation:none}
 @media (prefers-reduced-motion:reduce){.dot{animation:none}}
-.grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:20px}
-@media(min-width:900px){.grid{grid-template-columns:1.1fr .9fr}.span2{grid-column:1/-1}}
-section{background:var(--sky-2);border:1px solid var(--line);border-radius:6px;padding:16px}
-h2{font-family:var(--font-disp);font-weight:400;font-size:20px;margin:0 0 4px;letter-spacing:.3px}
-.eyebrow{font-family:var(--font-mono);font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
-.sub{color:var(--ink-2);font-size:13px;margin:0 0 12px}
-/* 출구 보드 */
-.board{background:var(--board);border-radius:4px;padding:10px 12px;font-family:var(--font-mono);border:1px solid #1B2140;box-shadow:inset 0 0 0 1px #000, 0 0 40px rgba(255,179,71,.06)}
-.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
-.tabs button{background:transparent;border:1px solid var(--line);color:var(--ink-2);font-family:var(--font-mono);font-size:13px;padding:6px 12px;border-radius:3px;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--board-glow);color:#1a1200;border-color:var(--board-glow);font-weight:600}
-.row{display:grid;grid-template-columns:28px 1fr 88px 64px;gap:8px;align-items:center;padding:8px 4px;border-top:1px dashed #1E2547;color:var(--board-glow);font-size:14px}
-.row:first-of-type{border-top:0}
-.row .n{color:var(--mute);font-size:12px}
-.row .name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row .name small{display:block;color:var(--mute);font-size:11px;font-family:var(--font-body)}
-.bar{height:8px;background:#1B2140;border-radius:2px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--ok)}
-.row .st{text-align:right;font-weight:600}
-.row.closed{color:var(--mute)} .row.closed .st{color:var(--danger)}
-.lv-여유 i{background:var(--ok)} .lv-주의 i{background:var(--warn)} .lv-경계 i{background:var(--alert)} .lv-심각 i{background:var(--danger)}
-.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin-top:10px}
-.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--c)}
-/* 지도 */
-#map{height:420px;border-radius:4px;background:#000}
-.leaflet-container{font-family:var(--font-body)}
-.mk{width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.5)}
-.cam{width:10px;height:10px;border:1.5px solid #fff;transform:rotate(45deg);opacity:.9}
-/* 차트 */
-.chart{width:100%;height:auto;display:block}
-.stat{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:10px 0}
-.stat div{background:var(--board);border:1px solid #1B2140;border-radius:4px;padding:10px}
-.stat b{display:block;font-family:var(--font-mono);font-size:22px;color:var(--board-glow);font-weight:600}
-.stat span{font-size:12px;color:var(--ink-2)}
-/* CCTV */
-.cams{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
-.cams div{background:var(--board);border:1px solid #1B2140;border-left:4px solid var(--c,#333);border-radius:3px;padding:8px 10px;font-size:13px}
-.cams div small{display:block;color:var(--mute);font-family:var(--font-mono);font-size:11px}
-/* 플랜 카드 */
-.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
-.plan{border:1px solid var(--line);border-radius:4px;padding:12px;background:var(--sky)}
-.plan h3{margin:0 0 6px;font-family:var(--font-disp);font-weight:400;font-size:18px;color:var(--orange)}
-.plan ol{margin:0;padding-left:18px;font-size:13px}
-.plan li+li{margin-top:4px}
-.rule{font-size:13px;color:var(--ink-2)} .rule b{color:var(--ink)}
-footer{margin-top:28px;padding-top:14px;border-top:1px solid var(--line);font-size:12px;color:var(--mute)}
-footer ul{margin:6px 0 0;padding-left:16px}
-.note{font-size:12px;color:var(--mute)}
+.theme{margin-left:6px;border:1px solid var(--rule);background:transparent;color:var(--ink-2);font-size:11px;font-weight:700;letter-spacing:1px;padding:5px 9px;cursor:pointer;min-height:28px}
+.theme:hover{color:var(--ink);border-color:var(--ink)}
+
+/* ── 시간 탭 ── */
+.tabs{display:flex;align-items:baseline;margin:8px 40px 0;border-bottom:var(--tabs-rule);flex-wrap:wrap}
+[data-theme="light"] .tabs{margin-top:6px}
+.tabs button{padding:10px 2px;margin-right:26px;border:0;background:transparent;font-size:17px;font-weight:600;color:var(--tab);border-bottom:3px solid transparent;cursor:pointer;min-height:44px;margin-bottom:-1px}
+[data-theme="light"] .tabs button{margin-bottom:-3px}
+.tabs button[aria-selected="true"]{color:var(--tab-on);font-weight:800;border-bottom-color:var(--orange)}
+.tabs .formula{flex:1;text-align:right;font-size:11.5px;color:var(--ink-2);align-self:center;padding:6px 0}
+
+/* ── 히어로 그리드 · 보드 + 지도 ── */
+.hero{display:grid;grid-template-columns:440px 1fr;gap:36px;padding:0 40px 30px}
+[data-theme="light"] .hero{grid-template-columns:1fr 440px;padding-bottom:26px}
+.map-col{order:1;padding-top:24px} .board-col{order:2;padding-top:6px}
+[data-theme="light"] .map-col{order:2;padding-top:22px} [data-theme="light"] .board-col{order:1;padding-top:0}
+
+.row{display:grid;grid-template-columns:70px 6fr 120px 130px;gap:18px;align-items:center;border-bottom:1px solid var(--rule);padding:14px 0}
+[data-theme="light"] .row{grid-template-columns:52px 6fr 130px 130px;gap:20px;padding:15px 0}
+.row .rk{font-size:34px;font-weight:800;letter-spacing:-1px;color:var(--rank);line-height:1}
+[data-theme="light"] .row .rk{font-size:13px;font-weight:700;letter-spacing:0}
+.row .nm-l{display:flex;align-items:center;gap:10px;min-width:0}
+.row .tick{display:block;width:26px;height:4px;background:var(--lc);flex:none}
+.row .name{font-size:19px;font-weight:750;letter-spacing:-.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .dg{font-size:12px;color:var(--ink-2)}
+.row .ds{font-size:12px;color:var(--ink-2);margin-top:4px}
+.row .note{color:var(--note)}
+.row .hair{height:2px;background:var(--hair);margin-top:10px}
+.row .hair i{display:block;height:2px;background:var(--gc);max-width:100%}
+.row .tag{font-size:11px;font-weight:800;letter-spacing:2.5px;color:var(--gc)}
+.row .num{text-align:right;font-size:46px;font-weight:800;letter-spacing:-2px;line-height:1;color:var(--gc)}
+.row[data-g="여유"]{--gc:var(--g-여유)} .row[data-g="주의"]{--gc:var(--g-주의)} .row[data-g="경계"]{--gc:var(--g-경계)} .row[data-g="심각"]{--gc:var(--g-심각)}
+.row.closed{--gc:var(--closed-tag)}
+.row.closed .rk{color:var(--rank)}
+.row.closed .name{color:var(--closed-name);text-decoration:line-through;text-decoration-thickness:2px}
+.row.closed .ds{font-weight:600;color:var(--note)}
+.row.closed .tick{background:var(--closed-tick)}
+.row.closed .hair{display:none}
+.row.closed .num{color:var(--closed-num)}
+.row.empty{grid-template-columns:1fr;color:var(--ink-2);font-size:13px}
+.legend{display:flex;gap:20px;margin-top:12px;font-size:11px;color:var(--ink-2);letter-spacing:.5px;flex-wrap:wrap}
+.legend b{font-weight:800}
+.legend .sp{flex:1}
+.mode{font-size:11px;color:var(--note);margin-top:8px;min-height:14px}
+
+.mapbox{border:1px solid var(--map-border)}
+#map{height:474px;background:var(--bg)}
+[data-theme="light"] #map{height:470px}
+.maplibregl-map{font-family:Pretendard,sans-serif}
+.maplibregl-ctrl-attrib{font-size:9px;opacity:.7}
+.cap{font-size:11px;color:var(--ink-2);margin-top:8px}
+.ctrl{border-top:var(--ctrl-rule);margin-top:18px;padding-top:10px;font-size:12.5px;line-height:1.7;color:var(--ctrl-ink)}
+.ctrl b{color:var(--ink)}
+.src{font-size:10.5px;color:var(--ink-3);margin-top:14px;line-height:1.6}
+.mk{width:18px;height:18px;border-radius:50%;background:var(--gc,#6B7280);border:2.5px solid var(--mk-border);box-shadow:0 1px 5px rgba(0,0,0,.45)}
+.mk-lab{position:absolute;padding:2.5px 8px;border-radius:6px;font:700 11.5px Pretendard,sans-serif;white-space:nowrap;background:var(--pill-bg);color:var(--pill-ink);border:1px solid var(--pill-border);box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.mk-lab.bottom{top:22px;left:50%;transform:translateX(-50%)} .mk-lab.top{bottom:26px;left:50%;transform:translateX(-50%)}
+.mk-lab.left{right:24px;top:50%;transform:translateY(-50%)} .mk-lab.right{left:24px;top:50%;transform:translateY(-50%)}
+.zone{display:flex;align-items:center;gap:4px}
+.zone i{width:5px;height:5px;border-radius:50%;background:var(--zone);opacity:.7}
+.zone span{font:600 10.5px Pretendard,sans-serif;color:var(--zone);text-shadow:var(--zone-shadow);white-space:nowrap}
+.cam-mk{width:10px;height:10px;transform:rotate(45deg);background:var(--gc,#6B7280);box-shadow:0 0 0 2px var(--mk-border)}
+
+/* ── 아래 섹션 (디자인 4안의 언어를 확장 · 헤어라인·타이포만) ── */
+.sec{padding:34px 40px 0}
+.sec .eb{font-size:11px;font-weight:800;letter-spacing:3px;color:var(--ink-2)}
+.sec h2{margin:6px 0 4px;font-size:24px;font-weight:800;letter-spacing:-.8px;line-height:1.1}
+.sec .sub{font-size:12.5px;color:var(--ink-2);margin:0 0 14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;border-top:var(--tabs-rule);padding-top:14px;margin-top:10px}
+.stats div{border-left:1px solid var(--rule);padding-left:14px}
+.stats div:first-child{border-left:0;padding-left:0}
+.stats b{display:block;font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1.05}
+.stats span{display:block;font-size:11.5px;color:var(--ink-2);margin-top:4px}
+.chart{width:100%;height:auto;display:block;margin-top:18px}
+.note{font-size:11px;color:var(--ink-2);margin-top:8px}
+.cams{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));column-gap:28px;border-top:var(--tabs-rule)}
+.cam{border-bottom:1px solid var(--rule);padding:12px 0;--gc:var(--g-보정전)}
+.cam[data-g="여유"]{--gc:var(--g-여유)} .cam[data-g="주의"]{--gc:var(--g-주의)} .cam[data-g="경계"]{--gc:var(--g-경계)} .cam[data-g="심각"]{--gc:var(--g-심각)}
+.cam .n{font-size:15px;font-weight:750;letter-spacing:-.3px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.cam .g{font-size:11px;font-weight:800;letter-spacing:2.5px;color:var(--gc)}
+.cam .m{font-size:11.5px;color:var(--ink-2);margin-top:3px}
+.cam .hair{height:2px;background:var(--hair);margin-top:8px}.cam .hair i{display:block;height:2px;background:var(--gc)}
+.plans{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;border-top:var(--tabs-rule);padding-top:16px}
+.plan h3{margin:0 0 8px;font-size:16px;font-weight:800;letter-spacing:-.4px;line-height:1.25}
+.plan h3 small{display:block;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--ink-2);margin-bottom:4px}
+.plan ol{margin:0;padding-left:18px;font-size:12.5px;color:var(--ctrl-ink);line-height:1.55}
+.plan li+li{margin-top:5px}
+.plan li::marker{font-weight:800;color:var(--ink)}
+footer{margin:36px 40px 0;padding-top:12px;border-top:1px solid var(--rule);font-size:10.5px;color:var(--ink-3);line-height:1.7}
+footer a{color:var(--ink-2)}
+
+/* ── 모바일 375 · 1열 ── */
+@media (max-width:960px){
+  .head,.tabs,.hero,.sec,footer{padding-left:20px;padding-right:20px}
+  .tabs{margin-left:20px;margin-right:20px} footer{margin-left:20px;margin-right:20px}
+  .head{grid-template-columns:1fr auto;grid-template-areas:"eyebrow logo" "title title" "live live"!important;row-gap:8px;align-items:center!important}
+  [data-theme="light"] .live{justify-self:start;padding-bottom:0}
+  h1{font-size:32px;letter-spacing:-1.4px;margin-top:14px!important}
+  .tabs .formula{flex-basis:100%;text-align:left;padding:8px 0 10px}
+  .hero{grid-template-columns:1fr!important;gap:28px}
+  .map-col{order:2!important;padding-top:0} .board-col{order:1!important;padding-top:0}
+  #map{height:360px!important}
+  .row{grid-template-columns:40px 1fr 96px!important;gap:12px!important}
+  .row .rk{font-size:22px} [data-theme="light"] .row .rk{font-size:13px}
+  .row .tag{display:none}
+  .row .num{font-size:34px}
+  .stats{grid-template-columns:1fr 1fr;gap:16px}
+  .stats div:nth-child(3){border-left:0;padding-left:0}
+  .plans{grid-template-columns:1fr;gap:20px}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header>
-  <h1>불꽃축제 귀가 내비<small>서울세계불꽃축제 2026 · 9/5(토) 여의도한강공원 · 관람객용</small></h1>
-  <div class="live"><span class="dot off" id="dot"></span><b id="freshness">데이터 불러오는 중</b><br><span id="alpha-line">—</span></div>
+<div class="page">
+
+<header class="head">
+  <div class="eyebrow">서울세계불꽃축제 2026 — 귀가 출구 상태</div>
+  <div class="live"><span class="dot off" id="dot"></span><span id="freshness">데이터 불러오는 중</span><button class="theme" id="theme" type="button" aria-label="테마 전환">라이트</button></div>
+  <div class="logo"><img src="assets/hanwha_group_logo.png" alt="한화"></div>
+  <h1 id="board-title">21시에 나가면 어디가 덜 막히나</h1>
 </header>
 
-<div class="grid">
-<section>
-  <div class="eyebrow">Exit board · 출구 보드</div>
-  <h2 id="board-title">지금 나가면 어디가 덜 막히나</h2>
-  <p class="sub">역별 예상 부하율 = 예상 수요 ÷ 시간당 처리량. 1.0을 넘으면 그 시간대 안에 못 빠져나간다. 낮은 순서.</p>
-  <div class="tabs" role="tablist" id="tabs"></div>
-  <div class="board" id="board"></div>
-  <div class="legend"><span style="--c:var(--ok)">0~0.5 여유</span><span style="--c:var(--warn)">0.5~0.8 주의</span><span style="--c:var(--alert)">0.8~1.0 경계</span><span style="--c:var(--danger)">1.0↑ 심각·무정차</span></div>
-</section>
+<div class="tabs" role="tablist" id="tabs-wrap">
+  <div id="tabs" style="display:contents"></div>
+  <span class="formula">부하율 = 예상 수요 ÷ 시간당 처리량 · 1.0 초과 = 그 시간대 안에 못 나감 · † 처리량 추정</span>
+</div>
 
-<section>
-  <div class="eyebrow">Map · 어디 서 있나</div>
-  <h2>구역 → 출구</h2>
-  <p class="sub">원 = 출구(부하 색), 마름모 = 공개 CCTV 지점(등급 색), 점선 = 마포대교 임시 보행로. 좌표는 근사.</p>
-  <div id="map" role="img" aria-label="여의도 출구 지도"></div>
-</section>
+<div class="hero">
+  <div class="board-col">
+    <div id="board" aria-live="polite"></div>
+    <div class="legend">
+      <span><b style="color:var(--g-여유)">여유</b> &lt;0.5</span><span><b style="color:var(--g-주의)">주의</b> 0.5~0.8</span><span><b style="color:var(--g-경계)">경계</b> 0.8~1.0</span><span><b style="color:var(--g-심각)">심각</b> ≥1.0</span>
+      <span class="sp"></span><span>노선 틱: 5호선 보라 · 9호선 골드 · 1호선 청색</span>
+    </div>
+    <div class="mode" id="alpha-line"></div>
+  </div>
+  <div class="map-col">
+    <div class="mapbox"><div id="map" role="img" aria-label="여의도 출구·CCTV 지도"></div></div>
+    <div class="cap">원 = 출구 · 마름모 = 공개 CCTV · 점선 = 마포대교 임시 보행로 · 좌표 근사</div>
+    <div class="ctrl"><b>오늘의 통제</b><br>여의동로 15~24시 전면 · 여의나루역 20:40~21:40 임시(무정차) · 원효대교 전면 · 올림픽대로·노들길 탄력</div>
+    <div class="src">출처: 서울 열린데이터광장 · KT 생활이동(OA-22300·22657) · 서울교통공사(OA-12921) · TOPIS CCTV · 인파 기준 3/4/5명/m²</div>
+  </div>
+</div>
 
-<section class="span2">
-  <div class="eyebrow">Forecast vs live · 예측과 실제</div>
-  <h2>귀가 유출 예측 (시간대별)</h2>
-  <div class="stat">
-    <div><b id="s-alpha">—</b><span>α · 오늘 유입 / 2년 평균</span></div>
-    <div><b id="s-20">—</b><span>20시 유출 예측(명)</span></div>
-    <div><b id="s-21">—</b><span>21시 유출 예측(명)</span></div>
+<section class="sec">
+  <div class="eb">FORECAST VS LIVE</div>
+  <h2>귀가 유출 예측, 시간대별</h2>
+  <p class="sub">막대 = 우리 예측(2024·2025 KT 생활이동 곡선 × α) · 회색 = 2년 평균 · 점 = 서울시 실시간 도시데이터 12h 인구 예측(단위가 달라 형태만 비교)</p>
+  <div class="stats">
+    <div><b id="s-alpha">—</b><span>α · 오늘 유입 ÷ 2년 평균</span></div>
+    <div><b id="s-20">—</b><span>20시 유출 예측 (명)</span></div>
+    <div><b id="s-21">—</b><span>21시 유출 예측 (명)</span></div>
     <div><b id="s-pop">—</b><span>여의도한강공원 실시간 인구 · <i id="s-lvl"></i></span></div>
   </div>
-  <svg class="chart" id="chart" viewBox="0 0 720 200" aria-label="시간대별 유출 예측 막대와 서울시 12시간 예측"></svg>
-  <p class="note">막대 = 우리 예측(2024·2025 KT 생활이동 곡선 × α). 점 = 서울시 실시간 도시데이터 12h 예측(공원 인구 상한). 단위가 다르므로 형태만 비교.</p>
+  <svg class="chart" id="chart" viewBox="0 0 1360 220" aria-label="시간대별 유출 예측 막대와 서울시 12시간 예측"></svg>
 </section>
 
-<section>
-  <div class="eyebrow">CCTV · 공개 교통 카메라 23대</div>
+<section class="sec">
+  <div class="eb">CCTV · 공개 교통 카메라 23대</div>
   <h2>지점별 밀집 등급</h2>
   <p class="sub">서울 TOPIS 공개 스트림 → 밀도맵 모델 + 배경차분. 영상은 저장하지 않고 집계값만. 등급 기준 3·4·5명/m²(서울시).</p>
   <div class="cams" id="cams"></div>
 </section>
 
-<section>
-  <div class="eyebrow">Offline plan · 사전 귀가 플랜</div>
+<section class="sec">
+  <div class="eb">OFFLINE PLAN · 사전 귀가 플랜</div>
   <h2>통신 끊겨도 쓰는 카드</h2>
   <p class="sub">출발 전에 이 페이지를 한 번 열면 마지막 데이터가 이 기기에 남는다. 아래는 2024·2025 실적으로 미리 짠 방향별 플랜.</p>
   <div class="plans" id="plans"></div>
-  <p class="rule" style="margin-top:12px"><b>통제 규칙(2025 실적·서울시 발표)</b> 여의동로 14~23시 차량 전면통제 · 마포대교 하위 1차로 임시 보행로 · <b>여의나루역 20:40~21:40 임시 통제</b>(2026 공식 공지 · 2024·2025 실적은 19~21시 하차 0) · 원효대교 전면통제 · 63빌딩 앞 주차장 폐쇄 · 20~22시 여의도환승센터 버스 26개 노선 집중투입</p>
 </section>
-</div>
 
 <footer>
-  데이터 출처 · <span id="src-ts"></span>
-  <ul>
-    <li>서울 열린데이터광장 실시간 도시데이터(여의도한강공원·여의도·여의서로, 5분) · 실시간 지하철 도착정보</li>
-    <li>KT 수도권 생활이동 출발-도착 행정동(OA-22300) 2024-10-05 · 2025-09-27 · 수단(OA-22657) · 서울교통공사 역별 시간대별 승하차(OA-12921)</li>
-    <li>서울 TOPIS 교통 CCTV 공개 HLS 23대 · 서울시 인파 밀집 기준 3/4/5명/m²</li>
-    <li>모델·코드: <a href="https://github.com/jaefit/hanwha-ai-challenge">github.com/jaefit/hanwha-ai-challenge</a> · 9호선·도보 처리량은 추정치, KT cnt는 추정 인구</li>
-  </ul>
+  데이터 출처 · <span id="src-ts"></span><br>
+  서울 열린데이터광장 실시간 도시데이터(여의도한강공원·여의도·여의서로, 5분) · 실시간 지하철 도착정보 · KT 수도권 생활이동 출발-도착 행정동(OA-22300) 2024-10-05 · 2025-09-27 · 수단(OA-22657) · 서울교통공사 역별 시간대별 승하차(OA-12921) · 서울 TOPIS 교통 CCTV 공개 HLS 23대 · 서울시 인파 밀집 기준 3/4/5명/m²<br>
+  모델·코드 <a href="https://github.com/jaefit/hanwha-ai-challenge">github.com/jaefit/hanwha-ai-challenge</a> · 9호선·도보 처리량은 추정치(†) · KT cnt는 추정 인구 · 좌표는 근사 · 지도 © OpenFreeMap © OpenMapTiles © OpenStreetMap
 </footer>
+
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
-const EXITS = { // 좌표 근사. 여의나루는 서울시 API SUB_STN_X/Y
-  "여의나루(5)":{ll:[37.527098,126.932901],desc:"5호선 · 북행·동행"},
-  "여의도(5)":{ll:[37.5216,126.9244],desc:"5호선 · 서행(신길·영등포 방면)"},
-  "여의도(9)":{ll:[37.5214,126.9250],desc:"9호선 · 남·남동(동작·강남 방면)"},
-  "샛강(9)":{ll:[37.5171,126.9283],desc:"9호선 · 신림선 환승"},
-  "국회의사당(9)":{ll:[37.5281,126.9176],desc:"9호선 · 당산·김포 방면"},
-  "신길(1·5)":{ll:[37.5171,126.9170],desc:"1·5호선 · 도보 20분, 분산 출구"},
-  "마포역 도보(마포대교)":{ll:[37.5396,126.9460],desc:"마포대교 보행로 25분 → 5호선 마포역"}
+// ── 출구 사전 (디자인 4안 EXITS · dk = latest.json exits 키) ──
+const EXITS=[
+  {k:"gukhoe",dk:"국회의사당(9)",name:"국회의사당(9)",desc:"9호선 · 당산·김포 방면",est:true,ll:[37.5281,126.9174],sh:"국회",tdir:"top",lc:"#BDB092"},
+  {k:"mapo",dk:"마포역 도보(마포대교)",name:"마포역 도보",desc:"마포대교 보행로 25분 → 5호선 마포역",est:true,ll:[37.5391,126.9459],sh:"마포역",tdir:"bottom",lc:"#4B5563"},
+  {k:"yd9",dk:"여의도(9)",name:"여의도(9)",desc:"9호선 · 남·남동(동작·강남 방면)",est:true,ll:[37.5206,126.9262],sh:"여의도(9)",tdir:"left",lc:"#BDB092"},
+  {k:"saet",dk:"샛강(9)",name:"샛강(9)",desc:"9호선 · 신림선 환승",est:true,ll:[37.5172,126.9287],sh:"샛강",tdir:"right",lc:"#BDB092"},
+  {k:"naru",dk:"여의나루(5)",name:"여의나루(5)",desc:"5호선 · 북행·동행",est:false,ll:[37.5271,126.9327],sh:"여의나루",tdir:"right",lc:"#996CAC"},
+  {k:"singil",dk:"신길(1·5)",name:"신길(1·5)",desc:"1·5호선 · 도보 20분, 분산 출구",est:true,ll:[37.5170,126.9137],sh:"신길",tdir:"bottom",lc:"#0052A4"},
+  {k:"yd5",dk:"여의도(5)",name:"여의도(5)",desc:"5호선 · 서행(신길·영등포 방면)",est:false,ll:[37.5222,126.9238],sh:"여의도(5)",tdir:"top",lc:"#996CAC"}
+];
+// 수집 시작 전 폴백 — 2024·2025 실적 × α=1 (nowcast 08-29 산출과 동일)
+const FALLBACK={
+  "20":{gukhoe:.10,mapo:.11,yd9:.30,saet:.35,singil:.53,yd5:.79,naru:null},
+  "21":{gukhoe:.16,mapo:.17,yd9:.48,saet:.56,naru:.74,singil:.84,yd5:.85},
+  "22":{gukhoe:.08,mapo:.09,yd9:.24,saet:.28,naru:.37,yd5:.43,singil:.43}
 };
-const ZONES=[["마포대교 남단 잔디",37.5290,126.9305],["이벤트광장",37.5268,126.9335],["원효대교 방향",37.5240,126.9370],["63빌딩 앞",37.5205,126.9395],["여의도공원",37.5265,126.9245]];
+const ZONES=[["마포대교 남단",126.9345,37.5310,"left"],["이벤트광장",126.9330,37.5290,"left"],["원효대교 방향",126.9412,37.5257,"right"],["63빌딩 앞",126.9385,37.5205,"left"],["여의도공원",126.9245,37.5268,"right"]];
 const PLANS=[
- ["서쪽 (영등포·강서·양천·구로·부천·인천·김포) · 귀가 38%",["신길역까지 걸어 1·5호선 — 여의도역보다 부하 낮음","여의도역 5호선 서행 — 21시 전후 가장 붐빔","여의도환승센터 버스 (20~22시 집중투입)"]],
- ["북서쪽 (마포·서대문·은평·고양) · 13%",["마포대교 임시 보행로로 건너 마포역 5호선 — 25분, 줄 없음","여의나루 5호선 북행 — 20:40~21:40 통제, 그 뒤"]],
- ["북동쪽 (용산·종로·중구·성동·강북권) · 17%",["여의나루 5호선 동행 — 20:40~21:40 통제, 그 뒤","여의도역 5호선 동행 — 통제 시간대 대체"]],
- ["남·남동쪽 (동작·관악·강남·서초·송파) · 19%",["국회의사당역 9호선 — 부하 가장 낮음, 도보 15분","샛강역 9호선 — 신림선 환승","여의도역 9호선 — 급행 정차, 가장 붐빔"]]
+  ["W","서쪽 · 영등포·강서·양천·구로·부천·인천·김포","귀가 38%",["신길역까지 걸어 1·5호선 — 여의도역보다 부하 낮음","여의도역 5호선 서행 — 21시 전후 가장 붐빔","여의도환승센터 버스 (20~22시 집중투입)"]],
+  ["NW","북서쪽 · 마포·서대문·은평·고양","13%",["마포대교 임시 보행로로 건너 마포역 5호선 — 25분, 줄 없음","여의나루 5호선 북행 — 20:40~21:40 통제, 그 뒤"]],
+  ["NE","북동쪽 · 용산·종로·중구·성동·강북권","17%",["여의나루 5호선 동행 — 20:40~21:40 통제, 그 뒤","여의도역 5호선 동행 — 통제 시간대 대체"]],
+  ["S","남·남동쪽 · 동작·관악·강남·서초·송파","19%",["국회의사당역 9호선 — 부하 가장 낮음, 도보 15분","샛강역 9호선 — 신림선 환승","여의도역 9호선 — 급행 정차, 가장 붐빔"]]
 ];
 const LV=(x,closed)=>closed?"심각":x>=1?"심각":x>=0.8?"경계":x>=0.5?"주의":"여유";
-const COL={"여유":"#5BD1B3","주의":"#F5C451","경계":"#F37321","심각":"#E5484D","보정전":"#6F779A"};
 const $=id=>document.getElementById(id);
-let DATA=null, hour=null;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const gc=lv=>css("--g-"+lv)||"#6B7280";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let DATA=null,hour=null,CAMS=[],fallback=false,offline=false;
 
-function pick(){const h=new Date().getHours();return (h>=19&&h<=23)?String(h):"21";}
+// ── 테마 (4a light / 4b dark) ──
+const theme=()=>document.documentElement.getAttribute("data-theme")||"dark";
+function setTheme(t,save){document.documentElement.setAttribute("data-theme",t);$("theme").textContent=t==="dark"?"라이트":"다크";if(save){try{localStorage.setItem("navi-theme",t)}catch(e){}}}
+try{const t=localStorage.getItem("navi-theme");if(t)setTheme(t);else setTheme("dark");}catch(e){setTheme("dark")}
+$("theme").onclick=()=>{setTheme(theme()==="dark"?"light":"dark",true);safeMap();if(DATA)render();};
+
+// ── 보드 ──
+function pick(){const h=new Date().getHours();return(h>=19&&h<=23)?String(h):"21";}
+function exitsView(){
+  const fc=(DATA&&DATA.forecast)||{};const ex=fc.exits||{};
+  if(Object.keys(ex).length){fallback=false;return{ex,hours:Object.keys(fc.outflow_forecast||{}).length?Object.keys(fc.outflow_forecast):Object.keys(Object.values(ex)[0]||{})};}
+  fallback=true;const o={};EXITS.forEach(e=>{o[e.dk]={};Object.keys(FALLBACK).forEach(h=>{const l=FALLBACK[h][e.k];o[e.dk][h]={load:l,closed:l==null,estimated_capacity:e.est};});});
+  return{ex:o,hours:Object.keys(FALLBACK)};
+}
 function render(){
-  const fc=DATA.forecast||{}; const ex=fc.exits||{}; const hours=Object.keys(fc.outflow_forecast||{"19":0,"20":0,"21":0,"22":0,"23":0});
-  if(!hour) hour=pick(); if(!hours.includes(hour)) hour=hours[1]||hours[0];
+  const fc=(DATA&&DATA.forecast)||{};const {ex,hours}=exitsView();
+  if(!hour)hour=pick();if(!hours.includes(hour))hour=hours.includes("21")?"21":hours[0];
   $("tabs").innerHTML=hours.map(h=>`<button role="tab" aria-selected="${h===hour}" data-h="${h}">${h}시</button>`).join("");
   $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{hour=b.dataset.h;render();});
   $("board-title").textContent=`${hour}시에 나가면 어디가 덜 막히나`;
-  const rows=Object.entries(ex).map(([n,v])=>{const c=v[hour]||{};return {n,c,load:c.closed?9:(c.load??0)};}).sort((a,b)=>a.load-b.load);
-  $("board").innerHTML=rows.map((r,i)=>{const lv=LV(r.load,r.c.closed);const w=Math.min(100,Math.round((r.c.load||0)*100));
-    return `<div class="row ${r.c.closed?"closed":""} lv-${lv}"><span class="n">${String(i+1).padStart(2,"0")}</span><span class="name">${r.n}<small>${EXITS[r.n]?.desc||""}${r.c.estimated_capacity?" · 처리량 추정":""}</small></span><span class="bar"><i style="width:${w}%"></i></span><span class="st">${r.c.closed?"무정차":(r.c.load??"—").toFixed?.(2)??r.c.load}${r.c.wait_min?`<br><small>+${r.c.wait_min}분</small>`:""}</span></div>`;}).join("")||`<div class="row"><span></span><span class="name">예측 데이터 없음 — 수집 시작 전</span></div>`;
-  $("s-alpha").textContent=fc.alpha??"—"; $("s-20").textContent=(fc.outflow_forecast?.["20"]??0).toLocaleString(); $("s-21").textContent=(fc.outflow_forecast?.["21"]??0).toLocaleString();
-  const park=(fc.live_snapshot||{})["여의도한강공원"]; $("s-pop").textContent=park?`${park.ppltn[0].toLocaleString()}~${park.ppltn[1].toLocaleString()}`:"—"; $("s-lvl").textContent=park?park.congest:"";
-  $("alpha-line").textContent=fc.alpha_reason||"";
-  chart(fc); cams(DATA.cctv||{}); mapUpdate(ex);
+  const rows=EXITS.filter(e=>ex[e.dk]).map(e=>{const c=(ex[e.dk]||{})[hour]||{};return{e,c,closed:!!c.closed||c.load==null,load:c.load==null?9:c.load};});
+  const open=rows.filter(r=>!r.closed).sort((a,b)=>a.load-b.load),closed=rows.filter(r=>r.closed);
+  const html=open.map((r,i)=>{const lv=LV(r.load,false);const est=r.c.estimated_capacity??r.e.est;const w=Math.min(100,Math.round(r.load*100));
+    let note="";if(r.e.k==="naru"&&hour==="21")note="· 임시 통제 21:40까지, 이후 정차";if(r.c.wait_min>0)note+=` · 대기 +${r.c.wait_min}분`;
+    return`<div class="row" data-g="${lv}" style="--lc:${r.e.lc}"><div class="rk">${String(i+1).padStart(2,"0")}</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span>${est?'<span class="dg">†</span>':""}</div><div class="ds">${esc(r.e.desc)}${note?` <span class="note">${esc(note)}</span>`:""}</div><div class="hair"><i style="width:${w}%"></i></div></div><div class="tag">${lv}</div><div class="num">${r.load.toFixed(2)}</div></div>`;}).join("")
+   +closed.map(r=>`<div class="row closed" style="--lc:${r.e.lc}"><div class="rk">—</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span></div><div class="ds">무정차 통과 · 통제 20:40~21:40 · 여의도역으로</div></div><div class="tag">통제</div><div class="num">—</div></div>`).join("");
+  $("board").innerHTML=html||`<div class="row empty">예측 데이터 없음 — 수집 시작 전</div>`;
+  $("alpha-line").textContent=fallback?"실적 모드 · 2024·2025 KT 생활이동 × α=1 (실시간 수집 시작 전)":(fc.alpha_reason||"");
+  $("s-alpha").textContent=fc.alpha!=null?Number(fc.alpha).toFixed(2):"—";
+  $("s-20").textContent=fc.outflow_forecast?.["20"]!=null?fc.outflow_forecast["20"].toLocaleString():"—";
+  $("s-21").textContent=fc.outflow_forecast?.["21"]!=null?fc.outflow_forecast["21"].toLocaleString():"—";
+  const park=(fc.live_snapshot||{})["여의도한강공원"];$("s-pop").textContent=park?`${park.ppltn[0].toLocaleString()}~${park.ppltn[1].toLocaleString()}`:"—";$("s-lvl").textContent=park?`${park.congest} (${park.ts.slice(11,16)})`:"";
+  chart(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);
 }
-function chart(fc){const svg=$("chart");const fx=fc.outflow_forecast||{};const bx=fc.outflow_baseline||{};const hs=Object.keys(fx);const mx=Math.max(1,...hs.map(h=>Math.max(fx[h],bx[h]||0)));
-  const W=720,H=200,pad=36,bw=(W-pad*2)/hs.length;let s=`<line x1="${pad}" y1="${H-30}" x2="${W-pad}" y2="${H-30}" stroke="#26305A"/>`;
-  hs.forEach((h,i)=>{const x=pad+i*bw;const hb=(bx[h]||0)/mx*(H-70),hf=(fx[h]||0)/mx*(H-70);
-    s+=`<rect x="${x+bw*0.18}" y="${H-30-hb}" width="${bw*0.28}" height="${hb}" fill="#26305A"/><rect x="${x+bw*0.5}" y="${H-30-hf}" width="${bw*0.28}" height="${hf}" fill="#F37321"/>`;
-    s+=`<text x="${x+bw/2}" y="${H-12}" fill="#AEB4CC" font-size="12" text-anchor="middle" font-family="IBM Plex Mono">${h}시</text><text x="${x+bw*0.64}" y="${H-34-hf}" fill="#F3EBDD" font-size="11" text-anchor="middle" font-family="IBM Plex Mono">${Math.round((fx[h]||0)/1000)}k</text>`;});
+
+// ── 차트 ──
+function chart(fc){
+  const svg=$("chart");const fx=fc.outflow_forecast||{};const bx=fc.outflow_baseline||{};const hs=Object.keys(fx);
+  const ink=css("--ink"),ink2=css("--ink-2"),base=css("--bar-base"),today=css("--bar-today"),rule=css("--rule");
+  if(!hs.length){svg.innerHTML=`<text x="0" y="24" fill="${ink2}" font-size="13" font-family="Pretendard">수집 시작 전 — 실시간 예측은 9/5 12시부터</text>`;return;}
+  const W=Math.max(320,Math.round(svg.getBoundingClientRect().width)||1360),H=220,pad=8,bw=(W-pad*2)/hs.length,base0=H-34,top=28;const mx=Math.max(1,...hs.map(h=>Math.max(fx[h]||0,bx[h]||0)));
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  let s=`<line x1="${pad}" y1="${base0}" x2="${W-pad}" y2="${base0}" stroke="${rule}"/>`;
+  hs.forEach((h,i)=>{const x=pad+i*bw;const hb=(bx[h]||0)/mx*(base0-top),hf=(fx[h]||0)/mx*(base0-top);
+    s+=`<rect x="${x+bw*0.22}" y="${base0-hb}" width="${bw*0.24}" height="${hb}" fill="${base}"/><rect x="${x+bw*0.5}" y="${base0-hf}" width="${bw*0.24}" height="${hf}" fill="${today}"/>`;
+    s+=`<text x="${x+bw/2}" y="${H-10}" fill="${ink2}" font-size="13" font-weight="700" text-anchor="middle" font-family="Pretendard">${h}시</text>`;
+    s+=`<text x="${x+bw*0.62}" y="${base0-hf-8}" fill="${ink}" font-size="14" font-weight="800" text-anchor="middle" font-family="Pretendard">${Math.round((fx[h]||0)/1000)}k</text>`;});
   const sf=(fc.seoul_fcst_snapshot||[]).filter(f=>hs.includes(f.t.slice(11,13)));const smx=Math.max(1,...sf.map(f=>f.max));
-  sf.forEach(f=>{const i=hs.indexOf(f.t.slice(11,13));const x=pad+i*bw+bw/2;const y=H-30-(f.max/smx)*(H-70);s+=`<circle cx="${x}" cy="${y}" r="4" fill="#5BD1B3"><title>서울시 예측 ${f.t.slice(11,16)} ${f.lvl} ${f.min}~${f.max}</title></circle>`;});
-  s+=`<text x="${pad}" y="14" fill="#6F779A" font-size="11" font-family="IBM Plex Mono">회색 = 2년 평균 · 주황 = 오늘 예측(×α) · 초록점 = 서울시 12h 인구 예측</text>`;svg.innerHTML=s;}
-function cams(c){const arr=Object.values(c);$("cams").innerHTML=arr.length?arr.map(v=>`<div style="--c:${COL[v.level]||"#333"}">${v.name}<small>${v.level||"—"} · n≈${v.count??"—"} · 점유 ${v.occupancy==null?"—":Math.round(v.occupancy*100)+"%"} · ${v.ts?v.ts.slice(11,16):""}</small></div>`).join(""):`<div>수집 시작 전</div>`;}
-let map,layer;
-function mapInit(){map=L.map("map",{scrollWheelZoom:false}).setView([37.527,126.930],14);
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{attribution:"© OpenStreetMap © CARTO",maxZoom:19}).addTo(map);
-  L.polyline([[37.5287,126.9299],[37.5375,126.9426]],{color:"#F5C451",dashArray:"6 6",weight:3}).addTo(map).bindTooltip("마포대교 임시 보행로(하위 1차로)");
-  ZONES.forEach(([n,a,b])=>L.circleMarker([a,b],{radius:6,color:"#AEB4CC",fillColor:"#0B1026",fillOpacity:.9,weight:1.5}).addTo(map).bindTooltip(n));
-  layer=L.layerGroup().addTo(map);}
-function mapUpdate(ex){if(!map)return;layer.clearLayers();
-  Object.entries(EXITS).forEach(([n,e])=>{const c=(ex[n]||{})[hour]||{};const lv=LV(c.load??0,c.closed);L.marker(e.ll,{icon:L.divIcon({className:"",html:`<div class="mk" style="background:${COL[lv]}"></div>`,iconSize:[14,14]})}).addTo(layer).bindTooltip(`${n} · ${c.closed?"무정차":"부하 "+(c.load??"—")}`);});
-  Object.values(DATA.cctv||{}).forEach(v=>{const cam=CAMS.find(x=>x.camId===v.cam_id||x.name===v.name);if(!cam)return;L.marker([cam.lat,cam.lng],{icon:L.divIcon({className:"",html:`<div class="cam" style="background:${COL[v.level]||"#333"}"></div>`,iconSize:[10,10]})}).addTo(layer).bindTooltip(`CCTV ${v.name} · ${v.level||"—"}`);});}
-function plans(){$("plans").innerHTML=PLANS.map(([t,items])=>`<div class="plan"><h3>${t}</h3><ol>${items.map(i=>`<li>${i}</li>`).join("")}</ol></div>`).join("");}
-let CAMS=[];
+  sf.forEach(f=>{const i=hs.indexOf(f.t.slice(11,13));const x=pad+i*bw+bw/2;const y=base0-(f.max/smx)*(base0-top);s+=`<circle cx="${x}" cy="${y}" r="5" fill="${gc("여유")}"><title>서울시 예측 ${f.t.slice(11,16)} ${f.lvl} ${f.min}~${f.max}</title></circle>`;});
+  svg.innerHTML=s;
+}
+
+// ── CCTV 그리드 ──
+function cams(c){
+  const arr=Object.values(c);
+  $("cams").innerHTML=arr.length?arr.map(v=>`<div class="cam" data-g="${esc(v.level||"보정전")}"><div class="n"><span>${esc(v.name)}</span><span class="g">${esc(v.level||"—")}</span></div><div class="m">n≈${v.count??"—"} · 점유 ${v.occupancy==null?"—":Math.round(v.occupancy*100)+"%"} · ${v.ts?v.ts.slice(11,16):""}</div><div class="hair"><i style="width:${v.occupancy==null?0:Math.min(100,Math.round(v.occupancy*100))}%"></i></div></div>`).join("")
+    :`<div class="cam"><div class="n"><span>수집 시작 전</span></div><div class="m">9/4 전야제 리허설부터 60초 간격 집계</div></div>`;
+  camsMap(c);
+}
+
+// ── 지도 (MapLibre + OpenFreeMap positron/dark) ──
+let map=null,EXM=[],CAMM=[],ZM=[];
+function el(cls,style){const d=document.createElement("div");d.className=cls;if(style)d.style.cssText=style;return d;}
+// WebGL 없는 기기·구형 브라우저에서 지도가 죽어도 보드는 살아야 한다
+function safeMap(){try{mapInit();}catch(e){map=null;EXM=[];CAMM=[];ZM=[];$("map").innerHTML=`<div style="padding:16px;font-size:12.5px;color:var(--ink-2)">이 기기에서는 지도를 그릴 수 없다(WebGL 없음). 출구 보드와 플랜 카드를 이용.</div>`;console.warn("map init failed",e);}}
+function mapInit(){
+  if(!window.maplibregl){$("map").innerHTML=`<div style="padding:16px;font-size:12.5px;color:var(--ink-2)">지도 라이브러리를 불러오지 못함 — 통신 상태 확인. 출구 보드는 마지막 데이터로 표시.</div>`;return;}
+  if(map){try{map.remove()}catch(e){}map=null;EXM=[];CAMM=[];ZM=[];}
+  const light=theme()==="light";
+  map=new maplibregl.Map({container:"map",style:"https://tiles.openfreemap.org/styles/"+(light?"positron":"dark"),center:[126.9297,37.5268],zoom:13.5,attributionControl:{compact:true}});
+  map.scrollZoom.disable();map.touchZoomRotate.disableRotation();
+  map.fitBounds([[126.905,37.512],[126.952,37.545]],{padding:{top:30,right:64,bottom:36,left:64},animate:false});
+  map.on("load",()=>{
+    map.addSource("walk",{type:"geojson",data:{type:"Feature",geometry:{type:"LineString",coordinates:[[126.9352,37.5308],[126.9435,37.5405]]}}});
+    map.addLayer({id:"walk",type:"line",source:"walk",paint:{"line-color":css("--walk"),"line-width":2.5,"line-dasharray":[2,2]}});
+  });
+  ZONES.forEach(z=>{const d=el("zone");const dot=document.createElement("i"),t=document.createElement("span");t.textContent=z[0];if(z[3]==="right"){d.append(t,dot)}else{d.append(dot,t)}
+    ZM.push(new maplibregl.Marker({element:d,anchor:z[3]}).setLngLat([z[1],z[2]]).addTo(map));});
+  EXITS.forEach(e=>{const wrap=el("",`width:18px;height:18px;position:relative`);const dot=el("mk");const lab=el("mk-lab "+(e.tdir||"bottom"));lab.textContent=e.sh+" —";wrap.append(dot,lab);
+    new maplibregl.Marker({element:wrap,anchor:"center"}).setLngLat([e.ll[1],e.ll[0]]).addTo(map);EXM.push({k:e.k,dk:e.dk,e,dot,lab});});
+  if(DATA){mapUpdate(exitsView().ex);camsMap(DATA.cctv||{});}
+}
+function mapUpdate(ex){
+  EXM.forEach(m=>{const c=(ex[m.dk]||{})[hour]||{};const closed=!!c.closed||c.load==null;const lv=closed?null:LV(c.load,false);
+    m.dot.style.setProperty("--gc",closed?css("--g-보정전"):gc(lv));m.lab.textContent=m.e.sh+" "+(closed?"무정차":c.load.toFixed(2));});
+}
+function camsMap(c){
+  if(!map)return;CAMM.forEach(m=>m.remove());CAMM=[];
+  Object.values(c).forEach(v=>{const cam=CAMS.find(x=>x.camId===v.cam_id||x.name===v.name);if(!cam)return;const d=el("cam-mk");d.style.setProperty("--gc",gc(v.level||"보정전"));d.title=`CCTV ${v.name} · ${v.level||"—"}`;
+    CAMM.push(new maplibregl.Marker({element:d}).setLngLat([cam.lng,cam.lat]).addTo(map));});
+}
+
+// ── 플랜 카드 ──
+function plans(){$("plans").innerHTML=PLANS.map(([c,t,s,items])=>`<div class="plan"><h3><small>${c} · ${s}</small>${esc(t)}</h3><ol>${items.map(i=>`<li>${esc(i)}</li>`).join("")}</ol></div>`).join("");}
+
+// ── 로드 · 상태 4종 (수집 전 / LIVE / 오래됨 / 오프라인) ──
 async function load(){
-  try{CAMS=await (await fetch("data/cams.json",{cache:"no-store"})).json();}catch(e){}
-  let d=null;
-  try{const r=await fetch("data/latest.json?"+Date.now(),{cache:"no-store"});if(r.ok){d=await r.json();localStorage.setItem("navi-latest",JSON.stringify(d));}}catch(e){}
-  if(!d){try{d=JSON.parse(localStorage.getItem("navi-latest"));}catch(e){}}
-  if(!d){d={forecast:{},cctv:{}};}
-  DATA=d; const g=d.generated?new Date(d.generated):null; const age=g?Math.round((Date.now()-g)/60000):null;
-  $("freshness").textContent=g?`${g.toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})} 기준 (${age}분 전)`:"실시간 시작 전 · 2024·2025 실적";
-  $("dot").className="dot"+(age!==null&&age<=15?"":" off"); $("src-ts").textContent=g?`최근 갱신 ${g.toLocaleTimeString("ko-KR")}`:"";
+  try{CAMS=await(await fetch("data/cams.json",{cache:"no-store"})).json();}catch(e){}
+  let d=null;offline=false;
+  try{const r=await fetch("data/latest.json?"+Date.now(),{cache:"no-store"});if(r.ok){d=await r.json();try{localStorage.setItem("navi-latest",JSON.stringify(d))}catch(e){}}}catch(e){}
+  if(!d){try{d=JSON.parse(localStorage.getItem("navi-latest"));offline=!!d;}catch(e){}}
+  if(!d)d={forecast:{},cctv:{}};
+  DATA=d;const g=d.generated?new Date(d.generated):null;const age=g?Math.round((Date.now()-g)/60000):null;
+  const hm=g?g.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false}):"";
+  const a=d.forecast&&d.forecast.alpha!=null?` · α ${Number(d.forecast.alpha).toFixed(1)}`:"";
+  let txt,live=false;
+  if(!g)txt="실시간 시작 전 · 2024·2025 실적";
+  else if(offline)txt=`통신 끊김 · ${hm} 데이터${a}`;
+  else if(age<=15){txt=`${hm} 기준 · ${age}분 전${a}`;live=true;}
+  else txt=`${hm} 기준 · ${age<120?age+"분":Math.round(age/60)+"시간"} 전 · 오래됨${a}`;
+  $("freshness").textContent=txt;$("dot").className="dot"+(live?"":" off");
+  $("src-ts").textContent=g?`최근 갱신 ${g.toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}`:"실시간 갱신 전";
   render();
 }
-mapInit(); plans(); load(); setInterval(load,5*60*1000);
+plans();load();safeMap();setInterval(load,5*60*1000);
+let rz=null;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(DATA)chart(DATA.forecast||{});},150);});
 </script>
 </body>
 </html>
