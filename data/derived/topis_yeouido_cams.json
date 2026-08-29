@@ -1,0 +1,209 @@
+[
+ {
+  "camId": "331",
+  "name": "63빌딩",
+  "road": "여의동로",
+  "owner": "서울지방경찰청",
+  "lat": 37.51961,
+  "lng": 126.94014,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch27.stream/playlist.m3u8"
+ },
+ {
+  "camId": "361",
+  "name": "국회",
+  "road": "국회대로",
+  "owner": "서울지방경찰청",
+  "lat": 37.52858,
+  "lng": 126.91664,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch14.stream/playlist.m3u8"
+ },
+ {
+  "camId": "729",
+  "name": "국회도서관",
+  "road": "국회대로",
+  "owner": "서울지방경찰청",
+  "lat": 37.53008,
+  "lng": 126.91926,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd2/ch147.stream/playlist.m3u8"
+ },
+ {
+  "camId": "24",
+  "name": "노량진 수산시장 앞",
+  "road": "노들로",
+  "owner": "도시고속도로",
+  "lat": 37.51597,
+  "lng": 126.93737,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge6/ch24.stream/playlist.m3u8"
+ },
+ {
+  "camId": "318",
+  "name": "노량진삼거리",
+  "road": "노량진로",
+  "owner": "서울지방경찰청",
+  "lat": 37.51338,
+  "lng": 126.94042,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd2/ch15.stream/playlist.m3u8"
+ },
+ {
+  "camId": "14",
+  "name": "마포~원효중간",
+  "road": "강변북로",
+  "owner": "도시고속도로",
+  "lat": 37.53429,
+  "lng": 126.94552,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge6/ch14.stream/playlist.m3u8"
+ },
+ {
+  "camId": "192",
+  "name": "마포대교남단",
+  "road": "여의대로",
+  "owner": "서울지방경찰청",
+  "lat": 37.5287,
+  "lng": 126.92986,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch116.stream/playlist.m3u8"
+ },
+ {
+  "camId": "39",
+  "name": "마포대교북단",
+  "road": "강변북로",
+  "owner": "도시고속도로",
+  "lat": 37.53751,
+  "lng": 126.94263,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge6/ch39.stream/playlist.m3u8"
+ },
+ {
+  "camId": "17",
+  "name": "서강대교북단",
+  "road": "강변북로",
+  "owner": "도시고속도로",
+  "lat": 37.54433,
+  "lng": 126.92735,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge6/ch17.stream/playlist.m3u8"
+ },
+ {
+  "camId": "268",
+  "name": "서울교남단",
+  "road": "경인로",
+  "owner": "서울지방경찰청",
+  "lat": 37.51891,
+  "lng": 126.91347,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch13.stream/playlist.m3u8"
+ },
+ {
+  "camId": "1012",
+  "name": "신길역(노들길)",
+  "road": "올림픽대로",
+  "owner": "도시고속도로",
+  "lat": 37.51832,
+  "lng": 126.91586,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge13/ch13.stream/playlist.m3u8"
+ },
+ {
+  "camId": "26",
+  "name": "양화~서강중간",
+  "road": "강변북로",
+  "owner": "도시고속도로",
+  "lat": 37.54259,
+  "lng": 126.91561,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge6/ch26.stream/playlist.m3u8"
+ },
+ {
+  "camId": "4",
+  "name": "여의2교남단",
+  "road": "국회대로",
+  "owner": "도시고속도로",
+  "lat": 37.52639,
+  "lng": 126.91102,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge6/ch4.stream/playlist.m3u8"
+ },
+ {
+  "camId": "310",
+  "name": "여의공원",
+  "road": "여의공원로",
+  "owner": "서울지방경찰청",
+  "lat": 37.52557,
+  "lng": 126.92016,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd2/ch84.stream/playlist.m3u8"
+ },
+ {
+  "camId": "1043",
+  "name": "여의교",
+  "road": "올림픽대로",
+  "owner": "도시고속도로",
+  "lat": 37.5151963565,
+  "lng": 126.9304018535,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge6/ch149.stream/playlist.m3u8"
+ },
+ {
+  "camId": "342",
+  "name": "여의교남단",
+  "road": "노들로",
+  "owner": "서울지방경찰청",
+  "lat": 37.51489,
+  "lng": 126.92683,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch28.stream/playlist.m3u8"
+ },
+ {
+  "camId": "241",
+  "name": "여의교북단",
+  "road": "여의대방로",
+  "owner": "서울지방경찰청",
+  "lat": 37.5171,
+  "lng": 126.92807,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch16.stream/playlist.m3u8"
+ },
+ {
+  "camId": "894",
+  "name": "여의도공원",
+  "road": "여의대로",
+  "owner": "서울지방경찰청",
+  "lat": 37.52411,
+  "lng": 126.9221,
+  "hls": "https://topiscctv1.eseoul.go.kr/edge12/ch107.stream/playlist.m3u8"
+ },
+ {
+  "camId": "700",
+  "name": "여의도국민은행",
+  "road": "국회대로",
+  "owner": "서울지방경찰청",
+  "lat": 37.52846,
+  "lng": 126.91874,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch15.stream/playlist.m3u8"
+ },
+ {
+  "camId": "355",
+  "name": "여의하류IC",
+  "road": "노들로",
+  "owner": "서울지방경찰청",
+  "lat": 37.53288,
+  "lng": 126.9082,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch136.stream/playlist.m3u8"
+ },
+ {
+  "camId": "344",
+  "name": "영등포역",
+  "road": "경인로",
+  "owner": "서울지방경찰청",
+  "lat": 37.51627,
+  "lng": 126.90712,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch115.stream/playlist.m3u8"
+ },
+ {
+  "camId": "714",
+  "name": "영등포전화국",
+  "road": "국회대로",
+  "owner": "서울지방경찰청",
+  "lat": 37.52575,
+  "lng": 126.90573,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch108.stream/playlist.m3u8"
+ },
+ {
+  "camId": "725",
+  "name": "원효대교남단",
+  "road": "여의대방로",
+  "owner": "서울지방경찰청",
+  "lat": 37.52305,
+  "lng": 126.93783,
+  "hls": "https://topiscctv1.eseoul.go.kr/sd2/ch118.stream/playlist.m3u8"
+ }
+]

@@ -1,5 +1,7 @@
 # 산출물 스펙 — ETF 해부 카드 (F3)
 
+> **보류 (2026-08-29).** 주제가 불꽃축제로 확정되어 이 문서는 진행하지 않는다. 수치·검증은 그대로 유효하므로 기록으로 남긴다. 현재 작업은 `topic-fireworks.md`.
+
 AI 솔루션 챌린지 과제 03(고객 페인포인트 해결) · 작성 2026-08-27
 근거: `painpoint-analysis.md` F3 및 PART 4 재검증 · `BRIEF.md` 평가표
 작성 방식: `product-management` 플러그인 `write-spec` 워크플로

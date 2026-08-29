@@ -12,3 +12,21 @@ desktop.ini
 # 임시 산출물
 *.tmp
 ~$*
+
+# 비밀 — 절대 커밋 금지
+.env
+*.pin
+secrets/
+
+# 원본 대용량 데이터 (재다운로드 스크립트로 복원: src/fetch_seoul_data.py)
+data/raw/
+*.zip
+data/**/*.csv
+!data/derived/*.csv
+
+# 모델 가중치·캐시
+.lwcc/
+*.pt
+*.pth
+__pycache__/
+.venv/
