@@ -12,7 +12,7 @@
 
 ## Priority (2026-08-29 오차 예산 기준)
 
-성능(9/5 순위·부하율 정확도)에 실제로 기여하는 순서: **① 9호선 용량(T1b) → ② 순차 데이터동화(T1c) → ③ CCTV ROI(T2, 야간 테스트 조건부) → ⑤ 쇼 종료 시각 기입(T9)**. 나머지 태스크는 산출물·점수용. 학술 접목 중 conformal 구간·아날로그·JuPedSim·CLIP은 보류(`benchmark-crowd-systems.md` 참조).
+성능(9/5 순위·부하율 정확도)에 실제로 기여하는 순서: **⓪ 출구 배정 관측화(T1d, 8/29 완료) → ① 9호선 용량(T1b, 완료) → ② 순차 데이터동화(T1c) → ③ CCTV ROI(T2, 야간 테스트 조건부) → ⑤ 쇼 종료 시각 기입(T9)**. 나머지 태스크는 산출물·점수용. 학술 접목 중 conformal 구간·아날로그·JuPedSim·CLIP은 보류(`benchmark-crowd-systems.md` 참조).
 
 ## Global Constraints
 
@@ -53,6 +53,15 @@
 - [ ] **Step 2: 다운로드 스크립트** — `fetch_seoul_data.py card 20250927 20241005` → `data/raw/card_YYYYMMDD.json`
 - [ ] **Step 3: 비례 추정 계산** — `src/line9_capacity.py` → `line9_capacity.json`(역별 비율·추정 용량·출처·기준일). `nowcast.CAP` 가 파일 있으면 읽도록
 - [ ] **Step 4: 검증** — `pytest` 통과, `backtrack.py` 재실행 후 21시 순위 변화 기록, 커밋
+
+### Task 1d: 출구 배정을 관측 초과 승차로 교체 (8/29 완료) — T1b 중 발견, 오차 예산 신규 1순위
+
+**Files:** `src/exit_shares.py`(신규) → `data/derived/exit_shares.json`, `src/nowcast.py` `compute_exits` 관측 모드, `src/backtrack.py`, `tests/test_model.py` 2건, `topic-fireworks.md` §5 정정
+
+- [x] 관측: 교통카드 일별(9호선)+교통공사 시간대별(5호선·마포) 축제일 초과 승차 → 출구 7개 E_st·비중. 2년 합계 108.7k/109.3k(0.6% 차)
+- [x] 모델: 수요(st,h) = α × E_st × 도착 형태(KT 곡선+지연, 19~23시 개방 시간대 정규화). 회랑 배정표는 참고 필드
+- [x] 백테스트(2024·2025 실측 시간대 승차 4역): 절대오차/실측 0.34→**0.25**, 0.41→**0.29**. 여의나루 재배정 이중계산·평가창 정규화 2회 정정
+- [ ] 한계 기록: 마포역 20시 과소(보행자 조기 도착), 신길 1호선 미포함, 9호선 시간대 실측 없음
 
 ### Task 1c: 순차 데이터동화 (particle filter) — 오차 예산 2순위 (8/30~9/1)
 

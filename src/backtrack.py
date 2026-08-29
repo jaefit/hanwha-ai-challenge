@@ -20,7 +20,8 @@
      가중치 = 2024·2025 양수 초과의 기하평균 — 한 해만 튄 역(타 행사)은 0. 모두 0이면 축제일 승차 비율.
      경기·인천 출발지는 서울교통공사 데이터 밖(코레일·9호선·공항철도) → 시군 단위로만. 여의도·여의나루는 목적지라 제외.
   4. 귀가 방향 = 유입 출발지 회랑 구성(유입≈유출 대칭을 같은 파일에서 검증해 오차를 적는다).
-  5. 출구 수요 = nowcast.compute_exits(유출곡선 +40분, 도달지연 = 거리÷밀도별 속도, 회랑→역 배정표, 여의나루 통제)로 연도별 계산.
+  5. 출구 수요 = nowcast.compute_exits 관측 모드: 연도별 E_st(exit_shares.json 초과 승차) × KT 유출곡선 형태(+40분) × 도달 지연, 여의나루 통제 이관.
+     (2026-08-29 정정) 회랑→역 수기 배정표는 실측과 크게 어긋나(샛강 3.5배·국회 7배·마포 과소) 참고 필드로만 남긴다.
      대표값 = 유입 출발지 회랑 기준 2년 평균. 범위(lo/hi) = {2024,2025} × {출발지 기준, 유출 도착지 기준} 4회 계산의 최소/최대.
 숫자 규칙: KT cnt 는 추정치 — 비율·순위 용도. 용량 추정치(9호선·도보·1호선 합산)는 estimated_capacity 로 표기.
 """
@@ -147,11 +148,11 @@ def load_stations():
     return by
 
 
-def exit_forecast(out_curve, dirs, sub_share):
-    """nowcast.compute_exits 와 같은 규칙, α=1, CCTV 없음(구역 밀도 기본값). out_curve: {h: 유출}"""
+def exit_forecast(out_curve, dirs, sub_share, station_totals=None):
+    """nowcast.compute_exits 와 같은 규칙, α=1, CCTV 없음. station_totals 주면 관측 모드, 없으면 회랑 모드(참고용)."""
     f = (N.SHIFT_MIN % 60) / 60; k = N.SHIFT_MIN // 60
     shifted = {h: (1 - f) * out_curve.get(h - k, 0) + f * out_curve.get(h - k - 1, 0) for h in range(15, 25)}
-    exits = N.compute_exits(shifted, dirs, sub_share, N.lag_table())
+    exits = N.compute_exits(shifted, dirs, sub_share, N.lag_table(), station_totals=station_totals)
     return {h: round(v) for h, v in shifted.items() if 19 <= h <= 23}, exits
 
 def main():
@@ -265,24 +266,24 @@ def main():
         # 유출 지하철 비중: 도착지별(2025 수단) 가중 평균
         wsum = sum(v for (k, t), v in od[y][1].items() if t >= 20)
         sub_out = sum(v * share_out.get(k, overall_in) for (k, t), v in od[y][1].items() if t >= 20) / wsum if wsum else overall_in
-        curve, exits = exit_forecast(out_curve, dirs, round(sub_out, 4))
-        _, exits_ob = exit_forecast(out_curve, dirs_out, round(sub_out, 4))
+        E_y = {st: float(v) for st, v in N.EXIT_SHARES["by_year"][y]["E"].items()} if N.EXIT_SHARES else None
+        curve, exits = exit_forecast(out_curve, dirs, round(sub_out, 4), station_totals=E_y)          # 관측 모드(대표)
+        _, exits_cor = exit_forecast(out_curve, dirs, round(sub_out, 4))                              # 회랑 모드(참고, 밴드 제외)
         per_year[y] = {"direction_share_from_origin": dirs, "direction_share_outflow_dest": dirs_out, "subway_share_out": round(sub_out, 4),
-                       "outflow_shifted": curve, "exits": exits, "exits_outflow_basis": exits_ob}
+                       "station_totals": E_y, "outflow_shifted": curve, "exits": exits, "exits_corridor_basis": exits_cor}
     exits_out = collections.OrderedDict()
     for st in N.CAP:
         exits_out[st] = {}
         for h in (19, 20, 21, 22, 23):
             vals = [per_year[y]["exits"][st][h] for y in DAYS]
             loads = [v["load"] for v in vals if v["load"] is not None]
-            loads_all = loads + [per_year[y]["exits_outflow_basis"][st][h]["load"] for y in DAYS if per_year[y]["exits_outflow_basis"][st][h]["load"] is not None]
             exits_out[st][str(h)] = {
-                "load": round(statistics.mean(loads), 2) if loads else None, "load_lo": round(min(loads_all) * 0.9, 2) if loads_all else None, "load_hi": round(max(loads_all) * 1.1, 2) if loads_all else None,
+                "load": round(statistics.mean(loads), 2) if loads else None, "load_lo": round(min(loads) * 0.9, 2) if loads else None, "load_hi": round(max(loads) * 1.1, 2) if loads else None,
                 "demand": round(statistics.mean(v["demand"] for v in vals)), "capacity": N.CAP[st],
                 "wait_min": round(statistics.mean(v["wait_min"] for v in vals if v["wait_min"] is not None)) if loads else None,
                 "closed": vals[0]["closed"], "estimated_capacity": st in N.ESTIMATED,
-                "by_year_origin_basis": {y: per_year[y]["exits"][st][h]["load"] for y in DAYS},
-                "by_year_outflow_basis": {y: per_year[y]["exits_outflow_basis"][st][h]["load"] for y in DAYS}}
+                "by_year_observed": {y: per_year[y]["exits"][st][h]["load"] for y in DAYS},
+                "by_year_corridor_basis_ref": {y: per_year[y]["exits_corridor_basis"][st][h]["load"] for y in DAYS}}
     ranking = {str(h): sorted([(st, v[str(h)]["load"], v[str(h)]["wait_min"]) for st, v in exits_out.items() if not v[str(h)]["closed"]], key=lambda x: (x[1], x[2])) for h in (19, 20, 21, 22, 23)}
     outflow_forecast = {str(h): round(statistics.mean(per_year[y]["outflow_shifted"][h] for y in DAYS)) for h in (19, 20, 21, 22, 23)}
 
@@ -305,7 +306,9 @@ def main():
           "show_end_2026": "21:10", "show_shift_min": N.SHIFT_MIN,
           "exits": exits_out, "ranking_by_hour": ranking,
           "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40"}],
-          "band_note": "load = 출발지 기준 2년 평균. load_lo/hi = {2024,2025}×{출발지 기준, 유출 도착지 기준} 4회 계산의 최소×0.9 / 최대×1.1 (±10% 버퍼 = MARTA 관행, 9/5 후 MAPE 로 교체). 용량 추정 오차는 미포함",
+          "demand_basis": "observed_station_excess (exit_shares.json, 연도별 E_st) × KT 유출곡선 형태 × 도달 지연. 회랑 배정표는 by_year_corridor_basis_ref 참고용(2026-08-29 정정)",
+          "station_totals_mean": (N.EXIT_SHARES or {}).get("E_mean"), "exit_share_mean": (N.EXIT_SHARES or {}).get("share_mean"),
+          "band_note": "load = 관측 기준 2년 평균. load_lo/hi = {2024,2025} 관측 E 각각의 최소×0.9 / 최대×1.1 (±10% 버퍼 = MARTA 관행, 9/5 후 MAPE 로 교체). 용량 추정 오차 미포함. 회랑 기준은 실측과 어긋나 밴드에서 제외",
           "notes": ["유출 곡선 +40분 이동(쇼 종료 20:30→21:10)", "도달 지연 40/60 추정", "9호선·도보·1호선 합산 용량은 추정(estimated_capacity)", "KT cnt 는 추정치 — 비율·순위 용도"]}
     (DER / "feeder_origin.json").write_text(json.dumps(fo, ensure_ascii=False, indent=1), encoding="utf-8")
     (DER / "exit_forecast_2026.json").write_text(json.dumps(ef, ensure_ascii=False, indent=1), encoding="utf-8")

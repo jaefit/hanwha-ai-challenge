@@ -44,7 +44,7 @@
 
 | 구성요소 | 입력 | 출력 | 상태 |
 |---|---|---|---|
-| `backtrack.py` | OD 2일·수단 1일·승하차 2년·`stations.json` | 출발지 표, 서울 피더 역 귀속(추정), 출구 부하율 2년 평균 + 밴드(4회 계산 ×0.9/1.1) | 완료 |
+| `backtrack.py` | OD 2일·수단 1일·승하차 2년·`stations.json`·`exit_shares.json`·`line9_capacity.json` | 출발지 표, 서울 피더 역 귀속(추정), 출구 부하율 = 관측 초과 승차 E_st × KT 형태 × 지연, 2년 평균 + 밴드(연도 min×0.9/max×1.1) | 완료 (8/29 정정: 회랑 배정표 → 관측 비중, 백테스트 오차 0.25/0.29) |
 | `nowcast.py` | 사전표 + 오늘 도시데이터·CCTV + show_end | α, 출구별 load/lo/hi/wait, 지연표, 통제 | 완료. CCTV 입력은 캘리브레이션된 카메라만 |
 | `collector_cctv.py` | HLS 23대 | count·점유·흐름·등급·신뢰도 플래그, 프레임 미저장 | 완료. **ROI·면적 미기입 → 화면 참고용** |
 | `docs/index.html` | 위 JSON | 4a/4b 테마, 출구 보드·지도·예측·CCTV·플랜 | 완료. UI 개선 2건(카피·격자) 대기 |

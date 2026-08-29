@@ -6,7 +6,7 @@
 
 L2 α(t)  = 여의나루 누적 하차(관측, citydata LIVE_SUB_PPLTN) / 축제일 2년 평균 누적 하차(같은 시각까지)
            여의나루는 19시부터 무정차라 α 는 19:00 이후 동결. 관측이 없으면 α=1.
-L3 출구수요 = α × 유출곡선(h) × 방향분포 × 지하철 비중 → 회랑별 역 배정표
+L3 출구수요 = α × E_st(관측 초과 승차, exit_shares.json) × KT 유출곡선 형태(h) → 도달 지연.  (2026-08-29 정정: 회랑→역 배정표는 실측과 어긋나 참고용으로 강등)
 L4 대기(분) = max(0, 수요 − 용량) / 용량 × 60.   용량 = 관측 최대 시간당 승차(1~8호선), 9호선은 추정(주석)
 도달 지연 = 관람구역→출구 거리 ÷ Weidmann 밀도별 보행속도(CCTV 등급 연동). 쇼 종료 실제 시각: --show-end HH:MM 또는 data/live/show_end.txt
 출처: data/derived/baseline.json (KT OD·서울교통공사), data/live/api_*.jsonl (서울 실시간 도시데이터)
@@ -35,6 +35,10 @@ CAP = {  # 시간당 처리 용량(명). 관측값은 baseline.subway_capacity_o
     "여의도(9)": 12000, "샛강(9)": 4000, "국회의사당(9)": 4000,          # 수기 추정 (line9_capacity.json 있으면 대체)
     "마포역 도보(마포대교)": 15000,                                        # 추정: 보행로 1차로 폭 기준
 }
+# 관측 출구 규모·비중 (src/exit_shares.py): E_st = 축제일 초과 승차, 2년 평균. 없으면 회랑 모드로 동작
+_ES = DER / "exit_shares.json"
+EXIT_SHARES = json.loads(_ES.read_text(encoding="utf-8")) if _ES.exists() else None
+E_MEAN = {st: float(v) for st, v in EXIT_SHARES["E_mean"].items()} if EXIT_SHARES else None
 # 교통카드 일별 승차비로 비례 추정한 9호선·신길 용량 (src/line9_capacity.py, OA-12914). 여전히 추정이라 ESTIMATED 유지
 _L9 = DER / "line9_capacity.json"
 CAP_BASIS = {}
@@ -139,24 +143,37 @@ def zone_density_from_cctv(date):
     return zd, used
 
 
-def compute_exits(total, dirs, sub_share, lags, hours=(19, 20, 21, 22, 23)):
-    """출구별 시간대 수요·부하율·대기. total: {h: 유출(출발 기준)}, lags: lag_table() 결과.
-    수요(st,h) = Σ_off lag[st][off] × 출발(st, h-off),  출발(st,h) = total[h] × Σ_d dirs[d]·sub_share·ASSIGN[d][st]"""
-    dep = {st: {h: 0.0 for h in range(15, 25)} for st in CAP}
-    for h in range(15, 25):
-        for d, share in dirs.items():
-            for st, w in ASSIGN.get(d, {}).items():
-                dep[st][h] += total.get(h, 0) * share * sub_share * w
+def compute_exits(total, dirs, sub_share, lags, hours=(19, 20, 21, 22, 23), station_totals=None):
+    """출구별 시간대 수요·부하율·대기. total: {h: 유출 곡선(출발 기준)}, lags: lag_table() 결과.
+    관측 모드(station_totals 있음, 2026-08-29 채택): 규모·분배 = 관측 초과 승차 E_st(exit_shares.json), KT 곡선은 시간 형태만.
+      도착 형태 = Σ_off lag[st][off] × 곡선[h-off] 를 **그 역의 개방 시간대에서만** 정규화해 E_st 를 분배한다.
+      통제 시간대 재배정은 하지 않는다 — 관측 E 자체가 통제 하의 행동(여의나루=해제 후 승차, 여의도(5)=우회 포함)이라 재배정하면 이중계산.
+      (백테스트 2025: 재배정 방식은 여의나루 22시 2.6k vs 실측 9.6k, 개방시간 분배로 정정)
+    회랑 모드(레거시·참고): 출발(st,h) = total[h] × Σ_d dirs[d]·sub_share·ASSIGN[d][st], 통제 시간대 여의나루 수요는 여의도(5)로 이관."""
+    H = range(15, 25)
+    demand_by = {}
+    if station_totals is not None:
+        tot = sum(total.get(h, 0) for h in H) or 1.0
+        shape = {h: total.get(h, 0) / tot for h in H}
+        for st in CAP:   # E_st 는 19~23시(hours)에서 잰 값 → 같은 창의 개방 시간대에서만 정규화·분배 (15~18시 출발분엔 배분하지 않음)
+            arr = {h: sum(fr * shape.get(h - off, 0.0) for off, fr in lags.get(st, {0: 0.4, 1: 0.6}).items()) for h in H}
+            open_mass = sum(arr[h] for h in hours if (st, h) not in CLOSED) or 1.0
+            demand_by[st] = {h: (station_totals.get(st, 0.0) * arr[h] / open_mass if (h in hours and (st, h) not in CLOSED) else 0.0) for h in H}
+    else:
+        dep = {st: {h: 0.0 for h in H} for st in CAP}
+        for h in H:
+            for d, share in dirs.items():
+                for st, w in ASSIGN.get(d, {}).items():
+                    dep[st][h] += total.get(h, 0) * share * sub_share * w
+        for st in CAP:
+            demand_by[st] = {h: sum(fr * dep[st].get(h - off, 0.0) for off, fr in lags.get(st, {0: 0.4, 1: 0.6}).items()) for h in H}
+        for h in H:                                   # 무정차 시간대엔 여의나루 수요를 여의도(5)로 이관 (회랑 모드만)
+            for st in list(demand_by):
+                if (st, h) in CLOSED: demand_by["여의도(5)"][h] += demand_by[st][h]; demand_by[st][h] = 0.0
     exits = collections.OrderedDict(); backlog = collections.Counter()
     for h in hours:
-        demand = collections.Counter()
         for st in CAP:
-            for off, fr in lags.get(st, {0: 0.4, 1: 0.6}).items():
-                demand[st] += fr * dep[st].get(h - off, 0.0)
-        for st in list(demand):                       # 무정차 시간대엔 여의나루 수요를 여의도(5)로 이관
-            if (st, h) in CLOSED: demand["여의도(5)"] += demand[st]; demand[st] = 0.0
-        for st in CAP:
-            dem = demand.get(st, 0.0); cap = CAP[st]; closed = (st, h) in CLOSED
+            dem = demand_by[st].get(h, 0.0); cap = CAP[st]; closed = (st, h) in CLOSED
             backlog[st] = 0.0 if closed else max(0.0, backlog[st] + dem - cap)   # 시간대 넘어가는 누적 대기열
             exits.setdefault(st, {})[h] = {"demand": round(dem), "capacity": cap, "load": None if closed else round(dem / cap, 3),
                                           "backlog": round(backlog[st]), "wait_min": None if closed else round(backlog[st] / cap * 60),
@@ -206,7 +223,11 @@ def main():
     shifted = {h: (1 - f) * out_base.get(h - k, 0) + f * out_base.get(h - k - 1, 0) for h in range(15, 25)}
     total = {h: a * shifted.get(h, 0) for h in range(15, 25)}
     zd, zd_src = zone_density_from_cctv(date); lags = lag_table(zd)
-    ex_int = compute_exits(total, dirs, sub_share, lags, hours)
+    if E_MEAN:   # 관측 모드: 규모 = α × 2년 평균 초과 승차, 형태 = KT 곡선(α 무관하게 정규화됨)
+        station_totals = {st: a * E_MEAN.get(st, 0.0) for st in CAP}; demand_basis = "observed_station_excess (exit_shares.json) × α"
+    else:
+        station_totals = None; demand_basis = "corridor ASSIGN × KT outflow × subway_share"
+    ex_int = compute_exits(total, dirs, sub_share, lags, hours, station_totals=station_totals)
     prior_exits = PRIOR.get("exits", {}) if prior_fn.exists() else {}
     exits = collections.OrderedDict()
     for st, byh in ex_int.items():
@@ -234,6 +255,7 @@ def main():
                       "lag_by_exit": {st: {str(o): round(fr, 3) for o, fr in v.items()} for st, v in lags.items()}},
         "direction_share": dirs, "subway_share": sub_share, "direction_basis": dir_basis,
         "exits": exits, "ranking_by_hour": ranking, "capacity_basis": CAP_BASIS,
+        "demand_basis": demand_basis, "station_totals": {st: round(v) for st, v in (station_totals or {}).items()}, "exit_share_mean": (EXIT_SHARES or {}).get("share_mean"),
         "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
         "alerts_live": alerts[:10],
         "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx")} for k, v in city.items()},

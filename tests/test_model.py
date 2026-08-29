@@ -81,6 +81,27 @@ def test_load_is_demand_over_capacity_and_wait_nonnegative():
     assert v["wait_min"] >= 0 and v["backlog"] >= 0
 
 
+def test_observed_mode_conserves_station_totals_and_reassigns_closure():
+    total = {h: 1.0 for h in range(15, 25)}          # 형태만 (정규화됨)
+    lags = {st: {0: 1.0} for st in N.CAP}
+    E = {st: 1000.0 for st in N.CAP}
+    ex = N.compute_exits(total, None, None, lags, hours=tuple(range(15, 25)), station_totals=E)
+    got = {st: sum(v["demand"] for v in ex[st].values()) for st in ex}
+    for st in N.CAP: assert got[st] == pytest.approx(1000, abs=3), st    # 역별 E 보존 (개방 시간대에 분배, 재배정 없음)
+    assert ex["여의나루(5)"][20]["demand"] == 0 and ex["여의나루(5)"][21]["demand"] == 0   # 통제 시간대 0
+    assert ex["여의나루(5)"][22]["demand"] > 0
+
+
+@pytest.mark.skipif(not (DER / "exit_shares.json").exists(), reason="exit_shares.json 없음")
+def test_exit_shares_file_consistency():
+    e = json.loads((DER / "exit_shares.json").read_text(encoding="utf-8"))
+    for y, v in e["by_year"].items():
+        assert abs(sum(v["share"].values()) - 1.0) < 1e-3, y
+        assert set(v["E"]) == set(N.CAP), y
+        assert all(x > 0 for x in v["E"].values()), y
+    assert 0.95 < e["by_year"]["2024"]["total"] / e["by_year"]["2025"]["total"] < 1.05   # 규모 앵커: 2년 총량 안정
+
+
 # ── 쇼 종료 앵커 ──
 def test_shift_for_show_end():
     assert N.shift_for((21, 10)) == 40
