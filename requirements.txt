@@ -6,3 +6,4 @@ torch
 torchvision
 lwcc
 numpy
+pytest
