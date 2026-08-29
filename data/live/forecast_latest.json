@@ -1,8 +1,8 @@
 {
- "ts": "2026-08-29T10:25:47",
+ "ts": "2026-08-29T10:31:13",
  "date": "20260829",
  "alpha": 1.0,
- "alpha_reason": "기준 누적이 작아 α 미정의(10:25) → α=1",
+ "alpha_reason": "기준 누적이 작아 α 미정의(10:31) → α=1",
  "outflow_forecast": {
   "19": 21980,
   "20": 99949,
@@ -29,9 +29,9 @@
  "exits": {
   "여의도(5)": {
    "19": {
-    "demand": 4099,
+    "demand": 2800,
     "capacity": 17788,
-    "load": 0.23,
+    "load": 0.16,
     "backlog": 0,
     "wait_min": 0,
     "closed": false,
@@ -47,11 +47,11 @@
     "estimated_capacity": false
    },
    "21": {
-    "demand": 15205,
+    "demand": 22262,
     "capacity": 17788,
-    "load": 0.85,
-    "backlog": 0,
-    "wait_min": 0,
+    "load": 1.25,
+    "backlog": 4474,
+    "wait_min": 15,
     "closed": false,
     "estimated_capacity": false
    },
@@ -76,12 +76,12 @@
   },
   "여의나루(5)": {
    "19": {
-    "demand": 0,
+    "demand": 1300,
     "capacity": 9577,
-    "load": null,
+    "load": 0.14,
     "backlog": 0,
-    "wait_min": null,
-    "closed": true,
+    "wait_min": 0,
+    "closed": false,
     "estimated_capacity": false
    },
    "20": {
@@ -94,12 +94,12 @@
     "estimated_capacity": false
    },
    "21": {
-    "demand": 7058,
+    "demand": 0,
     "capacity": 9577,
-    "load": 0.74,
+    "load": null,
     "backlog": 0,
-    "wait_min": 0,
-    "closed": false,
+    "wait_min": null,
+    "closed": true,
     "estimated_capacity": false
    },
    "22": {
@@ -380,13 +380,18 @@
     0
    ],
    [
+    "여의나루(5)",
+    0.14,
+    0
+   ],
+   [
     "신길(1·5)",
     0.15,
     0
    ],
    [
     "여의도(5)",
-    0.23,
+    0.16,
     0
    ]
   ],
@@ -444,19 +449,14 @@
     0
    ],
    [
-    "여의나루(5)",
-    0.74,
-    0
-   ],
-   [
     "신길(1·5)",
     0.84,
     0
    ],
    [
     "여의도(5)",
-    0.85,
-    0
+    1.25,
+    15
    ]
   ],
   "22": [
@@ -538,10 +538,22 @@
   {
    "exit": "여의나루(5)",
    "hours": [
-    19,
-    20
+    20,
+    21
    ],
-   "basis": "2024·2025 하차 ≈0 실적"
+   "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"
+  },
+  {
+   "road": "여의동로",
+   "hours": [
+    15,
+    24
+   ],
+   "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"
+  },
+  {
+   "road": "원효대교",
+   "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"
   }
  ],
  "alerts_live": [],

@@ -35,7 +35,7 @@ CAP = {  # 시간당 처리 용량(명). 관측값은 baseline.subway_capacity_o
     "마포역 도보(마포대교)": 15000,                                        # 추정: 보행로 1차로 폭 기준
 }
 ESTIMATED = {"신길(1·5)", "여의도(9)", "샛강(9)", "국회의사당(9)", "마포역 도보(마포대교)"}
-CLOSED = {("여의나루(5)", 19), ("여의나루(5)", 20)}   # 2024·2025 실적: 19~20시대 하차 ≈0 → 무정차
+CLOSED = {("여의나루(5)", 20), ("여의나루(5)", 21)}   # 2026 공식 공지(hanwhafireworks.com/notice/6): 여의나루역 임시 통제 20:40~21:40. 2024·2025 실적은 19~20시대 하차 ≈0
 
 
 def latest_api(date):
@@ -101,7 +101,7 @@ def main():
         "outflow_baseline": {str(h): out_base[h] for h in hours},
         "direction_share": dirs, "subway_share": sub_share,
         "exits": exits, "ranking_by_hour": ranking,
-        "closures": [{"exit": "여의나루(5)", "hours": [19, 20], "basis": "2024·2025 하차 ≈0 실적"}],
+        "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
         "alerts_live": alerts[:10],
         "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx")} for k, v in city.items()},
         "seoul_fcst_snapshot": seoul_fcst,
