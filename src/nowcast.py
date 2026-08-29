@@ -8,9 +8,10 @@ L2 α(t)  = 여의나루 누적 하차(관측, citydata LIVE_SUB_PPLTN) / 축제
            여의나루는 19시부터 무정차라 α 는 19:00 이후 동결. 관측이 없으면 α=1.
 L3 출구수요 = α × 유출곡선(h) × 방향분포 × 지하철 비중 → 회랑별 역 배정표
 L4 대기(분) = max(0, 수요 − 용량) / 용량 × 60.   용량 = 관측 최대 시간당 승차(1~8호선), 9호선은 추정(주석)
+도달 지연 = 관람구역→출구 거리 ÷ Weidmann 밀도별 보행속도(CCTV 등급 연동). 쇼 종료 실제 시각: --show-end HH:MM 또는 data/live/show_end.txt
 출처: data/derived/baseline.json (KT OD·서울교통공사), data/live/api_*.jsonl (서울 실시간 도시데이터)
 """
-import json, sys, pathlib, datetime, collections
+import json, sys, os, math, pathlib, datetime, collections
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DER, LIVE = ROOT / "data" / "derived", ROOT / "data" / "live"
@@ -40,6 +41,120 @@ ESTIMATED = {"신길(1·5)", "여의도(9)", "샛강(9)", "국회의사당(9)", 
 SHOW_END_BASE, SHOW_END_2026 = (20, 30), (21, 10)
 SHIFT_MIN = (SHOW_END_2026[0] * 60 + SHOW_END_2026[1]) - (SHOW_END_BASE[0] * 60 + SHOW_END_BASE[1])
 CLOSED = {("여의나루(5)", 20), ("여의나루(5)", 21)}   # 2026 공식 공지(hanwhafireworks.com/notice/6): 여의나루역 임시 통제 20:40~21:40. 2024·2025 실적은 19~20시대 하차 ≈0
+
+
+# ── 쇼 종료 실제 시각(offset) — 우선순위: --show-end HH:MM > data/live/show_end.txt > 계획 21:10 (benchmark §4-5) ──
+def show_end_actual(argv):
+    if "--show-end" in argv:
+        hh, mm = argv[argv.index("--show-end") + 1].split(":"); return (int(hh), int(mm)), "arg"
+    fn = LIVE / "show_end.txt"
+    if fn.exists():
+        try:
+            hh, mm = fn.read_text().strip().split(":"); return (int(hh), int(mm)), "file"
+        except ValueError: pass
+    return SHOW_END_2026, "planned"
+
+
+def shift_for(show_end):
+    return (show_end[0] * 60 + show_end[1]) - (SHOW_END_BASE[0] * 60 + SHOW_END_BASE[1])
+
+
+# ── 도달 지연: 관람구역→출구 거리 ÷ 밀도별 보행속도 (Weidmann 1993 / Kladek 식), benchmark §4-2 ──
+# 기존 40/60 상수는 구역 밀도 3명/m² 일 때의 결과와 같다(이벤트광장→여의도역 약 39분). CCTV 등급이 있으면 구역별로 바뀐다.
+ZONES = {"마포대교 남단": (37.5310, 126.9345), "이벤트광장": (37.5290, 126.9330), "원효대교 방향": (37.5257, 126.9412), "63빌딩 앞": (37.5205, 126.9385), "여의도공원": (37.5268, 126.9245)}
+EXIT_LL = {"여의나루(5)": (37.5271, 126.9327), "여의도(5)": (37.5222, 126.9238), "여의도(9)": (37.5206, 126.9262), "샛강(9)": (37.5172, 126.9287),
+           "국회의사당(9)": (37.5281, 126.9174), "신길(1·5)": (37.5170, 126.9137), "마포역 도보(마포대교)": (37.5391, 126.9459)}
+DETOUR = 1.3                 # 직선거리 → 보행 경로 계수 (추정)
+DENSE_SEG_M = 300            # 출구 방향 첫 300m 는 구역 밀도로 걷는다 (추정)
+STREET_DENSITY = 1.5         # 그 뒤 가로 밀도 명/m² (추정)
+DENSITY_BY_LEVEL = {"여유": 1.5, "주의": 3.0, "경계": 4.0, "심각": 5.0}   # 서울시 3/4/5 기준의 대표값
+DEFAULT_DENSITY = 3.0        # CCTV 없거나 신뢰 못 할 때 — 기존 40/60 과 동치
+V_MIN = 0.15                 # 정체 하한 속도 m/s (추정: Kladek 식은 5명/m² 에서 0.04 까지 떨어짐)
+MIN_COUNT_FOR_DENSITY = 20   # 밀도맵 count 가 이보다 작으면 등급을 구역 밀도에 쓰지 않는다 (오탐 방지)
+ZONE_CAM_RADIUS_M = 500            # 마포대교남단 483m·원효대교남단 419m 포함 (구역 5곳 전부 카메라 1대 이상)
+
+
+def kladek(rho):
+    """Weidmann(1993) 속도-밀도: v0 1.34 m/s, 정체밀도 5.4 명/m², γ 1.913"""
+    if rho <= 0: return 1.34
+    return max(V_MIN, 1.34 * (1 - math.exp(-1.913 * (1 / rho - 1 / 5.4))))
+
+
+def haversine_m(a, b):
+    R = 6371000.0; p1, p2 = math.radians(a[0]), math.radians(b[0]); dp = p2 - p1; dl = math.radians(b[1] - a[1])
+    x = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * R * math.asin(math.sqrt(x))
+
+
+def travel_min(zone, exit_name, rho):
+    L = haversine_m(ZONES[zone], EXIT_LL[exit_name]) * DETOUR
+    l1 = min(DENSE_SEG_M, L)
+    return (l1 / kladek(rho) + (L - l1) / kladek(STREET_DENSITY)) / 60
+
+
+def arrival_split(T):
+    """시간대 안 균등 출발 + T분 이동 → 같은(0)/다음(1)/다다음(2) 시간대 도착 비율"""
+    k, f = divmod(max(0.0, T), 60); k = int(k)
+    same = (60 - f) / 60
+    return {k: same, k + 1: 1 - same}
+
+
+def lag_table(zone_density=None):
+    """{출구: {offset: 비율}} — 관람구역 5곳 균등 가중(추정), 구역 밀도는 {구역: 명/m²}"""
+    zd = zone_density or {}; out = {}
+    for ex in EXIT_LL:
+        acc = collections.Counter()
+        for z in ZONES:
+            for off, fr in arrival_split(travel_min(z, ex, zd.get(z, DEFAULT_DENSITY))).items(): acc[off] += fr / len(ZONES)
+        out[ex] = dict(acc)
+    return out
+
+
+def zone_density_from_cctv(date):
+    """오늘 CCTV 로그의 카메라별 최신 등급 → 400m 안 구역의 밀도(최대). count<20 이거나 등급 없음은 무시."""
+    fn = LIVE / f"cctv_{date}.jsonl"
+    cams_fn = DER / "topis_yeouido_cams.json"
+    if not fn.exists() or not cams_fn.exists(): return {}, {}
+    cams = {c["camId"]: c for c in json.loads(cams_fn.read_text(encoding="utf-8"))}
+    latest = {}
+    for l in fn.read_text(encoding="utf-8").splitlines():
+        if not l.strip(): continue
+        r = json.loads(l)
+        if r.get("ok") and r.get("level") in DENSITY_BY_LEVEL and (r.get("count") or 0) >= MIN_COUNT_FOR_DENSITY: latest[r["cam_id"]] = r
+    zd, used = {}, {}
+    for cid, r in latest.items():
+        c = cams.get(str(cid)) or cams.get(cid)
+        if not c: continue
+        for z, ll in ZONES.items():
+            if haversine_m(ll, (c["lat"], c["lng"])) <= ZONE_CAM_RADIUS_M:
+                d = DENSITY_BY_LEVEL[r["level"]]
+                if d > zd.get(z, 0): zd[z] = d; used[z] = {"cam": r.get("name"), "level": r["level"], "ts": r.get("ts")}
+    return zd, used
+
+
+def compute_exits(total, dirs, sub_share, lags, hours=(19, 20, 21, 22, 23)):
+    """출구별 시간대 수요·부하율·대기. total: {h: 유출(출발 기준)}, lags: lag_table() 결과.
+    수요(st,h) = Σ_off lag[st][off] × 출발(st, h-off),  출발(st,h) = total[h] × Σ_d dirs[d]·sub_share·ASSIGN[d][st]"""
+    dep = {st: {h: 0.0 for h in range(15, 25)} for st in CAP}
+    for h in range(15, 25):
+        for d, share in dirs.items():
+            for st, w in ASSIGN.get(d, {}).items():
+                dep[st][h] += total.get(h, 0) * share * sub_share * w
+    exits = collections.OrderedDict(); backlog = collections.Counter()
+    for h in hours:
+        demand = collections.Counter()
+        for st in CAP:
+            for off, fr in lags.get(st, {0: 0.4, 1: 0.6}).items():
+                demand[st] += fr * dep[st].get(h - off, 0.0)
+        for st in list(demand):                       # 무정차 시간대엔 여의나루 수요를 여의도(5)로 이관
+            if (st, h) in CLOSED: demand["여의도(5)"] += demand[st]; demand[st] = 0.0
+        for st in CAP:
+            dem = demand.get(st, 0.0); cap = CAP[st]; closed = (st, h) in CLOSED
+            backlog[st] = 0.0 if closed else max(0.0, backlog[st] + dem - cap)   # 시간대 넘어가는 누적 대기열
+            exits.setdefault(st, {})[h] = {"demand": round(dem), "capacity": cap, "load": None if closed else round(dem / cap, 3),
+                                          "backlog": round(backlog[st]), "wait_min": None if closed else round(backlog[st] / cap * 60),
+                                          "closed": closed, "estimated_capacity": st in ESTIMATED}
+    return exits
 
 
 def latest_api(date):
@@ -78,30 +193,26 @@ def main():
     else:
         dirs = BASE["outflow_direction_share_mean"]; sub_share = BASE["outflow_mode_share_20250927"].get("지하철", 0.45); dir_basis = "baseline:outflow_dest"
     hours = [19, 20, 21, 22, 23]
-    # 공원→역 도달 지연: OD 출발시각 기준 유출의 40%가 같은 시간대, 60%가 다음 시간대에 역에 닿는다(추정).
-    # 근거: KT 유출 피크 20시 vs 여의도역 승차 피크 21시(2024·2025 동일). 보행 20~40분 + 대기.
-    LAG_SAME, LAG_NEXT = 0.4, 0.6
-    # 베이스라인 유출 곡선을 SHIFT_MIN 만큼 뒤로 민다 (시간대 선형 배분)
-    f = (SHIFT_MIN % 60) / 60; k = SHIFT_MIN // 60
-    shifted = {h: (1 - f) * out_base.get(h - k, 0) + f * out_base.get(h - k - 1, 0) for h in range(17, 25)}
-    total = {h: a * shifted.get(h, 0) for h in range(17, 25)}
-    exits = collections.OrderedDict(); backlog = collections.Counter()
-    for h in hours:
-        arriving = LAG_SAME * total[h] + LAG_NEXT * total[h - 1]
-        demand = collections.Counter()
-        for d, share in dirs.items():
-            for st, w in ASSIGN.get(d, {}).items():
-                demand[st] += arriving * share * sub_share * w
-        # 무정차 시간대엔 여의나루 수요를 여의도(5)로 이관
-        for st in list(demand):
-            if (st, h) in CLOSED:
-                demand["여의도(5)"] += demand[st]; demand[st] = 0.0
-        for st in CAP:
-            dem = demand.get(st, 0.0); cap = CAP[st]; closed = (st, h) in CLOSED
-            backlog[st] = 0.0 if closed else max(0.0, backlog[st] + dem - cap)   # 시간대 넘어가는 누적 대기열
-            wait = None if closed else round(backlog[st] / cap * 60)
-            load = None if closed else round(dem / cap, 2)   # 부하율 = 수요/용량. 랭킹은 이 값으로(관측 최대 처리량이 곧 용량이라 절대 대기분은 보수적)
-            exits.setdefault(st, {})[str(h)] = {"demand": round(dem), "capacity": cap, "load": load, "backlog": round(backlog[st]), "wait_min": wait, "closed": closed, "estimated_capacity": st in ESTIMATED}
+    show_end, show_src = show_end_actual(sys.argv); shift = shift_for(show_end)
+    # 베이스라인 유출 곡선을 shift 분 만큼 뒤로 민다 (시간대 선형 배분)
+    f = (shift % 60) / 60; k = shift // 60
+    shifted = {h: (1 - f) * out_base.get(h - k, 0) + f * out_base.get(h - k - 1, 0) for h in range(15, 25)}
+    total = {h: a * shifted.get(h, 0) for h in range(15, 25)}
+    zd, zd_src = zone_density_from_cctv(date); lags = lag_table(zd)
+    ex_int = compute_exits(total, dirs, sub_share, lags, hours)
+    prior_exits = PRIOR.get("exits", {}) if prior_fn.exists() else {}
+    exits = collections.OrderedDict()
+    for st, byh in ex_int.items():
+        exits[st] = {}
+        for h, v in byh.items():
+            v = dict(v); v["load"] = None if v["load"] is None else round(v["load"], 2)
+            pe = (prior_exits.get(st) or {}).get(str(h)) or {}
+            if v["load"] is not None:
+                if pe.get("load") and pe.get("load_lo") is not None:      # 사전 예측표의 밴드 비율(버퍼 포함)을 α 스케일에 그대로 적용
+                    v["load_lo"] = round(v["load"] * pe["load_lo"] / pe["load"], 2); v["load_hi"] = round(v["load"] * pe["load_hi"] / pe["load"], 2)
+                else:
+                    v["load_lo"] = round(v["load"] * 0.9, 2); v["load_hi"] = round(v["load"] * 1.1, 2)   # MARTA 관행 ±MAPE≈10%
+            exits[st][str(h)] = v
     ranking = {}
     for h in hours:
         opens = [(st, v[str(h)]["load"], v[str(h)]["wait_min"]) for st, v in exits.items() if not v[str(h)]["closed"]]
@@ -111,14 +222,16 @@ def main():
         "ts": now.isoformat(timespec="seconds"), "date": date, "alpha": a, "alpha_reason": why,
         "outflow_forecast": {str(h): round(total[h]) for h in hours},
         "outflow_baseline": {str(h): out_base[h] for h in hours},
-        "show_shift_min": SHIFT_MIN, "show_end_2026": "21:10", "show_end_baseline": "20:30",
+        "show_shift_min": shift, "show_end_2026": "21:10", "show_end_actual": f"{show_end[0]:02d}:{show_end[1]:02d}", "show_end_source": show_src, "show_end_baseline": "20:30",
+        "lag_model": {"method": "구역→출구 거리 ÷ Weidmann 밀도별 속도, 첫 300m 구역 밀도·이후 1.5명/m²(추정), 구역 균등 가중(추정)", "zone_density": zd, "zone_density_source": zd_src,
+                      "lag_by_exit": {st: {str(o): round(fr, 3) for o, fr in v.items()} for st, v in lags.items()}},
         "direction_share": dirs, "subway_share": sub_share, "direction_basis": dir_basis,
         "exits": exits, "ranking_by_hour": ranking,
         "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
         "alerts_live": alerts[:10],
         "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx")} for k, v in city.items()},
         "seoul_fcst_snapshot": seoul_fcst,
-        "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 40%/60%(같은/다음 시간대)는 추정 — 유출 피크 20시 vs 승차 피크 21시 근거", "대기열은 시간대를 넘어 누적(backlog)", "α 는 여의나루 누적 하차 기준, 19:00 이후 동결", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
+        "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 = 거리÷밀도별 속도(Weidmann). CCTV 등급 없으면 구역 밀도 3명/m² 가정(≈기존 40/60)", "load_lo/hi = 사전 예측표 밴드 비율 × α (±10% 버퍼 포함)", "대기열은 시간대를 넘어 누적(backlog)", "α 는 여의나루 누적 하차 기준, 19:00 이후 동결", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
     }
     (LIVE / "forecast_latest.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"α={a} ({why})"); print("유출 예측:", result["outflow_forecast"])

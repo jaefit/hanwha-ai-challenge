@@ -16,11 +16,11 @@
 방법
   1. 유입: OD에서 d=여의동 인 행을 출발 행정동·시간대로 합산 → 구/시군 단위.
   2. 지하철 유입 = 유입 × 출발지별 지하철 비중(수단 OD 2025, 10~19시).
-  3. 역 귀속(서울 출발지만): 구의 지하철 유입을 그 구 안 역들에 "축제일 초과 승차(대조 토요일 평균 대비)" 비율로 배분.
+  3. 역 귀속(서울 출발지만): 구의 지하철 유입을 그 구 안 역들에 "축제일 초과 승차(평시 토요일 중앙값 대비)" 비율로 배분.
      가중치 = 2024·2025 양수 초과의 기하평균 — 한 해만 튄 역(타 행사)은 0. 모두 0이면 축제일 승차 비율.
      경기·인천 출발지는 서울교통공사 데이터 밖(코레일·9호선·공항철도) → 시군 단위로만. 여의도·여의나루는 목적지라 제외.
   4. 귀가 방향 = 유입 출발지 회랑 구성(유입≈유출 대칭을 같은 파일에서 검증해 오차를 적는다).
-  5. 출구 수요 = nowcast.py 와 같은 규칙(유출곡선 +40분, 도달지연 40/60, 회랑→역 배정표, 여의나루 통제)로 연도별 계산.
+  5. 출구 수요 = nowcast.compute_exits(유출곡선 +40분, 도달지연 = 거리÷밀도별 속도, 회랑→역 배정표, 여의나루 통제)로 연도별 계산.
      대표값 = 유입 출발지 회랑 기준 2년 평균. 범위(lo/hi) = {2024,2025} × {출발지 기준, 유출 도착지 기준} 4회 계산의 최소/최대.
 숫자 규칙: KT cnt 는 추정치 — 비율·순위 용도. 용량 추정치(9호선·도보·1호선 합산)는 estimated_capacity 로 표기.
 """
@@ -34,7 +34,7 @@ import nowcast as N                       # ASSIGN, CAP, ESTIMATED, CLOSED, SHIF
 
 Y = B.Y
 DAYS = {"2024": "20241005", "2025": "20250927"}
-CONTROL = {"2024": ["20240928", "20241012"], "2025": ["20250913", "20250920"]}   # 대조 토요일. 2025-10-04 는 추석 연휴(10/3~10/9) 시작일이라 제외
+# 평시 기준 = 그 해 모든 토요일(축제일 제외)의 역·시간대별 중앙값. 대조 2일 평균은 2025-10-04 추석연휴 같은 특이일에 흔들려 폐기, p90 은 환승역 초과를 지워 가중치엔 부적합(2026-08-29 정정 2회)
 DEST_STATIONS = {"여의도", "여의나루"}    # 여의동 안 역 = 목적지, 피더 귀속 제외
 IN_HOURS = list(range(10, 20))            # 유입 집계 창 (출발 시각)
 SIGUN = {"41110": "수원", "41130": "성남", "41150": "의정부", "41170": "안양", "41190": "부천", "41210": "광명", "41220": "평택", "41250": "동두천",
@@ -110,24 +110,33 @@ def hour_of(col):
     m = re.match(r"\s*(\d{1,2})", col); return int(m.group(1)) if m else None
 
 
-def subway_boarding(year, days):
-    """OA-12921 → {day: {역(정규화): {h: 승차}}}. 호선 합산. lines[역] = 호선 목록."""
+def subway_boarding(year, fest_day):
+    """OA-12921 → 축제일 승차 {역: {h: n}}, 평시 토요일 중앙값 p50 · 90퍼센타일 p90 {역: {h: v}}, 토요일 수, 호선 목록. 호선 합산."""
     raw = (RAW / f"subway_{year}.csv").read_bytes().decode("cp949", "ignore")
     rd = csv.reader(io.StringIO(raw)); hdr = next(rd)
     di = next(i for i, h in enumerate(hdr) if "일자" in h or "날짜" in h)
     si = hdr.index("역명"); li = hdr.index("호선"); ti = next(i for i, h in enumerate(hdr) if "구분" in h)
     hcols = [(i, hour_of(h)) for i, h in enumerate(hdr) if "시" in h and i not in (di, si, ti, li) and hour_of(h) is not None]
-    out = {d: collections.defaultdict(lambda: collections.Counter()) for d in days}
+    fest = collections.defaultdict(collections.Counter); sat = collections.defaultdict(lambda: collections.defaultdict(collections.Counter))
     lines = collections.defaultdict(set)
     for r in rd:
         d = r[di].replace("-", "")
-        if d not in out or r[ti] != "승차": continue
+        if r[ti] != "승차": continue
+        if d == fest_day: tgt = fest
+        elif datetime.date(int(d[:4]), int(d[4:6]), int(d[6:])).weekday() == 5: tgt = sat[d]
+        else: continue
         st = norm(r[si]); lines[st].add(r[li])
         for i, h in hcols:
-            try: out[d][st][h] += int(float(r[i] or 0))
+            try: tgt[st][h] += int(float(r[i] or 0))
             except ValueError: pass
-    return out, {k: sorted(v) for k, v in lines.items()}
-
+    p50, p90 = collections.defaultdict(collections.Counter), collections.defaultdict(collections.Counter)
+    for st in {s for dd in sat.values() for s in dd}:
+        for h in range(5, 25):
+            vals = sorted(dd[st][h] for dd in sat.values() if st in dd)
+            if vals:
+                p50[st][h] = vals[(len(vals) - 1) // 2]
+                p90[st][h] = vals[min(len(vals) - 1, int(round(0.9 * (len(vals) - 1))))]
+    return fest, p50, p90, len(sat), {k: sorted(v) for k, v in lines.items()}
 
 def load_stations():
     S = json.loads((DER / "stations.json").read_text(encoding="utf-8"))["stations"]
@@ -139,26 +148,11 @@ def load_stations():
 
 
 def exit_forecast(out_curve, dirs, sub_share):
-    """nowcast.main() 과 같은 규칙, α=1, 라이브 없음. out_curve: {h: 유출}, dirs: 회랑 비중, sub_share: 지하철 비중"""
+    """nowcast.compute_exits 와 같은 규칙, α=1, CCTV 없음(구역 밀도 기본값). out_curve: {h: 유출}"""
     f = (N.SHIFT_MIN % 60) / 60; k = N.SHIFT_MIN // 60
-    shifted = {h: (1 - f) * out_curve.get(h - k, 0) + f * out_curve.get(h - k - 1, 0) for h in range(17, 25)}
-    LAG_SAME, LAG_NEXT = 0.4, 0.6
-    exits = collections.OrderedDict(); backlog = collections.Counter()
-    for h in (19, 20, 21, 22, 23):
-        arriving = LAG_SAME * shifted.get(h, 0) + LAG_NEXT * shifted.get(h - 1, 0)
-        demand = collections.Counter()
-        for d, share in dirs.items():
-            for st, w in N.ASSIGN.get(d, {}).items():
-                demand[st] += arriving * share * sub_share * w
-        for st in list(demand):
-            if (st, h) in N.CLOSED: demand["여의도(5)"] += demand[st]; demand[st] = 0.0
-        for st in N.CAP:
-            dem = demand.get(st, 0.0); cap = N.CAP[st]; closed = (st, h) in N.CLOSED
-            backlog[st] = 0.0 if closed else max(0.0, backlog[st] + dem - cap)
-            exits.setdefault(st, {})[h] = {"demand": round(dem), "load": None if closed else round(dem / cap, 3),
-                                          "wait_min": None if closed else round(backlog[st] / cap * 60), "closed": closed}
+    shifted = {h: (1 - f) * out_curve.get(h - k, 0) + f * out_curve.get(h - k - 1, 0) for h in range(15, 25)}
+    exits = N.compute_exits(shifted, dirs, sub_share, N.lag_table())
     return {h: round(v) for h, v in shifted.items() if 19 <= h <= 23}, exits
-
 
 def main():
     print("1/5 OD 유입·유출", flush=True)
@@ -169,7 +163,8 @@ def main():
     stations = load_stations()
     board, lines = {}, {}
     for y in DAYS:
-        b, l = subway_boarding(y, [DAYS[y]] + CONTROL[y]); board[y] = b; lines.update(l)
+        fest, p50, p90, nsat, l = subway_boarding(y, DAYS[y]); board[y] = {"fest": fest, "p50": p50, "p90": p90, "n_sat": nsat}; lines.update(l)
+        print(f"  {y}: 평시 토요일 {nsat}일 → 역·시간대별 중앙값·90퍼센타일", flush=True)
 
     # ── 출발지 표 (구·시군) ──
     origins = {}
@@ -205,23 +200,26 @@ def main():
     print("4/5 역 귀속", flush=True)
     feeders = {}
     gu_stations = collections.defaultdict(list)
-    for st in {s for y in DAYS for d in board[y] for s in board[y][d]}:
+    for st in {s for y in DAYS for s in board[y]["fest"]}:
         info = stations.get(st) or stations.get(st + "역")
         if info and info.get("sido") == "서울":
             g = info["gu"]; g = g if g == "중구" else g[:-1]      # 구 이름을 baseline.GU 표기로 (영등포구→영등포, 중구는 유지)
             gu_stations[g].append(st)
-    unmatched = sorted({s for y in DAYS for d in board[y] for s in board[y][d]} - {s for v in gu_stations.values() for s in v})
+    unmatched = sorted({s for y in DAYS for s in board[y]["fest"]} - {s for v in gu_stations.values() for s in v})
     xval = {}
     for sts in gu_stations.values(): sts[:] = [s for s in sts if s not in DEST_STATIONS]
-    # 초과 승차 (연도별) → 2년 기하평균 가중치
-    ex = {y: {} for y in DAYS}
+    # 초과 승차 = 축제일 − 평시 토요일 중앙값(p50) → 2년 기하평균 가중치.
+    # (2026-08-29 정정) MARTA 식 p90 을 써 보니 행사 잦은 환승역(강남·고속터미널·홍대)은 p90 이 높아 초과가 사라지고
+    #  한산한 역의 1% 초과가 상위로 올라옴 → 가중치는 p50, p90 은 교차검증 지표로만.
+    ex = {y: {} for y in DAYS}; ex90 = {y: 0.0 for y in DAYS}
     for y in DAYS:
-        fest, ctrl = board[y][DAYS[y]], [board[y][c] for c in CONTROL[y]]
+        fest, p50, p90 = board[y]["fest"], board[y]["p50"], board[y]["p90"]
         for sts in gu_stations.values():
             for st in sts:
                 for t in IN_HOURS:
-                    c = statistics.mean(cc[st][t] for cc in ctrl) if all(st in cc for cc in ctrl) else 0
+                    c = p50[st][t] if st in p50 else 0
                     ex[y][(st, t)] = (fest[st][t] - c, fest[st][t], c)
+                    ex90[y] += max(0, fest[st][t] - (p90[st][t] if st in p90 else 0))
     W = {k: (max(ex["2024"][k][0], 0) * max(ex["2025"][k][0], 0)) ** 0.5 for k in ex["2024"] if k in ex["2025"]}
     for y in DAYS:
         seoul_sub_in = 0; excess_pos = sum(max(v[0], 0) for v in ex[y].values())
@@ -238,16 +236,16 @@ def main():
                 for st in sts:
                     e, fb, c = ex[y][(st, t)]
                     f = feeders.setdefault(st, {"gu": gu, "lines": lines.get(st, []), "lat": (stations.get(st) or {}).get("lat"), "lng": (stations.get(st) or {}).get("lng"), "weight_basis": basis, "by_year": {}})
-                    fy = f["by_year"].setdefault(y, {"attributed": {}, "boarding_fest": {}, "boarding_ctrl": {}, "excess": {}})
-                    fy["attributed"][t] = round(sub_h[t] * ws[st] / tot); fy["boarding_fest"][t] = fb; fy["boarding_ctrl"][t] = round(c); fy["excess"][t] = round(e)
-        xval[y] = {"seoul_origin_subway_inflow": round(seoul_sub_in), "positive_excess_boarding_10_19": round(excess_pos),
-                   "ratio": round(excess_pos / seoul_sub_in, 2) if seoul_sub_in else None,
-                   "note": "서울 전 역 양수 초과 승차(대조 토요일 대비) ÷ 서울 출발 지하철 유입. 1 근처면 초과분이 대체로 축제 유입, 크게 넘으면 타 요인 혼입. 귀속은 구 단위 OD 총량으로 제약하고 가중치는 2년 연속 초과만 인정"}
+                    fy = f["by_year"].setdefault(y, {"attributed": {}, "boarding_fest": {}, "boarding_p50": {}, "excess": {}})
+                    fy["attributed"][t] = round(sub_h[t] * ws[st] / tot); fy["boarding_fest"][t] = fb; fy["boarding_p50"][t] = round(c); fy["excess"][t] = round(e)
+        xval[y] = {"seoul_origin_subway_inflow": round(seoul_sub_in), "positive_excess_vs_p50": round(excess_pos), "positive_excess_vs_p90": round(ex90[y]),
+                   "ratio_p50": round(excess_pos / seoul_sub_in, 2) if seoul_sub_in else None, "ratio_p90": round(ex90[y] / seoul_sub_in, 2) if seoul_sub_in else None,
+                   "note": "서울 전 역 양수 초과 승차 ÷ 서울 출발 지하철 유입. p50 기준이 1 근처면 초과분이 대체로 축제 유입, 크게 넘으면 타 요인 혼입. 귀속 가중치는 p50 기준·2년 연속 초과만 인정, 구 단위 OD 총량으로 제약"}
     for st, f in feeders.items():
         f["attributed_total"] = {y: sum(f["by_year"][y]["attributed"].values()) for y in f["by_year"]}
         f["attributed_mean"] = round(statistics.mean(f["attributed_total"].values()))
         f["excess_ratio_mean"] = round(statistics.mean(
-            (sum(f["by_year"][y]["boarding_fest"].values()) / max(1, sum(f["by_year"][y]["boarding_ctrl"].values()))) for y in f["by_year"]), 2)
+            (sum(f["by_year"][y]["boarding_fest"].values()) / max(1, sum(f["by_year"][y]["boarding_p50"].values()))) for y in f["by_year"]), 2)
     feeders = dict(sorted(feeders.items(), key=lambda x: -x[1]["attributed_mean"]))
     total_attr = sum(f["attributed_mean"] for f in feeders.values())
     for f in feeders.values(): f["share_of_seoul"] = round(f["attributed_mean"] / total_attr, 4) if total_attr else None
@@ -279,7 +277,7 @@ def main():
             loads = [v["load"] for v in vals if v["load"] is not None]
             loads_all = loads + [per_year[y]["exits_outflow_basis"][st][h]["load"] for y in DAYS if per_year[y]["exits_outflow_basis"][st][h]["load"] is not None]
             exits_out[st][str(h)] = {
-                "load": round(statistics.mean(loads), 2) if loads else None, "load_lo": round(min(loads_all), 2) if loads_all else None, "load_hi": round(max(loads_all), 2) if loads_all else None,
+                "load": round(statistics.mean(loads), 2) if loads else None, "load_lo": round(min(loads_all) * 0.9, 2) if loads_all else None, "load_hi": round(max(loads_all) * 1.1, 2) if loads_all else None,
                 "demand": round(statistics.mean(v["demand"] for v in vals)), "capacity": N.CAP[st],
                 "wait_min": round(statistics.mean(v["wait_min"] for v in vals if v["wait_min"] is not None)) if loads else None,
                 "closed": vals[0]["closed"], "estimated_capacity": st in N.ESTIMATED,
@@ -289,7 +287,7 @@ def main():
     outflow_forecast = {str(h): round(statistics.mean(per_year[y]["outflow_shifted"][h] for y in DAYS)) for h in (19, 20, 21, 22, 23)}
 
     gen = datetime.datetime.now().isoformat(timespec="seconds")
-    fo = {"generated": gen, "method": "src/backtrack.py (모듈 docstring)", "festival_days": DAYS, "control_saturdays": CONTROL, "inflow_hours": IN_HOURS,
+    fo = {"generated": gen, "method": "src/backtrack.py (모듈 docstring)", "festival_days": DAYS, "baseline": {y: f"{board[y]['n_sat']}개 토요일(축제일 제외) 역·시간대별 중앙값(가중치)·90퍼센타일(검증)" for y in DAYS}, "inflow_hours": IN_HOURS,
           "sources": {"od": "OA-22300", "mode": "OA-22657 (2025-09-27 만, 수단코드 6=지하철 추정)", "subway": "OA-12921 (1~8호선)", "stations": "StationAdresTelno + subwayStationMaster"},
           "inflow_total_10_19": {y: round(v) for y, v in tot_in.items()}, "subway_share_in_overall_2025": overall_in,
           "origins": origins, "symmetry_inflow_origin_vs_outflow_dest": symmetry,
@@ -307,7 +305,7 @@ def main():
           "show_end_2026": "21:10", "show_shift_min": N.SHIFT_MIN,
           "exits": exits_out, "ranking_by_hour": ranking,
           "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40"}],
-          "band_note": "load = 출발지 기준 2년 평균. load_lo/hi = {2024,2025}×{출발지 기준, 유출 도착지 기준} 4회 계산의 최소/최대 (신뢰구간 아님). 용량 추정 오차는 미포함",
+          "band_note": "load = 출발지 기준 2년 평균. load_lo/hi = {2024,2025}×{출발지 기준, 유출 도착지 기준} 4회 계산의 최소×0.9 / 최대×1.1 (±10% 버퍼 = MARTA 관행, 9/5 후 MAPE 로 교체). 용량 추정 오차는 미포함",
           "notes": ["유출 곡선 +40분 이동(쇼 종료 20:30→21:10)", "도달 지연 40/60 추정", "9호선·도보·1호선 합산 용량은 추정(estimated_capacity)", "KT cnt 는 추정치 — 비율·순위 용도"]}
     (DER / "feeder_origin.json").write_text(json.dumps(fo, ensure_ascii=False, indent=1), encoding="utf-8")
     (DER / "exit_forecast_2026.json").write_text(json.dumps(ef, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -318,7 +316,7 @@ def main():
         print(f"  {k:8s} {100*v['share_mean']:5.1f}%  지하철 {v['subway_share_2025'] if v['subway_share_2025'] is not None else '-':<6} {v['corridor']}")
     print("\n유입 출발 회랑 vs 유출 20시~ 도착 회랑 (2025, %p 차이)")
     for c, v in symmetry["2025"].items(): print(f"  {c:4s} in {100*v['inflow_origin']:5.1f}  out {100*v['outflow_dest']:5.1f}  Δ{v['diff_pp']:+.1f}")
-    print("\n서울 피더 역 상위 15 (귀속 여의도행 승차 10~19시, 2년 평균 · 축제일/평시 승차 배율)")
+    print("\n서울 피더 역 상위 15 (귀속 여의도행 승차 10~19시, 2년 평균 · 축제일/평시중앙값 배율)")
     for st, f in list(feeders.items())[:15]:
         print(f"  {st:12s} {f['gu']:4s} {'/'.join(f['lines']):10s} {f['attributed_mean']:6,d}  ({100*f['share_of_seoul']:4.1f}%)  x{f['excess_ratio_mean']}")
     print("\n교차검증", json.dumps(xval, ensure_ascii=False))

@@ -7,6 +7,8 @@
 출력: data/live/cctv_YYYYMMDD.jsonl — 1행 = 1카메라 1시각
   ts, cam_id, name, count(밀도맵 합), occupancy(전경 비율 0~1), flow(프레임간 평균 이동량), level, ok
 등급: count 를 ROI 면적(m², cams.json 의 roi_m2, 없으면 null)으로 나눈 밀도 → 서울시 기준 3/4/5명/m² = 주의/경계/심각.
+신뢰도(confidence ok/low, flags): 저조도(brightness<40) · 배경차분 실패(occupancy≥0.9) · 밀도 포화(≥5명/m², 개체 검출 붕괴 구간) ·
+count<20 인데 점유율 높음(불일치). bg_fail 이면 등급을 "보정전"으로 내린다. 하류(nowcast)는 count<20 등급을 구역 밀도에 쓰지 않는다. (benchmark §4-6)
      roi_m2 가 없으면 등급은 점유율 기준 임시값(0.15/0.30/0.45)으로 매긴다. 캘리브레이션 전까지는 '추세' 용도다.
 모델: lwcc DM-Count(SHA). 720x480 원거리 고각이라 절대값 오차 ±30% 가정. 출처·한계는 topic-fireworks.md §6.
 """
@@ -69,6 +71,20 @@ def flow(f0, f1):
     return float(np.linalg.norm(fl, axis=2).mean())
 
 
+LOW_LIGHT, MIN_COUNT, SATURATION = 40.0, 20, 5.0
+
+
+def confidence(cnt, occ, dens, frame):
+    """계측 신뢰도 플래그. 프레임 평균 밝기(0~255)도 기록."""
+    flags = []
+    b = float(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY).mean())
+    if b < LOW_LIGHT: flags.append("low_light")
+    if occ is not None and occ >= 0.9: flags.append("bg_fail")
+    if dens is not None and dens >= SATURATION: flags.append("saturated")
+    if cnt < MIN_COUNT and (occ or 0) >= 0.30: flags.append("count_vs_occ")
+    return ("low" if flags else "ok"), flags, round(b, 1)
+
+
 def level(count, occ, roi_m2):
     if roi_m2:
         d = count / roi_m2
@@ -88,11 +104,14 @@ def tick(cams):
                 if f0 is None: raise RuntimeError("no frame")
                 cnt = count_people(f0); occ = occupancy(c["camId"], f0); fl = flow(f0, f1)
                 lv, dens = level(cnt, occ, c.get("roi_m2"))
-                rec.update(ok=True, count=round(cnt, 1), occupancy=None if occ is None else round(occ, 4), flow=None if fl is None else round(fl, 3), density=dens, level=lv)
+                conf, flags, bright = confidence(cnt, occ, dens, f0)
+                if "bg_fail" in flags: lv = "보정전"
+                rec.update(ok=True, count=round(cnt, 1), occupancy=None if occ is None else round(occ, 4), flow=None if fl is None else round(fl, 3), density=dens, level=lv,
+                           confidence=conf, flags=flags, brightness=bright)
             except Exception as e:
                 rec["error"] = str(e)[:120]
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-            print(now.strftime("%H:%M:%S"), f"{c['name']:<10}", rec.get("level", "ERR"), "count", rec.get("count"), "occ", rec.get("occupancy"), "flow", rec.get("flow"), rec.get("error", ""))
+            print(now.strftime("%H:%M:%S"), f"{c['name']:<10}", rec.get("level", "ERR"), "count", rec.get("count"), "occ", rec.get("occupancy"), "flow", rec.get("flow"), rec.get("confidence", ""), ",".join(rec.get("flags", [])), rec.get("error", ""))
 
 
 if __name__ == "__main__":
