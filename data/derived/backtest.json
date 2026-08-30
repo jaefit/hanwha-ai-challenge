@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-30T18:59:04",
+ "generated": "2026-08-30T23:59:59",
  "doc": "출구 모델 백테스트 — 2024·2025 축제일 실측(시간대별 승차, OA-12921)으로 관측 모드 compute_exits 를 검증 → data/derived/backtest.json",
  "observed_source": "서울교통공사 OA-12921 시간대별 승차 (exit_shares.json hourly_detail)",
  "closed_by_year": {
@@ -36,6 +36,7 @@
        "19": {
         "pred": 4093,
         "obs": 1552,
+        "obs_raw": 1552,
         "pred_excess": 2834,
         "obs_excess": 293,
         "pred_load": 0.159,
@@ -47,6 +48,7 @@
        "20": {
         "pred": 10381,
         "obs": 11148,
+        "obs_raw": 11148,
         "pred_excess": 8870,
         "obs_excess": 9637,
         "pred_load": 0.499,
@@ -58,6 +60,7 @@
        "21": {
         "pred": 16850,
         "obs": 17788,
+        "obs_raw": 17788,
         "pred_excess": 15814,
         "obs_excess": 16752,
         "pred_load": 0.889,
@@ -69,6 +72,7 @@
        "22": {
         "pred": 9044,
         "obs": 11009,
+        "obs_raw": 11009,
         "pred_excess": 8460,
         "obs_excess": 10425,
         "pred_load": 0.476,
@@ -80,6 +84,7 @@
        "23": {
         "pred": 2467,
         "obs": 1339,
+        "obs_raw": 1339,
         "pred_excess": 2302,
         "obs_excess": 1174,
         "pred_load": 0.129,
@@ -100,54 +105,59 @@
       "by_hour": {
        "19": {
         "pred": 0,
-        "obs": 10,
+        "obs": 0,
+        "obs_raw": 10,
         "pred_excess": 0,
-        "obs_excess": 10,
+        "obs_excess": 0,
         "pred_load": 0.0,
-        "obs_load": 0.001,
+        "obs_load": 0.0,
         "pred_grade": "여유",
         "obs_grade": "여유",
         "closed": true
        },
        "20": {
         "pred": 0,
-        "obs": 17,
+        "obs": 0,
+        "obs_raw": 17,
         "pred_excess": 0,
-        "obs_excess": 17,
+        "obs_excess": 0,
         "pred_load": 0.0,
-        "obs_load": 0.002,
+        "obs_load": 0.0,
         "pred_grade": "여유",
         "obs_grade": "여유",
         "closed": true
        },
        "21": {
         "pred": 0,
-        "obs": 2308,
+        "obs": 0,
+        "obs_raw": 2308,
         "pred_excess": 0,
-        "obs_excess": 2308,
+        "obs_excess": 0,
         "pred_load": 0.0,
-        "obs_load": 0.241,
+        "obs_load": 0.0,
         "pred_grade": "여유",
         "obs_grade": "여유",
         "closed": true
        },
        "22": {
-        "pred": 7161,
-        "obs": 8170,
-        "pred_excess": 6091,
-        "obs_excess": 7100,
-        "pred_load": 0.636,
-        "obs_load": 0.741,
+        "pred": 8235,
+        "obs": 10505,
+        "obs_raw": 8170,
+        "pred_excess": 7165,
+        "obs_excess": 9435,
+        "pred_load": 0.748,
+        "obs_load": 0.985,
         "pred_grade": "주의",
-        "obs_grade": "주의",
+        "obs_grade": "경계",
         "closed": false
        },
        "23": {
-        "pred": 1761,
+        "pred": 687,
         "obs": 2580,
-        "pred_excess": 1363,
+        "obs_raw": 2580,
+        "pred_excess": 289,
         "obs_excess": 2182,
-        "pred_load": 0.142,
+        "pred_load": 0.03,
         "obs_load": 0.228,
         "pred_grade": "여유",
         "obs_grade": "여유",
@@ -156,7 +166,7 @@
       },
       "err_boarding": 0.318,
       "err_excess": 0.358,
-      "grade_hits": 2,
+      "grade_hits": 1,
       "grade_n": 2,
       "capacity": 9577,
       "estimated_capacity": false
@@ -166,6 +176,7 @@
        "19": {
         "pred": 274,
         "obs": 209,
+        "obs_raw": 209,
         "pred_excess": 135,
         "obs_excess": 70,
         "pred_load": 0.024,
@@ -177,6 +188,7 @@
        "20": {
         "pred": 406,
         "obs": 299,
+        "obs_raw": 299,
         "pred_excess": 286,
         "obs_excess": 179,
         "pred_load": 0.052,
@@ -188,6 +200,7 @@
        "21": {
         "pred": 1106,
         "obs": 1033,
+        "obs_raw": 1033,
         "pred_excess": 978,
         "obs_excess": 905,
         "pred_load": 0.176,
@@ -199,6 +212,7 @@
        "22": {
         "pred": 860,
         "obs": 1253,
+        "obs_raw": 1253,
         "pred_excess": 735,
         "obs_excess": 1128,
         "pred_load": 0.133,
@@ -210,6 +224,7 @@
        "23": {
         "pred": 339,
         "obs": 191,
+        "obs_raw": 191,
         "pred_excess": 278,
         "obs_excess": 130,
         "pred_load": 0.05,
@@ -231,6 +246,7 @@
        "19": {
         "pred": 1265,
         "obs": 1663,
+        "obs_raw": 1663,
         "pred_excess": 831,
         "obs_excess": 1229,
         "pred_load": 0.055,
@@ -242,6 +258,7 @@
        "20": {
         "pred": 2506,
         "obs": 5109,
+        "obs_raw": 5109,
         "pred_excess": 2048,
         "obs_excess": 4651,
         "pred_load": 0.137,
@@ -253,6 +270,7 @@
        "21": {
         "pred": 6395,
         "obs": 4502,
+        "obs_raw": 4502,
         "pred_excess": 5899,
         "obs_excess": 4006,
         "pred_load": 0.393,
@@ -264,6 +282,7 @@
        "22": {
         "pred": 4128,
         "obs": 3497,
+        "obs_raw": 3497,
         "pred_excess": 3764,
         "obs_excess": 3133,
         "pred_load": 0.251,
@@ -275,6 +294,7 @@
        "23": {
         "pred": 1391,
         "obs": 914,
+        "obs_raw": 914,
         "pred_excess": 1244,
         "obs_excess": 767,
         "pred_load": 0.083,
@@ -294,8 +314,8 @@
     },
     "total_err_boarding": 0.245,
     "total_err_excess": 0.277,
-    "grade_hit_rate": 0.882,
-    "grade_hits": 15,
+    "grade_hit_rate": 0.824,
+    "grade_hits": 14,
     "grade_n": 17,
     "source_year": "2024",
     "target_year": "2024"
@@ -307,6 +327,7 @@
        "19": {
         "pred": 2910,
         "obs": 1737,
+        "obs_raw": 1737,
         "pred_excess": 1700,
         "obs_excess": 527,
         "pred_load": 0.096,
@@ -318,6 +339,7 @@
        "20": {
         "pred": 7200,
         "obs": 8311,
+        "obs_raw": 8311,
         "pred_excess": 5731,
         "obs_excess": 6842,
         "pred_load": 0.322,
@@ -329,6 +351,7 @@
        "21": {
         "pred": 11804,
         "obs": 12473,
+        "obs_raw": 12473,
         "pred_excess": 10822,
         "obs_excess": 11491,
         "pred_load": 0.608,
@@ -340,6 +363,7 @@
        "22": {
         "pred": 6161,
         "obs": 6002,
+        "obs_raw": 6002,
         "pred_excess": 5591,
         "obs_excess": 5432,
         "pred_load": 0.314,
@@ -351,6 +375,7 @@
        "23": {
         "pred": 1480,
         "obs": 1032,
+        "obs_raw": 1032,
         "pred_excess": 1315,
         "obs_excess": 867,
         "pred_load": 0.074,
@@ -372,6 +397,7 @@
        "19": {
         "pred": 0,
         "obs": 0,
+        "obs_raw": 0,
         "pred_excess": 0,
         "obs_excess": 0,
         "pred_load": 0.0,
@@ -382,9 +408,10 @@
        },
        "20": {
         "pred": 0,
-        "obs": 3,
+        "obs": 0,
+        "obs_raw": 3,
         "pred_excess": 0,
-        "obs_excess": 3,
+        "obs_excess": 0,
         "pred_load": 0.0,
         "obs_load": 0.0,
         "pred_grade": "여유",
@@ -393,41 +420,44 @@
        },
        "21": {
         "pred": 0,
-        "obs": 5834,
+        "obs": 0,
+        "obs_raw": 5834,
         "pred_excess": 0,
-        "obs_excess": 5834,
+        "obs_excess": 0,
         "pred_load": 0.0,
-        "obs_load": 0.609,
+        "obs_load": 0.0,
         "pred_grade": "여유",
-        "obs_grade": "주의",
+        "obs_grade": "여유",
         "closed": true
        },
        "22": {
-        "pred": 12386,
-        "obs": 9577,
-        "pred_excess": 11630,
-        "obs_excess": 8821,
-        "pred_load": 1.214,
-        "obs_load": 0.921,
+        "pred": 14235,
+        "obs": 15414,
+        "obs_raw": 9577,
+        "pred_excess": 13479,
+        "obs_excess": 14658,
+        "pred_load": 1.407,
+        "obs_load": 1.531,
         "pred_grade": "심각",
-        "obs_grade": "경계",
+        "obs_grade": "심각",
         "closed": false
        },
        "23": {
-        "pred": 2546,
+        "pred": 697,
         "obs": 2907,
-        "pred_excess": 2320,
+        "obs_raw": 2907,
+        "pred_excess": 471,
         "obs_excess": 2681,
-        "pred_load": 0.242,
+        "pred_load": 0.049,
         "obs_load": 0.28,
         "pred_grade": "여유",
         "obs_grade": "여유",
         "closed": false
        }
       },
-      "err_boarding": 0.492,
-      "err_excess": 0.519,
-      "grade_hits": 1,
+      "err_boarding": 0.185,
+      "err_excess": 0.195,
+      "grade_hits": 2,
       "grade_n": 2,
       "capacity": 9577,
       "estimated_capacity": false
@@ -437,6 +467,7 @@
        "19": {
         "pred": 388,
         "obs": 216,
+        "obs_raw": 216,
         "pred_excess": 246,
         "obs_excess": 74,
         "pred_load": 0.044,
@@ -448,6 +479,7 @@
        "20": {
         "pred": 601,
         "obs": 519,
+        "obs_raw": 519,
         "pred_excess": 475,
         "obs_excess": 393,
         "pred_load": 0.086,
@@ -459,6 +491,7 @@
        "21": {
         "pred": 2005,
         "obs": 2773,
+        "obs_raw": 2773,
         "pred_excess": 1877,
         "obs_excess": 2645,
         "pred_load": 0.338,
@@ -470,6 +503,7 @@
        "22": {
         "pred": 1512,
         "obs": 1379,
+        "obs_raw": 1379,
         "pred_excess": 1401,
         "obs_excess": 1268,
         "pred_load": 0.253,
@@ -481,6 +515,7 @@
        "23": {
         "pred": 540,
         "obs": 158,
+        "obs_raw": 158,
         "pred_excess": 479,
         "obs_excess": 97,
         "pred_load": 0.086,
@@ -502,6 +537,7 @@
        "19": {
         "pred": 1306,
         "obs": 935,
+        "obs_raw": 935,
         "pred_excess": 879,
         "obs_excess": 508,
         "pred_load": 0.059,
@@ -513,6 +549,7 @@
        "20": {
         "pred": 2544,
         "obs": 5809,
+        "obs_raw": 5809,
         "pred_excess": 2098,
         "obs_excess": 5363,
         "pred_load": 0.14,
@@ -524,6 +561,7 @@
        "21": {
         "pred": 7280,
         "obs": 6123,
+        "obs_raw": 6123,
         "pred_excess": 6800,
         "obs_excess": 5643,
         "pred_load": 0.453,
@@ -535,6 +573,7 @@
        "22": {
         "pred": 4632,
         "obs": 3527,
+        "obs_raw": 3527,
         "pred_excess": 4262,
         "obs_excess": 3157,
         "pred_load": 0.284,
@@ -546,6 +585,7 @@
        "23": {
         "pred": 1386,
         "obs": 754,
+        "obs_raw": 754,
         "pred_excess": 1238,
         "obs_excess": 606,
         "pred_load": 0.083,
@@ -563,10 +603,10 @@
       "estimated_capacity": true
      }
     },
-    "total_err_boarding": 0.294,
-    "total_err_excess": 0.331,
-    "grade_hit_rate": 0.941,
-    "grade_hits": 16,
+    "total_err_boarding": 0.214,
+    "total_err_excess": 0.241,
+    "grade_hit_rate": 1.0,
+    "grade_hits": 17,
     "grade_n": 17,
     "source_year": "2025",
     "target_year": "2025"
@@ -574,15 +614,15 @@
    "summary": {
     "err_boarding": {
      "2024": 0.245,
-     "2025": 0.294
+     "2025": 0.214
     },
     "err_excess": {
      "2024": 0.277,
-     "2025": 0.331
+     "2025": 0.241
     },
     "grade_hit_rate": {
-     "2024": 0.882,
-     "2025": 0.941
+     "2024": 0.824,
+     "2025": 1.0
     }
    }
   },
@@ -594,6 +634,7 @@
        "19": {
         "pred": 2959,
         "obs": 1552,
+        "obs_raw": 1552,
         "pred_excess": 1700,
         "obs_excess": 293,
         "pred_load": 0.096,
@@ -605,6 +646,7 @@
        "20": {
         "pred": 7242,
         "obs": 11148,
+        "obs_raw": 11148,
         "pred_excess": 5731,
         "obs_excess": 9637,
         "pred_load": 0.322,
@@ -616,6 +658,7 @@
        "21": {
         "pred": 11858,
         "obs": 17788,
+        "obs_raw": 17788,
         "pred_excess": 10822,
         "obs_excess": 16752,
         "pred_load": 0.608,
@@ -627,6 +670,7 @@
        "22": {
         "pred": 6175,
         "obs": 11009,
+        "obs_raw": 11009,
         "pred_excess": 5591,
         "obs_excess": 10425,
         "pred_load": 0.314,
@@ -638,6 +682,7 @@
        "23": {
         "pred": 1480,
         "obs": 1339,
+        "obs_raw": 1339,
         "pred_excess": 1315,
         "obs_excess": 1174,
         "pred_load": 0.074,
@@ -658,62 +703,67 @@
       "by_hour": {
        "19": {
         "pred": 0,
-        "obs": 10,
+        "obs": 0,
+        "obs_raw": 10,
         "pred_excess": 0,
-        "obs_excess": 10,
+        "obs_excess": 0,
         "pred_load": 0.0,
-        "obs_load": 0.001,
+        "obs_load": 0.0,
         "pred_grade": "여유",
         "obs_grade": "여유",
         "closed": true
        },
        "20": {
         "pred": 0,
-        "obs": 17,
+        "obs": 0,
+        "obs_raw": 17,
         "pred_excess": 0,
-        "obs_excess": 17,
+        "obs_excess": 0,
         "pred_load": 0.0,
-        "obs_load": 0.002,
+        "obs_load": 0.0,
         "pred_grade": "여유",
         "obs_grade": "여유",
         "closed": true
        },
        "21": {
         "pred": 0,
-        "obs": 2308,
+        "obs": 0,
+        "obs_raw": 2308,
         "pred_excess": 0,
-        "obs_excess": 2308,
+        "obs_excess": 0,
         "pred_load": 0.0,
-        "obs_load": 0.241,
+        "obs_load": 0.0,
         "pred_grade": "여유",
         "obs_grade": "여유",
         "closed": true
        },
        "22": {
-        "pred": 12700,
-        "obs": 8170,
-        "pred_excess": 11630,
-        "obs_excess": 7100,
-        "pred_load": 1.214,
-        "obs_load": 0.741,
+        "pred": 14549,
+        "obs": 10505,
+        "obs_raw": 8170,
+        "pred_excess": 13479,
+        "obs_excess": 9435,
+        "pred_load": 1.407,
+        "obs_load": 0.985,
         "pred_grade": "심각",
-        "obs_grade": "주의",
+        "obs_grade": "경계",
         "closed": false
        },
        "23": {
-        "pred": 2718,
+        "pred": 869,
         "obs": 2580,
-        "pred_excess": 2320,
+        "obs_raw": 2580,
+        "pred_excess": 471,
         "obs_excess": 2182,
-        "pred_load": 0.242,
+        "pred_load": 0.049,
         "obs_load": 0.228,
         "pred_grade": "여유",
         "obs_grade": "여유",
         "closed": false
        }
       },
-      "err_boarding": 0.535,
-      "err_excess": 0.603,
+      "err_boarding": 0.44,
+      "err_excess": 0.495,
       "grade_hits": 1,
       "grade_n": 2,
       "capacity": 9577,
@@ -724,6 +774,7 @@
        "19": {
         "pred": 385,
         "obs": 209,
+        "obs_raw": 209,
         "pred_excess": 246,
         "obs_excess": 70,
         "pred_load": 0.044,
@@ -735,6 +786,7 @@
        "20": {
         "pred": 595,
         "obs": 299,
+        "obs_raw": 299,
         "pred_excess": 475,
         "obs_excess": 179,
         "pred_load": 0.086,
@@ -746,6 +798,7 @@
        "21": {
         "pred": 2005,
         "obs": 1033,
+        "obs_raw": 1033,
         "pred_excess": 1877,
         "obs_excess": 905,
         "pred_load": 0.338,
@@ -757,6 +810,7 @@
        "22": {
         "pred": 1526,
         "obs": 1253,
+        "obs_raw": 1253,
         "pred_excess": 1401,
         "obs_excess": 1128,
         "pred_load": 0.253,
@@ -768,6 +822,7 @@
        "23": {
         "pred": 540,
         "obs": 191,
+        "obs_raw": 191,
         "pred_excess": 479,
         "obs_excess": 130,
         "pred_load": 0.086,
@@ -789,6 +844,7 @@
        "19": {
         "pred": 1313,
         "obs": 1663,
+        "obs_raw": 1663,
         "pred_excess": 879,
         "obs_excess": 1229,
         "pred_load": 0.059,
@@ -800,6 +856,7 @@
        "20": {
         "pred": 2556,
         "obs": 5109,
+        "obs_raw": 5109,
         "pred_excess": 2098,
         "obs_excess": 4651,
         "pred_load": 0.14,
@@ -811,6 +868,7 @@
        "21": {
         "pred": 7296,
         "obs": 4502,
+        "obs_raw": 4502,
         "pred_excess": 6800,
         "obs_excess": 4006,
         "pred_load": 0.453,
@@ -822,6 +880,7 @@
        "22": {
         "pred": 4626,
         "obs": 3497,
+        "obs_raw": 3497,
         "pred_excess": 4262,
         "obs_excess": 3133,
         "pred_load": 0.284,
@@ -833,6 +892,7 @@
        "23": {
         "pred": 1385,
         "obs": 914,
+        "obs_raw": 914,
         "pred_excess": 1238,
         "obs_excess": 767,
         "pred_load": 0.083,
@@ -850,8 +910,8 @@
       "estimated_capacity": true
      }
     },
-    "total_err_boarding": 0.437,
-    "total_err_excess": 0.493,
+    "total_err_boarding": 0.42,
+    "total_err_excess": 0.474,
     "grade_hit_rate": 0.765,
     "grade_hits": 13,
     "grade_n": 17,
@@ -865,6 +925,7 @@
        "19": {
         "pred": 4044,
         "obs": 1737,
+        "obs_raw": 1737,
         "pred_excess": 2834,
         "obs_excess": 527,
         "pred_load": 0.159,
@@ -876,6 +937,7 @@
        "20": {
         "pred": 10339,
         "obs": 8311,
+        "obs_raw": 8311,
         "pred_excess": 8870,
         "obs_excess": 6842,
         "pred_load": 0.499,
@@ -887,6 +949,7 @@
        "21": {
         "pred": 16796,
         "obs": 12473,
+        "obs_raw": 12473,
         "pred_excess": 15814,
         "obs_excess": 11491,
         "pred_load": 0.889,
@@ -898,6 +961,7 @@
        "22": {
         "pred": 9030,
         "obs": 6002,
+        "obs_raw": 6002,
         "pred_excess": 8460,
         "obs_excess": 5432,
         "pred_load": 0.476,
@@ -909,6 +973,7 @@
        "23": {
         "pred": 2467,
         "obs": 1032,
+        "obs_raw": 1032,
         "pred_excess": 2302,
         "obs_excess": 867,
         "pred_load": 0.129,
@@ -930,6 +995,7 @@
        "19": {
         "pred": 0,
         "obs": 0,
+        "obs_raw": 0,
         "pred_excess": 0,
         "obs_excess": 0,
         "pred_load": 0.0,
@@ -940,9 +1006,10 @@
        },
        "20": {
         "pred": 0,
-        "obs": 3,
+        "obs": 0,
+        "obs_raw": 3,
         "pred_excess": 0,
-        "obs_excess": 3,
+        "obs_excess": 0,
         "pred_load": 0.0,
         "obs_load": 0.0,
         "pred_grade": "여유",
@@ -951,32 +1018,35 @@
        },
        "21": {
         "pred": 0,
-        "obs": 5834,
+        "obs": 0,
+        "obs_raw": 5834,
         "pred_excess": 0,
-        "obs_excess": 5834,
+        "obs_excess": 0,
         "pred_load": 0.0,
-        "obs_load": 0.609,
+        "obs_load": 0.0,
         "pred_grade": "여유",
-        "obs_grade": "주의",
+        "obs_grade": "여유",
         "closed": true
        },
        "22": {
-        "pred": 6847,
-        "obs": 9577,
-        "pred_excess": 6091,
-        "obs_excess": 8821,
-        "pred_load": 0.636,
-        "obs_load": 0.921,
+        "pred": 7921,
+        "obs": 15414,
+        "obs_raw": 9577,
+        "pred_excess": 7165,
+        "obs_excess": 14658,
+        "pred_load": 0.748,
+        "obs_load": 1.531,
         "pred_grade": "주의",
-        "obs_grade": "경계",
+        "obs_grade": "심각",
         "closed": false
        },
        "23": {
-        "pred": 1589,
+        "pred": 515,
         "obs": 2907,
-        "pred_excess": 1363,
+        "obs_raw": 2907,
+        "pred_excess": 289,
         "obs_excess": 2681,
-        "pred_load": 0.142,
+        "pred_load": 0.03,
         "obs_load": 0.28,
         "pred_grade": "여유",
         "obs_grade": "여유",
@@ -995,6 +1065,7 @@
        "19": {
         "pred": 277,
         "obs": 216,
+        "obs_raw": 216,
         "pred_excess": 135,
         "obs_excess": 74,
         "pred_load": 0.024,
@@ -1006,6 +1077,7 @@
        "20": {
         "pred": 412,
         "obs": 519,
+        "obs_raw": 519,
         "pred_excess": 286,
         "obs_excess": 393,
         "pred_load": 0.052,
@@ -1017,6 +1089,7 @@
        "21": {
         "pred": 1106,
         "obs": 2773,
+        "obs_raw": 2773,
         "pred_excess": 978,
         "obs_excess": 2645,
         "pred_load": 0.176,
@@ -1028,6 +1101,7 @@
        "22": {
         "pred": 846,
         "obs": 1379,
+        "obs_raw": 1379,
         "pred_excess": 735,
         "obs_excess": 1268,
         "pred_load": 0.133,
@@ -1039,6 +1113,7 @@
        "23": {
         "pred": 339,
         "obs": 158,
+        "obs_raw": 158,
         "pred_excess": 278,
         "obs_excess": 97,
         "pred_load": 0.05,
@@ -1060,6 +1135,7 @@
        "19": {
         "pred": 1258,
         "obs": 935,
+        "obs_raw": 935,
         "pred_excess": 831,
         "obs_excess": 508,
         "pred_load": 0.055,
@@ -1071,6 +1147,7 @@
        "20": {
         "pred": 2494,
         "obs": 5809,
+        "obs_raw": 5809,
         "pred_excess": 2048,
         "obs_excess": 5363,
         "pred_load": 0.137,
@@ -1082,6 +1159,7 @@
        "21": {
         "pred": 6379,
         "obs": 6123,
+        "obs_raw": 6123,
         "pred_excess": 5899,
         "obs_excess": 5643,
         "pred_load": 0.393,
@@ -1093,6 +1171,7 @@
        "22": {
         "pred": 4134,
         "obs": 3527,
+        "obs_raw": 3527,
         "pred_excess": 3764,
         "obs_excess": 3157,
         "pred_load": 0.251,
@@ -1104,6 +1183,7 @@
        "23": {
         "pred": 1392,
         "obs": 754,
+        "obs_raw": 754,
         "pred_excess": 1244,
         "obs_excess": 606,
         "pred_load": 0.083,
@@ -1131,11 +1211,11 @@
    },
    "summary": {
     "err_boarding": {
-     "2024": 0.437,
+     "2024": 0.42,
      "2025": 0.438
     },
     "err_excess": {
-     "2024": 0.493,
+     "2024": 0.474,
      "2025": 0.493
     },
     "grade_hit_rate": {
@@ -1149,6 +1229,7 @@
   "A: 총량은 관측 E 라 맞음 → 시간대 형태·지연·통제 처리만 검증",
   "B: 다른 해 E·곡선 → 2026 과 같은 조건(과거만). 규모 이전 오차 포함",
   "9호선 3역·마포역 도보 실측은 일별/추정이라 시간대 비교 불가 → 4역만",
+  "통제 시간대 실측(해제 직후 승차)은 다음 개방 시간대에 합산 비교 (모델 이월 규칙과 동일, obs_raw 원값)",
   "등급 load = 초과분/용량(nowcast.CAP). 신길·마포 용량은 추정치"
  ]
 }

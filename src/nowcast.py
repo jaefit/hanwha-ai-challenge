@@ -148,6 +148,7 @@ def compute_exits(total, dirs, sub_share, lags, hours=(19, 20, 21, 22, 23), stat
     관측 모드(station_totals 있음, 2026-08-29 채택): 규모·분배 = 관측 초과 승차 E_st(exit_shares.json), KT 곡선은 시간 형태만.
       도착 형태 = Σ_off lag[st][off] × 곡선[h-off] 를 **그 역의 개방 시간대에서만** 정규화해 E_st 를 분배한다.
       통제 시간대 재배정은 하지 않는다 — 관측 E 자체가 통제 하의 행동(여의나루=해제 후 승차, 여의도(5)=우회 포함)이라 재배정하면 이중계산.
+      통제 시간대 도착분은 그 역의 해제 후 첫 개방 시간대로 이월한다(2026: 여의나루 20~21시분 → 22시).
       (백테스트 2025: 재배정 방식은 여의나루 22시 2.6k vs 실측 9.6k, 개방시간 분배로 정정)
     회랑 모드(레거시·참고): 출발(st,h) = total[h] × Σ_d dirs[d]·sub_share·ASSIGN[d][st], 통제 시간대 여의나루 수요는 여의도(5)로 이관."""
     H = range(15, 25)
@@ -155,10 +156,16 @@ def compute_exits(total, dirs, sub_share, lags, hours=(19, 20, 21, 22, 23), stat
     if station_totals is not None:
         tot = sum(total.get(h, 0) for h in H) or 1.0
         shape = {h: total.get(h, 0) / tot for h in H}
-        for st in CAP:   # E_st 는 19~23시(hours)에서 잰 값 → 같은 창의 개방 시간대에서만 정규화·분배 (15~18시 출발분엔 배분하지 않음)
+        for st in CAP:   # E_st 는 19~23시(hours)에서 잰 값 → 같은 창에서만 정규화·분배 (15~18시 출발분엔 배분하지 않음)
             arr = {h: sum(fr * shape.get(h - off, 0.0) for off, fr in lags.get(st, {0: 0.4, 1: 0.6}).items()) for h in H}
-            open_mass = sum(arr[h] for h in hours if (st, h) not in CLOSED) or 1.0
-            demand_by[st] = {h: (station_totals.get(st, 0.0) * arr[h] / open_mass if (h in hours and (st, h) not in CLOSED) else 0.0) for h in H}
+            # 통제 시간대 도착분은 해제 후 첫 개방 시간대로 이월 (2026-08-30 결정): 여의나루에 온 사람은 해제(21:40)를 기다렸다 바로 탄다
+            # → 22시 수요에 합산. 근거: 해제 직후 시간대 승차 2024 2.3k·2025 5.8k(OA-12921). 비례 재분배(구 방식)는 19시를 부풀렸다.
+            mass = {h: 0.0 for h in H}; carry = 0.0
+            for h in sorted(hours):
+                if (st, h) in CLOSED: carry += arr[h]
+                else: mass[h] = arr[h] + carry; carry = 0.0
+            tot_mass = sum(mass[h] for h in hours) or 1.0
+            demand_by[st] = {h: station_totals.get(st, 0.0) * mass[h] / tot_mass for h in H}
     else:
         dep = {st: {h: 0.0 for h in H} for st in CAP}
         for h in H:

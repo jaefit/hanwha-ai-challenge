@@ -9,6 +9,7 @@
 비교 대상: 5호선 여의도·여의나루·신길, 마포 — 시간대 승차가 있는 4역. 9호선 3역은 일별만 있어 시간대 비교 불가(표기).
 예측 승차 = 모델 수요(초과분) + 그 해 평시 토요일 중앙값(개방 시간대). 통제 시간대는 0.
 지표: |오차|합/실측합 (승차 기준·초과분 기준), 등급 적중률 (load = 초과분/용량, 대시보드 4등급).
+통제 시간대 실측 승차(해제가 시간대 중간, 2024 21시 2.3k·2025 5.8k)는 모델 이월 규칙과 같게 다음 개방 시간대 실측에 합산해 비교(obs_raw 에 원값).
 통제: 2024·2025 실적은 여의나루 19~21시 하차≈0(topic-fireworks.md §1) → CLOSED 를 그 해 기준으로 바꿔 계산. 2026 은 20~21시(nowcast.CLOSED).
 쇼 종료 시프트(nowcast.SHIFT_MIN)는 2026−기준연도 차이라 과거 연도엔 0 → compute_exits 직접 호출.
 """
@@ -45,13 +46,18 @@ def run(target, source, ES):
     for st in STATIONS:
         obs = det[st]["festival_by_hour"]; base = det[st]["saturday_median_by_hour"]
         rows = {}; eb = ob = ee = oe = h_hit = h_n = 0
+        # 통제 시간대 실측 승차(해제가 시간대 중간 → 2024 21시 2.3k·2025 5.8k)는 모델 규칙(이월)과 같게 다음 개방 시간대 실측에 합산해 비교
+        obs_eval = {h: obs[str(h)] for h in HOURS}; carry = 0
+        for h in HOURS:
+            if (st, h) in CLOSED_BY_YEAR[target]: carry += obs_eval[h]; obs_eval[h] = 0
+            else: obs_eval[h] += carry; carry = 0
         for h in HOURS:
             closed = (st, h) in CLOSED_BY_YEAR[target]
-            pe = ex[st][h]["demand"]; a = obs[str(h)]; b = 0 if closed else base[str(h)]
+            pe = ex[st][h]["demand"]; a = obs_eval[h]; b = 0 if closed else base[str(h)]
             p = pe + b; ae = a - b
             pl, ol = pe / N.CAP[st], ae / N.CAP[st]
             pg, og = GRADE(pl), GRADE(ol)
-            rows[h] = {"pred": p, "obs": a, "pred_excess": pe, "obs_excess": ae, "pred_load": round(pl, 3), "obs_load": round(ol, 3),
+            rows[h] = {"pred": p, "obs": a, "obs_raw": obs[str(h)], "pred_excess": pe, "obs_excess": ae, "pred_load": round(pl, 3), "obs_load": round(ol, 3),
                        "pred_grade": pg, "obs_grade": og, "closed": closed}
             eb += abs(p - a); ob += a; ee += abs(pe - ae); oe += abs(ae)
             if not closed: h_n += 1; h_hit += (pg == og)
@@ -77,7 +83,7 @@ def main():
            "observed_source": "서울교통공사 OA-12921 시간대별 승차 (exit_shares.json hourly_detail)", "closed_by_year": {y: sorted(h for _, h in c) for y, c in CLOSED_BY_YEAR.items()},
            "hours": list(HOURS), "stations": list(STATIONS), "modes": {"A_in_sample": {}, "B_cross_year": {}},
            "notes": ["A: 총량은 관측 E 라 맞음 → 시간대 형태·지연·통제 처리만 검증", "B: 다른 해 E·곡선 → 2026 과 같은 조건(과거만). 규모 이전 오차 포함",
-                     "9호선 3역·마포역 도보 실측은 일별/추정이라 시간대 비교 불가 → 4역만", "등급 load = 초과분/용량(nowcast.CAP). 신길·마포 용량은 추정치"]}
+                     "9호선 3역·마포역 도보 실측은 일별/추정이라 시간대 비교 불가 → 4역만", "통제 시간대 실측(해제 직후 승차)은 다음 개방 시간대에 합산 비교 (모델 이월 규칙과 동일, obs_raw 원값)", "등급 load = 초과분/용량(nowcast.CAP). 신길·마포 용량은 추정치"]}
     for y in YEARS:
         a = run(y, y, ES); out["modes"]["A_in_sample"][y] = a; show(f"A in-sample {y}", a)
     for y in YEARS:
