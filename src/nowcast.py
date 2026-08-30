@@ -4,8 +4,10 @@
   .venv/bin/python src/nowcast.py            # 1회 계산
   .venv/bin/python src/nowcast.py --date 20260905
 
-L2 α(t)  = 여의나루 누적 하차(관측, citydata LIVE_SUB_PPLTN) / 축제일 2년 평균 누적 하차(같은 시각까지)
-           여의나루는 19시부터 무정차라 α 는 19:00 이후 동결. 관측이 없으면 α=1.
+L2 α     = 출구 수요 규모 배율. 격자 사후분포(61점, 1/3~3, 사전 LogNormal(0,0.25))를 당일 관측 2종으로 갱신(2026-08-30 T1c):
+           O1 도착측 = 여의나루(여의도한강공원 핫스팟) 30분 하차 증분 vs α×2년 평균 증분 (12~19시, σ 15%+범위)
+           O2 귀가측 = 여의도 핫스팟(9역 합산) 30분 승차 vs c×(α×모델 초과 승차 + 평시 승차) (19시~, σ 20%, c=커버리지 추정)
+           매 틱 당일 로그 전체를 다시 계산(재시작 무관). 관측 0건이면 사전분포 → α=1, 밴드 0.73~1.38.
 L3 출구수요 = α × E_st(관측 초과 승차, exit_shares.json) × KT 유출곡선 형태(h) → 도달 지연.  (2026-08-29 정정: 회랑→역 배정표는 실측과 어긋나 참고용으로 강등)
 L4 대기(분) = max(0, 수요 − 용량) / 용량 × 60.   용량 = 관측 최대 시간당 승차(1~8호선), 9호선은 추정(주석)
 도달 지연 = 관람구역→출구 거리 ÷ Weidmann 밀도별 보행속도(CCTV 등급 연동). 쇼 종료 실제 시각: --show-end HH:MM 또는 data/live/show_end.txt
@@ -39,6 +41,14 @@ CAP = {  # 시간당 처리 용량(명). 관측값은 baseline.subway_capacity_o
 _ES = DER / "exit_shares.json"
 EXIT_SHARES = json.loads(_ES.read_text(encoding="utf-8")) if _ES.exists() else None
 E_MEAN = {st: float(v) for st, v in EXIT_SHARES["E_mean"].items()} if EXIT_SHARES else None
+BASE6 = {int(h): float(v) for h, v in (EXIT_SHARES or {}).get("baseline_boarding_by_hour_6exits", {}).items()}   # 지하철 출구 6개 평시 토요일 시간대 승차 합
+# ── α 데이터동화 상수 (T1c) ──
+ALPHA_GRID = [3.0 ** ((i - 30) / 30) for i in range(61)]   # 로그 등간격 61점, 1/3 ~ 3, 중앙(i=30) = 1.0
+PRIOR_SIGMA = 0.25            # LogNormal(0, σ): p10/p90 = 0.73/1.38 ≈ 2년 관측 밴드 폭
+O1_REL_SIGMA, O2_REL_SIGMA = 0.15, 0.20
+O1_MIN_BASE_INC = 200         # 30분 기준 증분이 이보다 작은 창은 정보 없음(새벽·통제 후)
+COVERAGE_FALLBACK, COVERAGE_CLAMP = 1.3, (0.8, 3.0)   # 여의도 핫스팟 9역 ÷ 우리 6출구 커버리지. 당일 14~17시로 추정, 실패 시 고정값
+SUBWAY_EXITS = ("여의도(5)", "여의나루(5)", "신길(1·5)", "여의도(9)", "샛강(9)", "국회의사당(9)")
 # 교통카드 일별 승차비로 비례 추정한 9호선·신길 용량 (src/line9_capacity.py, OA-12914). 여전히 추정이라 ESTIMATED 유지
 _L9 = DER / "line9_capacity.json"
 CAP_BASIS = {}
@@ -198,24 +208,95 @@ def latest_api(date):
     return city, acdnt + dst
 
 
-def alpha(city, now):
-    park = city.get("여의도한강공원")
-    if not park or not park.get("sub_live"): return 1.0, "관측 없음 → α=1"
-    s = park["sub_live"]
-    try: obs = (int(s["SUB_ACML_GTOFF_PPLTN_MIN"]) + int(s["SUB_ACML_GTOFF_PPLTN_MAX"])) / 2
-    except Exception: return 1.0, "누적 하차 파싱 실패 → α=1"
-    h = min(now.hour, 19); frac = 0 if now.hour >= 19 else now.minute / 60
-    base = sum(v for k, v in YEOUINARU_GTOFF_BASE.items() if k < h) + YEOUINARU_GTOFF_BASE.get(h, 0) * frac
-    if base < 1000: return 1.0, f"기준 누적이 작아 α 미정의({now:%H:%M}) → α=1"
-    a = max(0.3, min(3.0, obs / base))
-    return round(a, 3), f"여의나루 누적 하차 관측 {obs:,.0f} / 기준 {base:,.0f}"
+def _load_records(date):
+    fn = LIVE / f"api_{date}.jsonl"
+    if not fn.exists(): return []
+    return [json.loads(l) for l in fn.read_text(encoding="utf-8").splitlines() if l.strip()]
+
+
+def _win(records, area):
+    """(시, 30분 구간) 별 마지막 레코드. 30분 창 = 그 레코드 시각 직전 30분(수집 주기 5분 → 최대 5분 어긋남, 표기)."""
+    out = {}
+    for r in records:
+        if r.get("kind") != "citydata" or r.get("area") != area or "error" in r or not r.get("sub_live"): continue
+        try: t = datetime.datetime.fromisoformat(r["ts"])
+        except Exception: continue
+        key = (t.hour, t.minute // 30)
+        if key not in out or t > out[key][0]: out[key] = (t, r["sub_live"])
+    return out
+
+
+def _mid(s, key):
+    try: lo, hi = float(s[f"{key}_MIN"]), float(s[f"{key}_MAX"])
+    except (KeyError, TypeError, ValueError): return None
+    return (lo + hi) / 2, (hi - lo) / 2
+
+
+def _observations(records, excess1_by_hour, base_by_hour):
+    """당일 로그 → 우도 항. obs = [(y, A, B, rel_sigma, abs_sigma, kind)], pred(α) = A·α + B, σ = rel·pred + abs.
+    O1 여의도한강공원(=여의나루 1역) 30분 하차: A = 2년 평균 30분 증분, B = 0. 창 종료 ≤ 19:00.
+    O2 여의도 핫스팟(9역 합산) 30분 승차: A = c·초과(α=1)/2, B = c·평시/2. 창 시작 ≥ 19:00.
+    c(커버리지) = 당일 14~17시 관측 30분 승차 ÷ 우리 6출구 평시 30분 승차 의 중앙값 (3창 이상), 없으면 COVERAGE_FALLBACK."""
+    obs = []; park = _win(records, "여의도한강공원"); ydo = _win(records, "여의도")
+    n1 = 0
+    for (h, half), (t, s) in sorted(park.items()):
+        if h > 18 or h < 12: continue
+        base_inc = YEOUINARU_GTOFF_BASE.get(h, 0) / 2
+        if base_inc < O1_MIN_BASE_INC: continue
+        m = _mid(s, "SUB_30WTHN_GTOFF_PPLTN")
+        if not m: continue
+        obs.append((m[0], base_inc, 0.0, O1_REL_SIGMA, m[1], "alighting")); n1 += 1
+    cs = []
+    for (h, half), (t, s) in sorted(ydo.items()):
+        if 14 <= h <= 16 and base_by_hour.get(h):
+            m = _mid(s, "SUB_30WTHN_GTON_PPLTN")
+            if m: cs.append(m[0] / (base_by_hour[h] / 2))
+    if len(cs) >= 3:
+        c = max(COVERAGE_CLAMP[0], min(COVERAGE_CLAMP[1], sorted(cs)[len(cs) // 2])); c_basis = "same_day_14_17h"
+    else:
+        c = COVERAGE_FALLBACK; c_basis = "fallback"
+    n2 = 0
+    for (h, half), (t, s) in sorted(ydo.items()):
+        if h < 19 or h > 23: continue
+        m = _mid(s, "SUB_30WTHN_GTON_PPLTN")
+        if not m: continue
+        A = c * excess1_by_hour.get(h, 0.0) / 2; B = c * base_by_hour.get(h, 0.0) / 2
+        if A + B <= 0: continue
+        obs.append((m[0], A, B, O2_REL_SIGMA, m[1], "boarding")); n2 += 1
+    meta = {"n_obs": {"alighting": n1, "boarding": n2}, "coverage_c": round(c, 3), "coverage_basis": c_basis, "coverage_samples": len(cs),
+            "window_note": "30분 창 = 각 30분 구간 마지막 수집 레코드 직전 30분 (최대 5분 어긋남)"}
+    return obs, meta
+
+
+def assimilate(obs, prior_sigma=PRIOR_SIGMA, grid=ALPHA_GRID):
+    """격자 사후분포. w(α) ∝ LogNormal 사전 × Π N(y; A·α+B, σ). 반환: alpha [p10,p50,p90], weights, edge_hit, n_obs."""
+    # σ 는 α 무관 상수: rel × max(관측 y, α=1 예측 A+B) + abs. 예측(α) 기준이면 −ln σ 항이 작은 α 를 편애(테스트 0.91),
+    # 관측만 기준이면 작은 y 한 건이 σ 를 줄여 과신(8/29 평시 로그: 1건으로 밴드 ±5%). 둘 중 큰 쪽이라 둘 다 막는다.
+    sigs = [max(rel * max(y, A + B) + ab, 1.0) for y, A, B, rel, ab, kind in obs]
+    logw = []
+    for a in grid:
+        lw = -0.5 * (math.log(a) / prior_sigma) ** 2
+        for (y, A, B, rel, ab, kind), sig in zip(obs, sigs):
+            lw += -0.5 * ((y - (A * a + B)) / sig) ** 2
+        logw.append(lw)
+    m = max(logw); w = [math.exp(x - m) for x in logw]; z = sum(w); w = [x / z for x in w]
+    step = math.log(grid[1] / grid[0])   # 각 격자점 질량은 로그 공간에서 그 점을 중심으로 한 셀 [g/√r, g·√r] 에 균등 (끝점 귀속은 반 셀 편향)
+    def q(p):
+        c = 0.0
+        for i, wi in enumerate(w):
+            if c + wi >= p:
+                f = (p - c) / wi if wi > 0 else 0.5
+                return math.exp(math.log(grid[i]) + step * (f - 0.5))
+            c += wi
+        return grid[-1]
+    imax = max(range(len(w)), key=lambda i: w[i])
+    return {"alpha": [round(q(0.1), 3), round(q(0.5), 3), round(q(0.9), 3)], "weights": w, "edge_hit": imax in (0, len(w) - 1), "n_obs": len(obs), "grid_n": len(grid)}
 
 
 def main():
     date = sys.argv[sys.argv.index("--date") + 1] if "--date" in sys.argv else datetime.datetime.now().strftime("%Y%m%d")
     now = datetime.datetime.now()
     city, alerts = latest_api(date)
-    a, why = alpha(city, now)
     out_base = {int(k): v for k, v in BASE["outflow_by_hour_mean"].items()}
     # 방향·지하철 비중: 역추적 사전 예측표(src/backtrack.py, 유입 출발지 기준)가 있으면 그것을, 없으면 baseline(유출 도착지 기준)
     prior_fn = DER / "exit_forecast_2026.json"
@@ -228,25 +309,32 @@ def main():
     # 베이스라인 유출 곡선을 shift 분 만큼 뒤로 민다 (시간대 선형 배분)
     f = (shift % 60) / 60; k = shift // 60
     shifted = {h: (1 - f) * out_base.get(h - k, 0) + f * out_base.get(h - k - 1, 0) for h in range(15, 25)}
-    total = {h: a * shifted.get(h, 0) for h in range(15, 25)}
     zd, zd_src = zone_density_from_cctv(date); lags = lag_table(zd)
+    # α 데이터동화: α=1 초과 수요(지하철 6출구 합)를 O2 예측항으로 쓰고, 당일 로그 전체로 사후분포 계산
+    if E_MEAN:
+        ex1 = compute_exits(shifted, dirs, sub_share, lags, hours, station_totals=E_MEAN)
+        excess1 = {h: sum(ex1[st][h]["demand"] for st in SUBWAY_EXITS) for h in hours}
+        obs, ometa = _observations(_load_records(date), excess1, BASE6)
+    else:
+        obs, ometa = [], {"n_obs": {"alighting": 0, "boarding": 0}, "coverage_c": None, "coverage_basis": "n/a"}
+    post = assimilate(obs)
+    a = post["alpha"][1]
+    why = (f"관측 {post['n_obs']}건(하차 {ometa['n_obs']['alighting']}·승차 {ometa['n_obs']['boarding']}) → α p50 {a} [{post['alpha'][0]}–{post['alpha'][2]}]"
+           if post["n_obs"] else "관측 없음 → 사전분포 α=1 [0.73–1.38]")
+    band_lo, band_hi = post["alpha"][0] / a, post["alpha"][2] / a
+    total = {h: a * shifted.get(h, 0) for h in range(15, 25)}
     if E_MEAN:   # 관측 모드: 규모 = α × 2년 평균 초과 승차, 형태 = KT 곡선(α 무관하게 정규화됨)
         station_totals = {st: a * E_MEAN.get(st, 0.0) for st in CAP}; demand_basis = "observed_station_excess (exit_shares.json) × α"
     else:
         station_totals = None; demand_basis = "corridor ASSIGN × KT outflow × subway_share"
     ex_int = compute_exits(total, dirs, sub_share, lags, hours, station_totals=station_totals)
-    prior_exits = PRIOR.get("exits", {}) if prior_fn.exists() else {}
     exits = collections.OrderedDict()
     for st, byh in ex_int.items():
         exits[st] = {}
         for h, v in byh.items():
             v = dict(v); v["load"] = None if v["load"] is None else round(v["load"], 2)
-            pe = (prior_exits.get(st) or {}).get(str(h)) or {}
-            if v["load"] is not None:
-                if pe.get("load") and pe.get("load_lo") is not None:      # 사전 예측표의 밴드 비율(버퍼 포함)을 α 스케일에 그대로 적용
-                    v["load_lo"] = round(v["load"] * pe["load_lo"] / pe["load"], 2); v["load_hi"] = round(v["load"] * pe["load_hi"] / pe["load"], 2)
-                else:
-                    v["load_lo"] = round(v["load"] * 0.9, 2); v["load_hi"] = round(v["load"] * 1.1, 2)   # MARTA 관행 ±MAPE≈10%
+            if v["load"] is not None:   # 밴드 = α 사후 p10/p90 비율 (관측 모드에서 load ∝ α). 관측 없으면 0.73~1.38, 관측 쌓이면 좁아짐
+                v["load_lo"] = round(v["load"] * band_lo, 2); v["load_hi"] = round(v["load"] * band_hi, 2)
             exits[st][str(h)] = v
     ranking = {}
     for h in hours:
@@ -255,6 +343,9 @@ def main():
     seoul_fcst = (city.get("여의도한강공원") or {}).get("fcst", [])
     result = {
         "ts": now.isoformat(timespec="seconds"), "date": date, "alpha": a, "alpha_reason": why,
+        "assimilation": {"method": "격자 사후분포 61점(1/3~3), 사전 LogNormal(0,0.25), 관측 O1 여의나루 30분 하차·O2 여의도 핫스팟 30분 승차", "grid_n": post["grid_n"],
+                         "n_obs": ometa["n_obs"], "alpha": post["alpha"], "edge_hit": post["edge_hit"], "coverage_c": ometa.get("coverage_c"), "coverage_basis": ometa.get("coverage_basis"),
+                         "coverage_samples": ometa.get("coverage_samples", 0), "window_note": ometa.get("window_note")},
         "outflow_forecast": {str(h): round(total[h]) for h in hours},
         "outflow_baseline": {str(h): out_base[h] for h in hours},
         "show_shift_min": shift, "show_end_2026": "21:10", "show_end_actual": f"{show_end[0]:02d}:{show_end[1]:02d}", "show_end_source": show_src, "show_end_baseline": "20:30",
@@ -267,7 +358,7 @@ def main():
         "alerts_live": alerts[:10],
         "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx")} for k, v in city.items()},
         "seoul_fcst_snapshot": seoul_fcst,
-        "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 = 거리÷밀도별 속도(Weidmann). CCTV 등급 없으면 구역 밀도 3명/m² 가정(≈기존 40/60)", "load_lo/hi = 사전 예측표 밴드 비율 × α (±10% 버퍼 포함)", "대기열은 시간대를 넘어 누적(backlog)", "α 는 여의나루 누적 하차 기준, 19:00 이후 동결", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
+        "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 = 거리÷밀도별 속도(Weidmann). CCTV 등급 없으면 구역 밀도 3명/m² 가정(≈기존 40/60)", "load_lo/hi = α 사후분포 p10/p90 비율 (관측 없으면 0.73~1.38, 관측 쌓이면 축소)", "대기열은 시간대를 넘어 누적(backlog)", "α = 격자 사후 p50. O1 여의나루 30분 하차(12~19시)·O2 여의도 핫스팟 30분 승차(19시~, 커버리지 c 추정)", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
     }
     (LIVE / "forecast_latest.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"α={a} ({why})"); print("유출 예측:", result["outflow_forecast"])

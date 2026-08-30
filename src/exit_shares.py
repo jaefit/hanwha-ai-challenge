@@ -48,7 +48,8 @@ def hourly_excess(year):
     for ex, st in HOURLY.items():
         f = {h: fest[st][h] for h in EVE}
         med = {h: int(statistics.median(sat[d][st][h] for d in sat if st in sat[d])) for h in EVE}
-        out[ex] = {"festival_by_hour": f, "saturday_median_by_hour": med, "excess_by_hour": {h: f[h] - med[h] for h in EVE},
+        med_all = {h: int(statistics.median(sat[d][st][h] for d in sat if st in sat[d])) for h in range(5, 25)}   # 데이터동화 O2 평시 승차율(12~23시) 용
+        out[ex] = {"festival_by_hour": f, "saturday_median_by_hour": med, "saturday_median_by_hour_all": med_all, "excess_by_hour": {h: f[h] - med[h] for h in EVE},
                    "excess": sum(f[h] - med[h] for h in EVE), "festival": sum(f.values()), "saturday_median": sum(med.values()), "n_saturdays": len(sat)}
     return out
 
@@ -89,6 +90,16 @@ def main():
     res["share_mean"] = {ex: round(statistics.mean(res["by_year"][y]["share"][ex] for y in FEST), 4) for ex in keys}
     res["E_mean"] = {ex: round(statistics.mean(res["by_year"][y]["E"][ex] for y in FEST)) for ex in keys}
     res["total_mean"] = round(statistics.mean(totals.values()))
+    # 지하철 출구 6개(도보 제외)의 평시 토요일 시간대 승차 합 — nowcast 데이터동화 O2(여의도 핫스팟 30분 승차)의 평시 성분.
+    # 5호선 3역은 시간대 중앙값, 9호선 3역은 일 중앙값 × 여의도(5) 시간대 형태(추정). 2년 평균.
+    by_year_base = {}
+    for y in FEST:
+        hd = res["by_year"][y]["hourly_detail"]; dd = res["by_year"][y]["daily_detail"]; y5d = res["evidence"][y]["여의도(5)_check"]["saturday_median"]
+        shape5 = {h: hd["여의도(5)"]["saturday_median_by_hour_all"][h] / y5d for h in range(5, 25)}
+        by_year_base[y] = {h: sum(hd[st]["saturday_median_by_hour_all"][h] for st in ("여의도(5)", "여의나루(5)", "신길(1·5)"))
+                              + sum(dd[st]["saturday_median"] * shape5[h] for st in DAILY) for h in range(5, 25)}
+    res["baseline_boarding_by_hour_6exits"] = {h: round(statistics.mean(by_year_base[y][h] for y in FEST)) for h in range(5, 25)}
+    res["baseline_boarding_basis"] = "지하철 출구 6개 평시 토요일 승차 합(2년 평균). 5호선 3역 시간대 중앙값 + 9호선 3역 일 중앙값 × 여의도(5) 시간대 형태(추정). 마포역 도보 제외"
     res["notes"] += ["여의나루 초과는 통제 해제 후(22시~) 승차. 모델은 통제 시간대엔 여의도(5)로 이관, 해제 후 비중 적용",
                      "마포역 도보 = 마포역 5호선 초과만. 공덕(×3~4)은 경로 미확정이라 제외 — 보행 귀가 과소 가능",
                      "신길 1호선(코레일)은 두 데이터 모두 없음 → 5호선만. 과소 가능",

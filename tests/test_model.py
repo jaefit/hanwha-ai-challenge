@@ -154,3 +154,62 @@ def test_backtest_errors_within_recorded_bounds():
         for st, v in A[y]["stations"].items():
             for h, r in v["by_hour"].items():
                 if r["closed"]: assert r["pred"] == 0, (y, st, h)
+
+
+# ── α 데이터동화 (격자 사후분포) ──
+def test_assimilate_no_obs_is_prior():
+    r = N.assimilate([])
+    p10, p50, p90 = r["alpha"]
+    assert abs(p50 - 1.0) < 0.01 and abs(p10 - 0.73) < 0.03 and abs(p90 - 1.38) < 0.04   # LogNormal(0, 0.25)
+    assert r["n_obs"] == 0 and not r["edge_hit"]
+    assert abs(sum(r["weights"]) - 1.0) < 1e-9
+
+
+def test_assimilate_double_obs_shifts_and_narrows():
+    obs = [(1000.0, 500.0, 0.0, 0.15, 25.0, "alighting")] * 14        # y = 2 × A → α≈2
+    r = N.assimilate(obs)
+    p10, p50, p90 = r["alpha"]
+    prior = N.assimilate([])["alpha"]
+    assert p50 > 1.5 and p10 <= p50 <= p90
+    assert (p90 - p10) < 0.5 * (prior[2] - prior[0])
+    assert abs(sum(r["weights"]) - 1.0) < 1e-9
+
+
+def test_assimilate_affine_obs_uses_baseline_term():
+    obs = [(1300.0, 500.0, 800.0, 0.2, 0.0, "boarding")] * 9           # y = A·1 + B → α≈1
+    p10, p50, p90 = N.assimilate(obs)["alpha"]
+    assert abs(p50 - 1.0) < 0.05
+
+
+def test_assimilate_extreme_obs_hits_edge_and_clamps():
+    obs = [(2500.0, 500.0, 0.0, 0.15, 0.0, "alighting")] * 14          # y = 5 × A → 격자 상한 3.0
+    r = N.assimilate(obs)
+    assert r["edge_hit"] and r["alpha"][1] <= 3.0
+
+
+def test_observations_coverage_fallback_and_estimate():
+    ex1 = {h: 10000.0 for h in range(15, 25)}; base = {h: 1000.0 for h in range(5, 25)}
+    obs, meta = N._observations([], ex1, base)
+    assert obs == [] and meta["coverage_c"] == 1.3 and meta["coverage_basis"] == "fallback"
+    def rec(area, hhmm, on=None, off=None):
+        s = {}
+        if on is not None: s |= {"SUB_30WTHN_GTON_PPLTN_MIN": str(on - 50), "SUB_30WTHN_GTON_PPLTN_MAX": str(on + 50)}
+        if off is not None: s |= {"SUB_30WTHN_GTOFF_PPLTN_MIN": str(off - 50), "SUB_30WTHN_GTOFF_PPLTN_MAX": str(off + 50)}
+        return {"kind": "citydata", "area": area, "ts": f"2026-09-05T{hhmm}:10", "sub_live": s}
+    recs = [rec("여의도", f"{h:02d}:{m:02d}", on=1000) for h in (14, 15, 16) for m in (25, 55)]   # 30분 승차 1000 = 평시 500 × 2 → c=2
+    recs += [rec("여의도한강공원", "16:55", off=2 * N.YEOUINARU_GTOFF_BASE[16] // 2)]              # 16:30~17:00 하차 = 기준 2배
+    recs += [rec("여의도", "21:55", on=3000)]
+    obs, meta = N._observations(recs, ex1, base)
+    assert meta["coverage_basis"] == "same_day_14_17h" and abs(meta["coverage_c"] - 2.0) < 0.05
+    kinds = [o[5] for o in obs]
+    assert kinds.count("alighting") == 1 and kinds.count("boarding") == 1
+    y, A, B, rel, ab, k = [o for o in obs if o[5] == "boarding"][0]
+    assert A == pytest.approx(2.0 * 10000 / 2) and B == pytest.approx(2.0 * 1000 / 2) and rel == 0.2
+
+
+def test_assimilate_single_small_obs_keeps_band_wide():
+    # 관측 1건(y = 0.6·A)으로 밴드가 ±5% 로 붕괴하면 안 된다. σ 는 관측값과 α=1 예측 중 큰 쪽 기준(과신 방지, α 무관)
+    one = N.assimilate([(1200.0, 2000.0, 0.0, 0.15, 0.0, "alighting")])["alpha"]
+    many = N.assimilate([(1200.0, 2000.0, 0.0, 0.15, 0.0, "alighting")] * 14)["alpha"]
+    assert 0.6 < one[1] < 0.85 and (one[2] - one[0]) > 0.25          # 1건: 관측 0.6 과 사전 1.0 사이로 수축, 밴드 넓게 유지
+    assert abs(many[1] - 0.6) < 0.05 and (many[2] - many[0]) < (one[2] - one[0]) / 2   # 14건: 관측으로 수렴, 밴드 절반 이하
