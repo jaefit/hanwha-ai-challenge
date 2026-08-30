@@ -136,3 +136,18 @@ def test_prior_forecast_schema_and_bands():
         loads = [r[1] for r in rank]
         assert loads == sorted(loads), h
     assert abs(sum(e["direction_share"].values()) - 1.0) < 0.02
+
+
+# ── 백테스트 회귀 가드 (src/backtest.py 산출물 있을 때만) ──
+@pytest.mark.skipif(not (DER / "backtest.json").exists(), reason="backtest.json 없음")
+def test_backtest_errors_within_recorded_bounds():
+    b = json.loads((DER / "backtest.json").read_text(encoding="utf-8"))
+    A, B = b["modes"]["A_in_sample"], b["modes"]["B_cross_year"]
+    for y in ("2024", "2025"):
+        assert A[y]["total_err_boarding"] <= 0.35, (y, A[y]["total_err_boarding"])      # 2026-08-30 기록 0.24/0.29 — 넘으면 모델 회귀
+        assert B[y]["total_err_boarding"] <= 0.55, (y, B[y]["total_err_boarding"])      # cross-year 0.44/0.44 (연도 간 규모 이동 포함)
+        assert A[y]["grade_hit_rate"] >= 0.8, y
+        assert B[y]["source_year"] != y and A[y]["source_year"] == y
+        for st, v in A[y]["stations"].items():
+            for h, r in v["by_hour"].items():
+                if r["closed"]: assert r["pred"] == 0, (y, st, h)

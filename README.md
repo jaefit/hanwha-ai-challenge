@@ -43,6 +43,7 @@ F3 을 뚫어보다 나온 발견: `PLUS K방산` ETF 는 이름과 달리 **한
 | 8 | [docs/superpowers/specs/2026-08-29-submission-design.md](docs/superpowers/specs/2026-08-29-submission-design.md) | **제출 스펙** — 편집기 9항목 매핑 · 완료 정의 · 범위 밖 · 리스크 |
 | 9 | [docs/superpowers/plans/2026-08-29-submission-plan.md](docs/superpowers/plans/2026-08-29-submission-plan.md) | **실행 계획** 8/29→9/8 태스크 11개 · 런북 |
 | 10 | `tests/test_model.py` | 모델 불변식 pytest — `.venv/bin/python -m pytest tests -q` |
+| 11 | `src/backtest.py` → `data/derived/backtest.json` | 모델 백테스트 — 2024·2025 실측 시간대 승차 4역. A in-sample 0.24/0.29, B cross-year(2026 조건) 0.44/0.44 (2026-08-30) |
 
 ## 원본 자료
 

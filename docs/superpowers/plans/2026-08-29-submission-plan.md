@@ -61,7 +61,8 @@
 - [x] 관측: 교통카드 일별(9호선)+교통공사 시간대별(5호선·마포) 축제일 초과 승차 → 출구 7개 E_st·비중. 2년 합계 108.7k/109.3k(0.6% 차)
 - [x] 모델: 수요(st,h) = α × E_st × 도착 형태(KT 곡선+지연, 19~23시 개방 시간대 정규화). 회랑 배정표는 참고 필드
 - [x] 백테스트(2024·2025 실측 시간대 승차 4역): 절대오차/실측 0.34→**0.25**, 0.41→**0.29**. 여의나루 재배정 이중계산·평가창 정규화 2회 정정
-- [ ] 한계 기록: 마포역 20시 과소(보행자 조기 도착), 신길 1호선 미포함, 9호선 시간대 실측 없음
+- [x] 백테스트 스크립트화 `src/backtest.py` → `data/derived/backtest.json` (8/30). A in-sample **0.24/0.29**, 등급 적중 88%/94%. **B cross-year(다른 해 E·곡선으로 예측 = 2026 조건) 0.44/0.44**, 등급 76%/88% — 연도 간 규모 이동(여의도(5) 21시 17.8k↔12.5k)이 주 오차. pytest 회귀 가드 추가
+- [ ] 한계 기록: 마포역 20시 과소(보행자 조기 도착 5.1k/5.8k vs 예측 2.5k), 신길 1호선 미포함, 9호선 시간대 실측 없음, **여의나루 21시 해제 직후 승차 2.3k(2024)/5.8k(2025)를 통제 시간대라 0으로 둠** → 2026 통제 21:40 해제면 21시대 20분 승차 발생, 표시는 '통제'로 두되 22시 수요에 합산 여부 결정 필요
 
 ### Task 1c: 순차 데이터동화 (particle filter) — 오차 예산 2순위 (8/30~9/1)
 
@@ -84,7 +85,7 @@
 - Read: `logs/night_test_20260829.log`, `data/live/cctv_20260829.jsonl`
 - Modify: `data/derived/topis_yeouido_cams.json` (5대 `roi`·`roi_m2`), `src/collector_cctv.py` `LOW_LIGHT` 임계
 
-- [ ] **Step 1: 요약 실행** — `.venv/bin/python src/cctv_summary.py --from 20:00 --minutes 60` → 저조도 카메라 수, count 중앙값, 플래그 분포 기록(`benchmark-crowd-systems.md` §5 에 3줄)
+- [x] **Step 1: 요약 실행** (8/29 21:00 자동, `logs/night_test_20260829.log`) — 23대 60분 1,380건, ok 95~100%, 밝기 중앙값 56~98(저조도<40 **0대**), count 중앙 1~14, 등급 대부분 여유, 플래그 count_vs_occ 4대(63빌딩·국회·노량진수산·마포대교북단), no frame 산발 17건. `benchmark-crowd-systems.md` §5 기록
 - [ ] **Step 2: 임계 조정** — 밝기 중앙값 분포 보고 `LOW_LIGHT` 를 하위 1/4 분위로. 이유를 코드 주석에
 - [ ] **Step 3 (사용자): ROI 측정** — `.venv/bin/python src/cam_calib.py --cams 192,725,310,331,39 --out ~/cam_calib` → 그림 보고 폴리곤 좌표, 지도에서 면적(m²) → cams.json 기입 → 끝나면 `rm -r ~/cam_calib`
 - [ ] **Step 4: 검증** — `.venv/bin/python src/collector_cctv.py --once --cams 192` 레코드에 `calibrated: true`, `density` 숫자. `pytest` 통과. 커밋
