@@ -21,9 +21,14 @@ for line in (ROOT / ".env").read_text().splitlines():
     if "=" in line and not line.startswith("#"):
         k, v = line.split("=", 1); ENV[k.strip()] = v.strip()
 KG, KS = ENV["SEOUL_KEY_GENERAL"], ENV["SEOUL_KEY_SUBWAY"]
+KF = ENV.get("SEOUL_KEY_FEEDER", "").strip() or None   # 피더 전용 citydata 키 (일 쿼터 분리, 2026-08-31 발급)
 
 CORE = ["여의도한강공원", "여의도", "여의서로"]
-FEEDERS = [x.strip() for x in os.environ.get("FEEDERS", "").split(",") if x.strip()]   # 피더 핫스팟(선행지표)
+# 피더 기본 8곳 = 귀속 상위 × 개별 상관(feeder_leadlag.json) × citydata 실명 확인(8/31). 김포공항 r=-0.19 제외.
+FEEDER_DEFAULT = ["영등포 타임스퀘어", "신도림역", "사당역", "홍대입구역(2호선)", "노량진", "고속터미널역", "신림역", "강남역"]
+_f = os.environ.get("FEEDERS", "").strip()
+FEEDERS = FEEDER_DEFAULT if _f == "default" else [x.strip() for x in _f.split(",") if x.strip()]   # 피더 핫스팟(선행지표)
+FEEDER_HOURS = range(12, 21)          # 피더키 예산 보호: 12~20시만 (8곳 × 9h × 12회 = 864 < 1,000)
 HOTSPOTS = CORE + FEEDERS
 STATIONS = ["여의나루", "여의도", "샛강", "국회의사당"]
 SUBWAY_HOURS = range(17, 24)          # 지하철키 예산 보호: 17~23시만
@@ -38,7 +43,8 @@ def get(url):
 
 
 def citydata(name):
-    d = get(f"http://openapi.seoul.go.kr:8088/{KG}/json/citydata/1/5/{urllib.parse.quote(name)}")
+    key = KF if (KF and name not in CORE) else KG   # 피더는 전용 키로 (코어 쿼터 보호). 키 없으면 KG 폴백
+    d = get(f"http://openapi.seoul.go.kr:8088/{key}/json/citydata/1/5/{urllib.parse.quote(name)}")
     c = d["CITYDATA"]; p = c["LIVE_PPLTN_STTS"][0]
     road = c.get("ROAD_TRAFFIC_STTS", {}).get("AVG_ROAD_DATA", {})
     w = (c.get("WEATHER_STTS") or [{}])[0]
@@ -71,6 +77,7 @@ def tick():
     fn = OUT / f"api_{now:%Y%m%d}.jsonl"
     with fn.open("a", encoding="utf-8") as f:
         for h in HOTSPOTS:
+            if h not in CORE and now.hour not in FEEDER_HOURS: continue   # 피더키 예산 보호 (12~20시만)
             try:
                 rec = {"ts": now.isoformat(timespec="seconds"), "kind": "citydata", **citydata(h)}
             except Exception as e:
