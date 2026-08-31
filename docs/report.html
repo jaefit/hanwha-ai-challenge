@@ -7,48 +7,50 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
-  --bg:#faf9f7; --card:#ffffff; --ink:#1c1a17; --sub:#6b655d; --line:#e5e1da;
-  --accent:#f36f21; --accent-ink:#c24f0a; --soft:#fdf1e8;
-  --g1:#2e9e5b; --g2:#d9a406; --g3:#e06a10; --g4:#cc2f2f;
+  --bg:#f7f6f4; --card:#ffffff; --ink:#191817; --sub:#5f5a54; --line:#d9d5cf;
+  --accent:#f36f21; --accent-ink:#b34a0c; --soft:#f4f1ed;
+  --g1:#2e7d4f; --g2:#b78a06; --g3:#c25c10; --g4:#b02a2a;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-x]){
-  --bg:#171512; --card:#201d19; --ink:#ece7df; --sub:#9d968b; --line:#37322b; --accent-ink:#ff9a55; --soft:#2a221b;
+  --bg:#161513; --card:#1e1c19; --ink:#e9e5de; --sub:#a09a90; --line:#3a352e; --accent-ink:#ef9557; --soft:#252220;
 }}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.7 "Pretendard Variable",Pretendard,-apple-system,sans-serif}
-.wrap{max-width:880px;margin:0 auto;padding:48px 20px 80px}
-header.doc{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px}
-.kicker{color:var(--accent-ink);font-weight:700;font-size:13px;letter-spacing:.08em}
-h1{font-size:30px;line-height:1.25;margin:6px 0 10px;letter-spacing:-.02em}
-.meta{color:var(--sub);font-size:13px}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.75 "Pretendard Variable",Pretendard,-apple-system,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:52px 22px 90px}
+header.doc{border-top:3px solid var(--ink);border-bottom:1px solid var(--ink);padding:20px 0 16px;margin-bottom:12px}
+.kicker{color:var(--sub);font-weight:700;font-size:12px;letter-spacing:.14em}
+h1{font-size:27px;line-height:1.3;margin:8px 0 10px;letter-spacing:-.01em;font-weight:800}
+.meta{color:var(--sub);font-size:12.5px}
 .meta a,.toc a{color:var(--accent-ink);text-decoration:none;font-weight:600}
-h2{font-size:21px;margin:48px 0 6px;letter-spacing:-.01em;border-top:1px solid var(--line);padding-top:28px}
-h2 .no{color:var(--accent-ink);margin-right:8px}
-h3{font-size:16px;margin:28px 0 8px}
+h2{font-size:19px;margin:52px 0 8px;letter-spacing:-.01em;border-bottom:2px solid var(--ink);padding-bottom:8px;font-weight:800}
+h2 .no{color:var(--ink);margin-right:10px;font-variant-numeric:tabular-nums}
+h3{font-size:15.5px;margin:30px 0 8px;font-weight:750}
+h4{font-weight:750}
 p{margin:9px 0}
-.lead{font-size:16.5px}
+.lead{font-size:15.5px}
 ul,ol{margin:6px 0;padding-left:20px}
 li{margin:4px 0}
 small,.sub{color:var(--sub)}
-table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
-th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
-th{background:color-mix(in srgb,var(--line) 40%,var(--card));font-weight:700}
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:0;border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);background:none;font-weight:750}
+tr:last-child td{border-bottom:1.5px solid var(--ink)}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .tblwrap{overflow-x:auto}
-.callout{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:14px 0}
-.callout b{color:var(--accent-ink)}
-.easy{background:var(--soft);border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));border-radius:8px;padding:11px 15px;margin:12px 0;font-size:14px}
-.easy::before{content:"쉽게 말하면";display:block;font-size:11.5px;font-weight:800;color:var(--accent-ink);letter-spacing:.06em;margin-bottom:3px}
-pre.diagram{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink)}
-.grade{display:inline-block;padding:0 7px;border-radius:99px;font-size:12px;font-weight:700;color:#fff;white-space:nowrap}
+.callout{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--ink);padding:13px 17px;margin:16px 0}
+.callout b{color:var(--ink)}
+.easy{background:var(--soft);border-left:3px solid var(--accent);padding:11px 15px;margin:12px 0;font-size:13.5px}
+.easy::before{content:"쉽게 말하면";display:block;font-size:11px;font-weight:800;color:var(--accent-ink);letter-spacing:.08em;margin-bottom:3px}
+pre.diagram{background:var(--card);border:1px solid var(--line);padding:16px;overflow-x:auto;font:11.5px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink)}
+.grade{display:inline-block;padding:0 7px;border-radius:2px;font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap}
 .g1{background:var(--g1)}.g2{background:var(--g2)}.g3{background:var(--g3)}.g4{background:var(--g4)}
-.toc{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px 18px;margin:20px 0;font-size:14px}
-.toc b{display:block;margin-bottom:6px}
+.toc{border:1px solid var(--line);background:var(--card);padding:14px 18px;margin:22px 0;font-size:13.5px}
+.toc b{display:block;margin-bottom:6px;letter-spacing:.06em;font-size:12px}
 .toc ol{margin:0;padding-left:18px}
 dl{margin:10px 0}
-dt{font-weight:700;margin-top:10px}
+dt{font-weight:750;margin-top:10px}
 dd{margin:2px 0 0 0;color:var(--sub)}
-.foot{margin-top:56px;border-top:1px solid var(--line);padding-top:14px;color:var(--sub);font-size:12.5px}
+.foot{margin-top:60px;border-top:2px solid var(--ink);padding-top:14px;color:var(--sub);font-size:12px}
 @media print{body{background:#fff}.wrap{padding:0}}
 </style>
 </head>
@@ -71,7 +73,7 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 <ol>
   <li>문제 제기 — 귀가가 무너진다</li>
   <li>해결 방안 — 상태가 아니라 행동을 준다</li>
-  <li>설계 방법 — 과거 실측에 앵커한 예측 모델</li>
+  <li>설계 방법 — 과거 실측을 기준점 삼은 예측 모델</li>
   <li>아키텍처 — 전체가 어떻게 맞물리나</li>
   <li>일정과 팀 협업</li>
   <li>용어 사전</li>
@@ -80,9 +82,12 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 </div>
 
 <div class="callout">
-<b>세 줄 요약.</b> ① 불꽃축제가 끝나면 100만 명이 동시에 귀가하는데, 지도앱은 그날의 역 통제를 몰라서 막힌 길로 안내한다.
-② 우리는 2024·2025년 축제일에 사람들이 <b>실제로 어느 역에서 몇 시에 탔는지</b>를 데이터로 복원해, "지금 어디로 나가면 덜 막히나"를 3초 안에 보여주는 웹페이지를 만들었다.
-③ 예측 엔진·검증·당일 자동 보정까지 완성됐고, 남은 것은 화면 다듬기·리허설(9/4)·본번(9/5)·제출(9/8)이다.
+<b>다섯 줄 요약.</b><br>
+① <b>문제</b> — 불꽃축제가 끝나면 100만 명이 동시에 귀가하는데, 지도앱은 그날의 역 통제(여의나루 무정차)를 몰라서 막힌 길로 안내한다.<br>
+② <b>해법</b> — "지금 어디로 나가면 덜 막히나"를 3초 안에 보여주는 웹페이지. 출구 7개의 시간대별 혼잡을 미리 예측한다.<br>
+③ <b>방법</b> — 2024·2025년 축제일에 사람들이 <b>실제로 어느 역에서 몇 시에 탔는지</b>(실측)를 뼈대로 쓰고, 당일 관측으로 규모만 보정한다.<br>
+④ <b>검증</b> — 과거로 돌아가 맞혀보는 백테스트로 확인: 혼잡 등급 적중 76~100%. 남는 불확실성은 숨기지 않고 "범위"로 표시한다.<br>
+⑤ <b>현황</b> — 예측 엔진·검증·당일 보정까지 완성. 남은 것은 화면 마감 → 리허설(9/4) → 본번(9/5) → 제출(9/8). 조원 확인 사항은 §5.2.
 </div>
 
 <!-- ────────────── 1 ────────────── -->
@@ -136,7 +141,7 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 </ul>
 
 <!-- ────────────── 3 ────────────── -->
-<h2><span class="no">3</span>설계 방법 — 과거 실측에 앵커한 예측 모델</h2>
+<h2><span class="no">3</span>설계 방법 — 과거 실측을 기준점 삼은 예측 모델</h2>
 
 <h3>3.1 왜 머신러닝을 안 썼나</h3>
 <p>ML로 풀려면 학습 데이터가 필요한데, 이 축제의 데이터는 <b>2024·2025년 단 2일</b>뿐이다. 표본 2개로 모델을 학습시키면 외우기(과적합)가 될 뿐이다. 그래서 학습 대신, <b>실측값을 뼈대로 쓰고 물리 법칙(걷는 속도, 역 처리량)으로 살을 붙이는 구조 모델</b>을 택했다. 미국 애틀랜타 지하철(MARTA)의 경기장 이벤트 수요 예측 논문도 같은 접근으로 오차 11.7%를 달성했다 — 데이터가 적을 땐 이 방식이 정석이다.</p>
@@ -182,7 +187,7 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 <p class="sub">오차 = |예측−실측| 합 ÷ 실측 합 (시간대 승차가 있는 4개 역 기준). B 오차의 주범은 해마다 총 인파가 다르다는 것(여의도(5) 21시: 2024년 17.8천 ↔ 2025년 12.5천) — 이 폭을 예측 밴드로 정직하게 표시한다. 등급 적중률이 더 중요: 관람객이 실제로 보는 것은 숫자가 아니라 <span class="grade g1">여유</span>~<span class="grade g4">심각</span> 등급이고, 이건 B에서도 76~88% 맞는다. 이 밖에 코드가 바뀔 때마다 자동으로 도는 논리 검증 테스트 21건(수요 총량 보존, 통제 이월, 스키마 등)이 상시 통과 상태다.</p>
 
 <p><b>그림 4 — 백테스트: 모델 곡선이 실측을 따라가는가.</b> 대표로 여의도(5)역 2025년 저녁. 21시 정점의 높이·위치가 맞는다.</p>
-<svg viewBox="0 0 720 250" role="img" aria-label="백테스트 예측 대 실측" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px">
+<svg viewBox="0 0 720 250" role="img" aria-label="백테스트 예측 대 실측" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line)">
 <line x1="56" y1="153.5" x2="696" y2="153.5" stroke="var(--line)"/><text x="50" y="157.5" text-anchor="end" font-size="10" fill="var(--sub)">5k</text><line x1="56" y1="93.1" x2="696" y2="93.1" stroke="var(--line)"/><text x="50" y="97.1" text-anchor="end" font-size="10" fill="var(--sub)">10k</text><text x="56.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">19시</text><text x="216.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">20시</text><text x="376.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">21시</text><text x="536.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">22시</text><text x="696.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">23시</text>
 <polyline points="56.0,178.8 216.0,126.9 376.0,71.3 536.0,139.5 696.0,196.1" fill="none" stroke="var(--accent-ink)" stroke-width="2.5"/>
 <polyline points="56.0,193.0 216.0,113.5 376.0,63.2 536.0,141.4 696.0,201.5" fill="none" stroke="#3b82c4" stroke-width="2.5" stroke-dasharray="6 3"/>
@@ -197,7 +202,7 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 <div class="tblwrap"><table>
 <tr><th>확인한 사실</th><th>수치</th><th>모델에 어떻게 반영했나</th></tr>
 <tr><td>여의나루역은 저녁에 실제로 닫힌다</td><td>19~21시 하차 ≈ 0명 (2년 공통)</td><td>통제 규칙 · "무정차" 표시</td></tr>
-<tr><td>귀가 인파의 총 규모는 해가 바뀌어도 안정적</td><td>초과 승차 합 2024년 108,718 vs 2025년 109,328 — 차이 0.6%</td><td>예측 가능성의 핵심 근거. 2년 평균을 규모 앵커로</td></tr>
+<tr><td>귀가 인파의 총 규모는 해가 바뀌어도 안정적</td><td>초과 승차 합 2024년 108,718 vs 2025년 109,328 — 차이 0.6%</td><td>예측 가능성의 핵심 근거. 2년 평균을 규모의 기준점으로</td></tr>
 <tr><td>단, 시간대별 배분은 해마다 다르다</td><td>여의도(5) 21시: 2024년 17.8천 ↔ 2025년 12.5천</td><td>단일값 대신 <b>예측 밴드</b>로 표시</td></tr>
 <tr><td>샛강·마포 방면이 생각보다 크다</td><td>샛강역 축제일 승차 평시 6배 · 마포역 20~23시 10배(1.4만~1.6만 vs 평시 1.45천)</td><td>수기 배정표 폐기 → 관측 비중 채택 (오차 0.34→0.24)</td></tr>
 <tr><td>여의나루 통제가 풀리면 몰아서 탄다</td><td>해제 직후 시간대 승차 2024년 2.3천 · 2025년 5.8천</td><td>통제 중 도착분을 22시로 이월 → "22시 여의나루 최악" 결론</td></tr>
@@ -213,9 +218,9 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 여의도에 온 사람들은 그날 어딘가의 역에서 지하철을 <b>탔다</b>. 서울 전 역의 승차 기록에서 "평소 토요일보다 유난히 많이 탄" 흔적을 찾으면, 관람객의 출발지를 역 단위로 되짚을 수 있다. 그 역들을 "피더(공급)역"이라 부른다.
 </div>
 
-<p><b>그림 1 — 상위 피더 12곳 점·선 도식.</b> 가운데가 여의도. 선의 방향은 실제 방위, 중심에서의 거리는 지하철 소요시간(점선 링 = 10·20·30분, 추정), 원 크기는 2년 귀속 인원.</p>
-<svg viewBox="0 0 720 540" role="img" aria-label="피더역 점-선 도식" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px">
-<text x="18" y="20" font-size="12" fill="var(--sub)">가운데 = 여의도 · 선 방향 = 실제 방위 · 중심에서 거리 = 지하철 소요시간(추정) · 원 크기 = 2년 귀속 인원</text>
+<p><b>그림 1 — 상위 피더 12곳 점·선 도식.</b> 가운데가 여의도. 선의 방향은 실제 방위, 중심에서의 거리는 지하철 소요시간(점선 링 = 10·20·30분, 추정), 원 크기는 2년간 여의도행으로 집계(귀속)된 인원.</p>
+<svg viewBox="0 0 720 540" role="img" aria-label="피더역 점-선 도식" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line)">
+<text x="18" y="20" font-size="12" fill="var(--sub)">가운데 = 여의도 · 선 방향 = 실제 방위 · 중심에서 거리 = 지하철 소요시간(추정) · 원 크기 = 여의도행 인원(2년)</text>
 <circle cx="360" cy="268" r="96" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="168" font-size="9.5" fill="var(--sub)">10분</text><circle cx="360" cy="268" r="150" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="114" font-size="9.5" fill="var(--sub)">20분</text><circle cx="360" cy="268" r="204" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="60" font-size="9.5" fill="var(--sub)">30분</text><line x1="360" y1="268" x2="461" y2="413" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="463" y2="295" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="247" y2="234" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="292" y2="258" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="364" y2="145" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="197" y2="200" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="302" y2="264" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="270" y2="260" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="586" y2="219" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="459" y2="366" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="564" y2="280" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="313" y2="302" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/>
 <rect x="353" y="261" width="14" height="14" transform="rotate(45 360 268)" fill="var(--accent-ink)"/>
 <text x="348" y="272" text-anchor="end" font-size="12.5" font-weight="800" fill="var(--accent-ink)">여의도</text>
@@ -227,25 +232,25 @@ dd{margin:2px 0 0 0;color:var(--sub)}
   <li><b>초과 승차 계산</b>: 서울 1~8호선 전 역(253역)에 대해, 축제일 시간대별 승차 − 평시 토요일 중앙값. "평소에도 타는 사람"을 걷어낸 나머지.</li>
   <li><b>2년 필터</b>: 2024·2025 <b>두 해 연속</b> 초과가 난 역만 인정. 한 해만 튄 역은 다른 행사·우연일 수 있어 제외.</li>
   <li><b>KT 데이터로 제약</b>: KT 생활이동(휴대전화 기반)이 "여의도 유입이 어느 구(區)에서 출발했는지" 총량을 준다. 역별 초과분은 <b>그 구 총량을 넘지 않게</b> 배분 — 역 데이터 혼자 결론 내지 않고 독립된 두 소스를 맞물린다.</li>
-  <li><b>교차 검증</b>: 귀속 합계가 여의도 도착 규모와 자릿수·시간 형태에서 일치하는지 확인.</li>
+  <li><b>교차 검증</b>: 배분한 합계가 여의도 도착 규모와 규모(자릿수)와 시간 모양에서 일치하는지 확인.</li>
 </ol>
 
 <p><b>그림 2 — 결정적 근거: 시간이 맞물린다.</b> 피더역들의 초과 승차(주황 실선)가 먼저 움직이고, 여의도 도착(파랑 점선)이 약 1시간 뒤를 그대로 따라간다. 상관계수 0.99.</p>
-<svg viewBox="0 0 720 270" role="img" aria-label="피더 승차와 여의도 도착의 시간 관계" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px">
+<svg viewBox="0 0 720 270" role="img" aria-label="피더 승차와 여의도 도착의 시간 관계" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line)">
 <line x1="52" y1="179.2" x2="704" y2="179.2" stroke="var(--line)"/><text x="46" y="183.2" text-anchor="end" font-size="10" fill="var(--sub)">5k</text><line x1="52" y1="124.5" x2="704" y2="124.5" stroke="var(--line)"/><text x="46" y="128.5" text-anchor="end" font-size="10" fill="var(--sub)">10k</text><line x1="52" y1="69.7" x2="704" y2="69.7" stroke="var(--line)"/><text x="46" y="73.7" text-anchor="end" font-size="10" fill="var(--sub)">15k</text><text x="52.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">10시</text><text x="117.2" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">11시</text><text x="182.4" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">12시</text><text x="247.6" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">13시</text><text x="312.8" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">14시</text><text x="378.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">15시</text><text x="443.2" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">16시</text><text x="508.4" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">17시</text><text x="573.6" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">18시</text><text x="638.8" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">19시</text><text x="704.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">20시</text>
 <polyline points="52.0,156.4 117.2,145.9 182.4,131.0 247.6,127.4 312.8,109.8 378.0,83.5 443.2,62.9 508.4,57.4 573.6,106.8 638.8,192.8" fill="none" stroke="var(--accent-ink)" stroke-width="2.5"/>
 <polyline points="52.0,190.3 117.2,189.2 182.4,171.9 247.6,162.6 312.8,141.7 378.0,114.4 443.2,78.8 508.4,55.1 573.6,56.9 638.8,141.2 704.0,219.0" fill="none" stroke="#3b82c4" stroke-width="2.5" stroke-dasharray="6 3"/>
 <circle cx="52.0" cy="156.4" r="3" fill="var(--accent-ink)"/><circle cx="117.2" cy="145.9" r="3" fill="var(--accent-ink)"/><circle cx="182.4" cy="131.0" r="3" fill="var(--accent-ink)"/><circle cx="247.6" cy="127.4" r="3" fill="var(--accent-ink)"/><circle cx="312.8" cy="109.8" r="3" fill="var(--accent-ink)"/><circle cx="378.0" cy="83.5" r="3" fill="var(--accent-ink)"/><circle cx="443.2" cy="62.9" r="3" fill="var(--accent-ink)"/><circle cx="508.4" cy="57.4" r="3" fill="var(--accent-ink)"/><circle cx="573.6" cy="106.8" r="3" fill="var(--accent-ink)"/><circle cx="638.8" cy="192.8" r="3" fill="var(--accent-ink)"/><circle cx="52.0" cy="190.3" r="3" fill="#3b82c4"/><circle cx="117.2" cy="189.2" r="3" fill="#3b82c4"/><circle cx="182.4" cy="171.9" r="3" fill="#3b82c4"/><circle cx="247.6" cy="162.6" r="3" fill="#3b82c4"/><circle cx="312.8" cy="141.7" r="3" fill="#3b82c4"/><circle cx="378.0" cy="114.4" r="3" fill="#3b82c4"/><circle cx="443.2" cy="78.8" r="3" fill="#3b82c4"/><circle cx="508.4" cy="55.1" r="3" fill="#3b82c4"/><circle cx="573.6" cy="56.9" r="3" fill="#3b82c4"/><circle cx="638.8" cy="141.2" r="3" fill="#3b82c4"/><circle cx="704.0" cy="219.0" r="3" fill="#3b82c4"/>
-<text x="156.3" y="126.7" font-size="11.5" font-weight="700" fill="var(--accent-ink)">피더역 귀속 승차 (탄다)</text>
+<text x="156.3" y="126.7" font-size="11.5" font-weight="700" fill="var(--accent-ink)">피더역 승차 — 여의도행 몫 (탄다)</text>
 <text x="241.1" y="186.9" font-size="11.5" font-weight="700" fill="#3b82c4">여의도 도착 초과 (내린다)</text>
 <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--sub)"/></marker></defs>
 <path d="M 508.4 41.2 L 563.8 41.2" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ar)"/>
 <text x="535.8" y="34.2" text-anchor="middle" font-size="10.5" fill="var(--sub)">약 1시간 뒤 (r=0.99)</text>
-<text x="52" y="264" font-size="10.5" fill="var(--sub)">2025-09-27 축제일 · 승차=서울 전 역 초과분 중 여의도 귀속, 하차=여의도(5)·여의나루 하차 초과 (OA-12921)</text>
+<text x="52" y="264" font-size="10.5" fill="var(--sub)">2025-09-27 축제일 · 승차=서울 전 역 초과분 중 여의도행 몫, 하차=여의도(5)·여의나루 하차 초과 (OA-12921)</text>
 </svg>
 
 <p><b>그림 3 — 개별 역에서 보면.</b> 영등포시장역(5호선, 여의도 3분)의 축제일 승차는 <b>입장 시간대(12~17시)에만</b> 평시보다 많고, 저녁이 되면 격차가 사라진다. "축제 가려고 탄 사람들"이라는 해석과 정확히 맞는 모양.</p>
-<svg viewBox="0 0 720 250" role="img" aria-label="영등포시장역 축제일 대 평시" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px">
+<svg viewBox="0 0 720 250" role="img" aria-label="영등포시장역 축제일 대 평시" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line)">
 <text x="52.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">10시</text><text x="124.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">11시</text><text x="196.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">12시</text><text x="268.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">13시</text><text x="340.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">14시</text><text x="412.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">15시</text><text x="484.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">16시</text><text x="556.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">17시</text><text x="628.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">18시</text><text x="700.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">19시</text>
 <polyline points="52.0,157.9 124.0,150.1 196.0,138.1 268.0,132.8 340.0,127.3 412.0,118.9 484.0,103.4 556.0,105.2 628.0,115.6 700.0,146.3" fill="none" stroke="var(--sub)" stroke-width="2" stroke-dasharray="5 4"/>
 <polyline points="52.0,152.4 124.0,140.3 196.0,112.4 268.0,107.9 340.0,103.8 412.0,91.1 484.0,71.9 556.0,66.8 628.0,86.5 700.0,138.7" fill="none" stroke="var(--accent-ink)" stroke-width="2.5"/>
@@ -258,14 +263,14 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 <h4 style="font-size:14.5px;margin:22px 0 6px">"이 사람들이 여의도로 갔다"고 판단한 근거 5가지</h4>
 <div class="tblwrap"><table>
 <tr><th>근거</th><th>내용</th></tr>
-<tr><td>① 시간 위상</td><td>피더 초과 승차 정점(17시) → 여의도 도착 정점(17~18시). 상관 0.99 (2024·2025 공통). 멀리 있는 역(성수 35분·잠실 30분)일수록 지연이 커진다 — 지하철 소요시간과 일치하는 물리적 패턴 (그림 2)</td></tr>
+<tr><td>① 시간이 맞물림</td><td>피더 초과 승차 정점(17시) → 여의도 도착 정점(17~18시). 상관 0.99 (2024·2025 공통). 멀리 있는 역(성수 35분·잠실 30분)일수록 지연이 커진다 — 지하철 소요시간과 일치하는 물리적 패턴 (그림 2)</td></tr>
 <tr><td>② 2년 재현</td><td>같은 역들이 두 해 연속 같은 모양으로 초과. 일회성 요인이면 재현되지 않는다</td></tr>
 <tr><td>③ 독립 소스 정합</td><td>역 승차(교통공사)와 휴대전화 이동(KT)이라는 <b>서로 다른 두 데이터</b>가 출발지 구성에서 맞물린다. 배분은 KT 구 총량을 상한으로</td></tr>
 <tr><td>④ 오후에만 초과</td><td>초과분이 축제 입장 시간대(12~17시)에 몰리고 저녁엔 소멸 (그림 3). 통근·일상 수요라면 이런 모양이 안 나온다</td></tr>
 <tr><td>⑤ 방향 대칭</td><td>올 때 출발지 구성 ≈ 갈 때 도착지 구성 (구 단위 차이 ±6%p 이내, KT 실측) — 그래서 이 출발지 지도를 <b>귀가 방향 예측</b>에 재사용할 수 있다</td></tr>
 </table></div>
 
-<p class="sub"><b>한계도 정직하게.</b> 초과 승차가 전부 축제 인파는 아니다 — 서울 전 역의 초과 합은 여의도 유입 규모의 1.7~3.3배로, 다른 나들이·행사가 섞여 있다. 그래서 2년 연속 필터·구 총량 상한으로 보수적으로 귀속했고, 개별 역 중엔 잡음이 큰 곳도 있다(사당역은 비축제 통행이 많아 시간 상관 0.04). 분 단위 정밀 검증은 9/5 라이브 수집으로 한다.</p>
+<p class="sub"><b>한계도 정직하게.</b> 초과 승차가 전부 축제 인파는 아니다 — 서울 전 역의 초과 합은 여의도 유입 규모의 1.7~3.3배로, 다른 나들이·행사가 섞여 있다. 그래서 2년 연속 필터·구 총량 상한으로 보수적으로 배분(귀속)했고, 개별 역 중엔 잡음이 큰 곳도 있다(사당역은 비축제 통행이 많아 시간 상관 0.04). 분 단위 정밀 검증은 9/5 라이브 수집으로 한다.</p>
 
 <h4 style="font-size:14.5px;margin:22px 0 6px">이걸로 뭘 하나</h4>
 <ul>
@@ -284,7 +289,7 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 <p>맞는 답만큼 중요한 게 "왜 그 길로 안 갔나"다. 심사 항목("만든 과정")이기도 하다.</p>
 <div class="tblwrap"><table>
 <tr><th>버린 것</th><th>왜 버렸나</th><th>대신 택한 것</th></tr>
-<tr><td>ML 학습 모델</td><td>학습 표본이 2일 — 외우기가 될 뿐</td><td>실측 앵커 구조 모델</td></tr>
+<tr><td>ML 학습 모델</td><td>학습 표본이 2일 — 외우기가 될 뿐</td><td>실측을 기준점 삼은 구조 모델</td></tr>
 <tr><td>방향→역 수기 배정표</td><td>실측과 3~7배 어긋남 (샛강을 3.5배 적게 예측)</td><td>관측 초과 승차 비중 — 백테스트 오차 0.34→0.24</td></tr>
 <tr><td>평시 기준을 상위 10%로</td><td>환승 큰 역이 기준에서 밀려나는 왜곡 발견</td><td>토요일 중앙값</td></tr>
 <tr><td>입자 필터(난수 시뮬레이션)</td><td>추정할 값이 α 하나 — 난수가 필요 없음</td><td>결정론적 격자 (테스트 가능)</td></tr>
@@ -397,7 +402,7 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 
 <h3>7.2 참고문헌</h3>
 <ol>
-  <li>Santanam, Trasatti, Van Hentenryck, Zhang (2021). <i>Public Transit for Special Events: Ridership Prediction and Train Optimization</i>. <a href="https://arxiv.org/abs/2106.05359">arXiv:2106.05359</a> — 애틀랜타 MARTA 경기장 이벤트 수요 예측. 소표본에서 "관측 시그니처 + 정규화 곡선" 접근(선형회귀 MAPE 11.7%)의 근거. 우리 모델 구조의 직접 참고.</li>
+  <li>Santanam, Trasatti, Van Hentenryck, Zhang (2021). <i>Public Transit for Special Events: Ridership Prediction and Train Optimization</i>. <a href="https://arxiv.org/abs/2106.05359">arXiv:2106.05359</a> — 애틀랜타 MARTA 경기장 이벤트 수요 예측. 소표본에서 "관측 패턴 + 곡선 맞춤" 접근(선형회귀 MAPE 11.7%)의 근거. 우리 모델 구조의 직접 참고.</li>
   <li>Weidmann, U. (1993). <i>Transporttechnik der Fussgänger</i>. ETH Zürich, IVT Schriftenreihe Nr. 90 — 보행 속도–밀도 관계(Kladek 식: 자유속도 1.34 m/s, 정체밀도 5.4명/m²). 출구 도달 지연 계산의 근거. 보행 기본도 개관: <a href="https://arxiv.org/pdf/physics/0506170">Seyfried et al.</a></li>
   <li>Wang, Liu, Samaras, Hoai (2020). <i>Distribution Matching for Crowd Counting (DM-Count)</i>. NeurIPS 2020 — CCTV 군중 카운팅 모델. <a href="https://github.com/tersekmatija/lwcc">lwcc</a> 라이브러리로 사용. 자체 검증: 밀집 군중 사진에서 밀도맵 계열 3종 합의 ±12%, 객체 검출(YOLO)은 12배 과소 → 밀도맵 채택.</li>
   <li>특별행사 지하철 수요 문헌: Beijing 다변량 교란 DNN (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0957417421013981">ESWA 2021</a>) · 역간 상호작용 실시간 예측 (<a href="https://www.sciencedirect.com/science/article/abs/pii/S0968090X18301797">Transp. Res. Part C 2018</a>) — ML 계열 접근의 데이터 요구량 확인(수년치 필요), 구조 모델 선택의 방증.</li>
