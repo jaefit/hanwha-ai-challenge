@@ -339,7 +339,7 @@ function countUp(slide) {
     var t0 = null;
     function tickcu(ts) {
       if (t0 === null) t0 = ts;
-      var p = Math.min(1, (ts - t0) / 950);
+      var p = Math.min(1, (ts - t0) / 2100);
       p = 1 - Math.pow(1 - p, 3);
       el.textContent = (v * p).toFixed(d);
       el.__raf = p < 1 ? requestAnimationFrame(tickcu) : null;

@@ -820,7 +820,7 @@ function countInit() {
       var to = +el.getAttribute("data-v") || 0, t0 = null;
       function step(ts) {
         if (t0 === null) t0 = ts;
-        var p = Math.min(1, (ts - t0) / 900);
+        var p = Math.min(1, (ts - t0) / 2100);
         p = 1 - Math.pow(1 - p, 3);
         el.textContent = Math.round(to * p);
         if (p < 1) requestAnimationFrame(step);
