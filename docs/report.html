@@ -16,9 +16,8 @@
   --serif:"Hahmlet","Pretendard Variable",Pretendard,serif;
   --mono:"IBM Plex Mono","Pretendard Variable",Pretendard,ui-monospace,monospace;
 }
-@media (prefers-color-scheme: dark){ :root:not([data-x]){
-  --bg:#161513; --card:#1e1c19; --ink:#e9e5de; --sub:#a09a90; --line:#3a352e; --accent-ink:#ef9557; --soft:#252220;
-}}
+/* (2026-08-31) 다크 모드 오버라이드 제거 — 보고서는 보는 환경과 무관하게 항상 흰 배경(인쇄물 성격) */
+:root{color-scheme:light only}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.75 "Pretendard Variable",Pretendard,-apple-system,sans-serif}
 .wrap{max-width:860px;margin:0 auto;padding:52px 22px 90px}
