@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불꽃축제 귀가 내비 — 팀 공유 보고</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{
+  --bg:#faf9f7; --card:#ffffff; --ink:#1c1a17; --sub:#6b655d; --line:#e5e1da;
+  --accent:#f36f21; --accent-ink:#c24f0a;
+  --g1:#2e9e5b; --g2:#d9a406; --g3:#e06a10; --g4:#cc2f2f;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-x]){
+  --bg:#171512; --card:#201d19; --ink:#ece7df; --sub:#9d968b; --line:#37322b; --accent-ink:#ff9a55;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 "Pretendard Variable",Pretendard,-apple-system,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:48px 20px 80px}
+header.doc{border-bottom:3px solid var(--ink);padding-bottom:18px;margin-bottom:8px}
+.kicker{color:var(--accent-ink);font-weight:700;font-size:13px;letter-spacing:.08em}
+h1{font-size:30px;line-height:1.25;margin:6px 0 10px;letter-spacing:-.02em}
+.meta{color:var(--sub);font-size:13px}
+.meta a{color:var(--accent-ink);text-decoration:none;font-weight:600}
+h2{font-size:20px;margin:44px 0 4px;letter-spacing:-.01em}
+h2 .no{color:var(--accent-ink);margin-right:8px}
+h3{font-size:15.5px;margin:26px 0 8px}
+p{margin:8px 0}
+.lead{font-size:16px}
+ul{margin:6px 0;padding-left:20px}
+li{margin:3px 0}
+small,.sub{color:var(--sub)}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:6px 9px;text-align:left;vertical-align:top}
+th{background:color-mix(in srgb,var(--line) 40%,var(--card));font-weight:700}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto}
+.callout{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:12px 16px;margin:14px 0}
+.callout b{color:var(--accent-ink)}
+pre.diagram{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:16px;overflow-x:auto;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink)}
+.grade{display:inline-block;padding:0 7px;border-radius:99px;font-size:12px;font-weight:700;color:#fff}
+.g1{background:var(--g1)}.g2{background:var(--g2)}.g3{background:var(--g3)}.g4{background:var(--g4)}
+.foot{margin-top:56px;border-top:1px solid var(--line);padding-top:14px;color:var(--sub);font-size:12.5px}
+@media print{body{background:#fff}.wrap{padding:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <div class="kicker">한화 신입사원 AI 솔루션 챌린지 · 과제 03 고객 페인포인트 해결</div>
+  <h1>서울세계불꽃축제 귀가 출구 내비 — 진행 보고</h1>
+  <div class="meta">
+    2026-08-31 기준 · 작성: 박재형 ·
+    <a href="https://jaefit.github.io/hanwha-ai-challenge/">대시보드</a> ·
+    <a href="https://github.com/jaefit/hanwha-ai-challenge">저장소</a>
+    · 행사일 9/5(토) · 제출 9/8(화) 20:00
+  </div>
+</header>
+
+<!-- ── 기 ── -->
+<h2><span class="no">1</span>문제 제기 — 귀가가 무너진다</h2>
+<p class="lead">축제 당일 여의도에 약 100만 명이 모이고, 불꽃쇼가 끝나는 순간 전원이 동시에 귀가를 시작한다. 문제는 혼잡 자체가 아니라 <b>기존 도구가 당일 통제를 모른다는 것</b>이다.</p>
+<ul>
+  <li><b>지도앱은 여의나루역으로 안내한다.</b> 그러나 여의나루역은 축제일 저녁 무정차 통제된다 — 2024·2025 실적: 19~21시 하차 인원 ≈ 0 (서울교통공사 OA-12921). 기사 예상이 아니라 데이터.</li>
+  <li><b>여의도역 승차는 21시에 평시 토요일의 12~17배</b>로 튄다 (2024·2025). 어느 역이 언제 몰리는지는 시간대별로 완전히 다르다.</li>
+  <li>서울시 실시간 도시데이터는 "붐빔"이라는 <b>상태</b>만 준다. 관람객에게 필요한 것은 <b>행동</b> — 어디로, 언제 나갈지 — 인데 이를 주는 서비스가 없다.</li>
+  <li>대상: 관람객. KT 생활이동 기준 20·30대 여성이 최다 집단.</li>
+</ul>
+
+<!-- ── 승 ── -->
+<h2><span class="no">2</span>해결 방안 — 상태가 아니라 행동을 준다</h2>
+<p class="lead">"지금 어디로 나가야 덜 막히나"를 <b>3초 안에</b> 읽는 웹페이지. 출구 7개 × 시간대(19~23시)별 부하율을 예측해 등급·대기시간·순위로 보여준다.</p>
+<ul>
+  <li>출구 7개: 여의도(5) · 여의나루(5) · 신길(1·5) · 여의도(9) · 샛강(9) · 국회의사당(9) · 마포역 도보(마포대교)</li>
+  <li>등급 4단계: <span class="grade g1">여유 &lt;0.5</span> <span class="grade g2">주의 0.5~0.8</span> <span class="grade g3">경계 0.8~1.0</span> <span class="grade g4">심각 ≥1.0</span> (부하율 = 수요 ÷ 처리용량)</li>
+  <li>통제 반영: 여의나루 임시 통제 20:40~21:40 (2026 공식 공지) — 해당 시간대 "무정차" 행으로 표시</li>
+  <li>정적 GitHub Pages — 라이브 데이터가 죽어도 사전 예측표로 자동 폴백, 통신 폭주 대비 localStorage 캐시</li>
+  <li>예정: 질의형 챗봇 프롬프트("애오개 가려면?"), 오프라인 플랜 카드</li>
+</ul>
+
+<!-- ── 전 ── -->
+<h2><span class="no">3</span>설계 방법 — 관측에 앵커한 구조 모델</h2>
+
+<h3>3.1 왜 머신러닝이 아닌가</h3>
+<p>학습 표본이 축제일 2일(2024·2025)뿐이다. 소표본에 모델을 학습시키는 대신, <b>실측을 앵커로 쓰는 구조 모델</b>을 짰다. 애틀랜타 MARTA 사례(경기장 이벤트 수요, 선형회귀+정규화 곡선, MAPE 11.7%)와 같은 계열의 접근.</p>
+
+<h3>3.2 수요 식 — 3개 요소의 곱</h3>
+<div class="callout"><b>출구 수요(역, 시각) = α × E<sub>st</sub> × 도착형태(시각)</b></div>
+<div class="tblwrap"><table>
+<tr><th>요소</th><th>내용</th><th>근거 데이터</th></tr>
+<tr><td><b>E<sub>st</sub></b> 규모·분배</td><td>축제일 <b>초과 승차</b> = 축제일 승차 − 평시 토요일 중앙값. 2년 평균 총 10.9만 명, 비중: 여의도(5) 29% · 샛강 17% · 여의도(9) 17% · 마포도보 13% · 국회 11% · 여의나루 10% · 신길 3%</td><td>서울교통공사 시간대별(OA-12921), 교통카드 일별(OA-12914)</td></tr>
+<tr><td><b>도착형태</b> 시간 분포</td><td>KT 생활이동 유출 곡선 → 쇼 종료 앵커 +40분 이동(2026 21:10 종료) → 구역→출구 <b>거리 ÷ 밀도별 보행속도</b>(Kladek/Weidmann 식)로 도달 지연</td><td>KT OD 2일, 공지 시간표</td></tr>
+<tr><td><b>α</b> 당일 규모 배율</td><td>당일 관측으로 갱신되는 사후분포 (3.3)</td><td>서울 실시간 도시데이터</td></tr>
+</table></div>
+<ul>
+  <li>처리용량 = 역별 <b>관측 최대 시간당 승차</b>. 9호선 3역·신길 1호선은 교통카드 일승차 비례 추정(추정 표기).</li>
+  <li>통제 규칙: 여의나루 20~21시 수요 0. 통제 중 도착분은 <b>해제 후 첫 개방 시간대(22시)로 이월</b> — 실측 근거: 해제 직후 승차 2024년 2.3천 / 2025년 5.8천 명.</li>
+</ul>
+
+<h3>3.3 당일 보정 — α 격자 데이터동화</h3>
+<ul>
+  <li>α를 점추정이 아니라 <b>격자 61점 사후분포</b>(베이즈 갱신)로 유지. 사전 = 2년 관측 변동폭.</li>
+  <li>관측 2종: <b>O1</b> 여의나루 30분 하차 증분(도착측, 12~19시) · <b>O2</b> 여의도 핫스팟 9역 30분 승차(귀가측, 19시~). 5분 주기.</li>
+  <li>예측 밴드 = 사후분포 p10~p90. 관측이 쌓이면 밴드가 좁아지고, 관측이 없으면 사전 예측표와 동일.</li>
+</ul>
+
+<h3>3.4 검증 — 백테스트</h3>
+<p>2024·2025 축제일 실측(시간대 승차 4역)으로 모델을 되돌려 검증. B가 2026이 실제로 놓이는 조건(다른 해 데이터만으로 예측).</p>
+<div class="tblwrap"><table>
+<tr><th>모드</th><th class="num">2024</th><th class="num">2025</th><th>등급 적중</th></tr>
+<tr><td>A in-sample (시간 분배 검증)</td><td class="num">0.24</td><td class="num">0.21</td><td>82% / 100%</td></tr>
+<tr><td><b>B cross-year (2026 조건)</b></td><td class="num"><b>0.42</b></td><td class="num"><b>0.44</b></td><td>76% / 88%</td></tr>
+</table></div>
+<p class="sub">수치 = |오차|합 ÷ 실측합. B 오차의 주원인은 연도 간 총량 이동(여의도(5) 21시 17.8천↔12.5천) — 예측 밴드가 이 폭을 표시한다. 그 외 pytest 불변식 21건(수요 보존·지연 합=1·통제 이월·스키마·회귀 가드) 상시 통과.</p>
+
+<h3>3.5 피더 선행지표 — 어디서 타고 오는가</h3>
+<ul>
+  <li>KT OD·전 역 초과 승차로 <b>출발역 역추적</b>: 귀속 양수 221개 역, 상위 17개 역이 25% (신도림·영등포·당산·노량진·사당·고속터미널·홍대 등).</li>
+  <li>사전 근거: 피더 귀속 승차(시각 h) vs 여의도 도착(h+1시간) 상관 <b>r = 0.99</b> (2024·2025 공통). 원거리 역(성수·잠실, 소요 30분+)일수록 1시간 지연 상관이 우세 — 물리와 일치.</li>
+  <li>당일 계획: 피더 핫스팟 <b>12곳</b>을 전용 API 키 2개로 5분 수집(9/4·9/5) → 9/6에 분 단위 선행 시간 검증. <b>9/5 모델 입력에는 쓰지 않는다</b>(미검증 관측 차단) — 검증되면 "도착 30분 예측" 확장으로 제출.</li>
+</ul>
+
+<h3>3.6 CCTV 밀도 — 보행속도 보정</h3>
+<ul>
+  <li>TOPIS 공개 CCTV 23대, 딥러닝 카운팅(DM-Count). 프레임은 저장하지 않고 집계만 기록.</li>
+  <li>출구 주변 5대에 ROI 캘리브레이션 완료: <b>통제 시 보행로가 될 차도</b>(여의동로·마포대교·원효대교·의사당대로)를 다각형으로 지정, 면적은 교량 공식 제원·OSM 차로수 기반 추정(±35%, 표기).</li>
+  <li>밀도(명/m²) → Weidmann 보행속도 → 출구 도달 지연이 실측으로 움직인다. 캘리브레이션 안 된 카메라는 모델에서 자동 제외(화면 참고용).</li>
+</ul>
+
+<h3>3.7 버린 결정들 (왜)</h3>
+<div class="tblwrap"><table>
+<tr><th>버린 것</th><th>이유</th><th>대체</th></tr>
+<tr><td>ML 학습 모델</td><td>표본 2일 — 과적합 확정</td><td>관측 앵커 구조 모델</td></tr>
+<tr><td>회랑→역 수기 배정표</td><td>실측과 3~7배 어긋남 (샛강 3.5배 과소 등)</td><td>관측 초과 승차 비중 (백테스트 0.34→0.24)</td></tr>
+<tr><td>평시 기준 p90</td><td>환승 대역 역이 기준에서 탈락하는 왜곡</td><td>토요일 중앙값</td></tr>
+<tr><td>입자 필터 (재표집)</td><td>상태가 정적 파라미터 1개 — 난수 불필요</td><td>결정론적 격자 사후분포</td></tr>
+<tr><td>피더 실시간 → 모델 직결</td><td>9/5 이전 검증 불가</td><td>관측·사후 검증 후 확장</td></tr>
+</table></div>
+
+<!-- ── 결 ── -->
+<h2><span class="no">4</span>아키텍처와 계획</h2>
+
+<h3>4.1 파이프라인</h3>
+<pre class="diagram">[사전층 — 라이브 없이 완결, 재현 가능]
+ data/raw (KT OD·승하차·교통카드)
+   ├─ baseline.py ──────▶ 유출 곡선·용량
+   ├─ exit_shares.py ───▶ 출구별 초과 승차 E_st (관측 앵커)
+   ├─ line9_capacity.py ▶ 9호선 용량 비례 추정
+   └─ backtrack.py ─────▶ 출발지 역추적 + 2026 사전 예측표 ──▶ docs/data/
+        └─ backtest.py ─▶ 검증 (A 0.24/0.21 · B 0.42/0.44)
+
+[당일층 — 5분 주기, 9/4·9/5]
+ 도시데이터 API ─ collector_api.py ─┐  (코어 3 + 피더 12, 키 3개 분산)
+ TOPIS CCTV 23대 ─ collector_cctv.py ─┼─▶ nowcast.py ──▶ forecast_latest.json
+ show_end.txt (쇼 종료 실시각) ───────┘   α 사후분포·이월·지연   │
+                                              publish.py ──▶ docs/data/latest.json (push)
+
+[화면 — GitHub Pages 정적]
+ index.html: 라이브 있으면 LIVE, 15분 지나면 "오래됨", 없으면 사전 예측표 + 밴드</pre>
+
+<h3>4.2 데이터 소스</h3>
+<div class="tblwrap"><table>
+<tr><th>소스</th><th>용도</th><th>비고</th></tr>
+<tr><td>KT 생활이동 OD (목적·수단)</td><td>유출 곡선 형태·출발지 구성</td><td>축제일 2일 + 대조 토요일</td></tr>
+<tr><td>서울교통공사 시간대 승하차 OA-12921</td><td>E_st·용량·백테스트·피더 역추적</td><td>1~8호선, 2개년</td></tr>
+<tr><td>교통카드 일별 승하차 OA-12914</td><td>9호선 규모·용량 비례</td><td>월 파일</td></tr>
+<tr><td>서울 실시간 도시데이터 citydata</td><td>α 관측(O1·O2)·피더·12h 예측 대조</td><td>5분, 키 3개 쿼터 분산</td></tr>
+<tr><td>TOPIS CCTV (HLS)</td><td>보행 밀도 → 도달 지연</td><td>23대, 프레임 미저장</td></tr>
+<tr><td>2026 공식 공지</td><td>통제 규칙·쇼 시간표</td><td>여의나루 20:40~21:40 등</td></tr>
+<tr><td>OSM·교량 공식 제원</td><td>CCTV ROI 면적</td><td>추정 표기</td></tr>
+</table></div>
+
+<h3>4.3 2026 예측 미리보기 (사전표, 2년 평균 [범위])</h3>
+<div class="tblwrap"><table>
+<tr><th>시각</th><th>혼잡 상위</th><th>권장</th></tr>
+<tr><td>21시</td><td>샛강 0.62 <span class="grade g2">주의</span> · 여의도(5) 0.52 <span class="grade g2">주의</span> · 여의나루 <span class="grade g4">통제</span></td><td>신길 0.14 · 마포도보 0.24</td></tr>
+<tr><td>22시</td><td><b>여의나루 0.91</b> [0.57~1.30] <span class="grade g3">경계</span> · 샛강 0.81 <span class="grade g3">경계</span></td><td>신길 0.24 · 마포도보 0.38</td></tr>
+</table></div>
+<p class="sub">핵심 메시지: 쇼 직후엔 샛강·여의도(5)가, 통제 해제 후엔 여의나루가 최악. 신길·마포대교 도보가 전 시간대 여유.</p>
+
+<h3>4.4 남은 일정</h3>
+<div class="tblwrap"><table>
+<tr><th>일자</th><th>작업</th></tr>
+<tr><td>~9/1</td><td>대시보드 격자·카피(T3) · 챗봇 프롬프트(T4) · 가상 설문 1,000건(T5)</td></tr>
+<tr><td>9/2~3</td><td>evaluate.py 오차표 틀(T6) · 드라이런 · 중간 정리 5장(T7)</td></tr>
+<tr><td>9/4</td><td><b>12:00 코드 프리즈</b> → 18~22시 전야제 리허설 (런북, CCTV 야간 ROI 재확인)</td></tr>
+<tr><td>9/5</td><td>본번 12~24시 수집·발행. <b>쇼 종료 실시각 기입 담당 1명 필요</b></td></tr>
+<tr><td>9/6~7</td><td>오차표(우리 vs 서울시 12h 예측 vs 실측) · 피더 검증 · 영상 3분 · 편집기 초안</td></tr>
+<tr><td>9/8</td><td>20:00 제출</td></tr>
+</table></div>
+
+<h3>4.5 팀 확인 필요</h3>
+<ul>
+  <li>팀·파트 구성 (제출 편집기 항목)</li>
+  <li>9/5 현장: 쇼 종료 시각 기입(21시 전후 1명), 통제 실물 확인 메모</li>
+  <li>영상 3분 나레이션·촬영 분담</li>
+</ul>
+
+<div class="foot">
+  수치 출처: 저장소 <code>data/derived/*.json</code> (스크립트로 재현 가능, <code>data/README.md</code>), 기준일 2026-08-31.
+  추정치는 본문·데이터에 "추정" 표기. 원본 대용량 데이터는 저장소 외부(공개 Release 예정).
+</div>
+
+</div>
+</body>
+</html>
