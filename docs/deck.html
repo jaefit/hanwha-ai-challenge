@@ -77,17 +77,32 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 .nav{position:fixed;top:0;bottom:0;width:12vw;z-index:4;cursor:pointer}
 .nav.prev{left:0}.nav.next{right:0}
 
-/* ── 타이틀 불꽃 버스트 ── */
+/* ── 타이틀 불꽃 쇼 ── */
 .fx{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.fx .burst{position:absolute;width:4px;height:4px;border-radius:50%}
+.fx .trail{position:absolute;width:2.5px;height:2.5px;border-radius:50%;background:#ffd9a8;
+  box-shadow:0 0 6px 1px rgba(255,179,107,.8);animation:rise .6s cubic-bezier(.3,.7,.5,1) forwards}
+.fx .trail::after{content:"";position:absolute;left:.5px;top:2px;width:1.5px;height:46px;
+  background:linear-gradient(to bottom,rgba(255,217,168,.7),transparent);border-radius:2px}
+@keyframes rise{from{transform:translateY(44vh);opacity:1}88%{opacity:1}to{transform:translateY(0);opacity:0}}
+.fx .flash{position:absolute;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,#fff 0%,#ffd9a8 35%,transparent 70%);animation:flash .5s ease-out forwards}
+@keyframes flash{from{opacity:1;scale:.6}to{opacity:0;scale:7}}
+.fx .ring{position:absolute;width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,179,107,.85);
+  transform:translate(-50%,-50%);animation:ring 1s cubic-bezier(.1,.7,.3,1) forwards}
+@keyframes ring{from{opacity:.9;scale:1}to{opacity:0;scale:22}}
+.fx .burst{position:absolute;width:0;height:0}
+.fx .burst i{position:absolute;left:-2px;top:-2px;width:4.5px;height:4.5px;border-radius:50%;background:var(--c,#ffb36b);
+  box-shadow:0 0 5px 1px var(--c,#ffb36b);opacity:0;
+  animation:spark var(--t,2.2s) cubic-bezier(.12,.65,.35,1) var(--d,0s) forwards}
 @keyframes spark{
-  0%{transform:translate(0,0) scale(1);opacity:0}
-  6%{opacity:1}
-  70%{opacity:.85}
-  100%{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}
+  0%{transform:translate(0,0) scale(1.15);opacity:0}
+  5%{opacity:1}
+  58%{transform:translate(var(--dx),var(--dy)) scale(.75);opacity:.95}
+  72%{opacity:.5}
+  80%{opacity:.9}
+  88%{opacity:.3}
+  100%{transform:translate(calc(var(--dx)*1.12),calc(var(--dy)*1.12 + 64px)) scale(.3);opacity:0}
 }
-.fx .burst i{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:50%;background:var(--c,#ffb36b);
-  animation:spark var(--t,2.6s) cubic-bezier(.16,.7,.4,1) var(--d,0s) infinite}
 @media (prefers-reduced-motion: reduce){
   .slide,.rv{transition:none!important;transform:none!important}
   .fx{display:none}
@@ -336,33 +351,48 @@ window.addEventListener("beforeprint", function () {
   });
 });
 
-/* ── 타이틀 불꽃 버스트 ── */
+/* ── 타이틀 불꽃 쇼: 랜덤 발사 → 궤적 → 섬광·링·스파크 ── */
 (function fireworks() {
   var host = document.getElementById("fx");
   if (!host || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
-  var colors = ["#ffb36b", "#f36f21", "#ffd9a8", "#e9e5de"];
-  var bursts = [
-    { x: 74, y: 26, n: 26, R: 150, t: 2.8, d: 0 },
-    { x: 58, y: 14, n: 18, R: 100, t: 2.4, d: 1.1 },
-    { x: 88, y: 46, n: 22, R: 120, t: 2.6, d: 2.1 }
-  ];
-  bursts.forEach(function (b) {
-    var g = document.createElement("div");
-    g.className = "burst";
-    g.style.left = b.x + "%"; g.style.top = b.y + "%";
-    for (var k = 0; k < b.n; k++) {
-      var a = (k / b.n) * Math.PI * 2 + Math.random() * 0.2;
-      var r = b.R * (0.72 + Math.random() * 0.36);
+  var COLORS = ["#ffb36b", "#f36f21", "#ffd9a8", "#ffe9c9", "#ffd166", "#e9e5de"];
+  function el(cls) { var e = document.createElement("div"); e.className = cls; return e; }
+  function burst(x, y, big) {
+    var n = big ? 34 : 22, R = big ? 170 : 110;
+    var fl = el("flash"), rg = el("ring"), g = el("burst");
+    [fl, rg, g].forEach(function (e) { e.style.left = x + "%"; e.style.top = y + "%"; });
+    var base = COLORS[Math.floor(Math.random() * COLORS.length)];
+    for (var k = 0; k < n; k++) {
+      var a = (k / n) * 6.2832 + Math.random() * 0.25;
+      var r = R * (0.55 + Math.random() * 0.5);
       var i = document.createElement("i");
       i.style.setProperty("--dx", (Math.cos(a) * r).toFixed(0) + "px");
-      i.style.setProperty("--dy", (Math.sin(a) * r * 0.92 + 24).toFixed(0) + "px");
-      i.style.setProperty("--t", (b.t + Math.random() * 0.5).toFixed(2) + "s");
-      i.style.setProperty("--d", (b.d + Math.random() * 0.25).toFixed(2) + "s");
-      i.style.setProperty("--c", colors[k % colors.length]);
+      i.style.setProperty("--dy", (Math.sin(a) * r * 0.9).toFixed(0) + "px");
+      i.style.setProperty("--t", (1.7 + Math.random() * 0.9).toFixed(2) + "s");
+      i.style.setProperty("--d", (Math.random() * 0.12).toFixed(2) + "s");
+      i.style.setProperty("--c", Math.random() < 0.72 ? base : COLORS[Math.floor(Math.random() * COLORS.length)]);
       g.appendChild(i);
     }
-    host.appendChild(g);
-  });
+    host.appendChild(fl); host.appendChild(rg); host.appendChild(g);
+    setTimeout(function () {
+      [fl, rg, g].forEach(function (e) { if (e.parentNode) host.removeChild(e); });
+    }, 3200);
+  }
+  function launch() {
+    var x = 14 + Math.random() * 72, y = 10 + Math.random() * 38, big = Math.random() < 0.4;
+    var tr = el("trail");
+    tr.style.left = x + "%"; tr.style.top = y + "%";
+    host.appendChild(tr);
+    setTimeout(function () { if (tr.parentNode) host.removeChild(tr); burst(x, y, big); }, 580);
+  }
+  function tick() {
+    var s1 = host.closest(".slide");
+    if (document.hidden || !s1 || !s1.classList.contains("active")) { setTimeout(tick, 900); return; }
+    launch();
+    if (Math.random() < 0.3) setTimeout(launch, 220 + Math.random() * 250);
+    setTimeout(tick, 650 + Math.random() * 900);
+  }
+  setTimeout(tick, 300);
 })();
 
 var n0 = parseInt(location.hash.slice(1), 10);
