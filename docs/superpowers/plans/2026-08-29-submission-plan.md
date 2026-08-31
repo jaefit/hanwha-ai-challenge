@@ -101,9 +101,9 @@
 - Modify: `data/derived/topis_yeouido_cams.json` (5대 `roi`·`roi_m2`), `src/collector_cctv.py` `LOW_LIGHT` 임계
 
 - [x] **Step 1: 요약 실행** (8/29 21:00 자동, `logs/night_test_20260829.log`) — 23대 60분 1,380건, ok 95~100%, 밝기 중앙값 56~98(저조도<40 **0대**), count 중앙 1~14, 등급 대부분 여유, 플래그 count_vs_occ 4대(63빌딩·국회·노량진수산·마포대교북단), no frame 산발 17건. `benchmark-crowd-systems.md` §5 기록
-- [ ] **Step 2: 임계 조정** — 밝기 중앙값 분포 보고 `LOW_LIGHT` 를 하위 1/4 분위로. 이유를 코드 주석에
-- [ ] **Step 3 (사용자): ROI 측정** — `.venv/bin/python src/cam_calib.py --cams 192,725,310,331,39 --out ~/cam_calib` → 그림 보고 폴리곤 좌표, 지도에서 면적(m²) → cams.json 기입 → 끝나면 `rm -r ~/cam_calib`
-- [ ] **Step 4: 검증** — `.venv/bin/python src/collector_cctv.py --once --cams 192` 레코드에 `calibrated: true`, `density` 숫자. `pytest` 통과. 커밋
+- [x] **Step 2: 임계 판단 (8/30)** — 야간 실측 밝기 중앙 56~98로 저조도(<40) 0대 → `LOW_LIGHT=40` 유지. 계획의 '하위 1/4분위(≈70)' 규칙은 카메라 1/4을 근거 없이 저조도 처리하게 되어 미적용
+- [x] **Step 3: ROI 기입 (8/31)** — 프레임 5장 캡처 → AI가 ROI 다각형 제안(통제 시 보행로가 될 차도), 사용자 검수·조정(39캠 좌하 -40px). 면적은 지도 실측 대신 **추정**: 교량 공식 제원(마포 25m·원효 20m)/OSM lanes × 가시 구간(원근 추정), ±35%·`roi_measured: estimated` 표기. 밀도 등급 반 계단 오차 수준
+- [x] **Step 4: 검증 (8/31)** — 5캠 `--once`: 전부 `calibrated: true`·density 산출(주간 차량은 DM-Count가 안 세어 count≈0 정상). pytest 통과. 남은 것: 9/4 리허설 야간 실화면으로 ROI 타당성 재확인
 
 ### Task 3: 대시보드 UI 개선 ③④ (8/30, 사용자 디자인 판단 후)
 
