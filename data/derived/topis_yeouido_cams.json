@@ -27,7 +27,13 @@
   ],
   "roi_m2": 10000,
   "roi_basis": "여의동로(등록 도로) 곡선 구간: 폭 ~20m(OSM lanes=4 × 3.25m + 갓길) × 부감 가시 ~500m = 10,000m² 추정 ±35%",
-  "roi_measured": "estimated"
+  "roi_measured": "estimated",
+  "hls_hd": "http://210.179.218.51:1935/live/83.stream/playlist.m3u8",
+  "strmid_utic": "L010003",
+  "roi_frame": [
+   720,
+   480
+  ]
  },
  {
   "camId": "361",
@@ -36,7 +42,9 @@
   "owner": "서울지방경찰청",
   "lat": 37.52858,
   "lng": 126.91664,
-  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch14.stream/playlist.m3u8"
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch14.stream/playlist.m3u8",
+  "hls_hd": "http://210.179.218.51:1935/live/36.stream/playlist.m3u8",
+  "strmid_utic": "L010045"
  },
  {
   "camId": "729",
@@ -45,7 +53,9 @@
   "owner": "서울지방경찰청",
   "lat": 37.53008,
   "lng": 126.91926,
-  "hls": "https://topiscctv1.eseoul.go.kr/sd2/ch147.stream/playlist.m3u8"
+  "hls": "https://topiscctv1.eseoul.go.kr/sd2/ch147.stream/playlist.m3u8",
+  "hls_hd": "http://210.179.218.53:1935/live/275.stream/playlist.m3u8",
+  "strmid_utic": "L010047"
  },
  {
   "camId": "24",
@@ -63,7 +73,9 @@
   "owner": "서울지방경찰청",
   "lat": 37.51338,
   "lng": 126.94042,
-  "hls": "https://topiscctv1.eseoul.go.kr/sd2/ch15.stream/playlist.m3u8"
+  "hls": "https://topiscctv1.eseoul.go.kr/sd2/ch15.stream/playlist.m3u8",
+  "hls_hd": "http://210.179.218.52:1935/live/257.stream/playlist.m3u8",
+  "strmid_utic": "L010059"
  },
  {
   "camId": "14",
@@ -102,7 +114,13 @@
   ],
   "roi_m2": 10000,
   "roi_basis": "마포대교 데크: 폭 25m(서울시 한강교량 제원 1,390×25m) × 가시 구간 ~400m(원근: 근경 190px→원경 57px/25m) = 10,000m² 추정 ±35%",
-  "roi_measured": "estimated"
+  "roi_measured": "estimated",
+  "hls_hd": "http://210.179.218.51:1935/live/47.stream/playlist.m3u8",
+  "strmid_utic": "L010088",
+  "roi_frame": [
+   720,
+   480
+  ]
  },
  {
   "camId": "39",
@@ -132,7 +150,11 @@
   ],
   "roi_m2": 9000,
   "roi_basis": "마포대교 북단 본선(전폭 25m 중 본선 ~20m, 좌측 하부도로 제외) × 가시 ~450m = 9,000m² 추정 ±35%. 꼭짓점 좌하 (190,470) 사용자 조정 8/31",
-  "roi_measured": "estimated"
+  "roi_measured": "estimated",
+  "roi_frame": [
+   704,
+   480
+  ]
  },
  {
   "camId": "17",
@@ -207,7 +229,13 @@
   ],
   "roi_m2": 20000,
   "roi_basis": "의사당대로(여의공원~국회 정문, 지도 ~600m 중 ROI ~450m) × ROI 폭 ~45m(7~8차로 33m+중앙녹지) = 20,000m² 추정 ±35%",
-  "roi_measured": "estimated"
+  "roi_measured": "estimated",
+  "hls_hd": "http://210.179.218.51:1935/live/38.stream/playlist.m3u8",
+  "strmid_utic": "L010199",
+  "roi_frame": [
+   720,
+   480
+  ]
  },
  {
   "camId": "1043",
@@ -234,7 +262,9 @@
   "owner": "서울지방경찰청",
   "lat": 37.5171,
   "lng": 126.92807,
-  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch16.stream/playlist.m3u8"
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch16.stream/playlist.m3u8",
+  "hls_hd": "http://210.179.218.51:1935/live/39.stream/playlist.m3u8",
+  "strmid_utic": "L010201"
  },
  {
   "camId": "894",
@@ -252,7 +282,9 @@
   "owner": "서울지방경찰청",
   "lat": 37.52846,
   "lng": 126.91874,
-  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch15.stream/playlist.m3u8"
+  "hls": "https://topiscctv1.eseoul.go.kr/sd1/ch15.stream/playlist.m3u8",
+  "hls_hd": "http://210.179.218.51:1935/live/37.stream/playlist.m3u8",
+  "strmid_utic": "L010204"
  },
  {
   "camId": "355",
@@ -309,6 +341,12 @@
   ],
   "roi_m2": 9000,
   "roi_basis": "원효대교 데크: 폭 20m(서울시 한강교량 제원 1,120×20m) × 가시 ~450m = 9,000m² 추정 ±35%",
-  "roi_measured": "estimated"
+  "roi_measured": "estimated",
+  "hls_hd": "http://210.179.218.52:1935/live/244.stream/playlist.m3u8",
+  "strmid_utic": "L010243",
+  "roi_frame": [
+   720,
+   480
+  ]
  }
 ]

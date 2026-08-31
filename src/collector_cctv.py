@@ -111,9 +111,19 @@ def tick(cams):
         for c in cams:
             rec = {"ts": now.isoformat(timespec="seconds"), "cam_id": c["camId"], "name": c["name"], "ok": False}
             try:
-                f0, f1 = grab(c["hls"])
+                # HD 원본(UTIC 1280x720, 2026-08-31 확인) 우선, 실패 시 TOPIS 480p 폴백. IP 직결 원본이라 수시 중단 가능 → 폴백 필수
+                origin = "hd" if c.get("hls_hd") else "sd"
+                f0, f1 = grab(c.get("hls_hd") or c["hls"])
+                if f0 is None and c.get("hls_hd"):
+                    origin = "sd"; f0, f1 = grab(c["hls"])
                 if f0 is None: raise RuntimeError("no frame")
-                roi = c.get("roi"); f0m, f1m = apply_roi(f0, roi), apply_roi(f1, roi) if f1 is not None else None
+                roi = c.get("roi")
+                if roi and f0 is not None:                        # ROI 좌표는 roi_frame 기준 → 실제 프레임 크기로 스케일 (HD 720p 대응)
+                    bw, bh = c.get("roi_frame", [720, 480])
+                    if (f0.shape[1], f0.shape[0]) != (bw, bh):
+                        sx, sy = f0.shape[1] / bw, f0.shape[0] / bh
+                        roi = [[round(x * sx), round(y * sy)] for x, y in roi]
+                f0m, f1m = apply_roi(f0, roi), apply_roi(f1, roi) if f1 is not None else None
                 cnt = count_people(f0m); occ = occupancy(c["camId"], f0m); fl = flow(f0m, f1m)
                 if roi and occ is not None:                       # 점유율은 ROI 면적 기준으로 재정규화
                     m = np.zeros(f0.shape[:2], dtype=np.uint8); cv2.fillPoly(m, [np.array(roi, dtype=np.int32)], 1); occ = min(1.0, occ / max(1e-6, float(m.mean())))
@@ -121,7 +131,7 @@ def tick(cams):
                 conf, flags, bright = confidence(cnt, occ, dens, f0)
                 if "bg_fail" in flags or "count_vs_occ" in flags: lv = "보정전"   # 계측 자체가 깨진 경우만 등급을 내린다(저조도는 플래그만)
                 rec.update(ok=True, count=round(cnt, 1), occupancy=None if occ is None else round(occ, 4), flow=None if fl is None else round(fl, 3), density=dens, level=lv,
-                           confidence=conf, flags=flags, brightness=bright, calibrated=bool(roi and c.get("roi_m2")))
+                           confidence=conf, flags=flags, brightness=bright, calibrated=bool(roi and c.get("roi_m2")), origin=origin)
             except Exception as e:
                 rec["error"] = str(e)[:120]
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
