@@ -141,6 +141,21 @@ h1{grid-area:title;margin:24px 0 0;font-size:44px;font-weight:800;letter-spacing
 .cam .m{font-size:11.5px;color:var(--ink-2);margin-top:3px}
 .cam .hair{height:2px;background:var(--hair);margin-top:8px}.cam .hair i{display:block;height:2px;background:var(--gc)}
 .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;border-top:var(--tabs-rule);padding-top:16px}
+.grid-wrap{overflow-x:auto;border-top:var(--tabs-rule);padding-top:16px}
+table.grid{border-collapse:separate;border-spacing:5px 4px;width:100%;min-width:600px}
+.grid th{font-size:12px;font-weight:800;color:var(--ink-2);padding:4px 2px;text-align:center}
+.grid th.cur{color:var(--ink)}
+.grid th.ex{text-align:left;font-size:12.5px;color:var(--ink);white-space:nowrap}
+.grid th.ex i{display:inline-block;width:8px;height:8px;border-radius:99px;background:var(--lc);margin-right:7px;vertical-align:0}
+.grid td{text-align:center;padding:7px 2px 6px;font-weight:800;font-size:13.5px;font-variant-numeric:tabular-nums;border-radius:3px}
+.grid td small{display:block;font-size:9.5px;font-weight:700;letter-spacing:.4px;margin-top:1px}
+.grid td.c-여유{background:color-mix(in srgb,var(--g-여유) 16%,transparent);color:var(--g-여유)}
+.grid td.c-주의{background:color-mix(in srgb,var(--g-주의) 16%,transparent);color:var(--g-주의)}
+.grid td.c-경계{background:color-mix(in srgb,var(--g-경계) 18%,transparent);color:var(--g-경계)}
+.grid td.c-심각{background:color-mix(in srgb,var(--g-심각) 18%,transparent);color:var(--g-심각)}
+.grid td.c-통제{color:var(--ink-2);font-size:11px;font-weight:700;border:1px dashed var(--rule);background:transparent}
+.grid td.best{box-shadow:inset 0 0 0 1.5px var(--ink)}
+
 .plan h3{margin:0 0 8px;font-size:16px;font-weight:800;letter-spacing:-.4px;line-height:1.25}
 .plan h3 small{display:block;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--ink-2);margin-bottom:4px}
 .plan ol{margin:0;padding-left:18px;font-size:12.5px;color:var(--ctrl-ink);line-height:1.55}
@@ -167,6 +182,7 @@ footer a{color:var(--ink-2)}
   .stats{grid-template-columns:1fr 1fr;gap:16px}
   .stats div:nth-child(3){border-left:0;padding-left:0}
   .plans{grid-template-columns:1fr;gap:20px}
+  table.grid{min-width:560px}
 }
 </style>
 </head>
@@ -220,6 +236,13 @@ footer a{color:var(--ink-2)}
   <h2>지점별 밀집 등급</h2>
   <p class="sub">서울 TOPIS 공개 스트림 → 밀도맵 모델 + 배경차분. 영상은 저장하지 않고 집계값만. 등급 기준 3·4·5명/m²(서울시).</p>
   <div class="cams" id="cams"></div>
+</section>
+
+<section class="sec">
+  <div class="eb">TIME × EXIT · 시간대 한눈표</div>
+  <h2>몇 시에 어디로 나갈까</h2>
+  <p class="sub">부하율 = 그 시간 수요 ÷ 그 역이 실제로 한 시간에 태워본 최대 인원(9호선·도보 †추정). 시간대마다 가장 여유로운 출구에 테두리(추천), 가장 붐비는 출구에 "피하기".</p>
+  <div class="grid-wrap"><table class="grid" id="grid" aria-label="시간대별 출구 부하율 격자"></table></div>
 </section>
 
 <section class="sec">
@@ -292,7 +315,7 @@ function render(){
   const rows=EXITS.filter(e=>ex[e.dk]).map(e=>{const c=(ex[e.dk]||{})[hour]||{};return{e,c,closed:!!c.closed||c.load==null,load:c.load==null?9:c.load};});
   const open=rows.filter(r=>!r.closed).sort((a,b)=>a.load-b.load),closed=rows.filter(r=>r.closed);
   const html=open.map((r,i)=>{const lv=LV(r.load,false);const est=r.c.estimated_capacity??r.e.est;const w=Math.min(100,Math.round(r.load*100));
-    let note="";if(r.e.k==="naru"&&hour==="21")note="· 임시 통제 21:40까지, 이후 정차";if(r.c.wait_min>0)note+=` · 대기 +${r.c.wait_min}분`;
+    let note=`· 평소 최대의 ${Math.round(r.load*100)}%`;if(r.e.k==="naru"&&hour==="21")note+=" · 임시 통제 21:40까지, 이후 정차";if(r.c.wait_min>0)note+=` · 대기 +${r.c.wait_min}분`;
     const hasBand=r.c.load_lo!=null&&r.c.load_hi!=null&&r.c.load_hi>r.c.load_lo;
     const band=hasBand?`<b style="left:${Math.min(100,Math.round(r.c.load_lo*100))}%;width:${Math.max(1,Math.min(100,Math.round((r.c.load_hi-r.c.load_lo)*100)))}%"></b>`:"";
     return`<div class="row" data-g="${lv}" style="--lc:${r.e.lc}"><div class="rk">${String(i+1).padStart(2,"0")}</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span>${est?'<span class="dg">†</span>':""}</div><div class="ds">${esc(r.e.desc)}${note?` <span class="note">${esc(note)}</span>`:""}</div><div class="hair">${band}<i style="width:${w}%"></i></div></div><div class="tag">${lv}</div><div class="num">${r.load.toFixed(2)}${hasBand?`<small>${r.c.load_lo.toFixed(2)}–${r.c.load_hi.toFixed(2)}</small>`:""}</div></div>`;}).join("")
@@ -303,7 +326,24 @@ function render(){
   $("s-20").textContent=fc.outflow_forecast?.["20"]!=null?fc.outflow_forecast["20"].toLocaleString():"—";
   $("s-21").textContent=fc.outflow_forecast?.["21"]!=null?fc.outflow_forecast["21"].toLocaleString():"—";
   const park=(fc.live_snapshot||{})["여의도한강공원"];$("s-pop").textContent=park?`${park.ppltn[0].toLocaleString()}~${park.ppltn[1].toLocaleString()}`:"—";$("s-lvl").textContent=park?`${park.congest} (${park.ts.slice(11,16)})`:"";
-  chart(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);
+  grid(ex,hours);chart(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);
+}
+
+// ── 시간×출구 격자 ──
+function grid(ex,hours){
+  const t=$("grid");if(!t)return;
+  const rows=EXITS.filter(e=>ex[e.dk]);
+  const stat={};hours.forEach(h=>{const open=rows.map(e=>({e,c:(ex[e.dk]||{})[h]||{}})).filter(r=>!(r.c.closed||r.c.load==null));
+    if(open.length){stat[h]={min:Math.min(...open.map(r=>r.c.load)),max:Math.max(...open.map(r=>r.c.load))};}});
+  let html='<thead><tr><th class="ex"></th>'+hours.map(h=>`<th${h===hour?' class="cur"':''}>${h}시</th>`).join("")+'</tr></thead><tbody>';
+  rows.forEach(e=>{html+=`<tr><th class="ex" style="--lc:${e.lc}"><i></i>${esc(e.name)}${e.est?'<span class="dg">†</span>':''}</th>`;
+    hours.forEach(h=>{const c=(ex[e.dk]||{})[h]||{};
+      if(c.closed||c.load==null){html+='<td class="c-통제">통제</td>';return;}
+      const lv=LV(c.load,false);const st=stat[h]||{};
+      const best=c.load===st.min,worst=c.load===st.max&&st.max!==st.min;
+      html+=`<td class="c-${lv}${best?' best':''}">${c.load.toFixed(2)}${best?'<small>추천</small>':worst?'<small>피하기</small>':''}</td>`;});
+    html+='</tr>';});
+  t.innerHTML=html+'</tbody>';
 }
 
 // ── 차트 ──
@@ -318,6 +358,10 @@ function chart(fc){
     s+=`<rect x="${x+bw*0.22}" y="${base0-hb}" width="${bw*0.24}" height="${hb}" fill="${base}"/><rect x="${x+bw*0.5}" y="${base0-hf}" width="${bw*0.24}" height="${hf}" fill="${today}"/>`;
     s+=`<text x="${x+bw/2}" y="${H-10}" fill="${ink2}" font-size="13" font-weight="700" text-anchor="middle" font-family="Pretendard">${h}시</text>`;
     s+=`<text x="${x+bw*0.62}" y="${base0-hf-8}" fill="${ink}" font-size="14" font-weight="800" text-anchor="middle" font-family="Pretendard">${Math.round((fx[h]||0)/1000)}k</text>`;});
+  const y25=(PRIOR&&PRIOR.outflow_by_year&&PRIOR.outflow_by_year["2025"])||null;
+  if(y25){const pts=hs.map((h,i)=>{const v=y25[h];return v==null?null:`${Math.round(pad+i*bw+bw*0.5)},${Math.round(base0-v/mx*(base0-top))}`;}).filter(Boolean);
+    if(pts.length>1){s+=`<polyline points="${pts.join(" ")}" fill="none" stroke="${ink2}" stroke-width="2" stroke-dasharray="5 4"/>`;
+      s+=`<text x="${W-pad-4}" y="${top+2}" fill="${ink2}" font-size="12" font-weight="700" text-anchor="end" font-family="Pretendard">- - 2025 실측(이동 전 곡선 기준)</text>`;}}
   const sf=(fc.seoul_fcst_snapshot||[]).filter(f=>hs.includes(f.t.slice(11,13)));const smx=Math.max(1,...sf.map(f=>f.max));
   sf.forEach(f=>{const i=hs.indexOf(f.t.slice(11,13));const x=pad+i*bw+bw/2;const y=base0-(f.max/smx)*(base0-top);s+=`<circle cx="${x}" cy="${y}" r="5" fill="${gc("여유")}"><title>서울시 예측 ${f.t.slice(11,16)} ${f.lvl} ${f.min}~${f.max}</title></circle>`;});
   svg.innerHTML=s;

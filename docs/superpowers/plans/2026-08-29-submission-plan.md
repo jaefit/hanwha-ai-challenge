@@ -114,10 +114,10 @@
 - Consumes: `exit_forecast_2026.json.exits[st][h].load/load_lo/load_hi`, `outflow_by_year`
 - Produces: `#grid` 섹션(시간×출구 등급), 숫자 옆 "평소 최대의 N%", 차트 2025 참조선
 
-- [ ] **Step 1: 설계 제시(bounded) → 승인** — 격자 위치(오프라인 플랜 위), 추천 상위 2·피하기 하위 1 태그, 카피 문구
-- [ ] **Step 2: 구현** — `render()`에서 `hours × EXITS` 격자 생성, `data-g` 등급색 재사용. 카피는 `.num` 아래 small
-- [ ] **Step 3: 검증** — 헤드리스 캡처 1440 다크/라이트 + 520 (swiftshader 플래그), `node --check`. 가로 스크롤 없음 확인
-- [ ] **Step 4: 커밋·push → Pages 확인**
+- [x] **Step 1: 설계 제시 → 승인** (8/31) — 격자 = CCTV와 오프라인 플랜 사이, 열별 최저 1곳 '추천' 테두리·최고 1곳 '피하기'(상위2 대신 1로 단순화), 카피 "평소 최대의 N%"
+- [x] **Step 2: 구현** — `grid(ex,hours)` 신설(등급 색 `color-mix` 토큰 재사용, 통제 셀 점선), 보드 설명줄에 % 카피, 차트에 2025 실측 점선(`outflow_by_year`, 라이브에 필드 없으면 자동 생략)
+- [x] **Step 3: 검증** — `node --check` OK, 헤드리스 1440 다크·520 캡처: 격자만 내부 가로 스크롤, 본문 스크롤 없음, 현재 시간 열 강조
+- [x] **Step 4: 커밋·push** — Pages 반영 확인은 배포 수 분 후
 
 ### Task 4: 귀가 내비 챗봇 프롬프트 (8/30~31)
 
