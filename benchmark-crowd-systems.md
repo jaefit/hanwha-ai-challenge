@@ -95,6 +95,20 @@
 - 3차: 메인 세션에서 WebSearch 11회 + WebFetch 6회(2회 실패: TfL 포럼 403, 국토부 PDF 인증서) + MARTA 논문 PDF 10쪽 직접 열람 → 본 문서. 소요 약 25분.
 - 교훈: 리서치 위임은 항목·툴 호출·시간 상한을 명시해도 무응답일 수 있다. 상한 시각에 직접 전환.
 
+## 7. 추가 조사 (2026-08-31) — 같은 시도·새 데이터·배울점
+
+| 발견 | 내용 | 우리에게 |
+|---|---|---|
+| SKT 지오비전 퍼즐 「'22 불꽃축제 지하철 이용」 | 2022 축제일 vs 전주 토요일: 여의나루 2.7배·샛강 **3.6배**·여의도 2.1배, **신길 0.71배(감소)**. 출구별: 여의나루 3번 42%+2번 34%, 여의도 4번 32%+5번 22%. 연령별: 10~20대 여의나루, 30대+ 여의도. 20시 이후 여의도·샛강 승차 급증 | 유일하게 발견된 동일 행사 분석. 샛강 큼·저녁 분산 = 우리 결론과 교차 확인. **출구 번호 비중 → 플랜 카드·챗봇 안내에 인용 가능(2022 기준 표기)**. 연령별 선호 → T5 설문 페르소나 근거. 신길 감소(2022)는 우리 2024/25 양수 초과와 다름 — 연도 차이/일 단위 vs 저녁 초과 차이로 해석, 메모 |
+| 행안부 인파관리지원시스템 (2023.12~) | 이통사 기지국 접속정보로 전국 100개소 밀집도 산출, 위험경보를 지자체 공무원에 자동 전파 | 관리자 경보 시스템(공무원 대상). 우리는 **관람객 행동 안내 레이어**로 정확히 보완 관계 — 기획서 차별화 문단에 사용 |
+| London NYE 불꽃 (TfL) | 역을 exit-only/entry-only로 전환, 자정 후 일방통행 보행 루트, 단계적 사전 통제, 심야 증편 | 운영 어휘 차용: 확장 제안(오렌지세이프티 관리자 뷰)에 "여의나루 해제 시 exit-only 운영·일방 보행 루트" 제안 문구. 관람객 카피 "나올 때 역·출구 지정" 근거 |
+| 서울 생활인구 (OA-14991 행정동·OA-14979 집계구, KT) | 시간대별 특정 지역 존재 인구. 축제일 여의도동 곡선 확보 가능 | **새 검증 데이터셋**: KT OD 곡선·citydata 인구와 3자 대조(사전, 저비용). 9/6 오차표 보강 후보 |
+| 교통카드 빅데이터 통합시스템 stcis.go.kr | 전국 교통카드 승하차 (코레일 포함 가능성) | **신길 1호선 공백을 메울 수 있는 유일한 리드** — 접근 절차 확인 필요 |
+| DBpia 지하철 혼잡 예측(빅데이터, 정확도 ~81%) | 일반 혼잡 예측 연구. 행사 요인은 향후 과제로 언급 | 행사 특화 국내 학술 선행은 사실상 없음 → 우리 접근의 신규성 근거로 인용 |
+
+배울점 요약: ① 출구 번호 단위 안내(지오비전)가 우리 안내를 한 단계 구체화 ② exit-only·일방 루트(런던)는 확장 제안의 실무 어휘 ③ 생활인구는 공짜 3자 검증 ④ 동일 행사 학술 선행 부재 = 신규성.
+2022 지오비전 배수(여의나루 2.7·샛강 3.6·여의도 2.1)는 **일 단위·전주 대비**라 우리 저녁 초과 배수(샛강 6배 등, 중앙값 대비)와 직접 비교 불가 — 방향만 일치 확인.
+
 ## 출처
 - 서울 실시간 도시데이터 https://data.seoul.go.kr/SeoulRtd/ · KT 5분 집계·전수화 https://www.khan.co.kr/article/202210312119015 · https://www.etnews.com/20220901000247
 - Amsterdam Public Eye https://www.itu.int/hub/2021/10/why-the-city-of-amsterdam-developed-its-own-crowd-monitoring-technology/ · CMSA API https://api.data.amsterdam.nl/v1/docs/datasets/cmsa.html
@@ -107,4 +121,8 @@
 - 특별행사 수요 문헌: Beijing 다변량 교란 DNN https://www.sciencedirect.com/science/article/abs/pii/S0957417421013981 · 역간 상호작용·이벤트 실시간 예측 https://www.sciencedirect.com/science/article/abs/pii/S0968090X18301797
 - Weidmann/Fruin https://collective-dynamics.eu/index.php/cod/article/view/A17 · https://arxiv.org/pdf/physics/0506170
 - 밀도 추정 한계 https://www.viziosense.com/post/smart-city-crowd-density-monitoring-real-world-use-cases-ai-accuracy-and-implementation-costs · 저조도 https://arxiv.org/pdf/2606.18566 · MapChecking https://www.mapchecking.com/
+- SKT 지오비전 퍼즐 '22 불꽃축제 https://puzzle.geovision.co.kr/insights/22%EB%85%84-%EC%84%9C%EC%9A%B8%EC%84%B8%EA%B3%84%EB%B6%88%EA%BD%83%EC%B6%95%EC%A0%9C-%EC%A7%80%ED%95%98%EC%B2%A0-%EC%9D%B4%EC%9A%A9-i1674791591847
+- 행안부 인파관리지원시스템 https://www.korea.kr/news/policyNewsView.do?newsId=148924176 · https://www.mois.go.kr/frt/bbs/type010/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000008&nttId=104479
+- London NYE 교통 https://www.nye.london/en/nye-transport.html
+- 서울 생활인구 OA-14991 https://data.seoul.go.kr/dataList/OA-14991/S/1/datasetView.do · 교통카드 빅데이터 https://stcis.go.kr/
 - 서울시 지하철 설계기준 https://news.seoul.go.kr/citybuild/archives/200621 · 국토부 고시 https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000118529
