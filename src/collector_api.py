@@ -25,10 +25,10 @@ KF = ENV.get("SEOUL_KEY_FEEDER", "").strip() or None   # 피더 전용 citydata 
 
 CORE = ["여의도한강공원", "여의도", "여의서로"]
 # 피더 기본 8곳 = 귀속 상위 × 개별 상관(feeder_leadlag.json) × citydata 실명 확인(8/31). 김포공항 r=-0.19 제외.
-FEEDER_DEFAULT = ["영등포 타임스퀘어", "신도림역", "사당역", "홍대입구역(2호선)", "노량진", "고속터미널역", "신림역", "강남역"]
+FEEDER_DEFAULT = ["영등포 타임스퀘어", "신도림역", "사당역", "홍대입구역(2호선)", "노량진", "고속터미널역", "신림역", "강남역", "성수카페거리"]   # 성수: r lag1 0.95·리드 ~35분 (8/31 추가)
 _f = os.environ.get("FEEDERS", "").strip()
 FEEDERS = FEEDER_DEFAULT if _f == "default" else [x.strip() for x in _f.split(",") if x.strip()]   # 피더 핫스팟(선행지표)
-FEEDER_HOURS = range(12, 21)          # 피더키 예산 보호: 12~20시만 (8곳 × 9h × 12회 = 864 < 1,000)
+FEEDER_HOURS = range(12, 20)          # 피더키 예산 보호: 12~19시만 — 도착 창. 9곳 × 8h × 12회 = 864, 재시도 여유 136
 HOTSPOTS = CORE + FEEDERS
 STATIONS = ["여의나루", "여의도", "샛강", "국회의사당"]
 SUBWAY_HOURS = range(17, 24)          # 지하철키 예산 보호: 17~23시만
