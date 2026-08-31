@@ -25,18 +25,18 @@ def main():
     date = datetime.datetime.now().strftime("%Y%m%d")
     fc = json.loads((LIVE / "forecast_latest.json").read_text(encoding="utf-8")) if (LIVE / "forecast_latest.json").exists() else {}
     payload = {"generated": datetime.datetime.now().isoformat(timespec="seconds"), "forecast": fc, "cctv": latest_cctv(date)}
+    # 예측 스냅샷 이력 (T6 evaluate.py 입력) — "그 시점에 뭐라고 예측했었나"를 사후 재현. repo 밖(data/live), 당일 종료 후 커밋
+    hdir = LIVE / "forecast_history" / date; hdir.mkdir(parents=True, exist_ok=True)
+    (hdir / f"{datetime.datetime.now():%H%M}.json").write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
+    if "--dry" in sys.argv: print("dry — history만 저장, docs/data·git 생략"); return
     out = DOCS / "latest.json"
     new = json.dumps(payload, ensure_ascii=False, indent=1)
     if out.exists() and out.read_text(encoding="utf-8") == new:
         print("no change"); return
     out.write_text(new, encoding="utf-8")
-    # 예측 스냅샷 이력 (T6 evaluate.py 입력) — "그 시점에 뭐라고 예측했었나"를 사후 재현. repo 밖(data/live), 당일 종료 후 커밋
-    hdir = LIVE / "forecast_history" / date; hdir.mkdir(parents=True, exist_ok=True)
-    (hdir / f"{datetime.datetime.now():%H%M}.json").write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
     hist = DOCS / f"history_{date}.jsonl"
     with hist.open("a", encoding="utf-8") as f:
         f.write(json.dumps({"ts": payload["generated"], "alpha": fc.get("alpha"), "outflow": fc.get("outflow_forecast"), "live": fc.get("live_snapshot"), "cctv": {k: v.get("level") for k, v in payload["cctv"].items()}}, ensure_ascii=False) + "\n")
-    if "--dry" in sys.argv: print("dry — git 생략, history 저장됨"); return
     subprocess.run(["git", "add", "docs/data"], cwd=ROOT, check=True)
     r = subprocess.run(["git", "commit", "-q", "-m", f"data: latest {payload['generated']}"], cwd=ROOT)
     if r.returncode == 0:
