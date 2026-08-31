@@ -64,7 +64,14 @@ svg .pt{cursor:pointer}
 .yrtog span{font-size:11.5px;color:var(--sub);margin-left:4px}
 .yrtog button{font:600 12.5px var(--mono);padding:3px 14px;border:1px solid var(--line);background:var(--card);color:var(--sub);cursor:pointer;border-radius:0}
 .yrtog button[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);box-shadow:inset 0 -2px 0 var(--accent)}
-@media print{body{background:#fff}.wrap{padding:0}.tip,.yrtog{display:none!important}}
+.mctl{display:flex;gap:10px;align-items:center;margin:8px 0 6px;flex-wrap:wrap}
+.mctl button{font:600 12.5px var(--mono);padding:3px 14px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;border-radius:0}
+.mctl button:hover{border-color:var(--ink)}
+.mctl input[type=range]{flex:1;min-width:130px;max-width:260px;accent-color:var(--accent);margin:0}
+.mctl .hh{font:600 12.5px var(--mono);min-width:40px}
+.mctl .note,.mctl .ro{font-size:11.5px;color:var(--sub)}
+.mctl .ro{font-family:var(--mono)}
+@media print{body{background:#fff}.wrap{padding:0}.tip,.yrtog,.mctl{display:none!important}}
 </style>
 </head>
 <body>
@@ -236,7 +243,7 @@ svg .pt{cursor:pointer}
 여의도에 온 사람들은 그날 어딘가의 역에서 지하철을 <b>탔다</b>. 서울 전 역의 승차 기록에서 "평소 토요일보다 유난히 많이 탄" 흔적을 찾으면, 관람객의 출발지를 역 단위로 되짚을 수 있다. 그 역들을 "피더(공급)역"이라 부른다.
 </div>
 
-<p><b>그림 1 — 상위 피더 12곳 점·선 도식.</b> 가운데가 여의도. 선의 방향은 실제 방위, 중심에서의 거리는 지하철 소요시간(점선 링 = 10·20·30분, 추정), 원 크기는 2년간 여의도행으로 집계(귀속)된 인원.</p>
+<p><b>그림 1 — 상위 피더 12곳 점·선 도식.</b> 가운데가 여의도. 선의 방향은 실제 방위, 중심에서의 거리는 지하철 소요시간(점선 링 = 10·20·30분, 추정), 원 크기는 2년간 여의도행으로 집계(귀속)된 인원. <b>▶ 재생</b>을 누르면 낮 12시부터 인파 유입이 흐른다 — 유입 속도는 그 시각의 실측 승차 강도를 역별 비중으로 배분한 값(추정).</p>
 <svg viewBox="0 0 720 540" role="img" aria-label="피더역 점-선 도식" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line)">
 <text x="18" y="20" font-size="12" fill="var(--sub)">가운데 = 여의도 · 선 방향 = 실제 방위 · 중심에서 거리 = 지하철 소요시간(추정) · 원 크기 = 여의도행 인원(2년)</text>
 <circle cx="360" cy="268" r="96" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="168" font-size="9.5" fill="var(--sub)">10분</text><circle cx="360" cy="268" r="150" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="114" font-size="9.5" fill="var(--sub)">20분</text><circle cx="360" cy="268" r="204" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="60" font-size="9.5" fill="var(--sub)">30분</text><line x1="360" y1="268" x2="461" y2="413" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="463" y2="295" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="247" y2="234" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="292" y2="258" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="364" y2="145" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="197" y2="200" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="302" y2="264" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="270" y2="260" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="586" y2="219" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="459" y2="366" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="564" y2="280" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="313" y2="302" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/>
@@ -253,7 +260,7 @@ svg .pt{cursor:pointer}
   <li><b>교차 검증</b>: 배분한 합계가 여의도 도착 규모와 규모(자릿수)와 시간 모양에서 일치하는지 확인.</li>
 </ol>
 
-<p><b>그림 2 — 결정적 근거: 시간이 맞물린다.</b> 피더역들의 초과 승차(주황 실선)가 먼저 움직이고, 여의도 도착(파랑 점선)이 약 1시간 뒤를 그대로 따라간다. 상관계수 0.99.</p>
+<p><b>그림 2 — 결정적 근거: 시간이 맞물린다.</b> 피더역들의 초과 승차(주황 실선)가 먼저 움직이고, 여의도 도착(파랑 점선)이 약 1시간 뒤를 그대로 따라간다. 상관계수 0.99. 차트 아래 슬라이더로 시각을 옮기면 같은 무리가 한 시간 뒤 도착하는 짝이 커서로 보인다.</p>
 <svg viewBox="0 0 720 270" role="img" aria-label="피더 승차와 여의도 도착의 시간 관계" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line)">
 <line x1="52" y1="179.2" x2="704" y2="179.2" stroke="var(--line)"/><text x="46" y="183.2" text-anchor="end" font-size="10" fill="var(--sub)">5k</text><line x1="52" y1="124.5" x2="704" y2="124.5" stroke="var(--line)"/><text x="46" y="128.5" text-anchor="end" font-size="10" fill="var(--sub)">10k</text><line x1="52" y1="69.7" x2="704" y2="69.7" stroke="var(--line)"/><text x="46" y="73.7" text-anchor="end" font-size="10" fill="var(--sub)">15k</text><text x="52.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">10시</text><text x="117.2" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">11시</text><text x="182.4" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">12시</text><text x="247.6" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">13시</text><text x="312.8" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">14시</text><text x="378.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">15시</text><text x="443.2" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">16시</text><text x="508.4" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">17시</text><text x="573.6" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">18시</text><text x="638.8" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">19시</text><text x="704.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">20시</text>
 <polyline points="52.0,156.4 117.2,145.9 182.4,131.0 247.6,127.4 312.8,109.8 378.0,83.5 443.2,62.9 508.4,57.4 573.6,106.8 638.8,192.8" fill="none" stroke="var(--accent-ink)" stroke-width="2.5"/>
@@ -672,6 +679,136 @@ function btInit() {
   render("2025", false);
 }
 
+/* ── 그림 1+: 피더 파티클 유입 재생 (A) ── */
+function particleInit() {
+  var svg = byLabel("피더역 점-선 도식"); if (!svg || REDUCE) return;
+  var dots = $all("circle[fill-opacity]", svg);
+  if (dots.length !== FEED.length) return;
+  var CX = 360, CY = 268, NS = "http://www.w3.org/2000/svg";
+  var tot = 0; FEED.forEach(function (f) { tot += f[3]; });
+  var stations = dots.map(function (d, i) {
+    return { x: +d.getAttribute("cx"), y: +d.getAttribute("cy"), r0: +d.getAttribute("r"),
+             el: d, share: FEED[i][3] / tot, dur: 0.9 + FEED[i][2] / 35 * 1.5 };
+  });
+  var xmax = Math.max.apply(null, C2.X);
+  function rate(h) { /* 시각 h의 전체 피더 승차 강도 0..1 — C2.X(실측) 선형 보간 */
+    var hh = Math.floor(h), i = C2.hours.indexOf(hh);
+    if (i < 0 || i >= C2.X.length) return 0;
+    var a = C2.X[i], b = (i + 1 < C2.X.length) ? C2.X[i + 1] : 0;
+    return (a + (b - a) * (h - hh)) / xmax;
+  }
+  var ctl = document.createElement("div");
+  ctl.className = "mctl";
+  ctl.innerHTML = '<button type="button">▶ 재생</button>' +
+    '<input type="range" min="12" max="19.99" step="0.01" value="12" aria-label="시각">' +
+    '<span class="hh">12시</span>' +
+    '<span class="note">점 = 여의도로 향하는 인파 · 유입 속도 = 그 시각 피더 승차 강도(실측 형태 × 역별 비중, 추정)</span>';
+  svg.parentNode.insertBefore(ctl, svg);
+  var btn = ctl.querySelector("button"), rng = ctl.querySelector("input"), hh = ctl.querySelector(".hh");
+  var layer = document.createElementNS(NS, "g");
+  svg.appendChild(layer);
+  var parts = [], t = 12, playing = false, raf = null, last = null, visible = false;
+  function setT(v) {
+    t = Math.max(12, Math.min(19.99, v));
+    rng.value = t; hh.textContent = Math.floor(t) + "시";
+  }
+  function frame(ts) {
+    raf = null;
+    var dt = last === null ? 0.016 : Math.min(0.05, (ts - last) / 1000);
+    last = ts;
+    if (playing) {
+      setT(t + dt * 0.5);
+      if (t >= 19.98) { playing = false; btn.textContent = "▶ 다시"; }
+    }
+    var r = rate(t);
+    stations.forEach(function (s) {
+      if (Math.random() < 14 * r * s.share * dt) {
+        var c = document.createElementNS(NS, "circle");
+        c.setAttribute("r", 1.7); c.setAttribute("fill", "var(--accent)");
+        layer.appendChild(c);
+        parts.push({ el: c, s: s, a: 0, ph: Math.random() * 6.28 });
+      }
+      s.el.setAttribute("r", (s.r0 * (0.78 + 0.4 * r)).toFixed(2));
+    });
+    for (var i = parts.length - 1; i >= 0; i--) {
+      var p = parts[i]; p.a += dt / p.s.dur;
+      if (p.a >= 1) { layer.removeChild(p.el); parts.splice(i, 1); continue; }
+      var k = p.a, x = p.s.x + (CX - p.s.x) * k, y = p.s.y + (CY - p.s.y) * k;
+      var dx = CY - p.s.y, dy = -(CX - p.s.x), L = Math.sqrt(dx * dx + dy * dy) || 1;
+      var w = Math.sin(k * 9 + p.ph) * 3.5 * (1 - k);
+      p.el.setAttribute("cx", (x + dx / L * w).toFixed(1));
+      p.el.setAttribute("cy", (y + dy / L * w).toFixed(1));
+      p.el.setAttribute("opacity", (0.75 * (1 - k * k)).toFixed(2));
+    }
+    if (visible) raf = requestAnimationFrame(frame);
+  }
+  function ensure() { if (visible && !raf) { last = null; raf = requestAnimationFrame(frame); } }
+  btn.addEventListener("click", function () {
+    if (t >= 19.9 && !playing) setT(12);
+    playing = !playing;
+    btn.textContent = playing ? "❚❚ 정지" : "▶ 재생";
+    ensure();
+  });
+  rng.addEventListener("input", function () {
+    playing = false; btn.textContent = "▶ 재생"; setT(+rng.value); ensure();
+  });
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) { visible = e.isIntersecting; ensure(); });
+    }, { threshold: 0.05 }).observe(svg);
+  } else { visible = true; ensure(); }
+  window.addEventListener("beforeprint", function () {
+    playing = false; visible = false;
+    parts.forEach(function (p) { layer.removeChild(p.el); }); parts = [];
+  });
+}
+
+/* ── 그림 2+: 1시간 랙 스크러버 (B) ── */
+function lagInit() {
+  var svg = byLabel("피더 승차와 여의도 도착의 시간 관계"); if (!svg) return;
+  var pls = $all("polyline", svg); if (pls.length < 2) return;
+  function pxy(pl) {
+    return pl.getAttribute("points").trim().split(/\s+/).map(function (s) {
+      var a = s.split(","); return { x: +a[0], y: +a[1] };
+    });
+  }
+  var PX = pxy(pls[0]), PY = pxy(pls[1]);
+  var NS = "http://www.w3.org/2000/svg";
+  var g = document.createElementNS(NS, "g");
+  function mk(tag, at) { var e = document.createElementNS(NS, tag); for (var k in at) e.setAttribute(k, at[k]); g.appendChild(e); return e; }
+  var ln = mk("line", { stroke: "var(--sub)", "stroke-width": 1.3, "stroke-dasharray": "4 3", "marker-end": "url(#ar)" });
+  var mx = mk("circle", { r: 5.5, fill: "none", stroke: "var(--accent-ink)", "stroke-width": 2.2 });
+  var my = mk("circle", { r: 5.5, fill: "none", stroke: "#3b82c4", "stroke-width": 2.2 });
+  svg.appendChild(g);
+  var ctl = document.createElement("div");
+  ctl.className = "mctl";
+  ctl.innerHTML = (REDUCE ? "" : '<button type="button">▶ 재생</button>') +
+    '<input type="range" min="10" max="19" step="1" value="17" aria-label="승차 시각"><span class="ro"></span>';
+  svg.parentNode.insertBefore(ctl, svg.nextSibling);
+  var btn = ctl.querySelector("button"), rng = ctl.querySelector("input"), ro = ctl.querySelector(".ro");
+  var tm = null;
+  function stop() { if (tm) { clearInterval(tm); tm = null; } if (btn) btn.textContent = "▶ 재생"; }
+  function setH(h) {
+    h = Math.max(10, Math.min(19, Math.round(h)));
+    rng.value = h;
+    var i = h - 10;
+    mx.setAttribute("cx", PX[i].x); mx.setAttribute("cy", PX[i].y);
+    my.setAttribute("cx", PY[i + 1].x); my.setAttribute("cy", PY[i + 1].y);
+    ln.setAttribute("x1", PX[i].x + 6); ln.setAttribute("y1", PX[i].y);
+    ln.setAttribute("x2", PY[i + 1].x - 7); ln.setAttribute("y2", PY[i + 1].y);
+    ro.textContent = h + "시 피더 승차 " + fmt(C2.X[i]) + "명 → " + (h + 1) + "시 여의도 도착 " + fmt(C2.Y[i + 1]) + "명 (1시간 뒤)";
+  }
+  rng.addEventListener("input", function () { stop(); setH(+rng.value); });
+  if (btn) btn.addEventListener("click", function () {
+    if (tm) { stop(); return; }
+    var h = +rng.value >= 19 ? 10 : +rng.value;
+    btn.textContent = "❚❚ 정지";
+    setH(h);
+    tm = setInterval(function () { h++; if (h > 19) { stop(); return; } setH(h); }, 900);
+  });
+  setH(17);
+}
+
 /* ── 다섯 줄 요약 카운트업 ── */
 function countInit() {
   var els = $all(".cnt");
@@ -694,7 +831,7 @@ function countInit() {
   io.observe(host);
 }
 
-[radialInit, chart2Init, chart3Init, btInit, countInit].forEach(function (f) {
+[radialInit, particleInit, chart2Init, chart3Init, lagInit, btInit, countInit].forEach(function (f) {
   try { f(); } catch (e) { if (window.console) console.error("report anim:", e); }
 });
 })();
