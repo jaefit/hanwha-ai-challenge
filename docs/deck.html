@@ -123,7 +123,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <section class="slide" id="s1">
   <div class="fx" id="fx"></div>
   <div class="kicker rv">한화 신입사원 AI 솔루션 챌린지 · 과제 03 고객 페인포인트 해결</div>
-  <h1 class="rv">불꽃이 끝나면,<br>100만 명이 움직인다</h1>
+  <h1 class="rv">불꽃이 끝나면,<br><span class="cu" data-v="100">100</span>만 명이 움직인다</h1>
   <p class="sub rv" style="font-size:clamp(16px,1.8vw,22px);max-width:46ch">서울세계불꽃축제 귀가 출구 내비 — "지금 어디로 나가야 덜 막히나"를 3초 안에.</p>
   <p class="src rv">박재형 · 행사일 2026-09-05(토) · <span class="mono">jaefit.github.io/hanwha-ai-challenge</span></p>
 </section>
@@ -144,7 +144,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <!-- 3 ─ 규모 -->
 <section class="slide" id="s3">
   <div class="kicker rv">문제 2 / 2 — 몰리는 규모</div>
-  <div class="big rv">× 12~17</div>
+  <div class="big rv">× <span class="cu" data-v="12">12</span>~<span class="cu" data-v="17">17</span></div>
   <h2 class="rv">통제를 피한 인파가 옆 역으로<br><em>여의도역 21시 승차, 평시 토요일 대비</em></h2>
   <ul class="pts">
     <li class="rv">축제일 저녁 7개 출구 초과 승차 합 <b>약 10.9만 명</b> (2년 평균)</li>
@@ -195,7 +195,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <!-- 6 ─ 검증 -->
 <section class="slide" id="s6">
   <div class="kicker rv">검증 — 타임머신 시험</div>
-  <div class="big rv">76~100<small>%</small></div>
+  <div class="big rv"><span class="cu" data-v="76">76</span>~<span class="cu" data-v="100">100</span><small>%</small></div>
   <h2 class="rv">혼잡 등급 적중률 <em>(백테스트)</em></h2>
   <div class="panel rv" style="max-width:760px">
     <table>
@@ -217,7 +217,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
       <p><b>쇼 직후(21시) 최악은 제일 큰 여의도역이 아니라 샛강역.</b><br><span class="sub">9호선인데 처리용량이 작다 — 부하 0.62로 전 출구 1위.</span></p>
     </div>
     <div class="panel rv">
-      <div class="big" style="font-size:clamp(40px,6vw,76px)">22시</div>
+      <div class="big" style="font-size:clamp(40px,6vw,76px)"><span class="cu" data-v="22">22</span>시</div>
       <p><b>여의나루는 통제가 풀리는 22시가 가장 위험하다.</b><br><span class="sub">기다리던 인파가 한꺼번에 — 0.91 [0.57~1.30]. 통제 중 도착분을 해제 후로 이월하는 규칙이 찾아낸 결론. 실측 근거: 해제 직후 승차 2.3천('24)·5.8천('25).</span></p>
     </div>
   </div>
@@ -226,7 +226,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <!-- 8 ─ 피더 선행지표 -->
 <section class="slide" id="s8">
   <div class="kicker rv">확장 — 붐비기 전에 안다</div>
-  <div class="big rv">r = 0.99</div>
+  <div class="big rv">r = <span class="cu" data-v="0.99" data-d="2">0.99</span></div>
   <h2 class="rv">피더역 승차가 여의도 도착을 <em>1시간 선행</em></h2>
   <ul class="pts">
     <li class="rv">서울 전 역(253역) 초과 승차 역추적 → 관람객 출발지 지도. 2년 연속 재현 + KT 통신 데이터와 교차 검증</li>
@@ -321,11 +321,38 @@ function go(i) {
   [].slice.call(slides[i].querySelectorAll(".rv")).forEach(function (el, k) {
     el.style.transitionDelay = (0.12 + k * 0.09) + "s";
   });
+  countUp(slides[i]);
   bar.style.width = ((i + 1) / slides.length * 100) + "%";
   cnt.textContent = (i + 1) + " / " + slides.length;
   if (history.replaceState) history.replaceState(null, "", "#" + (i + 1));
 }
 function step(d) { go(cur + d); }
+
+/* 슬라이드 진입 시 큰 숫자 카운트업 (매 진입마다 재생) */
+var CU_REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+function countUp(slide) {
+  if (CU_REDUCE) return;
+  [].slice.call(slide.querySelectorAll(".cu")).forEach(function (el) {
+    var v = parseFloat(el.getAttribute("data-v"));
+    var d = +(el.getAttribute("data-d") || 0);
+    if (el.__raf) cancelAnimationFrame(el.__raf);
+    var t0 = null;
+    function tickcu(ts) {
+      if (t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / 950);
+      p = 1 - Math.pow(1 - p, 3);
+      el.textContent = (v * p).toFixed(d);
+      el.__raf = p < 1 ? requestAnimationFrame(tickcu) : null;
+    }
+    el.__raf = requestAnimationFrame(tickcu);
+  });
+}
+window.addEventListener("beforeprint", function () {
+  [].slice.call(document.querySelectorAll(".cu")).forEach(function (el) {
+    if (el.__raf) cancelAnimationFrame(el.__raf);
+    el.textContent = parseFloat(el.getAttribute("data-v")).toFixed(+(el.getAttribute("data-d") || 0));
+  });
+});
 
 document.addEventListener("keydown", function (e) {
   if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); step(1); }
