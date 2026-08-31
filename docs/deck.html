@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불꽃축제 귀가 내비 — 피치 덱</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@700;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#0b0d12; --panel:#12151d; --ink:#f3efe9; --sub:#9aa0ac; --line:#262b36;
+  --accent:#f36f21; --accent2:#ffb36b;
+  --g1:#3fa86c; --g2:#d4a916; --g3:#e0762c; --g4:#e04a4a;
+  --serif:"Hahmlet","Pretendard Variable",Pretendard,serif;
+  --mono:"IBM Plex Mono","Pretendard Variable",Pretendard,ui-monospace,monospace;
+  color-scheme:dark only;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:clamp(15px,1.6vw,19px)/1.7 "Pretendard Variable",Pretendard,-apple-system,sans-serif;overflow:hidden}
+a{color:var(--accent2);text-decoration:none}
+
+/* ── 슬라이드 골격 ── */
+.slide{position:absolute;inset:0;padding:6vh 8vw;display:flex;flex-direction:column;justify-content:center;
+  opacity:0;visibility:hidden;transform:translateY(18px);transition:opacity .45s ease,transform .45s ease,visibility 0s .45s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .45s ease}
+.kicker{font:600 clamp(11px,1vw,13px) var(--mono);letter-spacing:.16em;color:var(--accent2);margin-bottom:2vh;text-transform:uppercase}
+h1{font-family:var(--serif);font-weight:800;font-size:clamp(34px,5.6vw,72px);line-height:1.22;letter-spacing:-.015em;margin:0 0 2.5vh}
+h2{font-family:var(--serif);font-weight:800;font-size:clamp(26px,3.6vw,46px);line-height:1.3;letter-spacing:-.01em;margin:0 0 3vh}
+h2 em{font-style:normal;color:var(--accent)}
+.sub{color:var(--sub)}
+.big{font:600 clamp(64px,13vw,168px)/1 var(--mono);letter-spacing:-.04em;color:var(--accent);margin:1vh 0 1.5vh}
+.big small{font-size:.32em;color:var(--sub);font-weight:400;letter-spacing:0}
+.cols{display:flex;gap:3.2vw;flex-wrap:wrap}
+.cols>div{flex:1;min-width:240px}
+ul.pts{list-style:none;margin:0;padding:0;max-width:56ch}
+ul.pts li{padding:1.1vh 0 1.1vh 26px;position:relative}
+ul.pts li::before{content:"";position:absolute;left:2px;top:calc(1.1vh + .62em);width:9px;height:9px;background:var(--accent);transform:rotate(45deg)}
+ul.pts b{color:var(--ink)}
+.panel{background:var(--panel);border:1px solid var(--line);padding:2.4vh 1.8vw;margin:1.2vh 0}
+.formula{font-family:var(--serif);font-weight:800;font-size:clamp(22px,3vw,40px);text-align:center;padding:3.5vh 1vw}
+.formula em{font-style:normal;color:var(--accent)}
+table{border-collapse:collapse;width:100%;font-size:clamp(13px,1.25vw,16.5px)}
+th,td{border-bottom:1px solid var(--line);padding:1.2vh 1vw;text-align:left}
+th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);font-weight:750}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+.grade{display:inline-block;padding:.05em .6em;font-size:.78em;font-weight:700;color:#0b0d12;border-radius:2px;white-space:nowrap}
+.g1{background:var(--g1)}.g2{background:var(--g2)}.g3{background:var(--g3)}.g4{background:var(--g4)}
+.gr{background:#39404e;color:#cdd3dd}
+.src{font-size:clamp(10.5px,.95vw,12.5px);color:var(--sub);margin-top:2.5vh}
+.mono{font-family:var(--mono)}
+
+/* 미니 출구 보드 (4번 슬라이드) */
+.board{font-size:clamp(13px,1.3vw,17px)}
+.board .row{display:flex;align-items:center;gap:1.2vw;border-bottom:1px solid var(--line);padding:1.3vh .4vw}
+.board .row:last-child{border-bottom:0}
+.board .nm{flex:1;font-weight:700}
+.board .ld{font-family:var(--mono);color:var(--sub)}
+
+/* 3층 다이어그램 (9번) */
+.stack{display:flex;flex-direction:column;gap:1.6vh;max-width:760px}
+.stack .lay{border:1px solid var(--line);background:var(--panel);padding:1.8vh 1.6vw;display:flex;gap:1.6vw;align-items:baseline}
+.stack .lay b{font-family:var(--serif);white-space:nowrap;color:var(--accent2)}
+.stack .lay span{color:var(--sub);font-size:.92em}
+.stack .arr{text-align:center;color:var(--sub);font-size:.9em;margin:-.6vh 0}
+
+/* 진입 스태거 */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.slide.active .rv{opacity:1;transform:none}
+
+/* ── 크롬(진행바·카운터·힌트) ── */
+.bar{position:fixed;left:0;bottom:0;height:3px;background:var(--accent);width:0;transition:width .3s ease;z-index:5}
+.cnt{position:fixed;right:16px;bottom:12px;font:600 12px var(--mono);color:var(--sub);z-index:5}
+.hint{position:fixed;left:16px;bottom:10px;font-size:11.5px;color:var(--sub);opacity:.7;z-index:5}
+.nav{position:fixed;top:0;bottom:0;width:12vw;z-index:4;cursor:pointer}
+.nav.prev{left:0}.nav.next{right:0}
+
+/* ── 타이틀 불꽃 버스트 ── */
+.fx{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.fx .burst{position:absolute;width:4px;height:4px;border-radius:50%}
+@keyframes spark{
+  0%{transform:translate(0,0) scale(1);opacity:0}
+  6%{opacity:1}
+  70%{opacity:.85}
+  100%{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}
+}
+.fx .burst i{position:absolute;left:0;top:0;width:100%;height:100%;border-radius:50%;background:var(--c,#ffb36b);
+  animation:spark var(--t,2.6s) cubic-bezier(.16,.7,.4,1) var(--d,0s) infinite}
+@media (prefers-reduced-motion: reduce){
+  .slide,.rv{transition:none!important;transform:none!important}
+  .fx{display:none}
+}
+@media print{
+  body{overflow:visible;background:#fff;color:#111}
+  .slide{position:static;opacity:1;visibility:visible;transform:none;min-height:96vh;page-break-after:always;padding:24px}
+  .rv{opacity:1;transform:none}
+  .bar,.cnt,.hint,.nav,.fx{display:none!important}
+  :root{--ink:#111;--sub:#555;--panel:#f6f4f1;--line:#ccc;--bg:#fff;--accent-ink:#b34a0c}
+  a{color:#b34a0c}
+}
+</style>
+</head>
+<body>
+
+<!-- 1 ─ 타이틀 -->
+<section class="slide" id="s1">
+  <div class="fx" id="fx"></div>
+  <div class="kicker rv">한화 신입사원 AI 솔루션 챌린지 · 과제 03 고객 페인포인트 해결</div>
+  <h1 class="rv">불꽃이 끝나면,<br>100만 명이 움직인다</h1>
+  <p class="sub rv" style="font-size:clamp(16px,1.8vw,22px);max-width:46ch">서울세계불꽃축제 귀가 출구 내비 — "지금 어디로 나가야 덜 막히나"를 3초 안에.</p>
+  <p class="src rv">박재형 · 행사일 2026-09-05(토) · <span class="mono">jaefit.github.io/hanwha-ai-challenge</span></p>
+</section>
+
+<!-- 2 ─ 문제 -->
+<section class="slide" id="s2">
+  <div class="kicker rv">문제 1 / 2 — 지도앱이 모르는 것</div>
+  <div class="big rv">≈ 0<small>명</small></div>
+  <h2 class="rv">축제일 저녁, 여의나루역 하차 인원<br><em>— 역이 닫혀 있었다</em></h2>
+  <ul class="pts">
+    <li class="rv">공원에서 가장 가까운 역 → 지도앱은 오늘도 여의나루로 안내한다</li>
+    <li class="rv">그런데 축제일 저녁엔 안전 통제로 <b>무정차</b> — 걸어가 봐야 닫혀 있다</li>
+    <li class="rv">추측 아님 — 서울교통공사 실측(OA-12921), 2024·2025 두 해 공통</li>
+  </ul>
+  <p class="src rv">2026년 공식 공지: 여의나루 임시 통제 20:40~21:40</p>
+</section>
+
+<!-- 3 ─ 규모 -->
+<section class="slide" id="s3">
+  <div class="kicker rv">문제 2 / 2 — 몰리는 규모</div>
+  <div class="big rv">× 12~17</div>
+  <h2 class="rv">통제를 피한 인파가 옆 역으로<br><em>여의도역 21시 승차, 평시 토요일 대비</em></h2>
+  <ul class="pts">
+    <li class="rv">축제일 저녁 7개 출구 초과 승차 합 <b>약 10.9만 명</b> (2년 평균)</li>
+    <li class="rv">관람객 최다 집단은 20·30대 여성(KT) — 어두운 공원, 통신 폭주 속 판단</li>
+    <li class="rv">서울시 API는 "지금 붐빔"이라는 <b>상태</b>까지만 — "어디로 가라"는 없다</li>
+  </ul>
+</section>
+
+<!-- 4 ─ 해법 -->
+<section class="slide" id="s4">
+  <div class="kicker rv">해법</div>
+  <h2 class="rv">상태가 아니라 <em>행동</em>을 준다</h2>
+  <div class="cols">
+    <div class="rv">
+      <ul class="pts">
+        <li>출구 7개(지하철 6 + 마포대교 도보)의 <b>시간대별 혼잡 예측</b></li>
+        <li>순위 · 등급 4단계 · 예상 대기 — 열면 3초 안에 답</li>
+        <li>서버 없는 정적 페이지: 링크 하나, 통신 폭주에도 <b>오프라인 폴백</b></li>
+        <li>라이브가 끊겨도 사전 예측표로 자동 전환 — <b>서비스가 죽지 않는다</b></li>
+      </ul>
+    </div>
+    <div class="rv">
+      <div class="panel board">
+        <div style="font:600 11px var(--mono);color:var(--sub);letter-spacing:.1em;margin-bottom:1vh">21시 · 쇼 직후 (사전표)</div>
+        <div class="row"><span class="nm">신길 (1·5)</span><span class="ld">0.14</span><span class="grade g1">여유</span></div>
+        <div class="row"><span class="nm">마포대교 도보</span><span class="ld">0.24</span><span class="grade g1">여유</span></div>
+        <div class="row"><span class="nm">여의도 (5)</span><span class="ld">0.52</span><span class="grade g2">주의</span></div>
+        <div class="row"><span class="nm">샛강 (9)</span><span class="ld">0.62</span><span class="grade g2">주의</span></div>
+        <div class="row"><span class="nm">여의나루 (5)</span><span class="ld">—</span><span class="grade gr">통제 중</span></div>
+      </div>
+      <p class="src">라이브 데모: <span class="mono">jaefit.github.io/hanwha-ai-challenge</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- 5 ─ 모델 -->
+<section class="slide" id="s5">
+  <div class="kicker rv">설계 — 왜 ML이 아닌가</div>
+  <div class="panel formula rv">수요(출구, 시각) = <em>α</em> × <em>E<sub>st</sub></em> × <em>도착형태</em></div>
+  <div class="cols">
+    <div class="rv"><b>E<sub>st</sub> — 실측 뼈대</b><p class="sub">작년에 실제로 그 역으로 나간 인원(초과 승차). 비중까지 관측값.</p></div>
+    <div class="rv"><b>도착형태 — 물리</b><p class="sub">쇼 종료 앵커 + 거리÷보행속도(밀도 반영, Weidmann 공식) 지연.</p></div>
+    <div class="rv"><b>α — 당일 배율</b><p class="sub">오늘이 예년의 몇 배인지, 5분마다 관측으로 갱신(베이즈 격자).</p></div>
+  </div>
+  <p class="src rv">학습 표본이 축제일 단 2일 → ML은 외우기가 된다. 실측 뼈대 + 물리 구조 모델 채택 — 애틀랜타 MARTA 경기장 수요 예측 논문(arXiv:2106.05359)과 동일 접근.</p>
+</section>
+
+<!-- 6 ─ 검증 -->
+<section class="slide" id="s6">
+  <div class="kicker rv">검증 — 타임머신 시험</div>
+  <div class="big rv">76~100<small>%</small></div>
+  <h2 class="rv">혼잡 등급 적중률 <em>(백테스트)</em></h2>
+  <div class="panel rv" style="max-width:760px">
+    <table>
+      <tr><th>모드</th><th class="num">2024</th><th class="num">2025</th><th>등급 적중</th></tr>
+      <tr><td>A · 그 해 데이터로 재현 (분배 검증)</td><td class="num">0.24</td><td class="num">0.21</td><td class="mono">82% / 100%</td></tr>
+      <tr><td><b>B · 다른 해로 예측 (2026 실전 조건)</b></td><td class="num"><b>0.42</b></td><td class="num"><b>0.44</b></td><td class="mono"><b>76% / 88%</b></td></tr>
+    </table>
+  </div>
+  <p class="src rv">오차 = |예측−실측|합 ÷ 실측합 · 남는 불확실성은 숨기지 않고 예측 밴드로 표시 · 논리 검증 pytest 22건 상시 통과 · 9/5 당일 실측으로 사후 오차표까지 (evaluate.py)</p>
+</section>
+
+<!-- 7 ─ 반전 발견 -->
+<section class="slide" id="s7">
+  <div class="kicker rv">모델이 찾아낸, 직관과 다른 두 가지</div>
+  <h2 class="rv">지도앱은 절대 알려줄 수 없는 답</h2>
+  <div class="cols">
+    <div class="panel rv">
+      <div class="big" style="font-size:clamp(40px,6vw,76px)">샛강</div>
+      <p><b>쇼 직후(21시) 최악은 제일 큰 여의도역이 아니라 샛강역.</b><br><span class="sub">9호선인데 처리용량이 작다 — 부하 0.62로 전 출구 1위.</span></p>
+    </div>
+    <div class="panel rv">
+      <div class="big" style="font-size:clamp(40px,6vw,76px)">22시</div>
+      <p><b>여의나루는 통제가 풀리는 22시가 가장 위험하다.</b><br><span class="sub">기다리던 인파가 한꺼번에 — 0.91 [0.57~1.30]. 통제 중 도착분을 해제 후로 이월하는 규칙이 찾아낸 결론. 실측 근거: 해제 직후 승차 2.3천('24)·5.8천('25).</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ─ 피더 선행지표 -->
+<section class="slide" id="s8">
+  <div class="kicker rv">확장 — 붐비기 전에 안다</div>
+  <div class="big rv">r = 0.99</div>
+  <h2 class="rv">피더역 승차가 여의도 도착을 <em>1시간 선행</em></h2>
+  <ul class="pts">
+    <li class="rv">서울 전 역(253역) 초과 승차 역추적 → 관람객 출발지 지도. 2년 연속 재현 + KT 통신 데이터와 교차 검증</li>
+    <li class="rv">상위 12곳(홍대·고속터미널·화곡·성수…)을 당일 5분마다 라이브 감시 — <b>여의도가 붐비기 30~40분 전 조기 신호</b></li>
+    <li class="rv">단, 검증 전엔 본번 모델에 안 넣는다 — 9/5 관측 → 9/6 분 단위 검증 → 통과 시 "도착 30분 예측" 탑재</li>
+  </ul>
+</section>
+
+<!-- 9 ─ 아키텍처 -->
+<section class="slide" id="s9">
+  <div class="kicker rv">아키텍처</div>
+  <h2 class="rv">아래층이 죽어도 <em>위층이 산다</em></h2>
+  <div class="stack">
+    <div class="lay rv"><b>화면층</b><span>정적 웹페이지 — LIVE / 오래됨 / 사전표 자동 전환 + 기기 저장 오프라인 폴백</span></div>
+    <div class="arr rv">▲ 5분마다 발행 (끊겨도 아래가 받친다)</div>
+    <div class="lay rv"><b>당일층</b><span>도시데이터 API + CCTV 23대(HD 9) 수집 → α 보정·통제 이월·보행 지연 → 자동 발행</span></div>
+    <div class="arr rv">▲ 규모만 보정 (없어도 서비스 성립)</div>
+    <div class="lay rv"><b>사전층</b><span>공공 실측 7종 → 예측 엔진 + 백테스트 — 행사 전에 이미 완결</span></div>
+  </div>
+  <p class="src rv">전 데이터 공개·합법 소스 · CCTV는 프레임 미저장(집계만) · 모든 수치에 출처·기준일</p>
+</section>
+
+<!-- 10 ─ AI 활용 -->
+<section class="slide" id="s10">
+  <div class="kicker rv">AI 도구 활용 — Claude Code로 자동화한 것</div>
+  <h2 class="rv">사람은 판단, <em>AI는 구축</em></h2>
+  <div class="cols">
+    <div class="rv"><ul class="pts">
+      <li><b>데이터 파이프라인</b> — 공공 데이터 7종 수집·정제·검증 스크립트</li>
+      <li><b>예측 엔진</b> — 구조 모델 + 베이즈 α 보정 + 이월 규칙 구현</li>
+      <li><b>수집기 2종</b> — 도시데이터 5분 / CCTV 60초, AI 군중 계수(DM-Count)</li>
+    </ul></div>
+    <div class="rv"><ul class="pts">
+      <li><b>검증 체계 3층</b> — 백테스트 · pytest 22건 · 당일 오차 채점기</li>
+      <li><b>산출물</b> — 대시보드 · 팀 보고서 · 이 덱, 전부 코드로 생성·검증</li>
+      <li><b>과정 기록</b> — 실패·정정 포함 전 과정이 커밋 로그에 (버린 결정 5건 문서화)</li>
+    </ul></div>
+  </div>
+  <p class="src rv">프롬프트·명령·실패·패치 기록: 저장소 문서 + 커밋 로그</p>
+</section>
+
+<!-- 11 ─ 일정 -->
+<section class="slide" id="s11">
+  <div class="kicker rv">남은 일정 — 본번이 검증이다</div>
+  <h2 class="rv">9월 5일, 실전으로 채점받는다</h2>
+  <div class="panel rv" style="max-width:760px">
+    <table>
+      <tr><td class="mono">9/4</td><td><b>전야제 리허설</b> — 코드 동결 후 18~22시 실전 가동</td></tr>
+      <tr><td class="mono">9/5</td><td><b>본번</b> — 12~24시 자동 수집·5분 발행, 쇼 종료 실시각 현장 반영</td></tr>
+      <tr><td class="mono">9/6~7</td><td><b>사후 검증</b> — 우리 예측 vs 서울시 12h 예측 vs 실측 오차표 · 피더 랙 검증</td></tr>
+      <tr><td class="mono">9/8</td><td><b>20:00 제출</b> — 웹페이지 + 오차표 + 영상 3분</td></tr>
+    </table>
+  </div>
+  <p class="src rv">우천 연기 시에도 성립 — 사전 예측표 + 리허설 데이터로 오차표 대체</p>
+</section>
+
+<!-- 12 ─ 클로징 -->
+<section class="slide" id="s12">
+  <div class="kicker rv">클로징</div>
+  <h1 class="rv" style="font-size:clamp(30px,4.6vw,60px)">예측은 <em style="font-style:normal;color:var(--accent)">검증까지</em>가 제품이다</h1>
+  <ul class="pts">
+    <li class="rv">실측을 뼈대로, 불확실성은 밴드로, 당일 실전으로 채점 — 끝까지 숫자로 말한다</li>
+    <li class="rv"><b>한화에서의 확장</b> — 오렌지세이프티(주최측 안전 관제)에 "관람객 귀가 레이어"로: 행사 주최사가 관제와 관람객 안내를 한 데이터로</li>
+  </ul>
+  <p class="src rv" style="font-size:clamp(13px,1.2vw,16px)">
+    대시보드 <span class="mono">jaefit.github.io/hanwha-ai-challenge</span> ·
+    팀 보고서 <span class="mono">…/report.html</span> ·
+    저장소 <span class="mono">github.com/jaefit/hanwha-ai-challenge</span>
+  </p>
+</section>
+
+<div class="bar" id="bar"></div>
+<div class="cnt" id="cnt"></div>
+<div class="hint">← → 또는 화면 좌/우 클릭</div>
+<div class="nav prev" aria-hidden="true"></div>
+<div class="nav next" aria-hidden="true"></div>
+
+<script>
+(function () {
+"use strict";
+var slides = [].slice.call(document.querySelectorAll(".slide"));
+var bar = document.getElementById("bar"), cnt = document.getElementById("cnt");
+var cur = -1;
+
+function go(i) {
+  i = Math.max(0, Math.min(slides.length - 1, i));
+  if (i === cur) return;
+  cur = i;
+  slides.forEach(function (s, k) { s.classList.toggle("active", k === i); });
+  // 진입 스태거
+  [].slice.call(slides[i].querySelectorAll(".rv")).forEach(function (el, k) {
+    el.style.transitionDelay = (0.12 + k * 0.09) + "s";
+  });
+  bar.style.width = ((i + 1) / slides.length * 100) + "%";
+  cnt.textContent = (i + 1) + " / " + slides.length;
+  if (history.replaceState) history.replaceState(null, "", "#" + (i + 1));
+}
+function step(d) { go(cur + d); }
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); step(1); }
+  else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); step(-1); }
+  else if (e.key === "Home") go(0);
+  else if (e.key === "End") go(slides.length - 1);
+});
+document.querySelector(".nav.prev").addEventListener("click", function () { step(-1); });
+document.querySelector(".nav.next").addEventListener("click", function () { step(1); });
+var tx = null;
+document.addEventListener("touchstart", function (e) { tx = e.touches[0].clientX; }, { passive: true });
+document.addEventListener("touchend", function (e) {
+  if (tx === null) return;
+  var dx = e.changedTouches[0].clientX - tx; tx = null;
+  if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
+}, { passive: true });
+window.addEventListener("hashchange", function () {
+  var n = parseInt(location.hash.slice(1), 10);
+  if (n >= 1 && n <= slides.length) go(n - 1);
+});
+window.addEventListener("beforeprint", function () {
+  slides.forEach(function (s) {
+    [].slice.call(s.querySelectorAll(".rv")).forEach(function (el) { el.style.transitionDelay = "0s"; });
+  });
+});
+
+/* ── 타이틀 불꽃 버스트 ── */
+(function fireworks() {
+  var host = document.getElementById("fx");
+  if (!host || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+  var colors = ["#ffb36b", "#f36f21", "#ffd9a8", "#e9e5de"];
+  var bursts = [
+    { x: 74, y: 26, n: 26, R: 150, t: 2.8, d: 0 },
+    { x: 58, y: 14, n: 18, R: 100, t: 2.4, d: 1.1 },
+    { x: 88, y: 46, n: 22, R: 120, t: 2.6, d: 2.1 }
+  ];
+  bursts.forEach(function (b) {
+    var g = document.createElement("div");
+    g.className = "burst";
+    g.style.left = b.x + "%"; g.style.top = b.y + "%";
+    for (var k = 0; k < b.n; k++) {
+      var a = (k / b.n) * Math.PI * 2 + Math.random() * 0.2;
+      var r = b.R * (0.72 + Math.random() * 0.36);
+      var i = document.createElement("i");
+      i.style.setProperty("--dx", (Math.cos(a) * r).toFixed(0) + "px");
+      i.style.setProperty("--dy", (Math.sin(a) * r * 0.92 + 24).toFixed(0) + "px");
+      i.style.setProperty("--t", (b.t + Math.random() * 0.5).toFixed(2) + "s");
+      i.style.setProperty("--d", (b.d + Math.random() * 0.25).toFixed(2) + "s");
+      i.style.setProperty("--c", colors[k % colors.length]);
+      g.appendChild(i);
+    }
+    host.appendChild(g);
+  });
+})();
+
+var n0 = parseInt(location.hash.slice(1), 10);
+go((n0 >= 1 && n0 <= slides.length) ? n0 - 1 : 0);
+})();
+</script>
+</body>
+</html>
