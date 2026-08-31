@@ -141,7 +141,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <!-- 4 ─ 해법 -->
 <section class="slide" id="s4">
   <div class="kicker rv">해법</div>
-  <h2 class="rv">상태가 아니라 <em>행동</em>을 준다</h2>
+  <h2 class="rv">상태가 아니라 <em>행동</em>을 알려준다</h2>
   <div class="cols">
     <div class="rv">
       <ul class="pts">
@@ -216,7 +216,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
   <ul class="pts">
     <li class="rv">서울 전 역(253역) 초과 승차 역추적 → 관람객 출발지 지도. 2년 연속 재현 + KT 통신 데이터와 교차 검증</li>
     <li class="rv">상위 12곳(홍대·고속터미널·화곡·성수…)을 당일 5분마다 라이브 감시 — <b>여의도가 붐비기 30~40분 전 조기 신호</b></li>
-    <li class="rv">단, 검증 전엔 본번 모델에 안 넣는다 — 9/5 관측 → 9/6 분 단위 검증 → 통과 시 "도착 30분 예측" 탑재</li>
+    <li class="rv">단, 검증 전엔 실전 모델에 안 넣는다 — 9/5 관측 → 9/6 분 단위 검증 → 통과 시 "도착 30분 예측" 탑재</li>
   </ul>
 </section>
 
@@ -237,7 +237,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <!-- 10 ─ AI 활용 -->
 <section class="slide" id="s10">
   <div class="kicker rv">AI 도구 활용 — Claude Code로 자동화한 것</div>
-  <h2 class="rv">사람은 판단, <em>AI는 구축</em></h2>
+  <h2 class="rv">판단은 사람이, <em>구현은 AI가</em></h2>
   <div class="cols">
     <div class="rv"><ul class="pts">
       <li><b>데이터 파이프라인</b> — 공공 데이터 7종 수집·정제·검증 스크립트</li>
@@ -255,12 +255,12 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 
 <!-- 11 ─ 일정 -->
 <section class="slide" id="s11">
-  <div class="kicker rv">남은 일정 — 본번이 검증이다</div>
+  <div class="kicker rv">남은 일정 — 실전이 검증이다</div>
   <h2 class="rv">9월 5일, 실전으로 채점받는다</h2>
   <div class="panel rv" style="max-width:760px">
     <table>
       <tr><td class="mono">9/4</td><td><b>전야제 리허설</b> — 코드 동결 후 18~22시 실전 가동</td></tr>
-      <tr><td class="mono">9/5</td><td><b>본번</b> — 12~24시 자동 수집·5분 발행, 쇼 종료 실시각 현장 반영</td></tr>
+      <tr><td class="mono">9/5</td><td><b>실전</b> — 12~24시 자동 수집·5분 발행, 쇼 종료 실시각 현장 반영</td></tr>
       <tr><td class="mono">9/6~7</td><td><b>사후 검증</b> — 우리 예측 vs 서울시 12h 예측 vs 실측 오차표 · 피더 랙 검증</td></tr>
       <tr><td class="mono">9/8</td><td><b>20:00 제출</b> — 웹페이지 + 오차표 + 영상 3분</td></tr>
     </table>
@@ -274,7 +274,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
   <h1 class="rv" style="font-size:clamp(30px,4.6vw,60px)">예측은 <em style="font-style:normal;color:var(--accent)">검증까지</em>가 제품이다</h1>
   <ul class="pts">
     <li class="rv">실측을 뼈대로, 불확실성은 밴드로, 당일 실전으로 채점 — 끝까지 숫자로 말한다</li>
-    <li class="rv"><b>한화에서의 확장</b> — 오렌지세이프티(주최측 안전 관제)에 "관람객 귀가 레이어"로: 행사 주최사가 관제와 관람객 안내를 한 데이터로</li>
+    <li class="rv"><b>한화에서 이렇게 커진다</b> — 오렌지세이프티(주최측 안전 관제)에 "관람객 귀가 레이어"를 얹는다. 행사 주최사가 관제와 관람객 안내를 한 데이터로 본다</li>
   </ul>
   <p class="src rv" style="font-size:clamp(13px,1.2vw,16px)">
     대시보드 <span class="mono">jaefit.github.io/hanwha-ai-challenge</span> ·
