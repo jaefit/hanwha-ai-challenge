@@ -1,0 +1,56 @@
+{
+ "generated": "2026-08-31T21:33:00",
+ "date": "20260829",
+ "n_records": 22,
+ "seoul_12h": {
+  "rows": [
+   {
+    "t": "2026-08-29 13:00",
+    "actual": 3750.0,
+    "pred_mid": 4250.0,
+    "pred_range": [
+     4000,
+     4500
+    ],
+    "lead_min": 164,
+    "ape": 0.133,
+    "in_range": false
+   }
+  ],
+  "mape": 0.133,
+  "range_hit": 0.0
+ },
+ "our_snapshots": [
+  {
+   "at": "latest",
+   "alpha": [
+    0.464,
+    0.577,
+    0.705
+   ],
+   "n_obs": {
+    "alighting": 1,
+    "boarding": 0
+   },
+   "out21": 49880
+  }
+ ],
+ "subway_shape": {
+  "obs_by_hour": {
+   "10": 1445,
+   "12": 2325
+  },
+  "pred_by_hour": {
+   "19": 10438,
+   "20": 15817,
+   "21": 28230,
+   "22": 41705,
+   "23": 16921
+  },
+  "hours_common": [],
+  "pearson": null,
+  "peak_obs": 12,
+  "peak_pred": 22,
+  "note": "실측=여의도·여의도한강공원 핫스팟 30분 승차 합(커버리지 상이) → 스케일 자유, 형태(상관·피크)만 유효"
+ }
+}

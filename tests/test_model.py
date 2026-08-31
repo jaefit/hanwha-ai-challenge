@@ -213,3 +213,18 @@ def test_assimilate_single_small_obs_keeps_band_wide():
     many = N.assimilate([(1200.0, 2000.0, 0.0, 0.15, 0.0, "alighting")] * 14)["alpha"]
     assert 0.6 < one[1] < 0.85 and (one[2] - one[0]) > 0.25          # 1건: 관측 0.6 과 사전 1.0 사이로 수축, 밴드 넓게 유지
     assert abs(many[1] - 0.6) < 0.05 and (many[2] - many[0]) < (one[2] - one[0]) / 2   # 14건: 관측으로 수렴, 밴드 절반 이하
+
+
+# ── 오차표 (evaluate.py) ──
+def test_evaluate_first_forecast_and_ape():
+    import evaluate as E
+    recs = [
+        {"area": "여의도한강공원", "ts": "2026-09-05T12:05:00", "fcst": [{"t": "2026-09-05 14:00", "min": 100, "max": 200, "lvl": "보통"}], "ppltn_min": 90, "ppltn_max": 110},
+        {"area": "여의도한강공원", "ts": "2026-09-05T12:10:00", "fcst": [{"t": "2026-09-05 14:00", "min": 999, "max": 999}], "ppltn_min": 100, "ppltn_max": 120},
+        {"area": "여의도한강공원", "ts": "2026-09-05T13:58:00", "fcst": [], "ppltn_min": 140, "ppltn_max": 160},
+    ]
+    fc = E.first_forecast_for(recs)
+    assert fc["2026-09-05 14:00"]["min"] == 100 and fc["2026-09-05 14:00"]["lead_min"] == 115   # 가장 이른 스냅샷이 이긴다
+    act = E.actual_pop(recs)
+    assert act["2026-09-05 14:00"] == 150 and act["2026-09-05 12:00"] == 100                     # 정시 최근접(±30분)
+    assert E.ape(100, 150) == 0.5 and E.ape(0, 5) is None

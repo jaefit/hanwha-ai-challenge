@@ -164,10 +164,10 @@
 - Consumes: `data/live/api_YYYYMMDD.jsonl`(도시데이터 실측 인구·12h 예측 스냅샷), `forecast_latest.json` 시각별 사본(publish 시 `data/live/forecast_history/HHMM.json`으로 저장 — publish.py 1줄 추가), `exit_forecast_2026.json`
 - Produces: 시간대별 표: 우리 p50·밴드 / 서울시 12h / 실측 인구, MAPE, 등급 적중률, 밴드 포함률
 
-- [ ] **Step 1: publish.py에 이력 저장 1줄** — `forecast_history/` 디렉터리. 검증: 로컬 1회 실행 후 파일 생성
-- [ ] **Step 2: evaluate.py** — 같은 시각 매칭(5분 내), 지표 계산, 마크다운 표 출력. 검증: 8/29 로그(7건)로 돌려 표가 나오는지
-- [ ] **Step 3: 우천 연기 분기** — `--fallback rehearsal` 로 9/4 로그를 쓰는 옵션
-- [ ] **Step 4: 커밋**
+- [x] **Step 1: publish.py 이력 저장** (8/31) — `data/live/forecast_history/{date}/HHMM.json` 전체 스냅샷, `--dry` 플래그 추가. 검증: dry 실행 후 파일 생성 확인
+- [x] **Step 2: evaluate.py** (8/31) — ①서울시 12h 기준선(가장 이른 스냅샷 매칭, MAPE·범위 포함률) ②우리 스냅샷 α 추이 ③지하철 형태(상관·피크, 커버리지 명시) ④`--official` 확정판(|오차|/실측·등급 적중·밴드 포함, 이월 규칙 동일). 8/29 로그 스모크: 서울시 MAPE 0.133·포함률 0. pytest 22
+- [x] **Step 3: `--fallback rehearsal`** — 9/4 로그로 전환
+- [x] **Step 4: 커밋**
 
 ### Task 7: 드라이런 + 중간 정리 5장 (9/2~3)
 
