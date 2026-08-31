@@ -304,6 +304,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <div class="nav prev" aria-hidden="true"></div>
 <div class="nav next" aria-hidden="true"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.8/dist/index.umd.js"></script>
 <script>
 (function () {
 "use strict";
@@ -351,10 +352,46 @@ window.addEventListener("beforeprint", function () {
   });
 });
 
-/* ── 타이틀 불꽃 쇼: 랜덤 발사 → 궤적 → 섬광·링·스파크 ── */
-(function fireworks() {
+/* ── 타이틀 불꽃: fireworks-js 캔버스, CDN 실패 시 CSS 엔진 폴백 ── */
+(function fireworksShow() {
   var host = document.getElementById("fx");
   if (!host || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+  var Cls = window.Fireworks && window.Fireworks.default;
+  if (typeof Cls !== "function") { cssFireworks(host); return; }
+  var fw = new Cls(host, {
+    autoresize: true,
+    opacity: 0.6,
+    acceleration: 1.04,
+    friction: 0.96,
+    gravity: 1.6,
+    particles: 70,
+    traceLength: 3,
+    traceSpeed: 9,
+    explosion: 6,
+    intensity: 24,
+    flickering: 45,
+    hue: { min: 12, max: 48 },
+    delay: { min: 30, max: 75 },
+    rocketsPoint: { min: 15, max: 85 },
+    brightness: { min: 55, max: 85 },
+    decay: { min: 0.012, max: 0.025 },
+    lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } },
+    mouse: { click: false, move: false, max: 0 }
+  });
+  var s1 = host.closest(".slide"), running = false;
+  function sync() {
+    var on = s1.classList.contains("active") && !document.hidden;
+    if (on && !running) { fw.start(); running = true; }
+    else if (!on && running) { fw.stop(); running = false; }
+  }
+  new MutationObserver(sync).observe(s1, { attributes: true, attributeFilter: ["class"] });
+  document.addEventListener("visibilitychange", sync);
+  window.addEventListener("beforeprint", function () { if (running) { fw.stop(); running = false; } });
+  sync();
+})();
+
+/* CSS 폴백 엔진 — 자작 불꽃 (CDN 차단·오프라인 발표장 대비) */
+function cssFireworks(host) {
   var COLORS = ["#ffb36b", "#f36f21", "#ffd9a8", "#ffe9c9", "#ffd166", "#e9e5de"];
   function el(cls) { var e = document.createElement("div"); e.className = cls; return e; }
   function burst(x, y, big) {
@@ -393,7 +430,7 @@ window.addEventListener("beforeprint", function () {
     setTimeout(tick, 650 + Math.random() * 900);
   }
   setTimeout(tick, 300);
-})();
+}
 
 var n0 = parseInt(location.hash.slice(1), 10);
 go((n0 >= 1 && n0 <= slides.length) ? n0 - 1 : 0);
