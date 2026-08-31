@@ -35,9 +35,9 @@
 - Consumes: `src/nowcast.py` `lag_table, kladek, arrival_split, compute_exits, shift_for, ASSIGN, CAP, CLOSED`; `src/backtrack.py` `origin_key`; `src/baseline.py` `corridor`; `data/derived/exit_forecast_2026.json`
 - Produces: 이후 모든 태스크의 회귀 검증 명령 `.venv/bin/python -m pytest tests -q`
 
-- [ ] **Step 1: 테스트 작성** — 지연표 합=1 · 기본 밀도에서 여의도(5) 같은 시간대 비율 0.25~0.45 · kladek 단조감소·하한 · arrival_split T=0/90 · ASSIGN 행 합=1 · 수요 보존(lag {0:1}) · 통제 이관 · origin_key/corridor · shift_for · 사전표 스키마
-- [ ] **Step 2: 실행해 실패/통과 확인** — `.venv/bin/python -m pytest tests -q` (신규 테스트라 첫 실행에서 통과가 정상. 의도적 회귀 1건: `V_MIN`을 0으로 바꾸고 kladek 테스트가 실패하는지 확인 후 되돌림)
-- [ ] **Step 3: 커밋** — `git add tests requirements.txt README.md && git commit -m "test: 모델 불변식 pytest 10건"`
+- [x] **Step 1: 테스트 작성** — 지연표 합=1 · 기본 밀도에서 여의도(5) 같은 시간대 비율 0.25~0.45 · kladek 단조감소·하한 · arrival_split T=0/90 · ASSIGN 행 합=1 · 수요 보존(lag {0:1}) · 통제 이관 · origin_key/corridor · shift_for · 사전표 스키마
+- [x] **Step 2: 실행해 실패/통과 확인** — `.venv/bin/python -m pytest tests -q` (신규 테스트라 첫 실행에서 통과가 정상. 의도적 회귀 1건: `V_MIN`을 0으로 바꾸고 kladek 테스트가 실패하는지 확인 후 되돌림)
+- [x] **Step 3: 커밋** — `git add tests requirements.txt README.md && git commit -m "test: 모델 불변식 pytest 10건"`
 
 ### Task 1b: 9호선 용량 데이터화 (8/29~30) — 오차 예산 1순위
 
@@ -49,10 +49,10 @@
 - Consumes: 서울 열린데이터광장 교통카드 역별 승하차(전 노선, 9호선 포함) — 일별(`CardSubwayStatsNew`) 및 시간대별 월집계(`CardSubwayTime`) — 서비스명은 검색으로 확정
 - Produces: `CAP["여의도(9)"|"샛강(9)"|"국회의사당(9)"]` = 5호선 여의도 축제일 시간당 최대 승차 × (축제일 9호선 역 일 승차 ÷ 5호선 여의도 일 승차). `estimated_capacity` 는 유지하되 근거를 "비례 추정(교통카드 일별)"으로
 
-- [ ] **Step 1: 데이터 존재 확인(spike)** — 서비스명·9호선 포함 여부·2025-09-27 일자 조회 가능 여부. 없으면 국토부 지침 pph × 게이트 수로 대체하고 "추정"
-- [ ] **Step 2: 다운로드 스크립트** — `fetch_seoul_data.py card 20250927 20241005` → `data/raw/card_YYYYMMDD.json`
-- [ ] **Step 3: 비례 추정 계산** — `src/line9_capacity.py` → `line9_capacity.json`(역별 비율·추정 용량·출처·기준일). `nowcast.CAP` 가 파일 있으면 읽도록
-- [ ] **Step 4: 검증** — `pytest` 통과, `backtrack.py` 재실행 후 21시 순위 변화 기록, 커밋
+- [x] **Step 1: 데이터 존재 확인(spike)** — 서비스명·9호선 포함 여부·2025-09-27 일자 조회 가능 여부. 없으면 국토부 지침 pph × 게이트 수로 대체하고 "추정"
+- [x] **Step 2: 다운로드 스크립트** — `fetch_seoul_data.py card 20250927 20241005` → `data/raw/card_YYYYMMDD.json`
+- [x] **Step 3: 비례 추정 계산** — `src/line9_capacity.py` → `line9_capacity.json`(역별 비율·추정 용량·출처·기준일). `nowcast.CAP` 가 파일 있으면 읽도록
+- [x] **Step 4: 검증** — `pytest` 통과, `backtrack.py` 재실행 후 21시 순위 변화 기록, 커밋
 
 ### Task 1d: 출구 배정을 관측 초과 승차로 교체 (8/29 완료) — T1b 중 발견, 오차 예산 신규 1순위
 
@@ -63,7 +63,7 @@
 - [x] 백테스트(2024·2025 실측 시간대 승차 4역): 절대오차/실측 0.34→**0.25**, 0.41→**0.29**. 여의나루 재배정 이중계산·평가창 정규화 2회 정정
 - [x] 백테스트 스크립트화 `src/backtest.py` → `data/derived/backtest.json` (8/30). A in-sample **0.24/0.29**, 등급 적중 88%/94%. **B cross-year(다른 해 E·곡선으로 예측 = 2026 조건) 0.44/0.44**, 등급 76%/88% — 연도 간 규모 이동(여의도(5) 21시 17.8k↔12.5k)이 주 오차. pytest 회귀 가드 추가
 - [x] 여의나루 해제 직후 승차(2024 21시 2.3k / 2025 5.8k): **통제 시간대 도착분을 해제 후 첫 개방 시간대로 이월**(8/30 결정, 2026 은 22시 합산). 백테스트도 같은 규칙으로 합산 비교 → A 2025 0.29→**0.21**(등급 17/17), 2024 0.24 유지, B 0.42/0.44
-- [ ] 한계 기록: 마포역 20시 과소(보행자 조기 도착 5.1k/5.8k vs 예측 2.5k), 신길 1호선 미포함, 9호선 시간대 실측 없음, 여의나루 23시 과소(이월로 22시 집중, 실측 2.6k/2.9k vs 예측 0.7k)
+- [x] 한계 기록 (8/30~31 문서화 완료 — backtest.json notes·benchmark §5·report §3.5): 마포역 20시 과소(보행 조기 도착), 신길 1호선 미포함, 9호선 시간대 실측 없음, 여의나루 23시 과소(이월로 22시 집중)
 
 ### Task 1c: 순차 데이터동화 (particle filter) — 오차 예산 2순위 (8/30~9/1)
 
