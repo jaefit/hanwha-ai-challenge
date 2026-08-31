@@ -181,14 +181,96 @@ dd{margin:2px 0 0 0;color:var(--sub)}
 </table></div>
 <p class="sub">오차 = |예측−실측| 합 ÷ 실측 합 (시간대 승차가 있는 4개 역 기준). B 오차의 주범은 해마다 총 인파가 다르다는 것(여의도(5) 21시: 2024년 17.8천 ↔ 2025년 12.5천) — 이 폭을 예측 밴드로 정직하게 표시한다. 등급 적중률이 더 중요: 관람객이 실제로 보는 것은 숫자가 아니라 <span class="grade g1">여유</span>~<span class="grade g4">심각</span> 등급이고, 이건 B에서도 76~88% 맞는다. 이 밖에 코드가 바뀔 때마다 자동으로 도는 논리 검증 테스트 21건(수요 총량 보존, 통제 이월, 스키마 등)이 상시 통과 상태다.</p>
 
-<h3>3.6 피더 선행지표 — 출발역에서 미리 안다</h3>
+<p><b>그림 4 — 백테스트: 모델 곡선이 실측을 따라가는가.</b> 대표로 여의도(5)역 2025년 저녁. 21시 정점의 높이·위치가 맞는다.</p>
+<svg viewBox="0 0 720 250" role="img" aria-label="백테스트 예측 대 실측" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px">
+<line x1="56" y1="153.5" x2="696" y2="153.5" stroke="var(--line)"/><text x="50" y="157.5" text-anchor="end" font-size="10" fill="var(--sub)">5k</text><line x1="56" y1="93.1" x2="696" y2="93.1" stroke="var(--line)"/><text x="50" y="97.1" text-anchor="end" font-size="10" fill="var(--sub)">10k</text><text x="56.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">19시</text><text x="216.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">20시</text><text x="376.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">21시</text><text x="536.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">22시</text><text x="696.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">23시</text>
+<polyline points="56.0,178.8 216.0,126.9 376.0,71.3 536.0,139.5 696.0,196.1" fill="none" stroke="var(--accent-ink)" stroke-width="2.5"/>
+<polyline points="56.0,193.0 216.0,113.5 376.0,63.2 536.0,141.4 696.0,201.5" fill="none" stroke="#3b82c4" stroke-width="2.5" stroke-dasharray="6 3"/>
+<circle cx="56.0" cy="178.8" r="3.4" fill="var(--accent-ink)"/><circle cx="216.0" cy="126.9" r="3.4" fill="var(--accent-ink)"/><circle cx="376.0" cy="71.3" r="3.4" fill="var(--accent-ink)"/><circle cx="536.0" cy="139.5" r="3.4" fill="var(--accent-ink)"/><circle cx="696.0" cy="196.1" r="3.4" fill="var(--accent-ink)"/><circle cx="56.0" cy="193.0" r="3.4" fill="#3b82c4"/><circle cx="216.0" cy="113.5" r="3.4" fill="#3b82c4"/><circle cx="376.0" cy="63.2" r="3.4" fill="#3b82c4"/><circle cx="536.0" cy="141.4" r="3.4" fill="#3b82c4"/><circle cx="696.0" cy="201.5" r="3.4" fill="#3b82c4"/>
+<text x="80.0" y="110.9" font-size="11.5" font-weight="700" fill="var(--accent-ink)">모델 예측</text>
+<text x="80.0" y="137.5" font-size="11.5" font-weight="700" fill="#3b82c4">실측 승차 (점선)</text>
+<text x="376.0" y="53.2" text-anchor="middle" font-size="10.5" fill="var(--sub)">21시 예측 11.8k / 실측 12.5k</text>
+<text x="56" y="244" font-size="10.5" fill="var(--sub)">여의도(5)역 2025-09-27 저녁 · A 모드(시간 분배 검증) · 5역 전체 표는 저장소 backtest.json</text>
+</svg>
+
+<h4 style="font-size:14.5px;margin:22px 0 6px">히스토리(2024·2025 실측)가 가르쳐준 사실들</h4>
+<div class="tblwrap"><table>
+<tr><th>확인한 사실</th><th>수치</th><th>모델에 어떻게 반영했나</th></tr>
+<tr><td>여의나루역은 저녁에 실제로 닫힌다</td><td>19~21시 하차 ≈ 0명 (2년 공통)</td><td>통제 규칙 · "무정차" 표시</td></tr>
+<tr><td>귀가 인파의 총 규모는 해가 바뀌어도 안정적</td><td>초과 승차 합 2024년 108,718 vs 2025년 109,328 — 차이 0.6%</td><td>예측 가능성의 핵심 근거. 2년 평균을 규모 앵커로</td></tr>
+<tr><td>단, 시간대별 배분은 해마다 다르다</td><td>여의도(5) 21시: 2024년 17.8천 ↔ 2025년 12.5천</td><td>단일값 대신 <b>예측 밴드</b>로 표시</td></tr>
+<tr><td>샛강·마포 방면이 생각보다 크다</td><td>샛강역 축제일 승차 평시 6배 · 마포역 20~23시 10배(1.4만~1.6만 vs 평시 1.45천)</td><td>수기 배정표 폐기 → 관측 비중 채택 (오차 0.34→0.24)</td></tr>
+<tr><td>여의나루 통제가 풀리면 몰아서 탄다</td><td>해제 직후 시간대 승차 2024년 2.3천 · 2025년 5.8천</td><td>통제 중 도착분을 22시로 이월 → "22시 여의나루 최악" 결론</td></tr>
+<tr><td>다리 건너 걷는 조기 귀가가 있다</td><td>마포역 20시 실측 5.1천~5.8천 vs 모델 2.5천</td><td>알려진 한계로 문서화 (과소 예측 방향 명시)</td></tr>
+<tr><td>출발지 구성은 2년간 거의 동일</td><td>구성비 차 ±0.3%p · 올 때≈갈 때 대칭 ±6%p</td><td>출발지 지도를 귀가 방향 예측에 재사용</td></tr>
+<tr><td>피더 승차가 도착을 1시간 선행</td><td>상관 lag0 0.72 / lag1 0.99 (2년 공통)</td><td>당일 조기 신호 후보 (9/6 분 단위 검증 후)</td></tr>
+<tr><td>대조 기준일도 검증해야 한다</td><td>2025 직전 토요일(10/4)이 추석 연휴 — 평시가 아님</td><td>하루 대신 <b>연간 토요일 중앙값</b>으로 교정 (과정 기록)</td></tr>
+</table></div>
+
+
+<h3>3.6 피더 분석 — 사람들은 어디서 타고 오나</h3>
 <div class="easy">
-여의도에 오는 사람들은 30~40분 전에 어딘가의 역에서 지하철을 <b>탔다</b>. 그 "출발역(피더)"들의 승차가 평소보다 튀는 걸 보면, 여의도가 붐비기 30분 전에 미리 알 수 있다는 아이디어.
+여의도에 온 사람들은 그날 어딘가의 역에서 지하철을 <b>탔다</b>. 서울 전 역의 승차 기록에서 "평소 토요일보다 유난히 많이 탄" 흔적을 찾으면, 관람객의 출발지를 역 단위로 되짚을 수 있다. 그 역들을 "피더(공급)역"이라 부른다.
 </div>
+
+<p><b>그림 1 — 상위 피더 12곳 점·선 도식.</b> 가운데가 여의도. 선의 방향은 실제 방위, 중심에서의 거리는 지하철 소요시간(점선 링 = 10·20·30분, 추정), 원 크기는 2년 귀속 인원.</p>
+<svg viewBox="0 0 720 540" role="img" aria-label="피더역 점-선 도식" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px">
+<text x="18" y="20" font-size="12" fill="var(--sub)">가운데 = 여의도 · 선 방향 = 실제 방위 · 중심에서 거리 = 지하철 소요시간(추정) · 원 크기 = 2년 귀속 인원</text>
+<circle cx="360" cy="268" r="96" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="168" font-size="9.5" fill="var(--sub)">10분</text><circle cx="360" cy="268" r="150" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="114" font-size="9.5" fill="var(--sub)">20분</text><circle cx="360" cy="268" r="204" fill="none" stroke="var(--line)" stroke-dasharray="3 5"/><text x="364" y="60" font-size="9.5" fill="var(--sub)">30분</text><line x1="360" y1="268" x2="461" y2="413" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="463" y2="295" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="247" y2="234" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="292" y2="258" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="364" y2="145" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="197" y2="200" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="302" y2="264" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="270" y2="260" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="586" y2="219" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="459" y2="366" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="564" y2="280" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/><line x1="360" y1="268" x2="313" y2="302" stroke="var(--accent)" stroke-opacity=".35" stroke-width="1.5"/>
+<rect x="353" y="261" width="14" height="14" transform="rotate(45 360 268)" fill="var(--accent-ink)"/>
+<text x="348" y="272" text-anchor="end" font-size="12.5" font-weight="800" fill="var(--accent-ink)">여의도</text>
+<circle cx="461" cy="413" r="10.0" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="470" y="425" text-anchor="start" font-size="11" font-weight="600" fill="var(--ink)">낙성대</text><text x="470" y="436" text-anchor="start" font-size="9.5" fill="var(--sub)">25분 · 4,864명</text><circle cx="463" cy="295" r="9.9" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="478" y="299" text-anchor="start" font-size="11" font-weight="600" fill="var(--ink)">고속터미널</text><text x="478" y="310" text-anchor="start" font-size="9.5" fill="var(--sub)">12분 · 4,769명</text><circle cx="247" cy="234" r="9.4" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="237" y="220" text-anchor="end" font-size="11" font-weight="600" fill="var(--ink)">화곡</text><text x="237" y="231" text-anchor="end" font-size="9.5" fill="var(--sub)">14분 · 4,365명</text><circle cx="292" cy="258" r="8.8" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="288" y="228" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">영등포구청</text><text x="288" y="239" text-anchor="middle" font-size="9.5" fill="var(--sub)">5분 · 3,774명</text><circle cx="364" cy="145" r="8.5" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="365" y="130" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">홍대입구</text><text x="365" y="141" text-anchor="middle" font-size="9.5" fill="var(--sub)">15분 · 3,537명</text><circle cx="197" cy="200" r="8.4" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="183" y="194" text-anchor="end" font-size="11" font-weight="600" fill="var(--ink)">김포공항</text><text x="183" y="205" text-anchor="end" font-size="9.5" fill="var(--sub)">25분 · 3,484명</text><circle cx="302" cy="264" r="8.4" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="288" y="290" text-anchor="end" font-size="11" font-weight="600" fill="var(--ink)">영등포시장</text><text x="288" y="301" text-anchor="end" font-size="9.5" fill="var(--sub)">3분 · 3,432명</text><circle cx="270" cy="260" r="8.4" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="256" y="264" text-anchor="end" font-size="11" font-weight="600" fill="var(--ink)">목동</text><text x="256" y="275" text-anchor="end" font-size="9.5" fill="var(--sub)">9분 · 3,424명</text><circle cx="586" cy="219" r="8.3" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="600" y="215" text-anchor="start" font-size="11" font-weight="600" fill="var(--ink)">성수</text><text x="600" y="226" text-anchor="start" font-size="9.5" fill="var(--sub)">35분 · 3,339명</text><circle cx="459" cy="366" r="8.2" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="470" y="376" text-anchor="start" font-size="11" font-weight="600" fill="var(--ink)">사당</text><text x="470" y="387" text-anchor="start" font-size="9.5" fill="var(--sub)">18분 · 3,279명</text><circle cx="564" cy="280" r="7.6" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="579" y="281" text-anchor="start" font-size="11" font-weight="600" fill="var(--ink)">잠실</text><text x="579" y="292" text-anchor="start" font-size="9.5" fill="var(--sub)">30분 · 2,850명</text><circle cx="313" cy="302" r="7.4" fill="var(--accent)" fill-opacity=".55" stroke="var(--accent-ink)"/><text x="319" y="332" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">신길</text><text x="319" y="343" text-anchor="middle" font-size="9.5" fill="var(--sub)">3분 · 2,710명</text>
+</svg>
+
+<h4 style="font-size:14.5px;margin:22px 0 6px">어떻게 찾았나 — 4단계</h4>
+<ol>
+  <li><b>초과 승차 계산</b>: 서울 1~8호선 전 역(253역)에 대해, 축제일 시간대별 승차 − 평시 토요일 중앙값. "평소에도 타는 사람"을 걷어낸 나머지.</li>
+  <li><b>2년 필터</b>: 2024·2025 <b>두 해 연속</b> 초과가 난 역만 인정. 한 해만 튄 역은 다른 행사·우연일 수 있어 제외.</li>
+  <li><b>KT 데이터로 제약</b>: KT 생활이동(휴대전화 기반)이 "여의도 유입이 어느 구(區)에서 출발했는지" 총량을 준다. 역별 초과분은 <b>그 구 총량을 넘지 않게</b> 배분 — 역 데이터 혼자 결론 내지 않고 독립된 두 소스를 맞물린다.</li>
+  <li><b>교차 검증</b>: 귀속 합계가 여의도 도착 규모와 자릿수·시간 형태에서 일치하는지 확인.</li>
+</ol>
+
+<p><b>그림 2 — 결정적 근거: 시간이 맞물린다.</b> 피더역들의 초과 승차(주황 실선)가 먼저 움직이고, 여의도 도착(파랑 점선)이 약 1시간 뒤를 그대로 따라간다. 상관계수 0.99.</p>
+<svg viewBox="0 0 720 270" role="img" aria-label="피더 승차와 여의도 도착의 시간 관계" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px">
+<line x1="52" y1="179.2" x2="704" y2="179.2" stroke="var(--line)"/><text x="46" y="183.2" text-anchor="end" font-size="10" fill="var(--sub)">5k</text><line x1="52" y1="124.5" x2="704" y2="124.5" stroke="var(--line)"/><text x="46" y="128.5" text-anchor="end" font-size="10" fill="var(--sub)">10k</text><line x1="52" y1="69.7" x2="704" y2="69.7" stroke="var(--line)"/><text x="46" y="73.7" text-anchor="end" font-size="10" fill="var(--sub)">15k</text><text x="52.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">10시</text><text x="117.2" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">11시</text><text x="182.4" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">12시</text><text x="247.6" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">13시</text><text x="312.8" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">14시</text><text x="378.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">15시</text><text x="443.2" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">16시</text><text x="508.4" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">17시</text><text x="573.6" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">18시</text><text x="638.8" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">19시</text><text x="704.0" y="250" text-anchor="middle" font-size="10.5" fill="var(--sub)">20시</text>
+<polyline points="52.0,156.4 117.2,145.9 182.4,131.0 247.6,127.4 312.8,109.8 378.0,83.5 443.2,62.9 508.4,57.4 573.6,106.8 638.8,192.8" fill="none" stroke="var(--accent-ink)" stroke-width="2.5"/>
+<polyline points="52.0,190.3 117.2,189.2 182.4,171.9 247.6,162.6 312.8,141.7 378.0,114.4 443.2,78.8 508.4,55.1 573.6,56.9 638.8,141.2 704.0,219.0" fill="none" stroke="#3b82c4" stroke-width="2.5" stroke-dasharray="6 3"/>
+<circle cx="52.0" cy="156.4" r="3" fill="var(--accent-ink)"/><circle cx="117.2" cy="145.9" r="3" fill="var(--accent-ink)"/><circle cx="182.4" cy="131.0" r="3" fill="var(--accent-ink)"/><circle cx="247.6" cy="127.4" r="3" fill="var(--accent-ink)"/><circle cx="312.8" cy="109.8" r="3" fill="var(--accent-ink)"/><circle cx="378.0" cy="83.5" r="3" fill="var(--accent-ink)"/><circle cx="443.2" cy="62.9" r="3" fill="var(--accent-ink)"/><circle cx="508.4" cy="57.4" r="3" fill="var(--accent-ink)"/><circle cx="573.6" cy="106.8" r="3" fill="var(--accent-ink)"/><circle cx="638.8" cy="192.8" r="3" fill="var(--accent-ink)"/><circle cx="52.0" cy="190.3" r="3" fill="#3b82c4"/><circle cx="117.2" cy="189.2" r="3" fill="#3b82c4"/><circle cx="182.4" cy="171.9" r="3" fill="#3b82c4"/><circle cx="247.6" cy="162.6" r="3" fill="#3b82c4"/><circle cx="312.8" cy="141.7" r="3" fill="#3b82c4"/><circle cx="378.0" cy="114.4" r="3" fill="#3b82c4"/><circle cx="443.2" cy="78.8" r="3" fill="#3b82c4"/><circle cx="508.4" cy="55.1" r="3" fill="#3b82c4"/><circle cx="573.6" cy="56.9" r="3" fill="#3b82c4"/><circle cx="638.8" cy="141.2" r="3" fill="#3b82c4"/><circle cx="704.0" cy="219.0" r="3" fill="#3b82c4"/>
+<text x="156.3" y="126.7" font-size="11.5" font-weight="700" fill="var(--accent-ink)">피더역 귀속 승차 (탄다)</text>
+<text x="241.1" y="186.9" font-size="11.5" font-weight="700" fill="#3b82c4">여의도 도착 초과 (내린다)</text>
+<defs><marker id="ar" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 z" fill="var(--sub)"/></marker></defs>
+<path d="M 508.4 41.2 L 563.8 41.2" stroke="var(--sub)" stroke-width="1.5" marker-end="url(#ar)"/>
+<text x="535.8" y="34.2" text-anchor="middle" font-size="10.5" fill="var(--sub)">약 1시간 뒤 (r=0.99)</text>
+<text x="52" y="264" font-size="10.5" fill="var(--sub)">2025-09-27 축제일 · 승차=서울 전 역 초과분 중 여의도 귀속, 하차=여의도(5)·여의나루 하차 초과 (OA-12921)</text>
+</svg>
+
+<p><b>그림 3 — 개별 역에서 보면.</b> 영등포시장역(5호선, 여의도 3분)의 축제일 승차는 <b>입장 시간대(12~17시)에만</b> 평시보다 많고, 저녁이 되면 격차가 사라진다. "축제 가려고 탄 사람들"이라는 해석과 정확히 맞는 모양.</p>
+<svg viewBox="0 0 720 250" role="img" aria-label="영등포시장역 축제일 대 평시" style="width:100%;height:auto;background:var(--card);border:1px solid var(--line);border-radius:8px">
+<text x="52.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">10시</text><text x="124.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">11시</text><text x="196.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">12시</text><text x="268.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">13시</text><text x="340.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">14시</text><text x="412.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">15시</text><text x="484.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">16시</text><text x="556.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">17시</text><text x="628.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">18시</text><text x="700.0" y="230" text-anchor="middle" font-size="10.5" fill="var(--sub)">19시</text>
+<polyline points="52.0,157.9 124.0,150.1 196.0,138.1 268.0,132.8 340.0,127.3 412.0,118.9 484.0,103.4 556.0,105.2 628.0,115.6 700.0,146.3" fill="none" stroke="var(--sub)" stroke-width="2" stroke-dasharray="5 4"/>
+<polyline points="52.0,152.4 124.0,140.3 196.0,112.4 268.0,107.9 340.0,103.8 412.0,91.1 484.0,71.9 556.0,66.8 628.0,86.5 700.0,138.7" fill="none" stroke="var(--accent-ink)" stroke-width="2.5"/>
+<circle cx="52.0" cy="152.4" r="3.2" fill="var(--accent-ink)"/><circle cx="124.0" cy="140.3" r="3.2" fill="var(--accent-ink)"/><circle cx="196.0" cy="112.4" r="3.2" fill="var(--accent-ink)"/><circle cx="268.0" cy="107.9" r="3.2" fill="var(--accent-ink)"/><circle cx="340.0" cy="103.8" r="3.2" fill="var(--accent-ink)"/><circle cx="412.0" cy="91.1" r="3.2" fill="var(--accent-ink)"/><circle cx="484.0" cy="71.9" r="3.2" fill="var(--accent-ink)"/><circle cx="556.0" cy="66.8" r="3.2" fill="var(--accent-ink)"/><circle cx="628.0" cy="86.5" r="3.2" fill="var(--accent-ink)"/><circle cx="700.0" cy="138.7" r="3.2" fill="var(--accent-ink)"/><circle cx="52.0" cy="157.9" r="3.2" fill="var(--sub)"/><circle cx="124.0" cy="150.1" r="3.2" fill="var(--sub)"/><circle cx="196.0" cy="138.1" r="3.2" fill="var(--sub)"/><circle cx="268.0" cy="132.8" r="3.2" fill="var(--sub)"/><circle cx="340.0" cy="127.3" r="3.2" fill="var(--sub)"/><circle cx="412.0" cy="118.9" r="3.2" fill="var(--sub)"/><circle cx="484.0" cy="103.4" r="3.2" fill="var(--sub)"/><circle cx="556.0" cy="105.2" r="3.2" fill="var(--sub)"/><circle cx="628.0" cy="115.6" r="3.2" fill="var(--sub)"/><circle cx="700.0" cy="146.3" r="3.2" fill="var(--sub)"/><text x="340.0" y="94.8" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--accent-ink)">+216</text><text x="484.0" y="62.900000000000006" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--accent-ink)">+289</text><text x="556.0" y="57.8" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--accent-ink)">+353</text>
+<text x="66.4" y="116.30000000000001" font-size="11.5" font-weight="700" fill="var(--accent-ink)">축제일 승차</text>
+<text x="66.4" y="179.9" font-size="11" fill="var(--sub)">평시 토요일 중앙값 (점선)</text>
+<text x="52" y="244" font-size="10.5" fill="var(--sub)">영등포시장역(5호선) 2025-09-27 승차 · 초과가 입장 시간대(12~17시)에만 나타나고 저녁엔 소멸 (OA-12921)</text>
+</svg>
+
+<h4 style="font-size:14.5px;margin:22px 0 6px">"이 사람들이 여의도로 갔다"고 판단한 근거 5가지</h4>
+<div class="tblwrap"><table>
+<tr><th>근거</th><th>내용</th></tr>
+<tr><td>① 시간 위상</td><td>피더 초과 승차 정점(17시) → 여의도 도착 정점(17~18시). 상관 0.99 (2024·2025 공통). 멀리 있는 역(성수 35분·잠실 30분)일수록 지연이 커진다 — 지하철 소요시간과 일치하는 물리적 패턴 (그림 2)</td></tr>
+<tr><td>② 2년 재현</td><td>같은 역들이 두 해 연속 같은 모양으로 초과. 일회성 요인이면 재현되지 않는다</td></tr>
+<tr><td>③ 독립 소스 정합</td><td>역 승차(교통공사)와 휴대전화 이동(KT)이라는 <b>서로 다른 두 데이터</b>가 출발지 구성에서 맞물린다. 배분은 KT 구 총량을 상한으로</td></tr>
+<tr><td>④ 오후에만 초과</td><td>초과분이 축제 입장 시간대(12~17시)에 몰리고 저녁엔 소멸 (그림 3). 통근·일상 수요라면 이런 모양이 안 나온다</td></tr>
+<tr><td>⑤ 방향 대칭</td><td>올 때 출발지 구성 ≈ 갈 때 도착지 구성 (구 단위 차이 ±6%p 이내, KT 실측) — 그래서 이 출발지 지도를 <b>귀가 방향 예측</b>에 재사용할 수 있다</td></tr>
+</table></div>
+
+<p class="sub"><b>한계도 정직하게.</b> 초과 승차가 전부 축제 인파는 아니다 — 서울 전 역의 초과 합은 여의도 유입 규모의 1.7~3.3배로, 다른 나들이·행사가 섞여 있다. 그래서 2년 연속 필터·구 총량 상한으로 보수적으로 귀속했고, 개별 역 중엔 잡음이 큰 곳도 있다(사당역은 비축제 통행이 많아 시간 상관 0.04). 분 단위 정밀 검증은 9/5 라이브 수집으로 한다.</p>
+
+<h4 style="font-size:14.5px;margin:22px 0 6px">이걸로 뭘 하나</h4>
 <ul>
-  <li>KT 이동 데이터 + 서울 전 역 초과 승차로 <b>출발역을 역추적</b>: 축제 인파가 탄 역 221개, 상위는 신도림·영등포·당산·노량진·사당·고속터미널·홍대 등 (상위 17개 역이 전체의 25%).</li>
-  <li>과거 데이터 검증: 피더역 승차(시각 h)와 여의도 도착(h+1시간)의 상관계수 <b>0.99</b> (2024·2025 공통). 멀리 있는 역(성수·잠실, 소요 30분+)일수록 1시간 지연 상관이 우세 — 지하철 소요시간과 일치하는, 물리적으로 말이 되는 패턴.</li>
-  <li>당일 계획: 피더 12곳을 전용 API 키 2개로 5분마다 수집(9/4·9/5). <b>단, 9/5 예측에는 안 쓴다</b> — 분 단위 정확도가 아직 검증 안 된 신호를 본번 모델에 넣는 건 위험. 9/6에 실측으로 검증해서, 맞으면 "도착 30분 예측" 기능으로 제출물에 싣는다.</li>
+  <li><b>사전</b>: 출발지 구성 → 귀가 방향 비중 → 출구 배분의 근거 (방향 대칭 ⑤)</li>
+  <li><b>당일</b>: 피더 12곳을 5분마다 감시(전용 API 키 2개) — 여의도가 붐비기 30~40분 전에 미리 아는 조기 신호. <b>단 9/5 예측 모델엔 안 넣고</b> 관측만 한다. 분 단위 정확도가 검증 안 된 신호로 본번을 흔들 수 없기 때문. 9/6에 검증해서 맞으면 "도착 30분 예측" 기능으로 제출물에 싣는다.</li>
 </ul>
 
 <h3>3.7 CCTV — 걷는 속도를 실측으로</h3>
