@@ -1,5 +1,5 @@
 {
- "generated": "2026-08-31T10:52:31",
+ "generated": "2026-08-31T10:58:34",
  "method": "",
  "hours": [
   10,
@@ -91,59 +91,149 @@
    "lines": [
     "2호선"
    ],
+   "gu": "관악",
    "attributed_2yr": 4864,
-   "pearson_lag0_pooled": 0.657
+   "share_of_attributed": 0.0219,
+   "pearson_lag0_pooled": 0.657,
+   "pearson_lag1_pooled": 0.774,
+   "travel_min_est": 25,
+   "phase": "lag1"
   },
   "고속터미널": {
    "lines": [
     "3호선",
     "7호선"
    ],
+   "gu": "서초",
    "attributed_2yr": 4769,
-   "pearson_lag0_pooled": 0.237
+   "share_of_attributed": 0.0215,
+   "pearson_lag0_pooled": 0.237,
+   "pearson_lag1_pooled": 0.653,
+   "travel_min_est": 12,
+   "phase": "lag1"
   },
   "화곡": {
    "lines": [
     "5호선"
    ],
+   "gu": "강서",
    "attributed_2yr": 4365,
-   "pearson_lag0_pooled": 0.625
+   "share_of_attributed": 0.0196,
+   "pearson_lag0_pooled": 0.625,
+   "pearson_lag1_pooled": 0.591,
+   "travel_min_est": 14,
+   "phase": "lag0"
   },
   "영등포구청": {
    "lines": [
     "2호선",
     "5호선"
    ],
+   "gu": "영등포",
    "attributed_2yr": 3774,
-   "pearson_lag0_pooled": 0.795
+   "share_of_attributed": 0.017,
+   "pearson_lag0_pooled": 0.795,
+   "pearson_lag1_pooled": 0.401,
+   "travel_min_est": 5,
+   "phase": "lag0"
   },
   "홍대입구": {
    "lines": [
     "2호선"
    ],
+   "gu": "마포",
    "attributed_2yr": 3537,
-   "pearson_lag0_pooled": 0.821
+   "share_of_attributed": 0.0159,
+   "pearson_lag0_pooled": 0.821,
+   "pearson_lag1_pooled": 0.812,
+   "travel_min_est": 15,
+   "phase": "lag0"
   },
   "김포공항": {
    "lines": [
     "5호선"
    ],
+   "gu": "강서",
    "attributed_2yr": 3484,
-   "pearson_lag0_pooled": -0.189
+   "share_of_attributed": 0.0157,
+   "pearson_lag0_pooled": -0.189,
+   "pearson_lag1_pooled": 0.298,
+   "travel_min_est": 25,
+   "phase": "lag1"
   },
   "영등포시장": {
    "lines": [
     "5호선"
    ],
+   "gu": "영등포",
    "attributed_2yr": 3432,
-   "pearson_lag0_pooled": 0.863
+   "share_of_attributed": 0.0154,
+   "pearson_lag0_pooled": 0.863,
+   "pearson_lag1_pooled": 0.743,
+   "travel_min_est": 3,
+   "phase": "lag0"
   },
   "목동": {
    "lines": [
     "5호선"
    ],
+   "gu": "양천",
    "attributed_2yr": 3424,
-   "pearson_lag0_pooled": 0.128
+   "share_of_attributed": 0.0154,
+   "pearson_lag0_pooled": 0.128,
+   "pearson_lag1_pooled": 0.163,
+   "travel_min_est": 9,
+   "phase": "lag1"
+  },
+  "성수": {
+   "lines": [
+    "2호선"
+   ],
+   "gu": "성동",
+   "attributed_2yr": 3339,
+   "share_of_attributed": 0.015,
+   "pearson_lag0_pooled": 0.638,
+   "pearson_lag1_pooled": 0.949,
+   "travel_min_est": 35,
+   "phase": "lag1"
+  },
+  "사당": {
+   "lines": [
+    "2호선",
+    "4호선"
+   ],
+   "gu": "동작",
+   "attributed_2yr": 3279,
+   "share_of_attributed": 0.0148,
+   "pearson_lag0_pooled": 0.035,
+   "pearson_lag1_pooled": 0.117,
+   "travel_min_est": 18,
+   "phase": "lag1"
+  },
+  "잠실": {
+   "lines": [
+    "2호선",
+    "8호선"
+   ],
+   "gu": "송파",
+   "attributed_2yr": 2850,
+   "share_of_attributed": 0.0128,
+   "pearson_lag0_pooled": 0.462,
+   "pearson_lag1_pooled": 0.714,
+   "travel_min_est": 30,
+   "phase": "lag1"
+  },
+  "신길": {
+   "lines": [
+    "5호선"
+   ],
+   "gu": "영등포",
+   "attributed_2yr": 2710,
+   "share_of_attributed": 0.0122,
+   "pearson_lag0_pooled": 0.806,
+   "pearson_lag1_pooled": 0.741,
+   "travel_min_est": 3,
+   "phase": "lag0"
   }
  },
  "notes": [
@@ -151,5 +241,6 @@
   "Y 는 5호선 여의도·여의나루 하차 초과만 (9호선 시간대 실측 없음)",
   "X 는 OD 총량 제약 귀속치 — 순수 관측 아님",
   "5분 해상도 실측 검증은 9/5 피더 핫스팟 수집으로"
- ]
+ ],
+ "travel_min_basis": "노선도 기준 추정(급행 반영, ±5분), 실측 아님 — 5분 해상도 실측 랙은 9/5 피더 수집으로 검증"
 }

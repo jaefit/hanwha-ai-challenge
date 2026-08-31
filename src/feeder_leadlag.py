@@ -80,21 +80,33 @@ def main():
         print(f"    Y 도착초과: {[round(Y[h]/1000,1) for h in HOURS]} (천명, 10~20시)")
     for lag in (0, 1):
         res["pooled"][f"lag{lag}"] = {"pearson": round(pearson(*pooled[lag]), 3), "n": len(pooled[lag][0])}
-    # 상위 피더 개별 상관 (2년 합동, lag0)
-    tops = sorted(fo["feeders_seoul"].items(), key=lambda kv: -sum(sum((kv[1]["by_year"].get(y) or {}).get("attributed", {}).values()) for y in FEST))[:8]
+    # 상위 피더 개별: 귀속 비중 + 위상(lag0/lag1 r, 2년 합동) + 노선 기준 소요시간(추정)
+    TRAVEL_MIN_EST = {  # 여의도역까지, 노선도 기준 추정(±5분). 승강장 대기 3~5분 별도 → 선행 리드 ≈ 소요+대기.
+        "낙성대": 25, "고속터미널": 12, "화곡": 14, "영등포구청": 5, "홍대입구": 15, "김포공항": 25, "영등포시장": 3,
+        "목동": 9, "성수": 35, "사당": 18, "잠실": 30, "신길": 3, "까치산": 17, "가산디지털단지": 18}
+    res["travel_min_basis"] = "노선도 기준 추정(급행 반영, ±5분), 실측 아님 — 5분 해상도 실측 랙은 9/5 피더 수집으로 검증"
+    total_att = sum(sum(sum((v["by_year"].get(y) or {}).get("attributed", {}).values()) for y in FEST) for v in fo["feeders_seoul"].values())
+    tops = sorted(fo["feeders_seoul"].items(), key=lambda kv: -sum(sum((kv[1]["by_year"].get(y) or {}).get("attributed", {}).values()) for y in FEST))[:12]
     for st, v in tops:
-        xs, ys = [], []
-        for y in FEST:
-            Y = res["by_year"][y]["Y_alight_excess_by_hour"]
-            att = (v["by_year"].get(y) or {}).get("attributed") or {}
-            for h in range(10, 20):
-                if str(h) in Y or h in [int(k) for k in Y]:
-                    xs.append(att.get(str(h), 0)); ys.append(res["by_year"][y]["Y_alight_excess_by_hour"][str(h)])
-        r = pearson(xs, ys)
-        res["top_feeders"][st] = {"lines": v.get("lines"), "attributed_2yr": round(sum(sum((v["by_year"].get(y) or {}).get("attributed", {}).values()) for y in FEST)), "pearson_lag0_pooled": round(r, 3) if r is not None else None}
+        att2 = sum(sum((v["by_year"].get(y) or {}).get("attributed", {}).values()) for y in FEST)
+        rr = {}
+        for lag in (0, 1):
+            xs, ys = [], []
+            for y in FEST:
+                Y = res["by_year"][y]["Y_alight_excess_by_hour"]
+                att = (v["by_year"].get(y) or {}).get("attributed") or {}
+                for h in range(10, 20):
+                    if str(h + lag) in Y: xs.append(att.get(str(h), 0)); ys.append(Y[str(h + lag)])
+            r = pearson(xs, ys); rr[lag] = round(r, 3) if r is not None else None
+        res["top_feeders"][st] = {"lines": v.get("lines"), "gu": v.get("gu"), "attributed_2yr": round(att2), "share_of_attributed": round(att2 / total_att, 4),
+                                  "pearson_lag0_pooled": rr[0], "pearson_lag1_pooled": rr[1],
+                                  "travel_min_est": TRAVEL_MIN_EST.get(st), "phase": ("lag1" if (rr[1] or -9) > (rr[0] or -9) else "lag0")}
     (DER / "feeder_leadlag.json").write_text(json.dumps(res, ensure_ascii=False, indent=1), encoding="utf-8")
     print("합동: lag0 r=%.3f  lag1 r=%.3f" % (res["pooled"]["lag0"]["pearson"], res["pooled"]["lag1"]["pearson"]))
-    print("상위 피더:", {st: v["pearson_lag0_pooled"] for st, v in res["top_feeders"].items()})
+    print(f"\n상위 피더 12 (귀속 2년 합 {total_att:,.0f}명 중)")
+    print(f"{'역':<8}{'호선':<10}{'귀속':>7}{'비중':>6}{'r lag0':>8}{'r lag1':>8}{'소요(추정)':>9}")
+    for st, v in res["top_feeders"].items():
+        print(f"{st:<8}{'/'.join(v['lines'] or []):<10}{v['attributed_2yr']:>7,}{100*v['share_of_attributed']:>5.1f}%{v['pearson_lag0_pooled']:>8}{v['pearson_lag1_pooled']:>8}{str(v['travel_min_est'])+'분':>8}")
     print("→", DER / "feeder_leadlag.json")
 
 
