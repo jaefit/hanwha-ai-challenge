@@ -16,7 +16,7 @@
   UNTIL=2026-08-30T00:10   이 시각 이후 종료(일 쿼터 보호)
   목록을 바꾸면 --budget 으로 키별 합이 1,000 을 넘지 않는지 먼저 확인할 것.
 """
-import os, sys, json, time, datetime, pathlib, urllib.request, urllib.parse
+import re, os, sys, json, time, datetime, pathlib, urllib.request, urllib.parse
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ENV = {}
@@ -24,8 +24,8 @@ for line in (ROOT / ".env").read_text().splitlines():
     if "=" in line and not line.startswith("#"):
         k, v = line.split("=", 1); ENV[k.strip()] = v.strip()
 KG, KS = ENV["SEOUL_KEY_GENERAL"], ENV["SEOUL_KEY_SUBWAY"]
-# 실시간 도착(swopenAPI) 키들 — 역 순번 % 키 수 로 고정 배정 (9/1 두 번째 키 발급, 피더와 같은 분산 방식). 미설정이면 KS 하나로 동작.
-SUBWAY_KEYS = [v for v in (KS, ENV.get("SEOUL_KEY_SUBWAY2", "").strip()) if v]
+# 실시간 도착(swopenAPI) 키들 — SEOUL_KEY_SUBWAY, SUBWAY2, SUBWAY3 … 번호순. (역 순번 + 틱 번호) % 키 수 로 회전 배정 → 키가 역보다 많아도 고르게 분산. 9/1 6개 = 키당 ~56/일.
+SUBWAY_KEYS = [KS] + [ENV[k].strip() for k in sorted((k for k in ENV if re.fullmatch(r"SEOUL_KEY_SUBWAY\d+", k)), key=lambda k: int(k[len("SEOUL_KEY_SUBWAY"):])) if ENV[k].strip()]
 # 피더 전용 citydata 키들 (일 쿼터 분리·분산, 2026-08-31 발급). 피더는 목록 순번 % 키 수 로 고정 배정 → 키당 6곳 × 8h × 12회 = 576/일
 FEEDER_KEYS = [v for v in (ENV.get("SEOUL_KEY_FEEDER", "").strip(), ENV.get("SEOUL_KEY_FEEDER2", "").strip()) if v]
 
@@ -71,8 +71,9 @@ def budget():
     """키별 일 호출 수 — 상한 1,000. 런북 점검용(--budget)."""
     ticks = 3600 // INTERVAL
     rows = {"KG(코어)": len(CORE) * 24 * ticks}
+    per_key = -(-len(STATIONS) * len(SUBWAY_HOURS) * ticks // len(SUBWAY_KEYS))   # 회전 배정 → 균등(올림)
     for i, _ in enumerate(SUBWAY_KEYS):
-        rows[f"지하철키{i + 1}"] = len([x for j, x in enumerate(STATIONS) if j % len(SUBWAY_KEYS) == i]) * len(SUBWAY_HOURS) * ticks
+        rows[f"지하철키{i + 1}"] = per_key
     for i, _ in enumerate(FEEDER_KEYS):
         n_f = len([x for j, x in enumerate(FEEDERS + WATCH) if j % len(FEEDER_KEYS) == i and x in FEEDERS])
         n_w = len([x for j, x in enumerate(FEEDERS + WATCH) if j % len(FEEDER_KEYS) == i and x in WATCH])
@@ -105,7 +106,8 @@ def citydata(name):
 
 
 def subway(st):
-    key = SUBWAY_KEYS[STATIONS.index(st) % len(SUBWAY_KEYS)] if st in STATIONS else KS
+    slot = int(time.time() // INTERVAL)                       # 틱 번호 — 같은 틱 안에선 역마다 다른 키, 틱마다 한 칸씩 회전
+    key = SUBWAY_KEYS[(STATIONS.index(st) + slot) % len(SUBWAY_KEYS)] if st in STATIONS else KS
     d = get(f"http://swopenAPI.seoul.go.kr/api/subway/{key}/json/realtimeStationArrival/0/20/{urllib.parse.quote(st)}")
     rows = d.get("realtimeArrivalList", [])
     return [{"line": r.get("trainLineNm"), "updn": r.get("updnLine"), "msg": r.get("arvlMsg2"), "sec": r.get("barvlDt")} for r in rows]
