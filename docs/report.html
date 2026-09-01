@@ -86,6 +86,7 @@ svg .pt{cursor:pointer}
   <h1>서울세계불꽃축제 귀가 출구 내비 — 진행 보고</h1>
   <div class="meta">
     2026-08-31 기준 · 작성: 박재형 ·
+    <a href="report_easy.html">쉬운 버전(5분)</a> ·
     <a href="https://jaefit.github.io/hanwha-ai-challenge/">완성된 대시보드 보기</a> ·
     <a href="https://github.com/jaefit/hanwha-ai-challenge">코드 저장소</a>
     · 행사일 9/5(토) · 제출 마감 9/8(화) 20:00
@@ -114,7 +115,7 @@ svg .pt{cursor:pointer}
 ⑤ <b>현황</b> — 예측 엔진·검증·당일 보정까지 완성. 남은 것은 화면 마감 → 리허설(9/4) → 실전(9/5) → 제출(9/8). 조원 확인 사항은 §5.2.
 </div>
 
-<p class="sub">읽는 법 — 바쁘면 위 다섯 줄과 §1~2만 읽어도 흐름이 잡힌다. §3은 예측을 만들고 검증한 방법, §4는 시스템이 돌아가는 구조다. 낯선 용어는 모두 §6 용어 사전에 풀어 두었고, 차트는 점에 마우스를 올리면 값이 나온다.</p>
+<p class="sub">읽는 법 — 배경지식 없이 처음 읽는다면 그림 중심의 <a href="report_easy.html" style="color:var(--accent-ink);font-weight:600;text-decoration:none">쉬운 버전(5분)</a>부터 보면 좋다. 바쁘면 위 다섯 줄과 §1~2만 읽어도 흐름이 잡힌다. §3은 예측을 만들고 검증한 방법, §4는 시스템이 돌아가는 구조다. 낯선 용어는 모두 §6 용어 사전에 풀어 두었고, 차트는 점에 마우스를 올리면 값이 나온다.</p>
 
 <!-- ────────────── 1 ────────────── -->
 <h2><span class="no">1</span>문제 제기 — 귀가가 무너진다</h2>
@@ -304,7 +305,28 @@ svg .pt{cursor:pointer}
 <tr><td>⑤ 방향 대칭</td><td>올 때 출발지 구성 ≈ 갈 때 도착지 구성 (구 단위 차이 ±6%p 이내, KT 실측) — 그래서 이 출발지 지도를 <b>귀가 방향 예측</b>에 재사용할 수 있다</td></tr>
 </table></div>
 
-<p class="sub"><b>한계도 정직하게.</b> 초과 승차가 전부 축제 인파는 아니다 — 서울 전 역의 초과 합은 여의도 유입 규모의 1.7~3.3배로, 다른 나들이·행사가 섞여 있다. 그래서 2년 연속 필터·구 총량 상한으로 보수적으로 배분(귀속)했고, 개별 역 중엔 잡음이 큰 곳도 있다(사당역은 비축제 통행이 많아 시간 상관 0.04). 분 단위 정밀 검증은 9/5 라이브 수집으로 한다.</p>
+<h4 style="font-size:14.5px;margin:22px 0 6px">역별로 뜯어본 상관 — 거리가 위상을 결정한다</h4>
+<div class="easy">
+읽는 법 — <b>lag0</b>은 "피더역 승차와 여의도 도착이 같은 시각에 함께 움직였나", <b>lag1</b>은 "피더역 승차가 한 시간 먼저 움직였나"다. 가까운 역(영등포시장 3분)에서 탄 사람은 곧바로 도착하니 같은 시각이 맞고, 먼 역(성수 35분)에서 탄 사람은 한 시간 뒤에 도착하니 lag1이 맞다. 실제로 그렇게 나왔다면, 이 상관은 우연이 아니라 지하철을 타고 오는 물리적 흐름이라는 뜻이다.
+</div>
+<div class="tblwrap"><table>
+<tr><th>피더역</th><th>노선</th><th class="num">귀속 인원(2년)</th><th class="num">같은 시각 r</th><th class="num">1시간 선행 r</th><th class="num">소요(추정)</th><th>판정</th></tr>
+<tr><td>영등포시장</td><td>5</td><td class="num">3,432</td><td class="num"><b>0.86</b></td><td class="num">0.74</td><td class="num">3분</td><td>근거리 — 같은 시각 동행</td></tr>
+<tr><td>홍대입구</td><td>2</td><td class="num">3,537</td><td class="num"><b>0.82</b></td><td class="num">0.81</td><td class="num">15분</td><td>근거리 — 같은 시각 동행</td></tr>
+<tr><td>신길</td><td>5</td><td class="num">2,710</td><td class="num"><b>0.81</b></td><td class="num">0.74</td><td class="num">3분</td><td>근거리 — 같은 시각 동행</td></tr>
+<tr><td>영등포구청</td><td>2·5</td><td class="num">3,774</td><td class="num"><b>0.80</b></td><td class="num">0.40</td><td class="num">5분</td><td>근거리 — 같은 시각 동행</td></tr>
+<tr><td>화곡</td><td>5</td><td class="num">4,365</td><td class="num"><b>0.63</b></td><td class="num">0.59</td><td class="num">14분</td><td>중거리 — 두 위상 비슷</td></tr>
+<tr><td>성수</td><td>2</td><td class="num">3,339</td><td class="num">0.64</td><td class="num"><b>0.95</b></td><td class="num">35분</td><td>원거리 — 1시간 선행</td></tr>
+<tr><td>낙성대</td><td>2</td><td class="num">4,864</td><td class="num">0.66</td><td class="num"><b>0.77</b></td><td class="num">25분</td><td>원거리 — 1시간 선행</td></tr>
+<tr><td>잠실</td><td>2·8</td><td class="num">2,850</td><td class="num">0.46</td><td class="num"><b>0.71</b></td><td class="num">30분</td><td>원거리 — 1시간 선행</td></tr>
+<tr><td>고속터미널</td><td>3·7</td><td class="num">4,769</td><td class="num">0.24</td><td class="num"><b>0.65</b></td><td class="num">12분</td><td>환승 대기로 선행 추정</td></tr>
+<tr><td>목동</td><td>5</td><td class="num">3,424</td><td class="num">0.13</td><td class="num">0.16</td><td class="num">9분</td><td>신호 약함 — 감시만</td></tr>
+<tr><td>사당</td><td>2·4</td><td class="num">3,279</td><td class="num">0.04</td><td class="num">0.12</td><td class="num">18분</td><td>신호 약함 — 감시만</td></tr>
+<tr><td>김포공항</td><td>5</td><td class="num">3,484</td><td class="num">−0.19</td><td class="num">0.30</td><td class="num">25분</td><td>공항 유동 혼입 — 제외</td></tr>
+</table></div>
+<p class="sub">2년 합동 Pearson, 표본 n=20 (2년 × 10시간대). 굵은 값이 그 역의 우세 위상. 근거리 4곳은 같은 시각(0.80~0.86), 원거리 3곳은 1시간 선행(0.71~0.95)이 우세하다 — 소요시간이 길수록 선행이 커지는 순서가 그대로 재현된다(근거 ①의 역별 분해). 다만 개별 역은 표본이 작아 잡음이 크므로, 본 판단은 12곳 합산 상관(lag1 0.99)으로 하고 이 표는 위상 확인과 당일 감시 우선순위(강한 역 위주)에 쓴다. 산출: <code>data/derived/feeder_leadlag.json</code>.</p>
+
+<p class="sub"><b>한계도 정직하게.</b> 초과 승차가 전부 축제 인파는 아니다 — 서울 전 역의 초과 합은 여의도 유입 규모의 1.7~3.3배로, 다른 나들이·행사가 섞여 있다. 그래서 2년 연속 필터·구 총량 상한으로 보수적으로 배분(귀속)했고, 개별 역 중엔 잡음이 큰 곳도 있다(위 표: 사당 0.04 · 목동 0.13 · 김포공항 −0.19). 분 단위 정밀 검증은 9/5 라이브 수집으로 한다.</p>
 
 <h4 style="font-size:14.5px;margin:22px 0 6px">이걸로 뭘 하나</h4>
 <ul>
