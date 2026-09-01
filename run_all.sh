@@ -46,13 +46,37 @@ trap 'RUN=0; kill $P1 $P2 $P3 $CAF 2>/dev/null; log "stopped"; exit 0' INT TERM
 
 if [ "${WATCHDOG:-1}" = "0" ]; then wait; exit 0; fi
 
+# 수집기가 뜨자마자 죽는 크래시 루프면 30초마다 재기동 = 5분 주기의 10배로 API 쿼터를 태운다.
+# 창(기본 10분) 안에서 재기동이 MAX 를 넘으면 재시도 간격을 5분(정상 틱 주기)으로 늘린다. 자가복구는 유지한다.
+WD_POLL=${WD_POLL:-30}; WD_WINDOW=${WD_WINDOW:-600}; WD_BACKOFF=${WD_BACKOFF:-300}; MAX_RESTARTS=${MAX_RESTARTS:-5}
+RESTARTS=0; WIN_START=$(date +%s); LAST_TRY=0; BACKOFF=0
+
+allow_restart() {
+  local now=$(date +%s)
+  if (( now - WIN_START > WD_WINDOW )); then RESTARTS=0; WIN_START=$now; BACKOFF=0; fi
+  if (( RESTARTS >= MAX_RESTARTS )); then
+    if (( BACKOFF == 0 )); then
+      BACKOFF=1
+      log "WATCHDOG: ${WD_WINDOW}초 안에 재기동 ${RESTARTS}회 — 크래시 루프로 보고 재시도 간격을 ${WD_BACKOFF}초로 늘린다 (API 쿼터 보호). logs/api.log·logs/cctv.log 확인할 것";
+    fi
+    (( now - LAST_TRY < WD_BACKOFF )) && return 1;
+  fi
+  RESTARTS=$((RESTARTS + 1)); LAST_TRY=$now; return 0
+}
+
 STALE_WARNED=0
 while (( RUN )); do
-  sleep 30
+  sleep $WD_POLL
   (( RUN )) || break
-  kill -0 $P1 2>/dev/null || { log "WATCHDOG: collector_api 사망 → 재기동 (직전 로그: $(tail -1 logs/api.log))"; start_api; log "  새 pid=$P1" }
-  kill -0 $P2 2>/dev/null || { log "WATCHDOG: collector_cctv 사망 → 재기동 (직전 로그: $(tail -1 logs/cctv.log))"; start_cctv; log "  새 pid=$P2" }
-  kill -0 $P3 2>/dev/null || { log "WATCHDOG: nowcast/publish 루프 사망 → 재기동"; start_loop; log "  새 pid=$P3" }
+  if ! kill -0 $P1 2>/dev/null; then
+    if allow_restart; then log "WATCHDOG: collector_api 사망 → 재기동 (직전 로그: $(tail -1 logs/api.log))"; start_api; log "  새 pid=$P1"; fi
+  fi
+  if ! kill -0 $P2 2>/dev/null; then
+    if allow_restart; then log "WATCHDOG: collector_cctv 사망 → 재기동 (직전 로그: $(tail -1 logs/cctv.log))"; start_cctv; log "  새 pid=$P2"; fi
+  fi
+  if ! kill -0 $P3 2>/dev/null; then
+    if allow_restart; then log "WATCHDOG: nowcast/publish 루프 사망 → 재기동"; start_loop; log "  새 pid=$P3"; fi
+  fi
   # 프로세스는 살아 있는데 데이터가 안 자라는 경우 (API 무응답·쿼터 소진 등) — 죽음보다 잡기 어렵다
   F="data/live/api_$(date +%Y%m%d).jsonl"
   if [ -f "$F" ]; then
@@ -61,7 +85,7 @@ while (( RUN )); do
       (( STALE_WARNED )) || log "WATCHDOG 경고: $F 가 ${AGE}초째 그대로다 — logs/api.log 확인 (쿼터·키·네트워크)"
       STALE_WARNED=1
     else
-      STALE_WARNED=0
+      STALE_WARNED=0;
     fi
   fi
 done

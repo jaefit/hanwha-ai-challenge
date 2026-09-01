@@ -47,8 +47,13 @@ def push():
     r = _git("push", "-q", "origin", "main")
     if r.returncode != 0:
         print("push 거절 — pull --rebase 후 재시도", file=sys.stderr)
-        _git("pull", "--rebase", "--autostash", "-q", "origin", "main")
-        r = _git("push", "-q", "origin", "main")
+        # 충돌한 rebase 를 그대로 두면 저장소가 rebase 진행 상태로 묶여 이후 모든 틱의 커밋이 실패한다.
+        # 자동 병합은 하지 않는다(사람이 판단할 일) — 되돌려 놓고 경보만 올린다.
+        if _git("pull", "--rebase", "--autostash", "-q", "origin", "main").returncode != 0:
+            _git("rebase", "--abort")
+            print("rebase 충돌 — 되돌렸다. 두 기기가 같은 파일을 고쳤다는 뜻이니 사람이 정리해야 한다.", file=sys.stderr)
+        else:
+            r = _git("push", "-q", "origin", "main")
     if r.returncode == 0:
         FAIL_STREAK.unlink(missing_ok=True); return True
     n = (int(FAIL_STREAK.read_text()) if FAIL_STREAK.exists() else 0) + 1

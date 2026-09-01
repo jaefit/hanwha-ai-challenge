@@ -386,3 +386,33 @@ def test_report_has_table_3_3():
     # L1: 표 번호가 3-2 → 3-4 로 건너뛰었다
     html = (ROOT / "docs" / "report.html").read_text(encoding="utf-8")
     assert "표 3-3" in html
+
+
+def test_push_aborts_a_conflicting_rebase_instead_of_leaving_it_in_progress(tmp_path, monkeypatch):
+    """C2 후속: pull --rebase 가 충돌하면 rebase 진행 상태로 남아 이후 모든 틱의 커밋이 실패한다.
+    실패는 실패대로 알리되, 저장소는 깨끗한 상태로 돌려놓아야 한다."""
+    import subprocess as sp
+    import publish as P
+
+    def git(cwd, *a): return sp.run(["git", *a], cwd=cwd, capture_output=True, text=True)
+    origin = tmp_path / "origin.git"; sp.run(["git", "init", "-q", "--bare", str(origin)], check=True)
+    def clone(name):
+        d = tmp_path / name; sp.run(["git", "clone", "-q", str(origin), str(d)], check=True)
+        git(d, "config", "user.email", "t@t"); git(d, "config", "user.name", "t")
+        git(d, "config", "rebase.autoStash", "false")
+        return d
+    a = clone("a")
+    (a / "f.json").write_text("base"); git(a, "add", "-A"); git(a, "commit", "-qm", "base")
+    git(a, "branch", "-M", "main"); git(a, "push", "-q", "origin", "main")
+    b = clone("b"); git(b, "checkout", "-q", "main")
+    # 두 기기가 같은 파일을 서로 다르게 고쳐 올린다 → rebase 충돌
+    (b / "f.json").write_text("from-other-machine"); git(b, "add", "-A"); git(b, "commit", "-qm", "other")
+    git(b, "push", "-q", "origin", "main")
+    (a / "f.json").write_text("from-us"); git(a, "add", "-A"); git(a, "commit", "-qm", "ours")
+
+    monkeypatch.setattr(P, "ROOT", a)
+    monkeypatch.setattr(P, "FAIL_STREAK", tmp_path / "streak")
+    assert P.push() is False                       # 충돌은 push 로 해결되지 않는다 — 실패로 알려야 한다
+    assert not (a / ".git" / "rebase-merge").exists() and not (a / ".git" / "rebase-apply").exists(), \
+        "rebase 진행 상태가 남았다 — 이후 모든 틱의 커밋이 실패한다"
+    assert git(a, "status", "--porcelain").stdout.strip() == ""    # 작업트리도 깨끗해야 다음 틱이 돈다
