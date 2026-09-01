@@ -24,6 +24,8 @@ for line in (ROOT / ".env").read_text().splitlines():
     if "=" in line and not line.startswith("#"):
         k, v = line.split("=", 1); ENV[k.strip()] = v.strip()
 KG, KS = ENV["SEOUL_KEY_GENERAL"], ENV["SEOUL_KEY_SUBWAY"]
+# 실시간 도착(swopenAPI) 키들 — 역 순번 % 키 수 로 고정 배정 (9/1 두 번째 키 발급, 피더와 같은 분산 방식). 미설정이면 KS 하나로 동작.
+SUBWAY_KEYS = [v for v in (KS, ENV.get("SEOUL_KEY_SUBWAY2", "").strip()) if v]
 # 피더 전용 citydata 키들 (일 쿼터 분리·분산, 2026-08-31 발급). 피더는 목록 순번 % 키 수 로 고정 배정 → 키당 6곳 × 8h × 12회 = 576/일
 FEEDER_KEYS = [v for v in (ENV.get("SEOUL_KEY_FEEDER", "").strip(), ENV.get("SEOUL_KEY_FEEDER2", "").strip()) if v]
 
@@ -68,7 +70,9 @@ def feeder_key(name):
 def budget():
     """키별 일 호출 수 — 상한 1,000. 런북 점검용(--budget)."""
     ticks = 3600 // INTERVAL
-    rows = {"KG(코어)": len(CORE) * 24 * ticks, "KS(지하철)": len(STATIONS) * len(SUBWAY_HOURS) * ticks}
+    rows = {"KG(코어)": len(CORE) * 24 * ticks}
+    for i, _ in enumerate(SUBWAY_KEYS):
+        rows[f"지하철키{i + 1}"] = len([x for j, x in enumerate(STATIONS) if j % len(SUBWAY_KEYS) == i]) * len(SUBWAY_HOURS) * ticks
     for i, _ in enumerate(FEEDER_KEYS):
         n_f = len([x for j, x in enumerate(FEEDERS + WATCH) if j % len(FEEDER_KEYS) == i and x in FEEDERS])
         n_w = len([x for j, x in enumerate(FEEDERS + WATCH) if j % len(FEEDER_KEYS) == i and x in WATCH])
@@ -101,7 +105,8 @@ def citydata(name):
 
 
 def subway(st):
-    d = get(f"http://swopenAPI.seoul.go.kr/api/subway/{KS}/json/realtimeStationArrival/0/20/{urllib.parse.quote(st)}")
+    key = SUBWAY_KEYS[STATIONS.index(st) % len(SUBWAY_KEYS)] if st in STATIONS else KS
+    d = get(f"http://swopenAPI.seoul.go.kr/api/subway/{key}/json/realtimeStationArrival/0/20/{urllib.parse.quote(st)}")
     rows = d.get("realtimeArrivalList", [])
     return [{"line": r.get("trainLineNm"), "updn": r.get("updnLine"), "msg": r.get("arvlMsg2"), "sec": r.get("barvlDt")} for r in rows]
 
