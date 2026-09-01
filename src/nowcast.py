@@ -13,7 +13,7 @@ L4 대기(분) = max(0, 수요 − 용량) / 용량 × 60.   용량 = 관측 최
 도달 지연 = 관람구역→출구 거리 ÷ Weidmann 밀도별 보행속도(CCTV 등급 연동). 쇼 종료 실제 시각: --show-end HH:MM 또는 data/live/show_end.txt
 출처: data/derived/baseline.json (KT OD·서울교통공사), data/live/api_*.jsonl (서울 실시간 도시데이터)
 """
-import json, sys, os, math, pathlib, datetime, collections
+import json, re, sys, os, math, pathlib, datetime, collections
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DER, LIVE = ROOT / "data" / "derived", ROOT / "data" / "live"
@@ -48,6 +48,8 @@ PRIOR_SIGMA = 0.25            # LogNormal(0, σ): p10/p90 = 0.73/1.38 ≈ 2년 �
 O1_REL_SIGMA, O2_REL_SIGMA = 0.15, 0.20
 O1_MIN_BASE_INC = 200         # 30분 기준 증분이 이보다 작은 창은 정보 없음(새벽·통제 후)
 COVERAGE_FALLBACK, COVERAGE_CLAMP = 1.3, (0.8, 3.0)   # 여의도 핫스팟 9역 ÷ 우리 6출구 커버리지. 당일 14~17시로 추정, 실패 시 고정값
+COVERAGE_HOURS = range(14, 18)   # 14·15·16·17시 (2026-09-01 red team H5: 코드가 14~16 만 봐 문서·보고서 §3.4 와 어긋났다)
+COVERAGE_MAX_SPREAD = 0.3        # (최대−최소)÷중앙값. c 는 α 에 반비례하므로 창끼리 이만큼 넘게 흩어지면 중앙값을 믿지 않고 고정값
 SUBWAY_EXITS = ("여의도(5)", "여의나루(5)", "신길(1·5)", "여의도(9)", "샛강(9)", "국회의사당(9)")
 # 교통카드 일별 승차비로 비례 추정한 9호선·신길 용량 (src/line9_capacity.py, OA-12914). 여전히 추정이라 ESTIMATED 유지
 _L9 = DER / "line9_capacity.json"
@@ -64,14 +66,36 @@ CLOSED = {("여의나루(5)", 20), ("여의나루(5)", 21)}   # 2026 공식 공�
 
 
 # ── 쇼 종료 실제 시각(offset) — 우선순위: --show-end HH:MM > data/live/show_end.txt > 계획 21:10 (benchmark §4-5) ──
+# 2026-09-01 red team C4: 값 누락·콜론 누락은 크래시였고, 형식 오류는 조용히 계획값으로 떨어져 "기입했는데 반영 안 됨"
+# 을 알 수 없었으며, '25:99' 는 통과해 유출 곡선을 369분 밀었다. 파싱·범위 검증 + 결과를 source 로 드러낸다.
+_HHMM = re.compile(r"^(\d{1,2}):([0-5]\d)$")
+SHOW_END_MIN, SHOW_END_MAX = 19 * 60, 24 * 60   # 쇼 종료가 놓일 수 있는 범위 (공지 21:10 기준 ±)
+
+
+def parse_show_end(s):
+    """'HH:MM' → (시, 분). 형식·범위를 벗어나면 None."""
+    m = _HHMM.match((s or "").strip())
+    if not m: return None
+    hh, mm = int(m.group(1)), int(m.group(2))
+    return (hh, mm) if SHOW_END_MIN <= hh * 60 + mm <= SHOW_END_MAX else None
+
+
 def show_end_actual(argv):
     if "--show-end" in argv:
-        hh, mm = argv[argv.index("--show-end") + 1].split(":"); return (int(hh), int(mm)), "arg"
+        i = argv.index("--show-end") + 1
+        se = parse_show_end(argv[i]) if i < len(argv) else None
+        if se is None:
+            print(f"오류: --show-end 는 HH:MM (19:00~24:00) 이어야 한다. 예: --show-end 21:25", file=sys.stderr)
+            raise SystemExit(2)
+        return se, "arg"
     fn = LIVE / "show_end.txt"
     if fn.exists():
-        try:
-            hh, mm = fn.read_text().strip().split(":"); return (int(hh), int(mm)), "file"
-        except ValueError: pass
+        raw = fn.read_text(encoding="utf-8", errors="replace")
+        se = parse_show_end(raw)
+        if se: return se, "file"
+        print(f"경고: {fn} 내용 {raw.strip()!r} 은 HH:MM (19:00~24:00) 형식이 아니다 — 계획값 "
+              f"{SHOW_END_2026[0]:02d}:{SHOW_END_2026[1]:02d} 으로 진행한다. 다시 기입할 것.", file=sys.stderr)
+        return SHOW_END_2026, "planned_invalid_file"
     return SHOW_END_2026, "planned"
 
 
@@ -248,13 +272,17 @@ def _observations(records, excess1_by_hour, base_by_hour):
         obs.append((m[0], base_inc, 0.0, O1_REL_SIGMA, m[1], "alighting")); n1 += 1
     cs = []
     for (h, half), (t, s) in sorted(ydo.items()):
-        if 14 <= h <= 16 and base_by_hour.get(h):
+        if h in COVERAGE_HOURS and base_by_hour.get(h):
             m = _mid(s, "SUB_30WTHN_GTON_PPLTN")
             if m: cs.append(m[0] / (base_by_hour[h] / 2))
-    if len(cs) >= 3:
-        c = max(COVERAGE_CLAMP[0], min(COVERAGE_CLAMP[1], sorted(cs)[len(cs) // 2])); c_basis = "same_day_14_17h"
-    else:
+    med = sorted(cs)[len(cs) // 2] if len(cs) >= 3 else None   # 3창 미만이면 산포를 말할 수 없다
+    spread = (max(cs) - min(cs)) / med if med else None
+    if len(cs) < 3:
         c = COVERAGE_FALLBACK; c_basis = "fallback"
+    elif spread is None or spread > COVERAGE_MAX_SPREAD:
+        c = COVERAGE_FALLBACK; c_basis = "fallback_spread"   # 창끼리 어긋남 → 관측 이상으로 보고 고정값
+    else:
+        c = max(COVERAGE_CLAMP[0], min(COVERAGE_CLAMP[1], med)); c_basis = "same_day_14_17h"
     n2 = 0
     for (h, half), (t, s) in sorted(ydo.items()):
         if h < 19 or h > 23: continue
@@ -264,6 +292,7 @@ def _observations(records, excess1_by_hour, base_by_hour):
         if A + B <= 0: continue
         obs.append((m[0], A, B, O2_REL_SIGMA, m[1], "boarding")); n2 += 1
     meta = {"n_obs": {"alighting": n1, "boarding": n2}, "coverage_c": round(c, 3), "coverage_basis": c_basis, "coverage_samples": len(cs),
+            "coverage_spread": None if spread is None else round(spread, 3),
             "window_note": "30분 창 = 각 30분 구간 마지막 수집 레코드 직전 30분 (최대 5분 어긋남)"}
     return obs, meta
 
@@ -345,7 +374,7 @@ def main():
         "ts": now.isoformat(timespec="seconds"), "date": date, "alpha": a, "alpha_reason": why,
         "assimilation": {"method": "격자 사후분포 61점(1/3~3), 사전 LogNormal(0,0.25), 관측 O1 여의나루 30분 하차·O2 여의도 핫스팟 30분 승차", "grid_n": post["grid_n"],
                          "n_obs": ometa["n_obs"], "alpha": post["alpha"], "edge_hit": post["edge_hit"], "coverage_c": ometa.get("coverage_c"), "coverage_basis": ometa.get("coverage_basis"),
-                         "coverage_samples": ometa.get("coverage_samples", 0), "window_note": ometa.get("window_note")},
+                         "coverage_samples": ometa.get("coverage_samples", 0), "coverage_spread": ometa.get("coverage_spread"), "window_note": ometa.get("window_note")},
         "outflow_forecast": {str(h): round(total[h]) for h in hours},
         "outflow_baseline": {str(h): out_base[h] for h in hours},
         "show_shift_min": shift, "show_end_2026": "21:10", "show_end_actual": f"{show_end[0]:02d}:{show_end[1]:02d}", "show_end_source": show_src, "show_end_baseline": "20:30",

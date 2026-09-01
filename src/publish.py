@@ -21,6 +21,43 @@ def latest_cctv(date):
     return {k: {kk: v.get(kk) for kk in ("ts", "name", "level", "count", "occupancy", "flow", "ok")} for k, v in last.items()}
 
 
+# 2026-09-01 red team C2: 비교 대상에 generated(now) 가 들어 있어 "변경 없으면 커밋하지 않는다" 가 한 번도 성립하지 않았고
+# (5분마다 커밋), push 반환코드를 안 봐서 한 번 거절되면 공개 대시보드가 조용히 멈췄다.
+FAIL_STREAK = LIVE / "publish_fail_streak"
+
+
+def render(payload):
+    return json.dumps(payload, ensure_ascii=False, indent=1)
+
+
+def same_payload(old_text, new_payload):
+    """발행 시각(generated) 만 다르면 같은 내용으로 본다."""
+    try: old = json.loads(old_text)
+    except Exception: return False
+    drop = lambda d: {k: v for k, v in d.items() if k != "generated"}
+    return drop(old) == drop(new_payload)
+
+
+def _git(*args, **kw):
+    return subprocess.run(["git", *args], cwd=ROOT, **kw)
+
+
+def push():
+    """실패하면 pull --rebase 후 1회 재시도. 연속 실패 횟수를 남겨 당일에 눈에 띄게 한다."""
+    r = _git("push", "-q", "origin", "main")
+    if r.returncode != 0:
+        print("push 거절 — pull --rebase 후 재시도", file=sys.stderr)
+        _git("pull", "--rebase", "--autostash", "-q", "origin", "main")
+        r = _git("push", "-q", "origin", "main")
+    if r.returncode == 0:
+        FAIL_STREAK.unlink(missing_ok=True); return True
+    n = (int(FAIL_STREAK.read_text()) if FAIL_STREAK.exists() else 0) + 1
+    FAIL_STREAK.write_text(str(n))
+    print(f"!!! 발행 실패 {n}회 연속 — 공개 대시보드가 갱신되지 않는다. `git status` · `git log origin/main..HEAD` 확인 !!!",
+          file=sys.stderr)
+    return False
+
+
 def main():
     date = datetime.datetime.now().strftime("%Y%m%d")
     fc = json.loads((LIVE / "forecast_latest.json").read_text(encoding="utf-8")) if (LIVE / "forecast_latest.json").exists() else {}
@@ -30,17 +67,16 @@ def main():
     (hdir / f"{datetime.datetime.now():%H%M}.json").write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
     if "--dry" in sys.argv: print("dry — history만 저장, docs/data·git 생략"); return
     out = DOCS / "latest.json"
-    new = json.dumps(payload, ensure_ascii=False, indent=1)
-    if out.exists() and out.read_text(encoding="utf-8") == new:
+    new = render(payload)
+    if out.exists() and same_payload(out.read_text(encoding="utf-8"), payload):
         print("no change"); return
     out.write_text(new, encoding="utf-8")
     hist = DOCS / f"history_{date}.jsonl"
     with hist.open("a", encoding="utf-8") as f:
         f.write(json.dumps({"ts": payload["generated"], "alpha": fc.get("alpha"), "outflow": fc.get("outflow_forecast"), "live": fc.get("live_snapshot"), "cctv": {k: v.get("level") for k, v in payload["cctv"].items()}}, ensure_ascii=False) + "\n")
-    subprocess.run(["git", "add", "docs/data"], cwd=ROOT, check=True)
-    r = subprocess.run(["git", "commit", "-q", "-m", f"data: latest {payload['generated']}"], cwd=ROOT)
-    if r.returncode == 0:
-        subprocess.run(["git", "push", "-q", "origin", "main"], cwd=ROOT)
+    _git("add", "docs/data", check=True)
+    r = _git("commit", "-q", "-m", f"data: latest {payload['generated']}")
+    if r.returncode == 0 and push():
         print("published", payload["generated"])
 
 

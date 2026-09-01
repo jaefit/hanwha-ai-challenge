@@ -323,6 +323,13 @@ try{const t=localStorage.getItem("navi-theme");if(t)setTheme(t);else setTheme("d
 $("theme").onclick=()=>{setTheme(theme()==="dark"?"light":"dark",true);safeMap();if(DATA)render();};
 
 // ── 보드 ──
+// 통제 문구는 시간대별로 다르다. 모델은 20·21시를 통째로 무정차로 두는 안전측 근사를 쓰지만(공지 통제는 20:40~21:40),
+// 화면에서 "무정차"라고 단정하면 20:10에 실제로 탈 수 있는 사람을 1.5km 떨어진 여의도역으로 보낸다.
+// 반대로 "정차한다"고 단정하는 것은 더 위험하다 — 2024·2025 실적은 19시부터 하차 0, 현장이 공지보다 일찍 닫았다.
+// 그래서 단정 대신 공지 시각 + 예년 이력을 같이 준다. (2026-09-01 red team H2)
+const CLOSED_NOTE={"20":"공지 기준 20:40부터 통제 · 예년엔 조기 무정차 — 현장 확인",
+                   "21":"21:40 해제 예정 · 그전까지는 여의도역으로",
+                   default:"무정차 통과 · 여의도역으로"};
 function pick(){const h=new Date().getHours();return(h>=19&&h<=23)?String(h):"21";}
 function exitsView(){
   const fc=(DATA&&DATA.forecast)||{};const ex=fc.exits||{};
@@ -346,7 +353,7 @@ function render(){
     const hasBand=r.c.load_lo!=null&&r.c.load_hi!=null&&r.c.load_hi>r.c.load_lo;
     const band=hasBand?`<b style="left:${Math.min(100,Math.round(r.c.load_lo*100))}%;width:${Math.max(1,Math.min(100,Math.round((r.c.load_hi-r.c.load_lo)*100)))}%"></b>`:"";
     return`<div class="row" data-g="${lv}" style="--lc:${r.e.lc}"><div class="rk">${String(i+1).padStart(2,"0")}</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span>${est?'<span class="dg">†</span>':""}</div><div class="ds">${esc(r.e.desc)}${note?` <span class="note">${esc(note)}</span>`:""}</div><div class="hair">${band}<i style="width:${w}%"></i></div></div><div class="tag">${lv}</div><div class="num">${r.load.toFixed(2)}${hasBand?`<small>${r.c.load_lo.toFixed(2)}–${r.c.load_hi.toFixed(2)}</small>`:""}</div></div>`;}).join("")
-   +closed.map(r=>`<div class="row closed" style="--lc:${r.e.lc}"><div class="rk">—</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span></div><div class="ds">무정차 통과 · 통제 20:40~21:40 · 여의도역으로</div></div><div class="tag">통제</div><div class="num">—</div></div>`).join("");
+   +closed.map(r=>`<div class="row closed" style="--lc:${r.e.lc}"><div class="rk">—</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span></div><div class="ds">${esc(CLOSED_NOTE[hour]||CLOSED_NOTE.default)}</div></div><div class="tag">통제</div><div class="num">—</div></div>`).join("");
   $("board").innerHTML=html||`<div class="row empty">예측 데이터 없음 — 수집 시작 전</div>`;
   $("alpha-line").textContent=fc.prior?"사전 예측 · 2024·2025 출발지 구성 기반(backtrack.py) · 작은 숫자 = 범위(2년 × 방향 기준 2)":fallback?"실적 모드 · 2024·2025 KT 생활이동 × α=1 (실시간 수집 시작 전)":(fc.alpha_reason||"");
   $("s-alpha").textContent=fc.alpha!=null?Number(fc.alpha).toFixed(2):"—";

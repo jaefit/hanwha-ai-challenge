@@ -266,3 +266,123 @@ def test_watch_hours_are_festival_window_only():
     C = _collector()
     assert set(C.WATCH_HOURS) == set(range(17, 24))
     assert not (set(C.WATCH_HOURS) & set(range(0, 17)))
+
+
+# ── 당일 운영 방어 (2026-09-01 red team C2·C4·C5·H5) ──
+@pytest.fixture
+def show_end_file():
+    """data/live/show_end.txt 를 쓰고 원상복구."""
+    p = N.LIVE / "show_end.txt"; orig = p.read_text(encoding="utf-8") if p.exists() else None
+    def write(text):
+        p.write_text(text, encoding="utf-8"); return N.show_end_actual([])
+    yield write
+    if orig is None: p.unlink(missing_ok=True)
+    else: p.write_text(orig, encoding="utf-8")
+
+
+def test_show_end_arg_missing_value_exits_instead_of_crashing():
+    # C4: 값 없이 --show-end 만 치면 IndexError 로 죽었다 → 사용법 안내 후 종료여야 한다
+    with pytest.raises(SystemExit) as e:
+        N.show_end_actual(["--show-end"])
+    assert e.value.code != 0
+
+
+def test_show_end_arg_without_colon_exits_instead_of_crashing():
+    # C4: '2110' 은 ValueError(unpack) 로 죽었다
+    with pytest.raises(SystemExit) as e:
+        N.show_end_actual(["--show-end", "2110"])
+    assert e.value.code != 0
+
+
+def test_show_end_arg_valid_is_accepted():
+    assert N.show_end_actual(["--show-end", "21:25"]) == ((21, 25), "arg")
+
+
+def test_show_end_file_bad_format_is_reported_not_silently_ignored(show_end_file):
+    # C4: 형식이 틀리면 조용히 planned 로 떨어져 "기입했는데 반영 안 됨" 을 알 수 없었다
+    for bad in ("2110", "21시10분", ""):
+        se, src = show_end_file(bad)
+        assert se == N.SHOW_END_2026 and src == "planned_invalid_file", bad
+
+
+def test_show_end_file_out_of_range_is_rejected(show_end_file):
+    # C4: '25:99' 가 통과해 유출 곡선이 369분(6시간) 밀렸다
+    for bad in ("25:99", "03:00", "18:59"):
+        se, src = show_end_file(bad)
+        assert se == N.SHOW_END_2026 and src == "planned_invalid_file", bad
+
+
+def test_show_end_file_valid_is_used(show_end_file):
+    assert show_end_file("21:35\n") == ((21, 35), "file")
+
+
+def _cov_recs(pairs):
+    """[(hh, mm, 30분 승차)] → citydata 레코드"""
+    return [{"kind": "citydata", "area": "여의도", "ts": f"2026-09-05T{h:02d}:{m:02d}:10",
+             "sub_live": {"SUB_30WTHN_GTON_PPLTN_MIN": str(v - 50), "SUB_30WTHN_GTON_PPLTN_MAX": str(v + 50)}}
+            for h, m, v in pairs]
+
+
+def test_coverage_window_includes_17h():
+    # H5: 주석·문서·보고서 §3.4 는 "14~17시" 인데 코드는 14~16 시만 봤다
+    ex1 = {h: 10000.0 for h in range(15, 25)}; base = {h: 1000.0 for h in range(5, 25)}
+    recs = _cov_recs([(17, 25, 1000), (17, 55, 1000), (16, 55, 1000)])
+    _, meta = N._observations(recs, ex1, base)
+    assert meta["coverage_basis"] == "same_day_14_17h" and abs(meta["coverage_c"] - 2.0) < 0.05
+
+
+def test_coverage_rejects_wildly_spread_samples():
+    # H5: c 는 α 에 반비례한다. 창끼리 크게 어긋나면 중앙값을 믿지 말고 고정값으로
+    ex1 = {h: 10000.0 for h in range(15, 25)}; base = {h: 1000.0 for h in range(5, 25)}
+    recs = _cov_recs([(14, 25, 400), (14, 55, 1000), (15, 25, 2800), (15, 55, 600), (16, 25, 2400)])
+    _, meta = N._observations(recs, ex1, base)
+    assert meta["coverage_basis"] == "fallback_spread" and meta["coverage_c"] == N.COVERAGE_FALLBACK
+    assert meta["coverage_spread"] > 0.3
+
+
+def test_coverage_keeps_tight_samples():
+    ex1 = {h: 10000.0 for h in range(15, 25)}; base = {h: 1000.0 for h in range(5, 25)}
+    recs = _cov_recs([(14, 25, 980), (14, 55, 1000), (15, 25, 1020), (15, 55, 1000)])
+    _, meta = N._observations(recs, ex1, base)
+    assert meta["coverage_basis"] == "same_day_14_17h" and meta["coverage_spread"] <= 0.3
+
+
+def test_collector_non_json_body_surfaces_api_message():
+    # C5: 인증 실패·쿼터 초과는 HTTP 200 + XML 로 온다. JSONDecodeError 한 줄로 뭉개면 당일 원인 판별 불가
+    C = _collector()
+    body = "<RESULT><CODE>INFO-100</CODE><MESSAGE><![CDATA[인증키가 유효하지 않습니다.]]></MESSAGE></RESULT>"
+    with pytest.raises(Exception) as e:
+        C.parse_body(body)
+    assert "INFO-100" in str(e.value) and "인증키" in str(e.value)
+
+
+def test_collector_redacts_keys_from_error_text():
+    # 오류 문자열을 로그에 그대로 쓰므로 키가 섞여 들어갈 여지를 막는다
+    C = _collector()
+    key = C.KG
+    assert len(key) >= 12
+    out = C.redact(f"boom {key} tail")
+    assert key not in out and "boom" in out and "tail" in out
+
+
+def test_publish_ignores_generated_when_deciding_to_republish():
+    # C2: 비교 대상에 generated(now) 가 들어 있어 "변경 없으면 커밋 생략" 이 한 번도 성립하지 않았다
+    import publish as P
+    a = {"generated": "2026-09-05T20:00:00", "forecast": {"alpha": 1.0}, "cctv": {}}
+    b = {"generated": "2026-09-05T20:05:00", "forecast": {"alpha": 1.0}, "cctv": {}}
+    c = {"generated": "2026-09-05T20:05:00", "forecast": {"alpha": 1.2}, "cctv": {}}
+    assert P.same_payload(P.render(a), b)
+    assert not P.same_payload(P.render(a), c)
+
+
+def test_dashboard_closure_copy_is_conditional_per_hour():
+    # H2: 통제 문구가 고정 문자열이라 20시 탭에서도 "무정차 통과" 로 단정했다 (실제 20:00~20:40 정차)
+    html = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
+    assert "CLOSED_NOTE" in html, "시간대별 통제 문구 분기가 없다"
+    assert "예년엔 조기 무정차" in html, "예년 조기 무정차 이력을 알리는 문구가 없다"
+
+
+def test_report_has_table_3_3():
+    # L1: 표 번호가 3-2 → 3-4 로 건너뛰었다
+    html = (ROOT / "docs" / "report.html").read_text(encoding="utf-8")
+    assert "표 3-3" in html

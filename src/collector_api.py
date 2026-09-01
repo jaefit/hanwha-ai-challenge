@@ -51,9 +51,29 @@ UNTIL = datetime.datetime.fromisoformat(os.environ["UNTIL"]) if os.environ.get("
 OUT = ROOT / "data" / "live"; OUT.mkdir(parents=True, exist_ok=True)
 
 
+# 2026-09-01 red team C5: 열린데이터광장은 인증 실패·쿼터 초과에도 HTTP 200 + XML 을 준다. json.loads 를 바로 걸면
+# 로그에 `Expecting value: line 1 column 1` 만 남아 쿼터·키 오타·장소명 오류가 구분되지 않는다. 원문 CODE/MESSAGE 를 살린다.
+ALL_KEYS = [v for k, v in ENV.items() if k.startswith("SEOUL_KEY_") and len(v) >= 12]
+
+
+def redact(s):
+    """로그에 쓰기 전 키 값을 지운다 (오류 문자열에 섞여 들어갈 여지 차단)."""
+    s = str(s)
+    for k in ALL_KEYS: s = s.replace(k, "***")
+    return s
+
+
+def parse_body(raw):
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        raise RuntimeError("JSON 아님 — 응답 원문(인증키·쿼터·장소명 오류가 여기 CODE/MESSAGE 로 온다): "
+                           + " ".join(raw.split())[:200])
+
+
 def get(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers={"User-Agent": "collector/0.1"}), timeout=40) as r:
-        return json.loads(r.read().decode("utf-8"))
+        return parse_body(r.read().decode("utf-8", "replace"))
 
 
 def role_of(name):
@@ -123,7 +143,7 @@ def tick():
             try:
                 rec = {"ts": now.isoformat(timespec="seconds"), "kind": "citydata", **citydata(h)}
             except Exception as e:
-                rec = {"ts": now.isoformat(timespec="seconds"), "kind": "citydata", "area": h, "error": str(e)[:200]}
+                rec = {"ts": now.isoformat(timespec="seconds"), "kind": "citydata", "area": h, "error": redact(e)[:300]}
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
             print(now.strftime("%H:%M"), h, rec.get("congest"), rec.get("ppltn_min"), "~", rec.get("ppltn_max"), rec.get("error", ""))
         if now.hour in SUBWAY_HOURS or "--force-subway" in sys.argv:
@@ -131,7 +151,7 @@ def tick():
                 try:
                     rec = {"ts": now.isoformat(timespec="seconds"), "kind": "subway", "station": st, "arrivals": subway(st)}
                 except Exception as e:
-                    rec = {"ts": now.isoformat(timespec="seconds"), "kind": "subway", "station": st, "error": str(e)[:200]}
+                    rec = {"ts": now.isoformat(timespec="seconds"), "kind": "subway", "station": st, "error": redact(e)[:300]}
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 print("   ", st, len(rec.get("arrivals", [])), "trains", rec.get("error", ""))
 
