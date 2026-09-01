@@ -592,8 +592,9 @@ function apfField(st){
   const f=[];
   for(let iy=0;iy<g.rows;iy++)for(let ix=0;ix<g.cols;ix++){
     const c=iy*g.cols+ix,u=Math.max(0,Math.min(1,APF_FIELD.mean[c]));
-    const conf=Math.max(.15,Math.min(1,1-APF_FIELD.sd[c]/APF_SD_MAX));   // 불확실할수록 흐리게
-    const xa=g.x0+ix*g.dx,xb=xa+g.dx,ya=g.y0+iy*g.dy,yb=ya+g.dy;
+    const conf=Math.max(.22,Math.min(1,1-.7*APF_FIELD.sd[c]/APF_SD_MAX));   // 불확실할수록 흐리게
+    const ox=g.dx*.03,oy=g.dy*.03;   // 3% 겹침 — 셀 경계의 격자 무늬를 없앤다
+    const xa=g.x0+ix*g.dx-ox,xb=xa+g.dx+2*ox,ya=g.y0+iy*g.dy-oy,yb=ya+g.dy+2*oy;
     f.push({type:"Feature",properties:{u:+u.toFixed(3),conf:+conf.toFixed(3)},
             geometry:{type:"Polygon",coordinates:[[[xa,ya],[xb,ya],[xb,yb],[xa,yb],[xa,ya]]]}});
   }
@@ -638,7 +639,7 @@ function apfMarkers(){
     const label=!has?"관측 없음":r.w<APF_MIN_W?`${ageText(r.ageMin)} 관측 — 장에 거의 반영 안 됨`:`지수 ${idx}, ${apfLevel(r.y)}${r.v&&r.v.confidence==="low"?", 신뢰 낮음":""}`;
     d.setAttribute("aria-label",`${r.cam.name}, ${label}`);
     if(has){d.style.background=gc(apfLevel(r.y));
-      d.style.opacity=String(Math.max(.25,Math.min(1,r.w/APF_MIN_W)));   // 장에 기여하는 만큼만 진하게
+      d.style.opacity=(.30+.70*Math.max(0,Math.min(1,r.w))).toFixed(2);   // 장에 기여하는 만큼만 진하게
       if(r.w<APF_MIN_W){d.textContent="·";d.title=`${r.cam.name} — ${ageText(r.ageMin)} 관측, 장에 거의 반영 안 됨`;}}
     d.onclick=()=>apfSelect(r);
     const popup=new maplibregl.Popup({offset:22,closeButton:false})
@@ -696,7 +697,7 @@ function apfMapInit(){
     apfMap.addSource("walk-network",{type:"geojson",data:{type:"FeatureCollection",features:[]}});walkLayerSync();
     apfMap.addLayer({id:"walk-network",type:"line",source:"walk-network",paint:{"line-color":light?"#276f9f":"#4b91ba","line-opacity":.28,"line-width":["interpolate",["linear"],["zoom"],11,.2,14,.62,17,1.45]}});
     apfMap.addSource("apf-field",{type:"geojson",data:APF_DATA});
-    apfMap.addLayer({id:"apf-field",type:"fill",source:"apf-field",paint:{"fill-color":["interpolate",["linear"],["get","u"],0,gc("여유"),.6,gc("주의"),.8,gc("경계"),1,gc("심각")],"fill-opacity":["*",["interpolate",["linear"],["get","u"],0,.10,.6,.30,.8,.45,1,.60],["get","conf"]]}});
+    apfMap.addLayer({id:"apf-field",type:"fill",source:"apf-field",paint:{"fill-color":["interpolate",["linear"],["get","u"],0,gc("여유"),.6,gc("주의"),.8,gc("경계"),1,gc("심각")],"fill-opacity":["*",["interpolate",["linear"],["get","u"],0,.04,.45,.16,.6,.40,.8,.66,1,.92],["get","conf"]]}});
     if(waterLayer){const waterMask={...waterLayer,id:"apf-water-mask",paint:{...(waterLayer.paint||{}),"fill-opacity":1}};apfMap.addLayer(waterMask);}
     apfMap.addSource("route-line",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
     apfMap.addLayer({id:"route-casing",type:"line",source:"route-line",paint:{"line-color":"#17202a","line-opacity":.88,"line-width":["interpolate",["linear"],["zoom"],11,5,16,9]}});
