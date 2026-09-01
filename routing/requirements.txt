@@ -1,0 +1,8 @@
+# 보행 네트워크 재생성 전용 (routing/download_walk_network.py). 평소 실행에는 필요 없다 —
+# 산출물 docs/data/routing/walk_graph.json 이 저장소에 들어 있다.
+#   .venv/bin/pip install -r routing/requirements.txt
+osmnx>=2.0
+networkx
+shapely
+pyproj
+geopandas

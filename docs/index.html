@@ -22,7 +22,7 @@
   --map-border:#111; --ctrl-rule:3px solid var(--orange); --ctrl-ink:#333;
   --g-여유:#00843D; --g-주의:#B7791F; --g-경계:#C05621; --g-심각:#C81E1E; --g-보정전:#9B958A; --live:#00843D; --stale:#B1AB9F;
   --walk:#2563EB; --mk-border:#fff; --pill-bg:rgba(255,255,255,.95); --pill-ink:#111; --pill-border:rgba(0,0,0,.18); --zone:#4A463E; --zone-shadow:0 1px 2px #fff;
-  --bar-base:rgba(17,17,17,.14); --bar-today:#111;
+  --bar-base:rgba(17,17,17,.14); --bar-today:#111; --apf-empty:rgba(155,149,138,.75);
 }
 [data-theme="dark"]{
   --bg:#0A0A0A; --ink:#F5F4F1; --ink-2:rgba(245,244,241,.45); --ink-3:rgba(245,244,241,.35); --eyebrow:rgba(245,244,241,.6); --rank:rgba(255,255,255,.14);
@@ -32,7 +32,7 @@
   --map-border:rgba(255,255,255,.3); --ctrl-rule:1px solid rgba(255,255,255,.25); --ctrl-ink:rgba(245,244,241,.7);
   --g-여유:#34D399; --g-주의:#FACC15; --g-경계:#FB923C; --g-심각:#F87171; --g-보정전:#6B7280; --live:#34D399; --stale:#6B7280;
   --walk:#8FB8E8; --mk-border:#0B0E13; --pill-bg:rgba(10,12,16,.9); --pill-ink:#fff; --pill-border:rgba(255,255,255,.22); --zone:rgba(255,255,255,.8); --zone-shadow:0 1px 3px #000;
-  --bar-base:rgba(255,255,255,.14); --bar-today:#F5F4F1;
+  --bar-base:rgba(255,255,255,.14); --bar-today:#F5F4F1; --apf-empty:rgba(107,114,128,.8);
 }
 *{box-sizing:border-box} html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Apple SD Gothic Neo",system-ui,sans-serif;line-height:1.45;font-size:14px;font-variant-numeric:tabular-nums}
@@ -179,6 +179,36 @@ table.grid{border-collapse:separate;border-spacing:5px 4px;width:100%;min-width:
 footer{margin:36px 40px 0;padding-top:12px;border-top:1px solid var(--rule);font-size:10.5px;color:var(--ink-3);line-height:1.7}
 footer a{color:var(--ink-2)}
 
+/* ── CCTV count 기반 APF 지도 ── */
+.apf-head{display:flex;align-items:end;justify-content:space-between;gap:24px;flex-wrap:wrap;border-top:var(--tabs-rule);padding-top:14px;margin-top:10px}
+.apf-stats{display:flex;gap:28px;flex-wrap:wrap}
+.apf-stat b{display:block;font-size:26px;font-weight:800;letter-spacing:-1px;line-height:1}
+.apf-stat span{display:block;font-size:11px;color:var(--ink-2);margin-top:4px}
+.apf-mapbox{border:1px solid var(--map-border);margin-top:16px;position:relative}
+#apf-map{height:620px;background:var(--bg)}
+.apf-tools{position:absolute;left:10px;top:10px;z-index:4;width:min(250px,calc(100% - 78px));padding:10px;background:var(--pill-bg);color:var(--pill-ink);border:1px solid var(--pill-border);border-radius:5px;font-size:12px;box-shadow:0 2px 10px rgba(0,0,0,.28)}
+.apf-toggle{display:flex;align-items:center;gap:7px;font-weight:700;cursor:pointer}
+.apf-toggle input{margin:0;accent-color:var(--orange)}
+.route-label{display:block;margin:9px 0 4px;color:var(--ink-2);font-size:10.5px;font-weight:700}
+.route-row{display:grid;grid-template-columns:1fr auto;gap:6px}
+.route-row select,.route-row button{min-height:34px;border:1px solid var(--pill-border);border-radius:3px;font:700 12px Pretendard,sans-serif}
+.route-row select{min-width:0;padding:0 7px;background:var(--bg);color:var(--ink)}
+.route-row button{padding:0 11px;background:var(--orange);color:#111;cursor:pointer}
+.route-row button:disabled{opacity:.45;cursor:not-allowed}
+.route-status{margin-top:7px;color:var(--ink-2);font-size:10.5px;line-height:1.45}
+.route-pin{width:20px;height:20px;border:3px solid #fff;border-radius:50%;background:#1677ff;box-shadow:0 2px 7px rgba(0,0,0,.5)}
+.route-pin.station{background:#ff8a00}
+.apf-legend{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:var(--ink-2)}
+.apf-scale{width:180px;height:8px;background:linear-gradient(90deg,var(--g-여유),var(--g-주의),var(--g-경계),var(--g-심각))}
+.apf-walk-key{display:inline-block;width:22px;height:2px;background:#4b91ba;vertical-align:middle}
+.apf-detail{border-top:1px solid var(--rule);margin-top:12px;padding-top:10px;min-height:34px;font-size:12.5px;color:var(--ink-2)}
+.apf-detail b{color:var(--ink);font-size:14px}
+.apf-mk{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--apf-empty);border:2px solid var(--mk-border);box-shadow:0 2px 8px rgba(0,0,0,.5);color:#fff;font:800 10px Pretendard,sans-serif;cursor:pointer;padding:0}
+.apf-mk.no-data{background:var(--apf-empty);color:var(--pill-ink)}
+.apf-mk:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
+.apf-mapbox .maplibregl-popup-content{background:var(--pill-bg);color:var(--pill-ink);border:1px solid var(--pill-border);border-radius:4px;padding:9px 11px;font:12px/1.5 Pretendard,sans-serif}
+.apf-mapbox .maplibregl-popup-tip{display:none}
+
 /* ── 모바일 375 · 1열 ── */
 @media (max-width:960px){
   .head,.tabs,.hero,.sec,footer{padding-left:20px;padding-right:20px}
@@ -198,6 +228,8 @@ footer a{color:var(--ink-2)}
   .stats div:nth-child(3){border-left:0;padding-left:0}
   .plans{grid-template-columns:1fr;gap:20px}
   table.grid{min-width:560px}
+  #apf-map{height:480px}
+  .apf-stats{gap:18px}
 }
 </style>
 </head>
@@ -277,10 +309,26 @@ footer a{color:var(--ink-2)}
   <div class="plans" id="plans"></div>
 </section>
 
+<section class="sec" id="apf-section">
+  <div class="eb">CCTV × APF · COUNT 기반 상대 혼잡장</div>
+  <h2>23대 CCTV 상대 혼잡 포텐셜</h2>
+  <p class="sub">각 CCTV 위치를 반발장 중심으로 놓고 검출 인원 count를 카메라 간 상대지수 0~100으로 정규화했다. 색 면은 220m Gaussian 영향장을 합산한 값이며 실제 인구밀도(명/m²)가 아니라 CCTV 검출 인원 기반 상대 혼잡도다.</p>
+  <div class="apf-head">
+    <div class="apf-stats" aria-live="polite">
+      <div class="apf-stat"><b id="apf-active">0/23</b><span>count 수신 CCTV</span></div>
+      <div class="apf-stat"><b id="apf-max">—</b><span>최대 검출 인원 · 카메라</span></div>
+      <div class="apf-stat"><b>220m</b><span>APF 영향 반경 σ</span></div>
+    </div>
+  </div>
+  <div class="apf-mapbox"><div class="apf-tools"><label class="apf-toggle"><input id="apf-toggle" type="checkbox" checked>APF 표시</label><label class="route-label" for="route-station">① 지도 클릭으로 현재 위치 선택　② 목적역 선택</label><div class="route-row"><select id="route-station" aria-label="목적역"><option value="yeouido">여의도역 · 5·9호선</option><option value="yeouinaru">여의나루역 · 5호선</option><option value="assembly">국회의사당역 · 9호선</option><option value="saetgang">샛강역 · 9호선·신림선</option><option value="singil">신길역 · 1·5호선</option><option value="yeongdeungpo">영등포역 · 1호선</option><option value="market">영등포시장역 · 5호선</option><option value="dangsan">당산역 · 2·9호선</option><option value="office">영등포구청역 · 2·5호선</option><option value="mapo">마포역 · 5호선</option></select><button id="route-run" type="button" disabled>경로 찾기</button></div><div class="route-status" id="route-status" aria-live="polite">지도를 클릭해 출발점을 지정하세요.</div></div><div id="apf-map" role="application" aria-label="23대 CCTV 검출 인원 기반 상대 혼잡 APF 지도와 보행 경로. 클릭으로 출발 위치 선택 가능"></div></div>
+  <div class="apf-legend"><span>상대 혼잡도</span><span>0</span><span class="apf-scale" aria-hidden="true"></span><span>100</span><span class="apf-walk-key" aria-hidden="true"></span><span>보행 가능 네트워크(경로 계산 시 표시) · 파란 점 = 출발 · 주황 점 = 목적역 · 밝은 선 = 혼잡 회피 경로</span></div>
+  <div class="apf-detail" id="apf-detail" aria-live="polite">CCTV 원을 선택하면 검출 인원과 상대지수를 표시한다.</div>
+</section>
+
 <footer>
   데이터 출처 · <span id="src-ts"></span><br>
   서울 열린데이터광장 실시간 도시데이터(여의도한강공원·여의도·여의서로, 5분) · 실시간 지하철 도착정보 · KT 수도권 생활이동 출발-도착 행정동(OA-22300) 2024-10-05 · 2025-09-27 · 수단(OA-22657) · 서울교통공사 역별 시간대별 승하차(OA-12921) · 서울 TOPIS 교통 CCTV 공개 HLS 23대 · 서울시 인파 밀집 기준 3/4/5명/m²<br>
-  모델·코드 <a href="https://github.com/jaefit/hanwha-ai-challenge">github.com/jaefit/hanwha-ai-challenge</a> · 9호선·도보 처리량은 추정치(†) · KT cnt는 추정 인구 · 좌표는 근사 · 지도 © OpenFreeMap © OpenMapTiles © OpenStreetMap
+  모델·코드 <a href="https://github.com/jaefit/hanwha-ai-challenge">github.com/jaefit/hanwha-ai-challenge</a> · 9호선·도보 처리량은 추정치(†) · KT cnt는 추정 인구 · 좌표는 근사 · 지도 © OpenFreeMap © OpenMapTiles © OpenStreetMap · 보행 네트워크 © OpenStreetMap contributors (ODbL)
 </footer>
 
 </div>
@@ -323,7 +371,7 @@ let DATA=null,hour=null,CAMS=[],fallback=false,offline=false,PRIOR=null;
 const theme=()=>document.documentElement.getAttribute("data-theme")||"dark";
 function setTheme(t,save){document.documentElement.setAttribute("data-theme",t);$("theme").textContent=t==="dark"?"라이트":"다크";if(save){try{localStorage.setItem("navi-theme",t)}catch(e){}}}
 try{const t=localStorage.getItem("navi-theme");if(t)setTheme(t);else setTheme("dark");}catch(e){setTheme("dark")}
-$("theme").onclick=()=>{setTheme(theme()==="dark"?"light":"dark",true);safeMap();if(DATA)render();};
+$("theme").onclick=()=>{setTheme(theme()==="dark"?"light":"dark",true);safeMap();safeApfMap();if(DATA)render();};
 
 // ── 보드 ──
 // 통제 문구는 시간대별로 다르다. 모델은 20·21시를 통째로 무정차로 두는 안전측 근사를 쓰지만(공지 통제는 20:40~21:40),
@@ -363,7 +411,7 @@ function render(){
   $("s-20").textContent=fc.outflow_forecast?.["20"]!=null?fc.outflow_forecast["20"].toLocaleString():"—";
   $("s-21").textContent=fc.outflow_forecast?.["21"]!=null?fc.outflow_forecast["21"].toLocaleString():"—";
   const park=(fc.live_snapshot||{})["여의도한강공원"];$("s-pop").textContent=park?`${park.ppltn[0].toLocaleString()}~${park.ppltn[1].toLocaleString()}`:"—";$("s-lvl").textContent=park?`${park.congest} (${park.ts.slice(11,16)})`:"";
-  grid(ex,hours);chart(fc);zones(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);
+  grid(ex,hours);chart(fc);zones(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);apfRender((DATA&&DATA.cctv)||{});
 }
 
 // ── 구역별 실시간 혼잡 (서울시 실시간 도시데이터 = 통신 기지국 기반) ──
@@ -471,14 +519,135 @@ function camsMap(c){
 // ── 플랜 카드 ──
 function plans(){$("plans").innerHTML=PLANS.map(([c,t,s,items])=>`<div class="plan"><h3><small>${c} · ${s}</small>${esc(t)}</h3><ol>${items.map(i=>`<li>${esc(i)}</li>`).join("")}</ol></div>`).join("");}
 
+// ── CCTV count 기반 APF 지도 ──
+const APF_RADIUS_M=220,APF_COLS=88,APF_ROWS=68;
+// 도보 소요는 보고서 §3.2·src/nowcast.py travel_min() 과 같은 가정을 쓴다 — Weidmann(1993) Kladek 속도-밀도 식,
+// 처음 300m 는 관람구역 밀도 3.0명/m², 이후 가로 1.5명/m². 상수 75m/분(=1.25m/s)을 쓰면 같은 경로가 절반 시간으로 나와
+// 보고서와 2배 어긋난다(1.82km 기준 24분 vs 47분). (2026-09-01 마이그레이션 이탈 #1)
+const KL_V0=1.34,KL_RHO_MAX=5.4,KL_GAMMA=1.913,KL_VMIN=0.15,WALK_DENSE_M=300,WALK_ZONE_RHO=3.0,WALK_STREET_RHO=1.5;
+function kladek(rho){return rho<=0?KL_V0:Math.max(KL_VMIN,KL_V0*(1-Math.exp(-KL_GAMMA*(1/rho-1/KL_RHO_MAX))));}
+function walkMinutes(m){const l1=Math.min(WALK_DENSE_M,m);return (l1/kladek(WALK_ZONE_RHO)+(m-l1)/kladek(WALK_STREET_RHO))/60;}
+const ROUTE_CROWD_WEIGHT=1.25,ROUTE_STATIONS={yeouido:{name:"여의도역",lng:126.924194,lat:37.521754},yeouinaru:{name:"여의나루역",lng:126.932901,lat:37.527098},assembly:{name:"국회의사당역",lng:126.917874,lat:37.528105},saetgang:{name:"샛강역",lng:126.928422,lat:37.517274},singil:{name:"신길역",lng:126.916352,lat:37.517243},yeongdeungpo:{name:"영등포역",lng:126.907628,lat:37.515504},market:{name:"영등포시장역",lng:126.905139,lat:37.522669},dangsan:{name:"당산역",lng:126.902788,lat:37.534176},office:{name:"영등포구청역",lng:126.89582,lat:37.524953},mapo:{name:"마포역",lng:126.945932,lat:37.539574}};
+let apfMap=null,APF_MARKERS=[],APF_DATA={type:"FeatureCollection",features:[]},APF_ROWS_BY_CAM=[],APF_RAW_MAX=1;
+let WALK_GRAPH=null,WALK_LOAD=null,ROUTE_START=null,ROUTE_START_MARKER=null,ROUTE_STATION_MARKER=null;
+function apfLevel(v){return v>=75?"심각":v>=50?"경계":v>=25?"주의":"여유";}
+function apfDistanceM(a,b){const lat=(a[1]+b[1])*Math.PI/360,dy=(a[1]-b[1])*111320,dx=(a[0]-b[0])*111320*Math.cos(lat);return Math.hypot(dx,dy);}
+function apfRows(cctv){
+  const vals=Object.entries(cctv||{}).map(([id,v])=>({id:String(id),...v}));
+  const byId=new Map(vals.map(v=>[String(v.cam_id||v.id),v])),byName=new Map(vals.map(v=>[v.name,v]));
+  const rows=CAMS.map(cam=>{const v=byId.get(String(cam.camId))||byName.get(cam.name)||null;const count=v&&v.ok!==false&&Number.isFinite(Number(v.count))?Math.max(0,Number(v.count)):null;return{cam,v,count};});
+  const active=rows.filter(r=>r.count!=null),max=Math.max(0,...active.map(r=>r.count));
+  rows.forEach(r=>r.q=r.count==null||max<=0?0:Math.log1p(r.count)/Math.log1p(max));
+  return{rows,active,max};
+}
+function apfField(rows){
+  if(!CAMS.length)return{type:"FeatureCollection",features:[]};
+  const lngs=CAMS.map(c=>c.lng),lats=CAMS.map(c=>c.lat),pad=.004;
+  const x0=Math.min(...lngs)-pad,x1=Math.max(...lngs)+pad,y0=Math.min(...lats)-pad,y1=Math.max(...lats)+pad;
+  const dx=(x1-x0)/APF_COLS,dy=(y1-y0)/APF_ROWS,raw=[];let mx=0;
+  for(let iy=0;iy<APF_ROWS;iy++)for(let ix=0;ix<APF_COLS;ix++){
+    const x=x0+(ix+.5)*dx,y=y0+(iy+.5)*dy;
+    let u=0;rows.forEach(r=>{if(r.q<=0)return;const d=apfDistanceM([x,y],[r.cam.lng,r.cam.lat]);u+=r.q*Math.exp(-(d*d)/(2*APF_RADIUS_M*APF_RADIUS_M));});
+    raw.push({ix,iy,u});if(u>mx)mx=u;
+  }
+  APF_RAW_MAX=mx||1;
+  return{type:"FeatureCollection",features:raw.map(p=>{const score=mx?Math.round(100*p.u/mx):0;const xa=x0+p.ix*dx,xb=xa+dx,ya=y0+p.iy*dy,yb=ya+dy;return{type:"Feature",properties:{score},geometry:{type:"Polygon",coordinates:[[[xa,ya],[xb,ya],[xb,yb],[xa,yb],[xa,ya]]]}};})};
+}
+function apfSelect(r){
+  const d=$("apf-detail");if(!r||r.count==null){d.innerHTML=`<b>${esc(r?r.cam.name:"CCTV")}</b> · count 데이터 없음 · 위치만 표시`;return;}
+  const idx=Math.round(r.q*100),ts=r.v&&r.v.ts?` · ${esc(r.v.ts.slice(11,16))} 기준`:"";
+  d.innerHTML=`<b>${esc(r.cam.name)}</b> · 검출 인원 ${r.count.toFixed(1)}명 · CCTV 상대지수 ${idx}/100 · ${apfLevel(idx)}${ts}`;
+}
+function apfRender(cctv){
+  const s=apfRows(cctv);APF_ROWS_BY_CAM=s.rows;APF_DATA=apfField(s.rows);
+  $("apf-active").textContent=`${s.active.length}/${CAMS.length||23}`;
+  const top=s.active.slice().sort((a,b)=>b.count-a.count)[0];$("apf-max").textContent=top?`${top.count.toFixed(1)} · ${top.cam.name}`:"—";
+  if(top)apfSelect(top);
+  if(apfMap&&apfMap.isStyleLoaded()){
+    const src=apfMap.getSource("apf-field");if(src)src.setData(APF_DATA);
+    apfMarkers();
+  }
+}
+function apfMarkers(){
+  if(!apfMap)return;APF_MARKERS.forEach(m=>m.remove());APF_MARKERS=[];
+  APF_ROWS_BY_CAM.forEach(r=>{const idx=Math.round(r.q*100),d=document.createElement("button");d.type="button";d.className="apf-mk"+(r.count==null?" no-data":"");d.textContent=r.count==null?"—":String(idx);d.setAttribute("aria-label",`${r.cam.name}, ${r.count==null?"count 데이터 없음":`검출 ${r.count.toFixed(1)}명, 상대지수 ${idx}`}`);
+    if(r.count!=null)d.style.background=gc(apfLevel(idx));d.onclick=()=>apfSelect(r);
+    const popup=new maplibregl.Popup({offset:22,closeButton:false}).setHTML(`<b>${esc(r.cam.name)}</b><br>${r.count==null?"count 데이터 없음":`검출 ${r.count.toFixed(1)}명 · 상대지수 ${idx}/100`}`);
+    const marker=new maplibregl.Marker({element:d}).setLngLat([r.cam.lng,r.cam.lat]).setPopup(popup).addTo(apfMap);d.setAttribute("aria-label",`${r.cam.name}, ${r.count==null?"count 데이터 없음":`검출 ${r.count.toFixed(1)}명, 상대지수 ${idx}`}`);APF_MARKERS.push(marker);});
+}
+// 보행망 표시 레이어는 walk_graph.json 이 이미 로드된 뒤에만 채운다 — 같은 지오메트리를 담은 5MB 파일을 따로 받지 않기 위해서다.
+// (핸드오프에는 walk_network.geojson 이 빠져 있었고, 넣었다면 모든 방문자가 첫 로드에 그 용량을 받는다. 2026-09-01 마이그레이션)
+function walkLayerSync(){
+  if(!apfMap||!WALK_GRAPH)return;const src=apfMap.getSource("walk-network");if(!src)return;
+  src.setData({type:"FeatureCollection",features:WALK_GRAPH.display.map(e=>({type:"Feature",properties:{},geometry:{type:"LineString",coordinates:e.g}}))});
+}
+function routeStation(){return ROUTE_STATIONS[$("route-station").value]||ROUTE_STATIONS.yeouido;}
+function routeTag(v){return String(v==null?"":v).toLowerCase();}
+function routeAllowed(e){const h=routeTag(e.h),f=routeTag(e.f),a=routeTag(e.a);return !/(motorway|trunk|busway)/.test(h)&&!/(^|,)(no|private)(,|$)/.test(f)&&!/(^|,)(no|private)(,|$)/.test(a);}
+function routeStrict(e){const h=routeTag(e.h),s=routeTag(e.s),x=routeTag(e.x);return /(footway|path|pedestrian|steps|corridor|living_street)/.test(h)||/(yes|both|left|right|separate)/.test(s)||!!x;}
+async function routeGraph(){
+  if(WALK_GRAPH)return WALK_GRAPH;if(WALK_LOAD)return WALK_LOAD;
+  WALK_LOAD=fetch("data/routing/walk_graph.json").then(r=>{if(!r.ok)throw new Error("보행 네트워크 파일을 읽지 못했습니다.");return r.json();}).then(g=>{
+    const all=new Map(),strict=new Map(),usable=new Set(),parent=new Map();
+    const root=x=>{if(!parent.has(x))parent.set(x,x);let r=x;while(parent.get(r)!==r)r=parent.get(r);while(parent.get(x)!==x){const n=parent.get(x);parent.set(x,r);x=n;}return r;},union=(a,b)=>{a=root(a);b=root(b);if(a!==b)parent.set(b,a);};
+    const add=(m,e)=>{if(!m.has(e.u))m.set(e.u,[]);m.get(e.u).push(e);usable.add(e.u);usable.add(e.v);};
+    g.edges.forEach(e=>{if(!routeAllowed(e))return;add(all,e);if(routeStrict(e)){add(strict,e);union(e.u,e.v);}});
+    const groups=new Map();for(const id of parent.keys()){const r=root(id);if(!groups.has(r))groups.set(r,[]);groups.get(r).push(id);}WALK_GRAPH={nodes:g.nodes,all,strict,usable:[...usable],strictGroups:[...groups.values()].filter(v=>v.length>1),display:g.edges.filter(routeAllowed)};walkLayerSync();return WALK_GRAPH;
+  }).catch(e=>{WALK_LOAD=null;throw e;});return WALK_LOAD;
+}
+function routeNearest(g,p,ids=g.usable){let best=null,bd=Infinity;for(const id of ids){const c=g.nodes[id];if(!c)continue;const d=apfDistanceM(p,c);if(d<bd){bd=d;best=id;}}return{id:best,d:bd};}
+function routeStrictPair(g,a,b){let best=null,score=Infinity;for(const ids of g.strictGroups){const x=routeNearest(g,a,ids),y=routeNearest(g,b,ids),s=x.d+y.d;if(x.d<=180&&y.d<=180&&s<score){score=s;best=[x,y];}}return best;}
+function routeRisk(e){const c=e.g&&e.g.length?e.g[Math.floor(e.g.length/2)]:null;if(!c)return 0;let u=0;APF_ROWS_BY_CAM.forEach(r=>{if(r.q<=0)return;const d=apfDistanceM(c,[r.cam.lng,r.cam.lat]);u+=r.q*Math.exp(-(d*d)/(2*APF_RADIUS_M*APF_RADIUS_M));});return Math.min(1,u/APF_RAW_MAX);}
+class RouteHeap{constructor(){this.a=[];}push(x){const a=this.a;a.push(x);let i=a.length-1;while(i){const p=(i-1)>>1;if(a[p][0]<=x[0])break;a[i]=a[p];i=p;}a[i]=x;}pop(){const a=this.a;if(!a.length)return null;const top=a[0],x=a.pop();if(a.length){let i=0;while(true){let l=i*2+1,r=l+1;if(l>=a.length)break;let c=r<a.length&&a[r][0]<a[l][0]?r:l;if(a[c][0]>=x[0])break;a[i]=a[c];i=c;}a[i]=x;}return top;}get length(){return this.a.length;}}
+function routeAstar(g,start,goal,adj){
+  const q=new RouteHeap(),dist=new Map([[start,0]]),came=new Map(),target=g.nodes[goal];q.push([0,start]);
+  while(q.length){const [,u]=q.pop(),du=dist.get(u);if(u===goal)break;for(const e of adj.get(u)||[]){const risk=routeRisk(e),nd=du+Math.max(0.1,Number(e.m)||0.1)*(1+ROUTE_CROWD_WEIGHT*risk);if(nd<(dist.get(e.v)??Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e,risk]);q.push([nd+apfDistanceM(g.nodes[e.v],target),e.v]);}}}
+  if(!came.has(goal))return null;const edges=[];let u=goal;while(u!==start){const v=came.get(u);if(!v)return null;edges.push({edge:v[1],risk:v[2]});u=v[0];}edges.reverse();return edges;
+}
+function routeGeojson(edges){const coords=[];let meters=0,riskSum=0;edges.forEach(({edge,risk})=>{let g=(edge.g||[]).slice();const u=WALK_GRAPH.nodes[edge.u];if(g.length>1&&u&&apfDistanceM(g[0],u)>apfDistanceM(g[g.length-1],u))g.reverse();g.forEach(c=>{const last=coords[coords.length-1];if(!last||c[0]!==last[0]||c[1]!==last[1])coords.push(c);});const m=Number(edge.m)||0;meters+=m;riskSum+=m*risk;});return{data:{type:"FeatureCollection",features:[{type:"Feature",properties:{},geometry:{type:"LineString",coordinates:coords}}]},meters,risk:meters?riskSum/meters:0,coords};}
+function routeMarker(kind,p){const d=document.createElement("div");d.className="route-pin"+(kind==="station"?" station":"");return new maplibregl.Marker({element:d}).setLngLat(p).addTo(apfMap);}
+function routeSetStart(lngLat){routeGraph().catch(()=>{});ROUTE_START=[lngLat.lng,lngLat.lat];if(ROUTE_START_MARKER)ROUTE_START_MARKER.remove();ROUTE_START_MARKER=routeMarker("start",ROUTE_START);const src=apfMap.getSource("route-line");if(src)src.setData({type:"FeatureCollection",features:[]});$("route-run").disabled=false;$("route-status").textContent="출발점이 지정되었습니다. 목적역을 선택하고 경로 찾기를 누르세요.";}
+function routeSetStation(){const s=routeStation();if(ROUTE_STATION_MARKER)ROUTE_STATION_MARKER.remove();ROUTE_STATION_MARKER=routeMarker("station",[s.lng,s.lat]);}
+async function routeRun(){
+  if(!ROUTE_START)return;const button=$("route-run"),status=$("route-status"),s=routeStation();button.disabled=true;status.textContent="보행 네트워크와 APF를 결합해 경로를 계산하는 중…";
+  try{const g=await routeGraph(),a=routeNearest(g,ROUTE_START),b=routeNearest(g,[s.lng,s.lat]),pair=routeStrictPair(g,ROUTE_START,[s.lng,s.lat]);let edges=pair?routeAstar(g,pair[0].id,pair[1].id,g.strict):null,mode="보행로·횡단보도 전용";if(!edges){edges=routeAstar(g,a.id,b.id,g.all);mode="OSM 보행 가능망 보완";}if(!edges)throw new Error("연결된 보행 경로를 찾지 못했습니다.");const out=routeGeojson(edges),src=apfMap.getSource("route-line");src.setData(out.data);routeSetStation();const bounds=new maplibregl.LngLatBounds();out.coords.forEach(c=>bounds.extend(c));apfMap.fitBounds(bounds,{padding:{top:125,bottom:55,left:55,right:55},maxZoom:16});status.textContent=`${s.name} · ${(out.meters/1000).toFixed(2)}km · 약 ${Math.max(1,Math.round(walkMinutes(out.meters)))}분(§3.2 밀도별 보행속도) · 평균 혼잡 ${Math.round(out.risk*100)}/100 · ${mode}`;
+  }catch(e){status.textContent=e.message||"경로 계산에 실패했습니다.";console.warn("Route failed",e);}finally{button.disabled=false;}
+}
+function safeApfMap(){try{apfMapInit();}catch(e){apfMap=null;$("apf-map").innerHTML=`<div style="padding:16px;font-size:12.5px;color:var(--ink-2)">APF 지도를 그릴 수 없다. 지도 라이브러리 또는 네트워크 상태를 확인.</div>`;console.warn("APF map init failed",e);}}
+function apfMapInit(){
+  if(!window.maplibregl){$("apf-map").innerHTML=`<div style="padding:16px;font-size:12.5px;color:var(--ink-2)">지도 라이브러리를 불러오지 못했다.</div>`;return;}
+  if(apfMap){try{apfMap.remove()}catch(e){}apfMap=null;APF_MARKERS=[];}
+  const light=theme()==="light";apfMap=new maplibregl.Map({container:"apf-map",style:"https://tiles.openfreemap.org/styles/"+(light?"positron":"dark"),center:[126.9297,37.5268],zoom:13.2,attributionControl:{compact:true}});
+  apfMap.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");
+  if(CAMS.length){const xs=CAMS.map(c=>c.lng),ys=CAMS.map(c=>c.lat);apfMap.fitBounds([[Math.min(...xs),Math.min(...ys)],[Math.max(...xs),Math.max(...ys)]],{padding:48,animate:false});}
+  apfMap.on("load",()=>{
+    const waterLayer=(apfMap.getStyle().layers||[]).find(layer=>layer.type==="fill"&&(/water/i.test(layer.id)||/water/i.test(layer["source-layer"]||"")));
+    apfMap.addSource("walk-network",{type:"geojson",data:{type:"FeatureCollection",features:[]}});walkLayerSync();
+    apfMap.addLayer({id:"walk-network",type:"line",source:"walk-network",paint:{"line-color":light?"#276f9f":"#4b91ba","line-opacity":.28,"line-width":["interpolate",["linear"],["zoom"],11,.2,14,.62,17,1.45]}});
+    apfMap.addSource("apf-field",{type:"geojson",data:APF_DATA});
+    apfMap.addLayer({id:"apf-field",type:"fill",source:"apf-field",paint:{"fill-color":["interpolate",["linear"],["get","score"],0,"rgba(0,0,0,0)",10,gc("여유"),35,gc("주의"),65,gc("경계"),100,gc("심각")],"fill-opacity":["interpolate",["linear"],["get","score"],0,0,10,.112,35,.272,65,.4,100,.544]}});
+    if(waterLayer){const waterMask={...waterLayer,id:"apf-water-mask",paint:{...(waterLayer.paint||{}),"fill-opacity":1}};apfMap.addLayer(waterMask);}
+    apfMap.addSource("route-line",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
+    apfMap.addLayer({id:"route-casing",type:"line",source:"route-line",paint:{"line-color":"#17202a","line-opacity":.88,"line-width":["interpolate",["linear"],["zoom"],11,5,16,9]}});
+    apfMap.addLayer({id:"route-line",type:"line",source:"route-line",paint:{"line-color":"#f8f9fa","line-opacity":1,"line-width":["interpolate",["linear"],["zoom"],11,2.5,16,5]}});
+    const apfToggle=$("apf-toggle");const syncApf=()=>apfMap.setLayoutProperty("apf-field","visibility",apfToggle.checked?"visible":"none");apfToggle.onchange=syncApf;syncApf();
+    apfMap.on("mouseenter","apf-field",()=>apfMap.getCanvas().style.cursor="crosshair");apfMap.on("mouseleave","apf-field",()=>apfMap.getCanvas().style.cursor="");
+    apfMap.on("click",e=>routeSetStart(e.lngLat));$("route-run").onclick=routeRun;$("route-station").onchange=()=>{routeSetStation();if(ROUTE_START)$("route-status").textContent=`목적지를 ${routeStation().name}으로 변경했습니다. 경로 찾기를 누르세요.`;};routeSetStation();
+    apfMarkers();
+  });
+}
+
 // ── 로드 · 상태 4종 (수집 전 / LIVE / 오래됨 / 오프라인) ──
 async function load(){
   try{CAMS=await(await fetch("data/cams.json",{cache:"no-store"})).json();}catch(e){}
   if(!PRIOR){try{PRIOR=await(await fetch("data/exit_forecast_2026.json",{cache:"no-store"})).json();}catch(e){}}
-  let d=null;offline=false;
+  let d=null,cctvLatest=null;offline=false;
   try{const r=await fetch("data/latest.json?"+Date.now(),{cache:"no-store"});if(r.ok){d=await r.json();try{localStorage.setItem("navi-latest",JSON.stringify(d))}catch(e){}}}catch(e){}
+  try{const r=await fetch("data/cctv_latest.json?"+Date.now(),{cache:"no-store"});if(r.ok)cctvLatest=await r.json();}catch(e){}
   if(!d){try{d=JSON.parse(localStorage.getItem("navi-latest"));offline=!!d;}catch(e){}}
   if(!d)d={forecast:{},cctv:{}};
+  const newestCctv=c=>Math.max(0,...Object.values(c||{}).map(v=>Date.parse(v.ts)||0));
+  if(cctvLatest&&newestCctv(cctvLatest.cctv)>newestCctv(d.cctv))d.cctv=cctvLatest.cctv;
   const staleLive=d.generated&&(Date.now()-new Date(d.generated))>12*3600e3;
   if((!d.forecast||!Object.keys(d.forecast.exits||{}).length||staleLive)&&PRIOR){d.forecast={...PRIOR,prior:true};if(staleLive)d.generated=null;}   // 라이브 전(또는 12h 넘게 오래됨): 역추적 사전 예측표
   DATA=d;const g=d.generated?new Date(d.generated):null;const age=g?Math.round((Date.now()-g)/60000):null;
@@ -493,7 +662,7 @@ async function load(){
   $("src-ts").textContent=g?`최근 갱신 ${g.toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}`:"실시간 갱신 전";
   render();
 }
-plans();load();safeMap();setInterval(load,5*60*1000);
+plans();load();safeMap();safeApfMap();setInterval(load,5*60*1000);
 let rz=null;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(DATA)chart(DATA.forecast||{});},150);});
 </script>
 </body>

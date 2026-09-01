@@ -34,3 +34,7 @@ handoff.zip
 
 # 실행 로그
 logs/
+
+# 보행 네트워크 (routing/download_walk_network.py) — 재생성 가능한 중간 산출물
+routing/cache/
+data/pedestrian/
