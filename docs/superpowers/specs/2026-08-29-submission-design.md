@@ -52,6 +52,21 @@
 | ~~가상 설문 1,000건~~ | (8/31 드랍 — 실측·보도 대체) | 실측 차트 3장(T10) | 계획 변경 |
 | `evaluate.py` | 9/5 로그 + 예측 | 오차표 | **미착수** |
 
+### 3-1. 이후 변경 (2026-09-02 추가)
+
+위 표는 **8/29 시점 스냅샷**이라 그대로 둔다. 그 뒤 바뀐 것만 여기 적는다.
+
+| 구성요소 | 8/29 상태 | 지금 |
+|---|---|---|
+| 챗봇 프롬프트 | 미착수 | ✅ `prompt/exit_navi.md`(템플릿) → `src/build_prompt.py` 가 사전 예측표를 주입해 `exit_navi.generated.md` 생성. 테스트 질의 `prompt/test_queries.md` |
+| `evaluate.py` | 미착수 | ✅ 4층 오차 + 발행 이력 대조. 값은 9/5 당일에 채운다 |
+| `docs/index.html` | UI 개선 2건 대기 | ✅ 처리. 지도에 **혼잡장**(`docs/app/field.js`)과 **혼잡 회피 보행 경로**(`routing/`)가 추가됐다 |
+| `collector_cctv.py` | ROI·면적 미기입 → 화면 참고용 | **5대 ROI 측정 완료**(63빌딩·마포대교남단·마포대교북단·여의공원·원효대교남단, `data/derived/topis_yeouido_cams.json` 의 `roi_m2`) + HD 720p 스트림 9대(`hls_hd`, SD 폴백). 나머지 18대는 여전히 등급만 |
+| `backtrack.py` 백테스트 수치 | 0.25/0.29 | **(9/2 정정)** `52ff59a`(통제 시간대 이월 반영)로 재생성돼 값이 바뀌었다. **A in-sample 승차오차 0.245/0.214**(2024/2025)·등급적중 82%/100%, **B cross-year 0.420/0.438**·77%/88%. 출처 `data/derived/backtest.json` |
+| 산출물 페이지 | `index.html` 1장 | 4장 — `index.html` · `report.html`(팀 보고서) · `report_easy.html`(쉬운 버전) · `deck.html`(피치 덱 12장) |
+| 검증 | pytest 10건 | **45건**(2026-09-02). `tests/field_spec.mjs` 는 배포 중인 `docs/app/field.js` 를 node 로 직접 돌린다 |
+| — | (없음) | **자체 적대적 검증 1회차** `redteam-20260901.md` — 결함 18건, 즉시 7건 조치. 05 의 결함 대장은 이 문서다 |
+
 ## 4. 완료 정의 (Definition of Done)
 
 페이지
@@ -78,7 +93,8 @@
 
 ## 5. 범위 밖 (하지 않는다)
 
-- 피더 역 실시간 승차 선행지표(핫스팟 5분 승차 × 여의도행 계수) — 제출 후 확장 후보로만 기획서에 1줄
+- 피더 역 실시간 승차 선행지표(핫스팟 5분 승차 × 여의도행 계수) — 제출 후 확장 후보로만 기획서에 1줄.
+  **(9/2 정정)** 선행 관계 자체는 분석했다 — 상류 12개 역의 lag 상관을 뽑아 소요시간이 위상(lag0/lag1)을 결정한다는 것까지 확인했고(`src/feeder_leadlag.py`, 보고서 §3.6), 9/4~5 에 실측한다. **여전히 범위 밖인 것은 이 신호를 α 에 넣는 것**(O3) — 검증 없이 예측을 흔들 수 없다
 - 열차 단위 left-behind 시뮬레이션 — 개인 AFC 데이터 없음
 - ML 학습 모델 — 표본 2일, 근거 §benchmark
 - 한강공원 자체 CCTV 249대 — 비공개
@@ -105,8 +121,11 @@
 - [ ] 9호선 실적 없음 → 추정 표기 유지
 - [ ] 대용량 원본 공유: GitHub Release 자산 (9/6 업로드)
 - [ ] 국토부 정거장 설계지침 pph — 확보 시 9호선 추정 용량 교체
-- [ ] CCTV ROI·면적 5대 — 사용자 측정 (`src/cam_calib.py`)
+- [x] CCTV ROI·면적 5대 — 사용자 측정 완료 (`src/cam_calib.py` → `topis_yeouido_cams.json` 의 `roi_m2`)
+- [ ] **C1 α 밴드 클램프** — 사후 밴드가 관측 20건이면 ±5%인데 백테스트 오차는 ±42%. 코드 동결(9/4 12:00) 전 결정 (`redteam-20260901.md` §C1)
+- [ ] **전야제 합격선의 의미** — 1.9배 미달 시 행동 미정의. 9/4 리허설 전 결정
+- [ ] **보행 소요시간 이탈 승인/기각** — 핸드오프 원본 75m/분 고정 → §3.2 밀도별 속도(`routing/README.md`)
 
 ## 8. 근거 문서
 
-`topic-fireworks.md`(주제·데이터·4층 모델) · `benchmark-crowd-systems.md`(외부 시스템 대조·개선) · `handoff/README.md`(디자인 재료·데이터 계약) · `docs/superpowers/plans/2026-08-29-submission-plan.md`(실행 계획)
+`topic-fireworks.md`(주제·데이터·4층 모델) · `benchmark-crowd-systems.md`(외부 시스템 대조·개선) · `handoff/README.md`(디자인 재료·데이터 계약, 8/29 기준 + §11 이후 변경) · `docs/superpowers/plans/2026-08-29-submission-plan.md`(실행 계획) · `redteam-20260901.md`(자체 적대적 검증 — 결함 대장) · `routing/README.md`(보행망·경로탐색·핸드오프 이탈)
