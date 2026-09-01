@@ -431,3 +431,47 @@ def test_publish_carries_confidence_fields_to_web():
     out = P.slim_cctv(rec)
     assert out["confidence"] == "low" and out["flags"] == ["bg_fail"]
     assert out["density"] == 0.0 and out["calibrated"] is True
+
+
+def _strip_js(src):
+    """주석·문자열·정규식 리터럴을 지운다 — 그 안의 낱말이 호출로 보이면 안 된다."""
+    import re
+    src = re.sub(r"/\*[\s\S]*?\*/", " ", src)
+    src = re.sub(r"//[^\n]*", " ", src)
+    src = re.sub(r"`(?:\\.|[^`\\])*`", '""', src)
+    src = re.sub(r"'(?:\\.|[^'\\\n])*'", '""', src)
+    src = re.sub(r'"(?:\\.|[^"\\\n])*"', '""', src)
+    return src
+
+
+def test_dashboard_has_no_undefined_local_functions():
+    """정규식 패치가 함수를 통째로 삼킨 적이 있다 — 8d605a7 에서 routeRisk 교체가
+    RouteHeap·routeAstar 를 먹었고, 경로 찾기가 'routeAstar is not defined' 로 죽었다.
+    node --check 는 문법만 보므로 못 잡는다. 호출되는데 정의가 없는 이름을 찾는다."""
+    import re
+    html = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
+    script = _strip_js("\n".join(re.findall(r"<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)</script>", html)))
+    field_js = _strip_js((ROOT / "docs" / "app" / "field.js").read_text(encoding="utf-8"))
+
+    def defs(src):
+        d = set(re.findall(r"\bfunction\s+([A-Za-z_$][\w$]*)", src))
+        d |= set(re.findall(r"\bclass\s+([A-Za-z_$][\w$]*)", src))
+        # 선언 형태 name(...){ — 클래스 메서드·getter·축약 메서드까지 잡는다
+        d |= set(re.findall(r"([A-Za-z_$][\w$]*)\s*\([^()]*\)\s*\{", src))
+        # 대입 대상 (const a=1,b=2 처럼 콤마로 이어진 것 포함). 넓게 잡아도 목적은 유지된다 —
+        # 통째로 사라진 이름은 어디에도 대입되지 않는다.
+        d |= set(re.findall(r"([A-Za-z_$][\w$]*)\s*=[^=>]", src))
+        return d
+
+    defined = defs(script) | defs(field_js)
+    keywords = {"if", "for", "while", "switch", "catch", "return", "typeof", "function", "new",
+                "await", "delete", "void", "in", "of", "do", "else", "yield"}
+    globals_ = {"Math", "Number", "String", "Object", "Array", "Map", "Set", "JSON", "Date", "Image",
+                "Error", "Promise", "RegExp", "Float64Array", "Boolean",
+                "parseInt", "parseFloat", "isFinite", "isNaN", "encodeURIComponent", "decodeURIComponent",
+                "setTimeout", "setInterval", "clearTimeout", "requestAnimationFrame", "addEventListener",
+                "fetch", "getComputedStyle", "console", "maplibregl", "Field", "localStorage",
+                "document", "window", "performance", "alert"}
+    called = set(re.findall(r"(?<![.\w$])([A-Za-z_$][\w$]*)\s*\(", script))
+    missing = sorted(called - defined - keywords - globals_)
+    assert not missing, f"정의 없이 호출되는 이름: {missing}"
