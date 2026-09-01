@@ -310,19 +310,22 @@ footer a{color:var(--ink-2)}
 </section>
 
 <section class="sec" id="apf-section">
-  <div class="eb">CCTV × APF · COUNT 기반 상대 혼잡장</div>
-  <h2>23대 CCTV 상대 혼잡 포텐셜</h2>
-  <p class="sub">각 CCTV 위치를 반발장 중심으로 놓고 검출 인원 count를 카메라 간 상대지수 0~100으로 정규화했다. 색 면은 220m Gaussian 영향장을 합산한 값이며 실제 인구밀도(명/m²)가 아니라 CCTV 검출 인원 기반 상대 혼잡도다.</p>
+  <div class="eb">CCTV × 서울시 구역등급 · 가우시안 과정 회귀</div>
+  <h2>인파 혼잡장 — 아는 곳과 모르는 곳</h2>
+  <p class="sub">CCTV 23대와 서울시 실시간 도시데이터 구역 등급을 <b>가우시안 과정 회귀</b>로 하나의 장에 합친다. 신뢰도가 낮은 관측(ROI 미보정·배경차분 실패·오래된 값)은 <b>버리지 않고 노이즈 σ 를 키워</b> 약한 정보로 반영한다. 색은 사후 평균(서울시 인파밀집 기준 3/4/5명/m²), <b>흐린 곳은 사후 불확실성이 큰 곳</b> — 관측이 닿지 않아 모르는 구역이다.</p>
   <div class="apf-head">
     <div class="apf-stats" aria-live="polite">
-      <div class="apf-stat"><b id="apf-active">0/23</b><span>count 수신 CCTV</span></div>
-      <div class="apf-stat"><b id="apf-max">—</b><span>최대 검출 인원 · 카메라</span></div>
-      <div class="apf-stat"><b>220m</b><span>APF 영향 반경 σ</span></div>
+      <div class="apf-stat"><b id="apf-active">0/23</b><span>장에 반영된 CCTV</span></div>
+      <div class="apf-stat"><b id="apf-max">—</b><span>가장 혼잡한 관측점</span></div>
+      <div class="apf-stat"><b id="apf-prior">—</b><span>행사장 등급 (서울시)</span></div>
+      <div class="apf-stat"><b id="apf-ydo">—</b><span>여의도 전체 (참고·업무지구 포함)</span></div>
+      <div class="apf-stat"><b>150·700m</b><span>길이척도 (가정)</span></div>
     </div>
   </div>
-  <div class="apf-mapbox"><div class="apf-tools"><label class="apf-toggle"><input id="apf-toggle" type="checkbox" checked>APF 표시</label><label class="route-label" for="route-station">① 지도 클릭으로 현재 위치 선택　② 목적역 선택</label><div class="route-row"><select id="route-station" aria-label="목적역"><option value="yeouido">여의도역 · 5·9호선</option><option value="yeouinaru">여의나루역 · 5호선</option><option value="assembly">국회의사당역 · 9호선</option><option value="saetgang">샛강역 · 9호선·신림선</option><option value="singil">신길역 · 1·5호선</option><option value="yeongdeungpo">영등포역 · 1호선</option><option value="market">영등포시장역 · 5호선</option><option value="dangsan">당산역 · 2·9호선</option><option value="office">영등포구청역 · 2·5호선</option><option value="mapo">마포역 · 5호선</option></select><button id="route-run" type="button" disabled>경로 찾기</button></div><div class="route-status" id="route-status" aria-live="polite">지도를 클릭해 출발점을 지정하세요.</div></div><div id="apf-map" role="application" aria-label="23대 CCTV 검출 인원 기반 상대 혼잡 APF 지도와 보행 경로. 클릭으로 출발 위치 선택 가능"></div></div>
-  <div class="apf-legend"><span>상대 혼잡도</span><span>0</span><span class="apf-scale" aria-hidden="true"></span><span>100</span><span class="apf-walk-key" aria-hidden="true"></span><span>보행 가능 네트워크(경로 계산 시 표시) · 파란 점 = 출발 · 주황 점 = 목적역 · 밝은 선 = 혼잡 회피 경로</span></div>
-  <div class="apf-detail" id="apf-detail" aria-live="polite">CCTV 원을 선택하면 검출 인원과 상대지수를 표시한다.</div>
+  <div class="apf-mapbox"><div class="apf-tools"><label class="apf-toggle"><input id="apf-toggle" type="checkbox" checked>APF 표시</label><label class="route-label" for="route-station">① 지도 클릭으로 현재 위치 선택　② 목적역 선택</label><div class="route-row"><select id="route-station" aria-label="목적역"><option value="yeouido">여의도역 · 5·9호선</option><option value="yeouinaru">여의나루역 · 5호선</option><option value="assembly">국회의사당역 · 9호선</option><option value="saetgang">샛강역 · 9호선·신림선</option><option value="singil">신길역 · 1·5호선</option><option value="yeongdeungpo">영등포역 · 1호선</option><option value="market">영등포시장역 · 5호선</option><option value="dangsan">당산역 · 2·9호선</option><option value="office">영등포구청역 · 2·5호선</option><option value="mapo">마포역 · 5호선</option></select><button id="route-run" type="button" disabled>경로 찾기</button></div><div class="route-status" id="route-status" aria-live="polite">지도를 클릭해 출발점을 지정하세요.</div></div><div id="apf-map" role="application" aria-label="CCTV와 서울시 구역등급을 합친 인파 혼잡장 지도와 보행 경로. 클릭으로 출발 위치 선택 가능"></div></div>
+  <div class="apf-legend"><span>혼잡 지수 · 서울시 기준</span><span>여유</span><span class="apf-scale" aria-hidden="true"></span><span>심각(5명/m²)</span><span>· 흐릴수록 불확실</span><span class="apf-walk-key" aria-hidden="true"></span><span>보행 가능 네트워크(경로 계산 시 표시) · 파란 점 = 출발 · 주황 점 = 목적역 · 밝은 선 = 혼잡 회피 경로</span></div>
+  <div class="apf-detail" id="apf-detail" aria-live="polite">CCTV 원을 선택하면 근거(밀도 또는 등급)와 그 관측에 쓰인 σ 를 표시한다.</div>
+  <p class="sub" style="margin-top:10px">한계 — ROI 보정은 23대 중 <b>5대</b>(강변)뿐이고 나머지는 점유율 기준 임시 등급이다. 서울시 구역 등급은 <b>여의도한강공원 1곳</b>만 장에 넣는다 — 여의도 전체는 업무지구가 섞여 참고로만 두고, 여의서로는 대응 좌표가 없다. 길이척도·노이즈는 가정이며 9/5 관측이 쌓이면 교차검증으로 교체한다. 유클리드 거리라 한강 건너로 번지는 몫이 남아 있다.</p>
 </section>
 
 <footer>
@@ -334,6 +337,7 @@ footer a{color:var(--ink-2)}
 </div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="app/field.js"></script>
 <script>
 // ── 출구 사전 (디자인 4안 EXITS · dk = latest.json exits 키) ──
 const EXITS=[
@@ -411,7 +415,7 @@ function render(){
   $("s-20").textContent=fc.outflow_forecast?.["20"]!=null?fc.outflow_forecast["20"].toLocaleString():"—";
   $("s-21").textContent=fc.outflow_forecast?.["21"]!=null?fc.outflow_forecast["21"].toLocaleString():"—";
   const park=(fc.live_snapshot||{})["여의도한강공원"];$("s-pop").textContent=park?`${park.ppltn[0].toLocaleString()}~${park.ppltn[1].toLocaleString()}`:"—";$("s-lvl").textContent=park?`${park.congest} (${park.ts.slice(11,16)})`:"";
-  grid(ex,hours);chart(fc);zones(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);apfRender((DATA&&DATA.cctv)||{});
+  grid(ex,hours);chart(fc);zones(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);apfRender((DATA&&DATA.cctv)||{},fc.live_snapshot||{});
 }
 
 // ── 구역별 실시간 혼잡 (서울시 실시간 도시데이터 = 통신 기지국 기반) ──
@@ -520,7 +524,12 @@ function camsMap(c){
 function plans(){$("plans").innerHTML=PLANS.map(([c,t,s,items])=>`<div class="plan"><h3><small>${c} · ${s}</small>${esc(t)}</h3><ol>${items.map(i=>`<li>${esc(i)}</li>`).join("")}</ol></div>`).join("");}
 
 // ── CCTV count 기반 APF 지도 ──
-const APF_RADIUS_M=220,APF_COLS=88,APF_ROWS=68;
+// 혼잡장: 신뢰도가 제각각인 관측(CCTV 23 + 서울시 구역 등급)을 GP 회귀로 하나의 장에 합친다. 구현·검증 docs/app/field.js
+// 길이척도 150m(카메라 시야)·700m(구역)은 가정이다 — 근거 후보는 관측주기 5분 동안 ρ=3명/m²에서 보행 이동 ≈99m(§3.2).
+const APF_COLS=88,APF_ROWS=68;
+const APF_KERNEL={varShort:.125,lenShort:150,varLong:.125,lenLong:700};
+const APF_SD_MAX=Math.sqrt(APF_KERNEL.varShort+APF_KERNEL.varLong);
+const APF_PRIOR_FALLBACK=.3;   // 여의도 구역 등급이 없을 때. 확신이 아니라 사전값이며 불확실성(sd)이 최대로 남는다
 // 도보 소요는 보고서 §3.2·src/nowcast.py travel_min() 과 같은 가정을 쓴다 — Weidmann(1993) Kladek 속도-밀도 식,
 // 처음 300m 는 관람구역 밀도 3.0명/m², 이후 가로 1.5명/m². 상수 75m/분(=1.25m/s)을 쓰면 같은 경로가 절반 시간으로 나와
 // 보고서와 2배 어긋난다(1.82km 기준 24분 vs 47분). (2026-09-01 마이그레이션 이탈 #1)
@@ -528,40 +537,80 @@ const KL_V0=1.34,KL_RHO_MAX=5.4,KL_GAMMA=1.913,KL_VMIN=0.15,WALK_DENSE_M=300,WAL
 function kladek(rho){return rho<=0?KL_V0:Math.max(KL_VMIN,KL_V0*(1-Math.exp(-KL_GAMMA*(1/rho-1/KL_RHO_MAX))));}
 function walkMinutes(m){const l1=Math.min(WALK_DENSE_M,m);return (l1/kladek(WALK_ZONE_RHO)+(m-l1)/kladek(WALK_STREET_RHO))/60;}
 const ROUTE_CROWD_WEIGHT=1.25,ROUTE_STATIONS={yeouido:{name:"여의도역",lng:126.924194,lat:37.521754},yeouinaru:{name:"여의나루역",lng:126.932901,lat:37.527098},assembly:{name:"국회의사당역",lng:126.917874,lat:37.528105},saetgang:{name:"샛강역",lng:126.928422,lat:37.517274},singil:{name:"신길역",lng:126.916352,lat:37.517243},yeongdeungpo:{name:"영등포역",lng:126.907628,lat:37.515504},market:{name:"영등포시장역",lng:126.905139,lat:37.522669},dangsan:{name:"당산역",lng:126.902788,lat:37.534176},office:{name:"영등포구청역",lng:126.89582,lat:37.524953},mapo:{name:"마포역",lng:126.945932,lat:37.539574}};
-let apfMap=null,APF_MARKERS=[],APF_DATA={type:"FeatureCollection",features:[]},APF_ROWS_BY_CAM=[],APF_RAW_MAX=1;
+let apfMap=null,APF_MARKERS=[],APF_DATA={type:"FeatureCollection",features:[]},APF_ROWS_BY_CAM=[],APF_FIELD=null,APF_GRID=null;
 let WALK_GRAPH=null,WALK_LOAD=null,ROUTE_START=null,ROUTE_START_MARKER=null,ROUTE_STATION_MARKER=null;
-function apfLevel(v){return v>=75?"심각":v>=50?"경계":v>=25?"주의":"여유";}
+const apfLevel=u=>Field.unitToGrade(u)||"여유";
 function apfDistanceM(a,b){const lat=(a[1]+b[1])*Math.PI/360,dy=(a[1]-b[1])*111320,dx=(a[0]-b[0])*111320*Math.cos(lat);return Math.hypot(dx,dy);}
-function apfRows(cctv){
+function apfRows(cctv,snap){
+  // 관측을 버리지 않는다. 신뢰도는 σ 로만 표현한다 (배제 = 정보 0, 큰 σ = 약한 정보).
+  const now=Date.now();
   const vals=Object.entries(cctv||{}).map(([id,v])=>({id:String(id),...v}));
   const byId=new Map(vals.map(v=>[String(v.cam_id||v.id),v])),byName=new Map(vals.map(v=>[v.name,v]));
-  const rows=CAMS.map(cam=>{const v=byId.get(String(cam.camId))||byName.get(cam.name)||null;const count=v&&v.ok!==false&&Number.isFinite(Number(v.count))?Math.max(0,Number(v.count)):null;return{cam,v,count};});
-  const active=rows.filter(r=>r.count!=null),max=Math.max(0,...active.map(r=>r.count));
-  rows.forEach(r=>r.q=r.count==null||max<=0?0:Math.log1p(r.count)/Math.log1p(max));
-  return{rows,active,max};
+  const ageOf=t=>{const d=t?Date.parse(String(t).replace(" ","T")):NaN;return isFinite(d)?Math.max(0,(now-d)/60000):null;};
+  const obs=[],rows=[];
+  CAMS.forEach(cam=>{
+    const v=byId.get(String(cam.camId))||byName.get(cam.name)||null;
+    let y=null,kind="cctv_uncalibrated";
+    if(v&&v.ok!==false){
+      if(v.calibrated&&v.density!=null){y=Field.densityToUnit(v.density);kind="cctv_calibrated";}
+      else y=Field.levelToUnit(v.level);
+    }
+    const ageMin=v?ageOf(v.ts):null;
+    const sigma=y==null?null:Field.obsNoise({kind,confidence:v&&v.confidence,flags:v&&v.flags,ageMin});
+    rows.push({cam,v,y,kind,ageMin,sigma,count:v&&v.count!=null?Number(v.count):null});
+    if(y!=null)obs.push({x:[cam.lng,cam.lat],y,sigma});
+  });
+  // 여의도한강공원(POI105) = 행사장. 좌표가 API 에 없어 저장소의 관람구역 5곳(nowcast.ZONES)에 배경으로 깐다.
+  // 같은 값을 5곳에 넣으므로 σ 를 √5 배 해 정보량을 1건으로 유지한다.
+  const park=(snap||{})["여의도한강공원"],pu=park?Field.gradeToUnit(park.congest):null;
+  if(pu!=null){
+    const sg=Field.obsNoise({kind:"poi",ageMin:ageOf(park.ts),dup:ZONES.length});
+    ZONES.forEach(z=>obs.push({x:[z[1],z[2]],y:pu,sigma:sg}));
+  }
+  // 여의도(POI072)는 장에 넣지 않는다 — 업무지구를 포함해 행사 인파의 대리값이 못 된다.
+  // (실측: 평일 오후에도 "약간 붐빔". 사전 평균으로 쓰면 평상시에도 지도 전체가 주의로 칠해진다.) 참고 지표로만 표시.
+  // 여의서로(POI126)는 대응 좌표가 없어 이번 패스에서 제외.
+  // 사전 평균은 중립값으로 고정한다. 관측이 닿지 않는 곳은 "모른다" 가 맞고, 그건 색이 아니라 사후 표준편차가 말한다.
+  const ydo=(snap||{})["여의도"];
+  const active=rows.filter(r=>r.y!=null);
+  return {rows,active,obs,prior:APF_PRIOR_FALLBACK,parkUnit:pu,parkGrade:park&&park.congest||null,ydoGrade:ydo&&ydo.congest||null};
 }
-function apfField(rows){
+function apfField(st){
   if(!CAMS.length)return{type:"FeatureCollection",features:[]};
   const lngs=CAMS.map(c=>c.lng),lats=CAMS.map(c=>c.lat),pad=.004;
   const x0=Math.min(...lngs)-pad,x1=Math.max(...lngs)+pad,y0=Math.min(...lats)-pad,y1=Math.max(...lats)+pad;
-  const dx=(x1-x0)/APF_COLS,dy=(y1-y0)/APF_ROWS,raw=[];let mx=0;
-  for(let iy=0;iy<APF_ROWS;iy++)for(let ix=0;ix<APF_COLS;ix++){
-    const x=x0+(ix+.5)*dx,y=y0+(iy+.5)*dy;
-    let u=0;rows.forEach(r=>{if(r.q<=0)return;const d=apfDistanceM([x,y],[r.cam.lng,r.cam.lat]);u+=r.q*Math.exp(-(d*d)/(2*APF_RADIUS_M*APF_RADIUS_M));});
-    raw.push({ix,iy,u});if(u>mx)mx=u;
+  const g={x0,y0,dx:(x1-x0)/APF_COLS,dy:(y1-y0)/APF_ROWS,cols:APF_COLS,rows:APF_ROWS};
+  APF_GRID=g;
+  APF_FIELD=Field.buildField({observations:st.obs,grid:g,prior:st.prior,kernel:APF_KERNEL});
+  const f=[];
+  for(let iy=0;iy<g.rows;iy++)for(let ix=0;ix<g.cols;ix++){
+    const c=iy*g.cols+ix,u=Math.max(0,Math.min(1,APF_FIELD.mean[c]));
+    const conf=Math.max(.15,Math.min(1,1-APF_FIELD.sd[c]/APF_SD_MAX));   // 불확실할수록 흐리게
+    const xa=g.x0+ix*g.dx,xb=xa+g.dx,ya=g.y0+iy*g.dy,yb=ya+g.dy;
+    f.push({type:"Feature",properties:{u:+u.toFixed(3),conf:+conf.toFixed(3)},
+            geometry:{type:"Polygon",coordinates:[[[xa,ya],[xb,ya],[xb,yb],[xa,yb],[xa,ya]]]}});
   }
-  APF_RAW_MAX=mx||1;
-  return{type:"FeatureCollection",features:raw.map(p=>{const score=mx?Math.round(100*p.u/mx):0;const xa=x0+p.ix*dx,xb=xa+dx,ya=y0+p.iy*dy,yb=ya+dy;return{type:"Feature",properties:{score},geometry:{type:"Polygon",coordinates:[[[xa,ya],[xb,ya],[xb,yb],[xa,yb],[xa,ya]]]}};})};
+  return{type:"FeatureCollection",features:f};
 }
 function apfSelect(r){
-  const d=$("apf-detail");if(!r||r.count==null){d.innerHTML=`<b>${esc(r?r.cam.name:"CCTV")}</b> · count 데이터 없음 · 위치만 표시`;return;}
-  const idx=Math.round(r.q*100),ts=r.v&&r.v.ts?` · ${esc(r.v.ts.slice(11,16))} 기준`:"";
-  d.innerHTML=`<b>${esc(r.cam.name)}</b> · 검출 인원 ${r.count.toFixed(1)}명 · CCTV 상대지수 ${idx}/100 · ${apfLevel(idx)}${ts}`;
+  const d=$("apf-detail");
+  if(!r||r.y==null){d.innerHTML=`<b>${esc(r?r.cam.name:"CCTV")}</b> · 관측 없음 · 위치만 표시`;return;}
+  const ts=r.v&&r.v.ts?` · ${esc(String(r.v.ts).slice(11,16))}`:"";
+  const basis=r.kind==="cctv_calibrated"?`밀도 ${r.v.density}명/m² (ROI 보정)`
+             :`등급 ${esc(r.v.level||"—")} · 점유율 기준 임시값`;
+  const warn=(r.v&&r.v.confidence==="low")?` · <b style="color:var(--note)">신뢰 낮음(${esc((r.v.flags||[]).join(",")||"low")}) — σ 확대 반영</b>`:"";
+  const age=r.ageMin!=null&&r.ageMin>=10?` · ${Math.round(r.ageMin)}분 전`:"";
+  d.innerHTML=`<b>${esc(r.cam.name)}</b> · ${basis} · 지수 ${Math.round(r.y*100)}/100 · ${apfLevel(r.y)} · σ ${r.sigma.toFixed(2)}${age}${ts}${warn}`;
 }
-function apfRender(cctv){
-  const s=apfRows(cctv);APF_ROWS_BY_CAM=s.rows;APF_DATA=apfField(s.rows);
-  $("apf-active").textContent=`${s.active.length}/${CAMS.length||23}`;
-  const top=s.active.slice().sort((a,b)=>b.count-a.count)[0];$("apf-max").textContent=top?`${top.count.toFixed(1)} · ${top.cam.name}`:"—";
+function apfRender(cctv,snap){
+  const st=apfRows(cctv,snap);APF_ROWS_BY_CAM=st.rows;APF_DATA=apfField(st);
+  $("apf-active").textContent=`${st.active.length}/${CAMS.length||23}`;
+  // 장에서는 σ 로 눌린 관측이 타일에서만 최댓값으로 튀면 안 된다 — 신뢰 있는 것을 먼저 고르고, 없으면 표시에 경고를 붙인다.
+  const trusted=st.active.filter(r=>!(r.v&&r.v.confidence==="low"));
+  const top=(trusted.length?trusted:st.active).slice().sort((a,b)=>b.y-a.y)[0];
+  $("apf-max").textContent=top?`${apfLevel(top.y)} · ${top.cam.name}${top.v&&top.v.confidence==="low"?" (신뢰 낮음)":""}`:"—";
+  $("apf-prior").textContent=st.parkGrade?esc(st.parkGrade):"—";
+  $("apf-ydo").textContent=st.ydoGrade?esc(st.ydoGrade):"—";
   if(top)apfSelect(top);
   if(apfMap&&apfMap.isStyleLoaded()){
     const src=apfMap.getSource("apf-field");if(src)src.setData(APF_DATA);
@@ -570,10 +619,17 @@ function apfRender(cctv){
 }
 function apfMarkers(){
   if(!apfMap)return;APF_MARKERS.forEach(m=>m.remove());APF_MARKERS=[];
-  APF_ROWS_BY_CAM.forEach(r=>{const idx=Math.round(r.q*100),d=document.createElement("button");d.type="button";d.className="apf-mk"+(r.count==null?" no-data":"");d.textContent=r.count==null?"—":String(idx);d.setAttribute("aria-label",`${r.cam.name}, ${r.count==null?"count 데이터 없음":`검출 ${r.count.toFixed(1)}명, 상대지수 ${idx}`}`);
-    if(r.count!=null)d.style.background=gc(apfLevel(idx));d.onclick=()=>apfSelect(r);
-    const popup=new maplibregl.Popup({offset:22,closeButton:false}).setHTML(`<b>${esc(r.cam.name)}</b><br>${r.count==null?"count 데이터 없음":`검출 ${r.count.toFixed(1)}명 · 상대지수 ${idx}/100`}`);
-    const marker=new maplibregl.Marker({element:d}).setLngLat([r.cam.lng,r.cam.lat]).setPopup(popup).addTo(apfMap);d.setAttribute("aria-label",`${r.cam.name}, ${r.count==null?"count 데이터 없음":`검출 ${r.count.toFixed(1)}명, 상대지수 ${idx}`}`);APF_MARKERS.push(marker);});
+  APF_ROWS_BY_CAM.forEach(r=>{
+    const has=r.y!=null,idx=has?Math.round(r.y*100):null,d=document.createElement("button");
+    d.type="button";d.className="apf-mk"+(has?"":" no-data");d.textContent=has?String(idx):"—";
+    const label=has?`지수 ${idx}, ${apfLevel(r.y)}${r.v&&r.v.confidence==="low"?", 신뢰 낮음":""}`:"관측 없음";
+    d.setAttribute("aria-label",`${r.cam.name}, ${label}`);
+    if(has){d.style.background=gc(apfLevel(r.y));if(r.v&&r.v.confidence==="low")d.style.opacity=".55";}
+    d.onclick=()=>apfSelect(r);
+    const popup=new maplibregl.Popup({offset:22,closeButton:false})
+      .setHTML(`<b>${esc(r.cam.name)}</b><br>${has?`지수 ${idx}/100 · ${apfLevel(r.y)} · σ ${r.sigma.toFixed(2)}`:"관측 없음"}`);
+    APF_MARKERS.push(new maplibregl.Marker({element:d}).setLngLat([r.cam.lng,r.cam.lat]).setPopup(popup).addTo(apfMap));
+  });
 }
 // 보행망 표시 레이어는 walk_graph.json 이 이미 로드된 뒤에만 채운다 — 같은 지오메트리를 담은 5MB 파일을 따로 받지 않기 위해서다.
 // (핸드오프에는 walk_network.geojson 이 빠져 있었고, 넣었다면 모든 방문자가 첫 로드에 그 용량을 받는다. 2026-09-01 마이그레이션)
@@ -597,12 +653,12 @@ async function routeGraph(){
 }
 function routeNearest(g,p,ids=g.usable){let best=null,bd=Infinity;for(const id of ids){const c=g.nodes[id];if(!c)continue;const d=apfDistanceM(p,c);if(d<bd){bd=d;best=id;}}return{id:best,d:bd};}
 function routeStrictPair(g,a,b){let best=null,score=Infinity;for(const ids of g.strictGroups){const x=routeNearest(g,a,ids),y=routeNearest(g,b,ids),s=x.d+y.d;if(x.d<=180&&y.d<=180&&s<score){score=s;best=[x,y];}}return best;}
-function routeRisk(e){const c=e.g&&e.g.length?e.g[Math.floor(e.g.length/2)]:null;if(!c)return 0;let u=0;APF_ROWS_BY_CAM.forEach(r=>{if(r.q<=0)return;const d=apfDistanceM(c,[r.cam.lng,r.cam.lat]);u+=r.q*Math.exp(-(d*d)/(2*APF_RADIUS_M*APF_RADIUS_M));});return Math.min(1,u/APF_RAW_MAX);}
-class RouteHeap{constructor(){this.a=[];}push(x){const a=this.a;a.push(x);let i=a.length-1;while(i){const p=(i-1)>>1;if(a[p][0]<=x[0])break;a[i]=a[p];i=p;}a[i]=x;}pop(){const a=this.a;if(!a.length)return null;const top=a[0],x=a.pop();if(a.length){let i=0;while(true){let l=i*2+1,r=l+1;if(l>=a.length)break;let c=r<a.length&&a[r][0]<a[l][0]?r:l;if(a[c][0]>=x[0])break;a[i]=a[c];i=c;}a[i]=x;}return top;}get length(){return this.a.length;}}
-function routeAstar(g,start,goal,adj){
-  const q=new RouteHeap(),dist=new Map([[start,0]]),came=new Map(),target=g.nodes[goal];q.push([0,start]);
-  while(q.length){const [,u]=q.pop(),du=dist.get(u);if(u===goal)break;for(const e of adj.get(u)||[]){const risk=routeRisk(e),nd=du+Math.max(0.1,Number(e.m)||0.1)*(1+ROUTE_CROWD_WEIGHT*risk);if(nd<(dist.get(e.v)??Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e,risk]);q.push([nd+apfDistanceM(g.nodes[e.v],target),e.v]);}}}
-  if(!came.has(goal))return null;const edges=[];let u=goal;while(u!==start){const v=came.get(u);if(!v)return null;edges.push({edge:v[1],risk:v[2]});u=v[0];}edges.reverse();return edges;
+function routeRisk(e){
+  const c=e.g&&e.g.length?e.g[Math.floor(e.g.length/2)]:null;
+  if(!c||!APF_FIELD||!APF_GRID)return 0;
+  const g=APF_GRID,ix=Math.floor((c[0]-g.x0)/g.dx),iy=Math.floor((c[1]-g.y0)/g.dy);
+  if(ix<0||iy<0||ix>=g.cols||iy>=g.rows)return 0;
+  return Math.max(0,Math.min(1,APF_FIELD.mean[iy*g.cols+ix]));
 }
 function routeGeojson(edges){const coords=[];let meters=0,riskSum=0;edges.forEach(({edge,risk})=>{let g=(edge.g||[]).slice();const u=WALK_GRAPH.nodes[edge.u];if(g.length>1&&u&&apfDistanceM(g[0],u)>apfDistanceM(g[g.length-1],u))g.reverse();g.forEach(c=>{const last=coords[coords.length-1];if(!last||c[0]!==last[0]||c[1]!==last[1])coords.push(c);});const m=Number(edge.m)||0;meters+=m;riskSum+=m*risk;});return{data:{type:"FeatureCollection",features:[{type:"Feature",properties:{},geometry:{type:"LineString",coordinates:coords}}]},meters,risk:meters?riskSum/meters:0,coords};}
 function routeMarker(kind,p){const d=document.createElement("div");d.className="route-pin"+(kind==="station"?" station":"");return new maplibregl.Marker({element:d}).setLngLat(p).addTo(apfMap);}
@@ -625,7 +681,7 @@ function apfMapInit(){
     apfMap.addSource("walk-network",{type:"geojson",data:{type:"FeatureCollection",features:[]}});walkLayerSync();
     apfMap.addLayer({id:"walk-network",type:"line",source:"walk-network",paint:{"line-color":light?"#276f9f":"#4b91ba","line-opacity":.28,"line-width":["interpolate",["linear"],["zoom"],11,.2,14,.62,17,1.45]}});
     apfMap.addSource("apf-field",{type:"geojson",data:APF_DATA});
-    apfMap.addLayer({id:"apf-field",type:"fill",source:"apf-field",paint:{"fill-color":["interpolate",["linear"],["get","score"],0,"rgba(0,0,0,0)",10,gc("여유"),35,gc("주의"),65,gc("경계"),100,gc("심각")],"fill-opacity":["interpolate",["linear"],["get","score"],0,0,10,.112,35,.272,65,.4,100,.544]}});
+    apfMap.addLayer({id:"apf-field",type:"fill",source:"apf-field",paint:{"fill-color":["interpolate",["linear"],["get","u"],0,gc("여유"),.6,gc("주의"),.8,gc("경계"),1,gc("심각")],"fill-opacity":["*",["interpolate",["linear"],["get","u"],0,.10,.6,.30,.8,.45,1,.60],["get","conf"]]}});
     if(waterLayer){const waterMask={...waterLayer,id:"apf-water-mask",paint:{...(waterLayer.paint||{}),"fill-opacity":1}};apfMap.addLayer(waterMask);}
     apfMap.addSource("route-line",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
     apfMap.addLayer({id:"route-casing",type:"line",source:"route-line",paint:{"line-color":"#17202a","line-opacity":.88,"line-width":["interpolate",["linear"],["zoom"],11,5,16,9]}});

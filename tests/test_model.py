@@ -416,3 +416,18 @@ def test_push_aborts_a_conflicting_rebase_instead_of_leaving_it_in_progress(tmp_
     assert not (a / ".git" / "rebase-merge").exists() and not (a / ".git" / "rebase-apply").exists(), \
         "rebase 진행 상태가 남았다 — 이후 모든 틱의 커밋이 실패한다"
     assert git(a, "status", "--porcelain").stdout.strip() == ""    # 작업트리도 깨끗해야 다음 틱이 돈다
+
+
+def test_publish_carries_confidence_fields_to_web():
+    """혼잡장이 신뢰도로 가중하려면 density·calibrated·confidence·flags 가 브라우저까지 가야 한다.
+    이게 빠져 있어서 공개 대시보드가 count 1.0명인 카메라를 '심각'으로 칠하고 있었다."""
+    import publish as P
+    src = (ROOT / "src" / "publish.py").read_text(encoding="utf-8")
+    for f in ("density", "calibrated", "confidence", "flags"):
+        assert f'"{f}"' in src, f"publish 화이트리스트에 {f} 없음"
+    rec = {"ts": "2026-09-05T20:00:00", "cam_id": "331", "name": "63빌딩", "ok": True, "count": 1.0,
+           "occupancy": 1.0, "flow": 0.9, "density": 0.0, "level": "심각",
+           "confidence": "low", "flags": ["bg_fail"], "calibrated": True}
+    out = P.slim_cctv(rec)
+    assert out["confidence"] == "low" and out["flags"] == ["bg_fail"]
+    assert out["density"] == 0.0 and out["calibrated"] is True

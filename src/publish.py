@@ -18,7 +18,18 @@ def latest_cctv(date):
     for l in fn.read_text(encoding="utf-8").splitlines():
         if l.strip():
             r = json.loads(l); last[r["cam_id"]] = r
-    return {k: {kk: v.get(kk) for kk in ("ts", "name", "level", "count", "occupancy", "flow", "ok")} for k, v in last.items()}
+    return {k: slim_cctv(v) for k, v in last.items()}
+
+
+# 2026-09-01 red team: density·calibrated·confidence·flags 가 빠져 있어 브라우저가 오탐을 걸러낼 수 없었다.
+# (8/29 발행분: 63빌딩 count 1.0명인데 occupancy 1.0(배경차분 실패) → level "심각". nowcast 는 걸렀지만 화면은 못 걸렀다)
+# 혼잡장(docs/app/field.js)이 신뢰도를 σ 로 가중하려면 이 필드들이 있어야 한다.
+CCTV_WEB_FIELDS = ("ts", "name", "level", "count", "occupancy", "flow", "ok",
+                   "density", "calibrated", "confidence", "flags")
+
+
+def slim_cctv(rec):
+    return {k: rec.get(k) for k in CCTV_WEB_FIELDS}
 
 
 # 2026-09-01 red team C2: 비교 대상에 generated(now) 가 들어 있어 "변경 없으면 커밋하지 않는다" 가 한 번도 성립하지 않았고
