@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>불꽃축제 귀가 내비 — 쉬운 설명서</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@700;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#f7f6f4; --card:#ffffff; --ink:#191817; --sub:#5f5a54; --line:#d9d5cf;
+  --accent:#f36f21; --accent-ink:#b34a0c; --soft:#f4f1ed;
+  --g1:#2e7d4f; --g2:#b78a06; --g3:#c25c10; --g4:#b02a2a;
+  --serif:"MaruBuriW","Hahmlet","Pretendard Variable",Pretendard,serif;
+  --mono:"IBM Plex Mono","Pretendard Variable",Pretendard,ui-monospace,monospace;
+}
+:root{color-scheme:light only}
+@font-face{font-family:MaruBuriW;font-weight:400;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Regular.woff2) format("woff2")}
+@font-face{font-family:MaruBuriW;font-weight:700;src:url(https://hangeul.pstatic.net/hangeul_static/webfont/MaruBuri/MaruBuri-Bold.woff2) format("woff2")}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16.5px/1.85 "Pretendard Variable",Pretendard,-apple-system,sans-serif}
+.wrap{max-width:720px;margin:0 auto;padding:56px 22px 90px}
+.kicker{color:var(--accent-ink);font-weight:800;font-size:12.5px;letter-spacing:.14em}
+h1{font-family:var(--serif);font-size:34px;line-height:1.4;margin:14px 0 10px;letter-spacing:-.01em;font-weight:700}
+.meta{color:var(--sub);font-size:13px}
+.meta a,a.more{color:var(--accent-ink);text-decoration:none;font-weight:700}
+header.doc{border-top:3px solid var(--ink);padding:22px 0 8px}
+section{margin:74px 0 0}
+h2{font-family:var(--serif);font-size:25px;line-height:1.45;margin:0 0 14px;letter-spacing:-.01em;font-weight:700}
+h2 .step{display:block;font:800 12px var(--mono);color:var(--accent-ink);letter-spacing:.16em;margin-bottom:8px}
+p{margin:10px 0}
+.sub,small{color:var(--sub)}
+.big{font-family:var(--mono);font-weight:600;font-size:64px;line-height:1.1;letter-spacing:-.02em}
+.big small{font-family:"Pretendard Variable",Pretendard,sans-serif;font-size:22px;font-weight:700;color:var(--ink);margin-left:6px}
+.fact{background:var(--soft);border-left:3px solid var(--accent);padding:12px 16px;margin:16px 0;font-size:14.5px}
+.fact b{color:var(--accent-ink)}
+figure{margin:20px 0;padding:0}
+figure svg{width:100%;height:auto;background:var(--card);border:1px solid var(--line)}
+figcaption{font-size:12.5px;color:var(--sub);margin-top:7px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.chip{padding:7px 16px;border-radius:3px;color:#fff;font-weight:800;font-size:14px}
+.c1{background:var(--g1)}.c2{background:var(--g2)}.c3{background:var(--g3)}.c4{background:var(--g4)}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;margin:14px 0}
+.cell{background:var(--card);border:1px solid var(--line);padding:10px 8px 9px;text-align:center}
+.cell b{display:block;font-size:12.5px;margin-bottom:5px}
+.cell .grade{display:inline-block;padding:1px 8px;border-radius:2px;font-size:11px;font-weight:800;color:#fff}
+.formula{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;margin:18px 0}
+.fbox{flex:1;min-width:150px;background:var(--card);border:1px solid var(--line);border-top:3px solid var(--accent);padding:13px 14px}
+.fbox b{display:block;font-size:15px;margin-bottom:4px}
+.fbox small{display:block;line-height:1.6}
+.fx{align-self:center;font:700 26px var(--mono);color:var(--sub)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.dcard{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--ink);padding:15px 17px}
+.dcard b{display:block;font-size:16px;margin-bottom:6px}
+.dcard p{font-size:14px;margin:0;color:var(--sub)}
+table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
+th,td{border:0;border-bottom:1px solid var(--line);padding:9px 10px;text-align:left}
+th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);font-weight:800}
+tr:last-child td{border-bottom:1.5px solid var(--ink)}
+td.num{font-family:var(--mono);font-size:13px}
+.layers{margin:16px 0}
+.layer{background:var(--card);border:1px solid var(--line);padding:12px 16px;margin:0 0 6px;display:flex;gap:12px;align-items:baseline}
+.layer b{font-size:14.5px;white-space:nowrap}
+.layer span{font-size:13.5px;color:var(--sub)}
+.layer:nth-child(1){border-left:3px solid var(--g1)}
+.layer:nth-child(2){border-left:3px solid var(--g2)}
+.layer:nth-child(3){border-left:3px solid var(--g3)}
+.timeline{display:flex;gap:0;margin:16px 0;flex-wrap:wrap}
+.tl{flex:1;min-width:110px;border-top:3px solid var(--line);padding:10px 10px 0}
+.tl.hot{border-top-color:var(--accent)}
+.tl b{display:block;font:600 13px var(--mono)}
+.tl span{font-size:13px;color:var(--sub)}
+.foot{margin-top:80px;border-top:2px solid var(--ink);padding-top:14px;color:var(--sub);font-size:12.5px}
+.foot a{color:var(--accent-ink);text-decoration:none;font-weight:700}
+svg text{font-family:var(--mono)}
+.rv{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease}
+.rv.on{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+@media print{body{background:#fff}.rv{opacity:1;transform:none}}
+@media (max-width:560px){.cards{grid-template-columns:1fr}.big{font-size:48px}h1{font-size:28px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="doc">
+  <div class="kicker">한화 신입사원 AI 솔루션 챌린지 · 쉬운 버전 — 5분이면 충분</div>
+  <h1>불꽃놀이가 끝나면,<br>100만 명이 한꺼번에 집에 간다.</h1>
+  <div class="meta">
+    그날 밤 여의도에서 벌어지는 일과 우리가 만든 해결책을, 배경지식 없이 읽히게 설명한다.
+    · <a href="report.html">자세한 보고서</a>
+    · <a href="https://jaefit.github.io/hanwha-ai-challenge/">실제 서비스 화면</a>
+  </div>
+</header>
+
+<!-- 1 문제 -->
+<section class="rv">
+<h2><span class="step">STEP 1 · 문제</span>지도앱은 "오늘의 여의도"를 모른다</h2>
+<figure>
+<svg viewBox="0 0 720 240" role="img" aria-label="지도앱이 통제를 모르는 상황">
+<rect x="40" y="30" width="200" height="180" rx="14" fill="var(--soft)" stroke="var(--line)"/>
+<text x="140" y="58" text-anchor="middle" font-size="12" font-weight="700" fill="var(--sub)">지도앱</text>
+<path d="M70,190 C110,150 120,120 170,95" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="8 6"/>
+<circle cx="70" cy="190" r="6" fill="var(--ink)"/>
+<circle cx="170" cy="95" r="9" fill="var(--accent)"/>
+<text x="170" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="var(--accent-ink)">여의나루역</text>
+<text x="140" y="225" text-anchor="middle" font-size="11" fill="var(--sub)">"가장 가까운 역으로 안내합니다"</text>
+<text x="330" y="125" font-size="30" font-weight="700" fill="var(--sub)">→</text>
+<rect x="400" y="30" width="280" height="180" rx="4" fill="var(--card)" stroke="var(--line)"/>
+<text x="540" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">실제 그날 밤</text>
+<line x1="480" y1="95" x2="600" y2="145" stroke="var(--g4)" stroke-width="6"/>
+<line x1="600" y1="95" x2="480" y2="145" stroke="var(--g4)" stroke-width="6"/>
+<text x="540" y="180" text-anchor="middle" font-size="12.5" font-weight="700" fill="var(--g4)">여의나루 20:40~21:40 무정차</text>
+<text x="540" y="200" text-anchor="middle" font-size="11" fill="var(--sub)">도로는 통제, 인파는 한 방향으로</text>
+</svg>
+<figcaption>그림 1 — 축제날엔 가장 가까운 역이 문을 닫는다. 지도앱은 평소의 길을 안내한다.</figcaption>
+</figure>
+<p>그래서 모두가 같은 곳으로 몰리고, 역 앞에서 몇 시간을 서 있게 된다. 문제는 정보 부족이 아니라 <b>"오늘만의 규칙"을 아는 지도가 없다</b>는 것이다.</p>
+<div class="fact">얼마나 몰리나 — 축제날 저녁 여의도 인구는 평소 토요일의 <b>4.4~4.8배</b>다 (서울시 생활인구, 2024·2025년 공통).</div>
+</section>
+
+<!-- 2 해법 -->
+<section class="rv">
+<h2><span class="step">STEP 2 · 해법</span>"지금 어디로 나가면 되나"를 3초 안에</h2>
+<p>출구 7개의 혼잡을 시간대별로 미리 예측해서, 신호등 색으로 보여주는 웹페이지를 만들었다.</p>
+<div class="chips">
+  <span class="chip c1">여유</span><span class="chip c2">주의</span><span class="chip c3">경계</span><span class="chip c4">혼잡</span>
+</div>
+<div class="board">
+  <div class="cell"><b>신길</b><span class="grade" style="background:var(--g1)">여유</span></div>
+  <div class="cell"><b>마포 도보</b><span class="grade" style="background:var(--g1)">여유</span></div>
+  <div class="cell"><b>국회</b><span class="grade" style="background:var(--g2)">주의</span></div>
+  <div class="cell"><b>여의도(5)</b><span class="grade" style="background:var(--g2)">주의</span></div>
+  <div class="cell"><b>샛강</b><span class="grade" style="background:var(--g2)">주의</span></div>
+  <div class="cell"><b>여의나루</b><span class="grade" style="background:var(--g4)">통제</span></div>
+</div>
+<p class="sub">쇼 직후 21시의 예측 화면 축소판. 핵심은 상태("혼잡함")가 아니라 <b>행동("신길로 가라")</b>을 알려준다는 점이다.</p>
+</section>
+
+<!-- 3 재료 -->
+<section class="rv">
+<h2><span class="step">STEP 3 · 재료</span>비밀 재료는 "작년에 실제로 일어난 일"</h2>
+<figure>
+<svg viewBox="0 0 720 200" role="img" aria-label="과거 축제일 기록이 재료">
+<rect x="50" y="40" width="150" height="120" rx="6" fill="var(--card)" stroke="var(--line)"/>
+<rect x="50" y="40" width="150" height="34" rx="6" fill="var(--accent)"/>
+<text x="125" y="63" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">2024.10.5</text>
+<text x="125" y="105" text-anchor="middle" font-size="11.5" fill="var(--ink)">누가 · 몇 시에</text>
+<text x="125" y="125" text-anchor="middle" font-size="11.5" fill="var(--ink)">어느 역에서 탔나</text>
+<text x="125" y="148" text-anchor="middle" font-size="10.5" fill="var(--sub)">전부 기록됨</text>
+<rect x="230" y="40" width="150" height="120" rx="6" fill="var(--card)" stroke="var(--line)"/>
+<rect x="230" y="40" width="150" height="34" rx="6" fill="var(--accent)"/>
+<text x="305" y="63" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">2025.9.27</text>
+<text x="305" y="105" text-anchor="middle" font-size="11.5" fill="var(--ink)">같은 기록,</text>
+<text x="305" y="125" text-anchor="middle" font-size="11.5" fill="var(--ink)">거의 같은 모양</text>
+<text x="305" y="148" text-anchor="middle" font-size="10.5" fill="var(--sub)">2년 연속 재현</text>
+<text x="425" y="108" font-size="26" font-weight="700" fill="var(--sub)">→</text>
+<rect x="480" y="55" width="190" height="90" rx="6" fill="var(--soft)" stroke="var(--line)"/>
+<text x="575" y="90" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">"올해도 이렇게</text>
+<text x="575" y="112" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">움직일 것이다"</text>
+<text x="575" y="133" text-anchor="middle" font-size="10.5" fill="var(--sub)">좋은 예측의 뼈대</text>
+</svg>
+<figcaption>그림 2 — 서울시 공개 데이터에 지난 두 축제일의 지하철 기록이 전부 남아 있다.</figcaption>
+</figure>
+<p>사람들의 귀가 습관은 해마다 거의 같았다. 여의도(5)역으로 29%, 샛강으로 17%… 이 비율이 2년 연속 그대로다. 그래서 <b>"작년처럼 움직인다"를 뼈대로 쓰고, 올해 다른 부분만 고치면 된다.</b></p>
+</section>
+
+<!-- 4 계산법 -->
+<section class="rv">
+<h2><span class="step">STEP 4 · 계산</span>계산은 곱셈 하나다</h2>
+<div class="formula">
+  <div class="fbox"><b>오늘 규모 α</b><small>오늘 인파가 작년의 몇 배인가. 당일 실시간 관측으로 계속 갱신</small></div>
+  <div class="fx">×</div>
+  <div class="fbox"><b>작년 그 역의 몫</b><small>여의도(5) 29% · 샛강 17% … 실측 비율</small></div>
+  <div class="fx">×</div>
+  <div class="fbox"><b>언제 도착하나</b><small>쇼가 끝나고 걷는 시간만큼 늦게 도착. 사람이 빽빽하면 더 느리게</small></div>
+</div>
+<p>케이크에 비유하면 — 오늘 케이크의 크기(α)를 재고, 작년과 같은 비율로 자르고(몫), 걷는 시간만큼 늦게 내놓는다(도착).</p>
+<p class="sub">머신러닝을 안 쓴 이유: 배울 데이터가 축제일 이틀뿐이다. 이틀로 학습시키면 "외우기"가 된다. 대신 사람이 부품 하나하나 검증할 수 있는 곱셈식을 골랐다.</p>
+</section>
+
+<!-- 5 검증 -->
+<section class="rv">
+<h2><span class="step">STEP 5 · 검증</span>진짜 맞나? — 타임머신 시험</h2>
+<p>2025년 답안지를 가리고, <b>2024년 공부만으로 2025년 문제를 풀어 봤다.</b> 그리고 실제 2025년 기록과 채점했다.</p>
+<div class="big"><span class="cu" data-v="76">0</span><small>~100% 적중</small></div>
+<p class="sub">출구 혼잡 "등급"(여유/주의/경계/혼잡) 기준. 남은 불확실성은 숨기지 않고 "0.57~1.30" 같은 범위로 함께 보여준다 — 모르는 것을 아는 척하지 않는 게 이 서비스의 원칙이다.</p>
+</section>
+
+<!-- 6 피더 -->
+<section class="rv">
+<h2><span class="step">STEP 6 · 보너스</span>붐비기 1시간 전에 미리 안다</h2>
+<p>여의도로 오는 사람들은 그날 어딘가의 역에서 지하철을 <b>탔다</b>. 멀리서 오는 사람일수록 먼저 탄다. 그래서 출발역들의 승차를 지켜보면, 여의도가 붐비기 전에 미리 안다.</p>
+<figure>
+<svg viewBox="0 0 720 230" role="img" aria-label="출발역에서 여의도로 모이는 흐름">
+<circle cx="360" cy="115" r="34" fill="var(--accent)"/>
+<text x="360" y="112" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">여의도</text>
+<text x="360" y="128" text-anchor="middle" font-size="9.5" fill="#fff">도착</text>
+<line x1="122" y1="50" x2="330" y2="100" stroke="var(--line)" stroke-width="3"/>
+<line x1="130" y1="185" x2="328" y2="130" stroke="var(--line)" stroke-width="3"/>
+<line x1="600" y1="60" x2="392" y2="102" stroke="var(--line)" stroke-width="3"/>
+<circle cx="105" cy="45" r="24" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5"/>
+<text x="105" y="42" text-anchor="middle" font-size="10" font-weight="700" fill="var(--ink)">성수</text>
+<text x="105" y="55" text-anchor="middle" font-size="8.5" fill="var(--sub)">35분</text>
+<text x="105" y="90" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--accent-ink)">1시간 먼저 탄다</text>
+<circle cx="112" cy="190" r="24" fill="var(--card)" stroke="var(--ink)" stroke-width="1.5"/>
+<text x="112" y="187" text-anchor="middle" font-size="9" font-weight="700" fill="var(--ink)">영등포시장</text>
+<text x="112" y="200" text-anchor="middle" font-size="8.5" fill="var(--sub)">3분</text>
+<text x="112" y="152" text-anchor="middle" font-size="10.5" font-weight="700" fill="var(--accent-ink)">거의 동시에 탄다</text>
+<circle cx="622" cy="55" r="24" fill="var(--soft)" stroke="var(--line)" stroke-width="1.5"/>
+<text x="622" y="52" text-anchor="middle" font-size="9" font-weight="700" fill="var(--sub)">김포공항</text>
+<text x="622" y="65" text-anchor="middle" font-size="8.5" fill="var(--sub)">제외</text>
+<text x="622" y="100" text-anchor="middle" font-size="10" fill="var(--sub)">공항 손님이 섞여 신호가 흐림</text>
+<text x="360" y="215" text-anchor="middle" font-size="11" fill="var(--sub)">출발역 12곳 합산: 승차가 여의도 도착을 1시간 앞선다 — 일치도 0.99</text>
+</svg>
+<figcaption>그림 3 — 거리가 멀수록 신호가 먼저 온다. 거리 순서와 신호 순서가 정확히 맞는다 = 우연이 아니라는 증거.</figcaption>
+</figure>
+<div class="tblwrap"><table>
+<tr><th>출발역</th><th>여의도까지</th><th>신호가 오는 때</th><th class="num">일치도 r</th></tr>
+<tr><td>성수</td><td class="num">35분</td><td><b>1시간 먼저</b></td><td class="num">0.95</td></tr>
+<tr><td>영등포시장</td><td class="num">3분</td><td>같은 시각</td><td class="num">0.86</td></tr>
+<tr><td>김포공항</td><td class="num">25분</td><td>제외 (공항 유동 혼입)</td><td class="num">−0.19</td></tr>
+</table></div>
+<p class="sub">12곳 전체 표와 판정 기준은 <a class="more" href="report.html">자세한 보고서 §3.6</a>에 있다. 이 신호는 축제 당일 예측에 바로 넣지 않고 관측만 한다 — 분 단위 정확도를 아직 검증하지 못했기 때문이다.</p>
+</section>
+
+<!-- 7 발견 -->
+<section class="rv">
+<h2><span class="step">STEP 7 · 발견</span>데이터가 알려준 뜻밖의 사실 둘</h2>
+<div class="cards">
+  <div class="dcard"><b>① 최악은 제일 큰 역이 아니다</b><p>쇼 직후 가장 위험한 곳은 제일 큰 여의도(5)역이 아니라 <b>샛강역</b>이다. 9호선 역이라 처리 용량이 작다.</p></div>
+  <div class="dcard"><b>② 여의나루는 "문 여는 22시"가 위험</b><p>통제가 풀리면 기다리던 사람들이 한꺼번에 몰린다. 부하 0.91 — 그날 밤 최고치.</p></div>
+</div>
+<p>이 둘은 지도앱이 절대 알려주지 못한다. <b>우리 서비스가 존재하는 이유다.</b></p>
+</section>
+
+<!-- 8 당일 -->
+<section class="rv">
+<h2><span class="step">STEP 8 · 당일</span>죽어도 죽지 않는 3층 구조</h2>
+<div class="layers">
+  <div class="layer"><b>사전층</b><span>행사 전에 완성한 예측표 — 실시간이 전부 죽어도 서비스는 된다</span></div>
+  <div class="layer"><b>당일층</b><span>5분마다 실시간 관측으로 예측을 갱신 (α 보정)</span></div>
+  <div class="layer"><b>화면층</b><span>인터넷이 끊겨도 기기에 저장된 마지막 화면이 남는다</span></div>
+</div>
+<p class="sub">설계 원칙: 아래층이 죽어도 위층이 산다. 축제날 밤 통신은 반드시 느려지기 때문에, 처음부터 그걸 전제로 만들었다.</p>
+</section>
+
+<!-- 9 일정 -->
+<section class="rv">
+<h2><span class="step">STEP 9 · 다음</span>남은 일정</h2>
+<div class="timeline">
+  <div class="tl"><b>9/4</b><span>전야제에서 리허설</span></div>
+  <div class="tl hot"><b>9/5</b><span><b>실전</b> — 12~24시 자동 운영</span></div>
+  <div class="tl"><b>9/6~7</b><span>채점·검증·영상</span></div>
+  <div class="tl"><b>9/8</b><span>20:00 제출</span></div>
+</div>
+</section>
+
+<div class="foot">
+  더 알고 싶다면 — <a href="report.html">자세한 보고서</a> (근거·수식·검증 전체) · <a href="https://jaefit.github.io/hanwha-ai-challenge/">실제 서비스 화면</a> · <a href="https://github.com/jaefit/hanwha-ai-challenge">코드 저장소</a><br>
+  본문의 모든 숫자는 서울시 공개 데이터에서 나왔고, 저장소의 명령으로 재현할 수 있다. 기준일 2026-09-01.
+</div>
+
+</div>
+<script>
+(function(){
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // 등장 애니메이션
+  var els = document.querySelectorAll(".rv");
+  if (reduce || !("IntersectionObserver" in window)) {
+    els.forEach(function(e){ e.classList.add("on"); });
+  } else {
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) { en.target.classList.add("on"); io.unobserve(en.target); }
+      });
+    }, {threshold:.15});
+    els.forEach(function(e){ io.observe(e); });
+  }
+  // 카운트업 (2.1s, easeOutCubic)
+  function count(el){
+    var v = parseFloat(el.dataset.v), t0 = null;
+    if (reduce) { el.textContent = v; return; }
+    function tick(ts){
+      if (!t0) t0 = ts;
+      var p = Math.min((ts - t0) / 2100, 1), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(v * e);
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }
+  var cus = document.querySelectorAll(".cu");
+  if (!("IntersectionObserver" in window)) { cus.forEach(function(c){ c.textContent = c.dataset.v; }); }
+  else {
+    var io2 = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if (en.isIntersecting) { count(en.target); io2.unobserve(en.target); }
+      });
+    }, {threshold:.5});
+    cus.forEach(function(c){ io2.observe(c); });
+  }
+  addEventListener("beforeprint", function(){ cus.forEach(function(c){ c.textContent = c.dataset.v; }); });
+})();
+</script>
+</body>
+</html>
