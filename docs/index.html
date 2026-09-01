@@ -140,6 +140,18 @@ h1{grid-area:title;margin:24px 0 0;font-size:44px;font-weight:800;letter-spacing
 .cam .g{font-size:11px;font-weight:800;letter-spacing:2.5px;color:var(--gc)}
 .cam .m{font-size:11.5px;color:var(--ink-2);margin-top:3px}
 .cam .hair{height:2px;background:var(--hair);margin-top:8px}.cam .hair i{display:block;height:2px;background:var(--gc)}
+/* 구역별 실시간 혼잡 (서울시 4등급 → 기존 색 팔레트에 매핑) */
+.zones{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));column-gap:28px;border-top:var(--tabs-rule)}
+.zone{border-bottom:1px solid var(--rule);padding:12px 0;--gc:var(--g-보정전)}
+.zone[data-c="여유"]{--gc:var(--g-여유)} .zone[data-c="보통"]{--gc:var(--g-주의)}
+.zone[data-c="약간 붐빔"]{--gc:var(--g-경계)} .zone[data-c="붐빔"]{--gc:var(--g-심각)}
+.zone .n{font-size:15px;font-weight:750;letter-spacing:-.3px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.zone .g{font-size:11px;font-weight:800;letter-spacing:2.5px;color:var(--gc);white-space:nowrap}
+.zone .m{font-size:11.5px;color:var(--ink-2);margin-top:3px}
+.zone .m .up{color:var(--g-심각)} .zone .m .dn{color:var(--g-여유)}
+.zone .hair{height:2px;background:var(--hair);margin-top:8px}.zone .hair i{display:block;height:2px;background:var(--gc)}
+.zone.empty{grid-column:1/-1;color:var(--ink-2);font-size:12.5px;padding:14px 0;border-bottom:0}
+.watch-h{font-size:13px;font-weight:800;letter-spacing:-.2px;margin:26px 0 4px}
 .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:28px;border-top:var(--tabs-rule);padding-top:16px}
 .grid-wrap{overflow-x:auto;border-top:var(--tabs-rule);padding-top:16px}
 table.grid{border-collapse:separate;border-spacing:5px 4px;width:100%;min-width:600px}
@@ -198,7 +210,7 @@ footer a{color:var(--ink-2)}
 
 <div class="tabs" role="tablist" id="tabs-wrap">
   <div id="tabs" style="display:contents"></div>
-  <span class="formula">부하율 = 예상 수요 ÷ 시간당 처리량 · 1.0 초과 = 그 시간대 안에 못 나감 · † 처리량 추정</span>
+  <span class="formula">부하율 = 예상 수요 ÷ 처리 기록 최대(2024·2025 축제일 관측 · 설계 용량 아님) · N배 = 평시 토요일 같은 시간 승차 대비(9호선 평시값 추정) · 대기 분은 추정 — 9/5 실측으로 검증 예정 · † 처리량 추정</span>
 </div>
 
 <div class="hero">
@@ -229,6 +241,16 @@ footer a{color:var(--ink-2)}
     <div><b id="s-pop">—</b><span>여의도한강공원 실시간 인구 · <i id="s-lvl"></i></span></div>
   </div>
   <svg class="chart" id="chart" viewBox="0 0 1360 220" aria-label="시간대별 유출 예측 막대와 서울시 12시간 예측"></svg>
+</section>
+
+<section class="sec">
+  <div class="eb">LIVE · 통신 기지국 기반 · 5분 갱신</div>
+  <h2>지금 여의도, 구역별로 얼마나</h2>
+  <p class="sub">서울시 실시간 도시데이터. 통신 3사 기지국 접속을 5분 단위로 집계해 50m 격자로 전수화한 값이라 <b>현장 실인원과는 다를 수 있다</b>. 등급은 서울시 4단계(여유·보통·약간 붐빔·붐빔)로, 아래 CCTV 밀도 등급(명/m²)과는 기준이 다르다. 화살표는 서울시가 같이 주는 1시간 뒤 예보.</p>
+  <div class="zones" id="zones"></div>
+  <div class="watch-h">여의도가 붐비면 — 강 건너 관람 명당</div>
+  <p class="sub">불꽃은 강 건너에서도 보인다. 아래는 같은 방식으로 재는 대안 관람지 실시간 혼잡도(축제 시간대 17~23시에만 수집).</p>
+  <div class="zones watch" id="watch"></div>
 </section>
 
 <section class="sec">
@@ -272,6 +294,8 @@ const EXITS=[
   {k:"singil",dk:"신길(1·5)",name:"신길(1·5)",desc:"1·5호선 · 이벤트광장 기준 도보 약 58분(추정) · 분산 출구",est:true,ll:[37.5170,126.9137],sh:"신길",tdir:"bottom",lc:"#0052A4"},
   {k:"yd5",dk:"여의도(5)",name:"여의도(5)",desc:"5호선 · 서행(신길·영등포 방면)",est:false,ll:[37.5222,126.9238],sh:"여의도(5)",tdir:"top",lc:"#996CAC"}
 ];
+// 평시 토요일 같은 시간대 승차 중앙값(2년 평균) — "N배" 분모. 5호선 3역+신길 실측(OA-12921 연간 토요일), 9호선 3역은 일 중앙값×시간 형태(추정). 마포도보는 평시 기준 없음.
+const SATBASE={"여의도(5)":{19:1234,20:1490,21:1009,22:577,23:165},"여의나루(5)":{19:1002,20:1498,21:1277,22:913,23:312},"신길(1·5)":{19:140,20:123,21:128,22:118,23:61},"여의도(9)":{19:1431,20:1727,21:1169,22:669,23:191},"샛강(9)":{19:314,20:379,21:257,22:147,23:42},"국회의사당(9)":{19:620,20:748,21:507,22:290,23:83}};
 // 수집 시작 전 폴백 — 2024·2025 실적 × α=1 (nowcast 08-29 산출과 동일)
 const FALLBACK={
   "20":{gukhoe:.10,mapo:.11,yd9:.30,saet:.35,singil:.53,yd5:.79,naru:null},
@@ -315,7 +339,10 @@ function render(){
   const rows=EXITS.filter(e=>ex[e.dk]).map(e=>{const c=(ex[e.dk]||{})[hour]||{};return{e,c,closed:!!c.closed||c.load==null,load:c.load==null?9:c.load};});
   const open=rows.filter(r=>!r.closed).sort((a,b)=>a.load-b.load),closed=rows.filter(r=>r.closed);
   const html=open.map((r,i)=>{const lv=LV(r.load,false);const est=r.c.estimated_capacity??r.e.est;const w=Math.min(100,Math.round(r.load*100));
-    let note=`· 평소 최대의 ${Math.round(r.load*100)}%`;if(r.e.k==="naru"&&hour==="21")note+=" · 임시 통제 21:40까지, 이후 정차";if(r.c.wait_min>0)note+=` · 대기 +${r.c.wait_min}분`;
+    let note="";const sb=(SATBASE[r.e.dk]||{})[Number(hour)];
+    if(r.c.demand&&sb){const mul=r.c.demand/sb;note+=`· 평시 토요일의 ${mul>=10?Math.round(mul):mul.toFixed(1)}배 `;}
+    if(r.c.wait_min>0)note+=`· 대기 ~${r.c.wait_min}분(추정)`;else if(r.load>=0.7)note+="· 줄 서면 그 시간 안에 탐";else note+="· 줄 거의 없음";
+    if(r.e.k==="naru"&&hour==="21")note+=" · 임시 통제 21:40까지, 이후 정차";
     const hasBand=r.c.load_lo!=null&&r.c.load_hi!=null&&r.c.load_hi>r.c.load_lo;
     const band=hasBand?`<b style="left:${Math.min(100,Math.round(r.c.load_lo*100))}%;width:${Math.max(1,Math.min(100,Math.round((r.c.load_hi-r.c.load_lo)*100)))}%"></b>`:"";
     return`<div class="row" data-g="${lv}" style="--lc:${r.e.lc}"><div class="rk">${String(i+1).padStart(2,"0")}</div><div><div class="nm-l"><i class="tick"></i><span class="name">${esc(r.e.name)}</span>${est?'<span class="dg">†</span>':""}</div><div class="ds">${esc(r.e.desc)}${note?` <span class="note">${esc(note)}</span>`:""}</div><div class="hair">${band}<i style="width:${w}%"></i></div></div><div class="tag">${lv}</div><div class="num">${r.load.toFixed(2)}${hasBand?`<small>${r.c.load_lo.toFixed(2)}–${r.c.load_hi.toFixed(2)}</small>`:""}</div></div>`;}).join("")
@@ -326,7 +353,31 @@ function render(){
   $("s-20").textContent=fc.outflow_forecast?.["20"]!=null?fc.outflow_forecast["20"].toLocaleString():"—";
   $("s-21").textContent=fc.outflow_forecast?.["21"]!=null?fc.outflow_forecast["21"].toLocaleString():"—";
   const park=(fc.live_snapshot||{})["여의도한강공원"];$("s-pop").textContent=park?`${park.ppltn[0].toLocaleString()}~${park.ppltn[1].toLocaleString()}`:"—";$("s-lvl").textContent=park?`${park.congest} (${park.ts.slice(11,16)})`:"";
-  grid(ex,hours);chart(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);
+  grid(ex,hours);chart(fc);zones(fc);cams((DATA&&DATA.cctv)||{});mapUpdate(ex);
+}
+
+// ── 구역별 실시간 혼잡 (서울시 실시간 도시데이터 = 통신 기지국 기반) ──
+const CG={"여유":0,"보통":1,"약간 붐빔":2,"붐빔":3};
+const CORE_NM=["여의도한강공원","여의도","여의서로"];
+const WATCH_NM=["노들섬","이촌한강공원","반포한강공원","망원한강공원","양화한강공원","용산역"];
+const ZONE_LABEL={"여의도한강공원":"여의도한강공원 · 행사장","여의도":"여의도 전체 · 업무지구 포함","여의서로":"여의서로 · 서측 진입로",
+                  "노들섬":"노들섬 · 정면","이촌한강공원":"이촌한강공원 · 정면","반포한강공원":"반포한강공원 · 동측",
+                  "망원한강공원":"망원한강공원 · 서측","양화한강공원":"양화한강공원 · 서측","용산역":"용산역 · 환승 여유"};
+const roleOf=(k,v)=>v.role||(CORE_NM.includes(k)?"core":WATCH_NM.includes(k)?"watch":"feeder");
+function zoneCard(name,v){
+  const lv=v.congest||"—",i=CG[lv],w=i==null?0:(i+1)*25,f=(v.fcst||[])[0];
+  let tr="";
+  if(f&&CG[f.lvl]!=null&&i!=null){const d=CG[f.lvl]-i,t=esc(f.t.slice(11,16));
+    tr=d>0?` · <span class="up">▲ ${t} ${esc(f.lvl)}</span>`:d<0?` · <span class="dn">▼ ${t} ${esc(f.lvl)}</span>`:` · → ${t} 유지`;}
+  const p=v.ppltn&&v.ppltn[0]!=null?`${v.ppltn[0].toLocaleString()}~${v.ppltn[1].toLocaleString()}명`:"—";
+  return`<div class="zone" data-c="${esc(lv)}"><div class="n"><span>${esc(ZONE_LABEL[name]||name)}</span><span class="g">${esc(lv)}</span></div><div class="m">${p}${v.ts?" · "+esc(v.ts.slice(11,16)):""}${tr}</div><div class="hair"><i style="width:${w}%"></i></div></div>`;
+}
+function zones(fc){
+  const s=fc.live_snapshot||{},pick=r=>Object.entries(s).filter(([k,v])=>roleOf(k,v)===r);
+  const core=pick("core").sort((a,b)=>(CG[b[1].congest]??-1)-(CG[a[1].congest]??-1));   // 붐비는 곳 먼저
+  const watch=pick("watch").sort((a,b)=>(CG[a[1].congest]??9)-(CG[b[1].congest]??9));   // 여유로운 곳 먼저 = 추천 순
+  if($("zones"))$("zones").innerHTML=core.length?core.map(([k,v])=>zoneCard(k,v)).join(""):`<div class="zone empty">실시간 인구 수집 시작 전</div>`;
+  if($("watch"))$("watch").innerHTML=watch.length?watch.map(([k,v])=>zoneCard(k,v)).join(""):`<div class="zone empty">관람 명당은 축제 시간대(17~23시)에만 수집한다 — 그 시간에 표시된다</div>`;
 }
 
 // ── 시간×출구 격자 ──

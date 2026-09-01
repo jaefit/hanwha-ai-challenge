@@ -228,3 +228,41 @@ def test_evaluate_first_forecast_and_ape():
     act = E.actual_pop(recs)
     assert act["2026-09-05 14:00"] == 150 and act["2026-09-05 12:00"] == 100                     # 정시 최근접(±30분)
     assert E.ape(100, 150) == 0.5 and E.ape(0, 5) is None
+
+
+# ── 관람지(watch) 수집 — 쿼터·배정·게이팅 (9/1 추가) ──
+def _collector():
+    import importlib, os
+    os.environ.setdefault("FEEDERS", "default"); os.environ.setdefault("WATCH", "default")
+    import collector_api as C
+    return importlib.reload(C)
+
+
+def test_watch_budget_within_key_limit():
+    """키별 일 호출 수가 서울 열린데이터 상한(1,000)을 넘지 않는다."""
+    C = _collector()
+    over = {k: v for k, v in C.budget().items() if v > 1000}
+    assert not over, over
+
+
+def test_watch_does_not_shift_feeder_key_assignment():
+    """관람지를 뒤에 붙였으므로 기존 피더의 키 배정이 그대로여야 재현 가능하다."""
+    C = _collector()
+    if len(C.FEEDER_KEYS) < 2: pytest.skip("피더 전용 키 2개 필요")
+    for i, name in enumerate(C.FEEDERS):
+        assert C.feeder_key(name) == C.FEEDER_KEYS[i % len(C.FEEDER_KEYS)], name
+
+
+def test_watch_roles_and_core_key_isolation():
+    C = _collector()
+    assert C.role_of("여의도한강공원") == "core"
+    assert C.role_of("노들섬") == "watch"
+    assert C.role_of("강남역") == "feeder"
+    if C.FEEDER_KEYS:                                   # 코어 쿼터에 관람지가 섞이면 안 됨
+        assert all(C.feeder_key(w) != C.KG for w in C.WATCH)
+
+
+def test_watch_hours_are_festival_window_only():
+    C = _collector()
+    assert set(C.WATCH_HOURS) == set(range(17, 24))
+    assert not (set(C.WATCH_HOURS) & set(range(0, 17)))

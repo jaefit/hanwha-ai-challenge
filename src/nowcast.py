@@ -356,7 +356,9 @@ def main():
         "demand_basis": demand_basis, "station_totals": {st: round(v) for st, v in (station_totals or {}).items()}, "exit_share_mean": (EXIT_SHARES or {}).get("share_mean"),
         "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
         "alerts_live": alerts[:10],
-        "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx")} for k, v in city.items()},
+        # role = core(여의도 3구역) · watch(강 건너 관람 명당) · feeder(유입 출발지). fcst 2칸 = 서울시 1·2시간 뒤 예보 → UI 추세 화살표
+        "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx"),
+                              "role": v.get("role", "feeder"), "fcst": [{"t": f["t"], "lvl": f["lvl"], "min": f["min"], "max": f["max"]} for f in (v.get("fcst") or [])[:2]]} for k, v in city.items()},
         "seoul_fcst_snapshot": seoul_fcst,
         "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 = 거리÷밀도별 속도(Weidmann). CCTV 등급 없으면 구역 밀도 3명/m² 가정(≈기존 40/60)", "load_lo/hi = α 사후분포 p10/p90 비율 (관측 없으면 0.73~1.38, 관측 쌓이면 축소)", "대기열은 시간대를 넘어 누적(backlog)", "α = 격자 사후 p50. O1 여의나루 30분 하차(12~19시)·O2 여의도 핫스팟 30분 승차(19시~, 커버리지 c 추정)", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
     }

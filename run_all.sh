@@ -7,7 +7,8 @@ mkdir -p data/live logs
 CAMS_ARG=(); [ -n "$CAMS" ] && CAMS_ARG=(--cams "$CAMS")
 caffeinate -dims &
 CAF=$!
-.venv/bin/python src/collector_api.py >> logs/api.log 2>&1 &
+# FEEDERS=default = 피더 12곳(선행지표, 12~19시) · WATCH 기본값 = 강 건너 관람 명당 6곳(17~23시). 키별 예산은 --budget 로 확인
+FEEDERS=${FEEDERS:-default} .venv/bin/python src/collector_api.py >> logs/api.log 2>&1 &
 P1=$!
 INTERVAL=${CCTV_INTERVAL:-60} .venv/bin/python src/collector_cctv.py "${CAMS_ARG[@]}" >> logs/cctv.log 2>&1 &
 P2=$!
