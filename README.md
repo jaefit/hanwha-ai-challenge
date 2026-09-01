@@ -18,7 +18,7 @@
 | 팀 보고서 | [report.html](https://jaefit.github.io/hanwha-ai-challenge/report.html) | 모델 수식(KaTeX)·실측표·외부 검증. 쉬운 버전 [report_easy.html](https://jaefit.github.io/hanwha-ai-challenge/report_easy.html) |
 | 피치 덱 | [deck.html](https://jaefit.github.io/hanwha-ai-challenge/deck.html) | 발표용 12장 |
 | 예측 모델 | `src/nowcast.py` 외 | 4층(L1 베이스라인 → L2 α 나우캐스트 → L3 출구 배정 → L4 큐). 백테스트 `src/backtest.py` |
-| 수집기 3종 | `run_all.sh` | 서울시 도시데이터(5분) · TOPIS CCTV(30초) · 실시간 지하철 도착. 워치독·키 점검 포함 |
+| 수집·발행 | `run_all.sh` | 프로세스 3개 — `collector_api.py`(서울시 도시데이터 5분 + 실시간 지하철 도착 17~23시 + 피더 12~19시) · `collector_cctv.py`(TOPIS 23대, 기본 60초) · `nowcast`→`publish` 5분 루프. 워치독·`.env` 키 점검 포함 |
 | 혼잡장 | `docs/app/field.js` | CCTV 23대 + 서울시 구역등급을 **가우시안 과정 회귀**로 하나의 면에. 신뢰도는 배제가 아니라 관측 노이즈 σ 로 |
 | 보행 경로탐색 | `routing/` | OSM 보행망(노드 9,219) 위 A*, 비용 = 거리 × (1 + 1.25 × 혼잡위험) |
 | 자체 적대적 검증 | [redteam-20260901.md](redteam-20260901.md) | 결함 18건 + 조치 현황. **05의 결함 대장은 이 문서다** |

@@ -38,7 +38,7 @@
 
 ## `live/` — 당일 수집, git 제외
 
-`run_all.sh` 가 쓴다. `api_YYYYMMDD.jsonl`(서울시 도시데이터 5분) · `cctv_YYYYMMDD.jsonl`(TOPIS 집계값 30초) · `forecast_latest.json`(최신 예측) · `forecast_history/`(예측 스냅샷 이력 — "그 시점에 뭐라고 예측했었나"의 사후 재현용, T6 입력). `publish_fail_streak` 파일이 생겼다면 **발행이 연속 실패 중**이라는 뜻이다.
+`run_all.sh` 가 쓴다. `api_YYYYMMDD.jsonl`(서울시 도시데이터 5분 + 실시간 지하철 도착) · `cctv_YYYYMMDD.jsonl`(TOPIS 집계값, 기본 60초) · `forecast_latest.json`(최신 예측) · `forecast_history/`(예측 스냅샷 이력 — "그 시점에 뭐라고 예측했었나"의 사후 재현용, T6 입력). `publish_fail_streak` 파일이 생겼다면 **발행이 연속 실패 중**이라는 뜻이다.
 
 **행사 종료 후 당일 로그만 골라 커밋한다.** CCTV는 프레임을 저장하지 않고 집계값(인원·점유율·흐름)만 남긴다.
 
