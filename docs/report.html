@@ -8,7 +8,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@700;800&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <style>
+.katex-display{margin:13px 0;overflow-x:auto;overflow-y:hidden;padding:3px 0}
+.katex{font-size:1.03em}
 :root{
   --bg:#f7f6f4; --card:#ffffff; --ink:#191817; --sub:#5f5a54; --line:#d9d5cf;
   --accent:#f36f21; --accent-ink:#b34a0c; --soft:#f4f1ed;
@@ -187,12 +190,55 @@ svg .pt{cursor:pointer}
 <tr><td><b>α</b><br><small>당일 배율</small></td><td>오늘 인파가 예년 대비 몇 배인가</td><td>당일 실시간 관측으로 갱신 (3.4)</td></tr>
 </table></div>
 
+<h4 id="eq-model" style="font-size:14.5px;margin:22px 0 6px">정식 표기 — 세 요소를 수식으로</h4>
+<p>위 곱셈식을 기호로 적으면 다음과 같다. 역 \(st\), 시각 \(h\)의 출구 수요는</p>
+\[ D_{st}(h) \;=\; \alpha \cdot E_{st} \cdot \varphi_{st}(h), \qquad \textstyle\sum_h \varphi_{st}(h) = 1 \]
+<p>이고, 도착 형태 \(\varphi_{st}\)는 KT 유출 곡선을 쇼 종료 이동분만큼 옮긴 뒤 도달 지연으로 시간대에 배분한다:</p>
+\[ \varphi_{st}(h) \;=\; \sum_{k\in\{0,1,2\}} w_{st}(k)\,\hat g(h-k), \qquad \hat g(h) = g_{\mathrm{KT}}(h - \Delta_{2026}),\ \ \Delta_{2026} = +40\text{분} \]
+<p>배분 비율 \(w_{st}\)는 도달 지연 \(\tau_{st}\)에서 나온다 — 시간대 안 균등 출발을 가정하면 \(\tau_{st}\)분 걸리는 이동은 같은/다음 시간대로 \((60-\tau)/60,\ \tau/60\)씩 갈린다. 지연 자체는 거리 나누기 밀도별 보행속도다:</p>
+\[ \tau_{st} = \frac{1}{60}\!\left[\frac{\ell_1}{v(\rho_{\mathrm{zone}})} + \frac{L_{st}-\ell_1}{v(\rho_{\mathrm{street}})}\right]\!, \qquad v(\rho) = \max\!\Big(0.15,\ 1.34\big[1-e^{-1.913(1/\rho-1/5.4)}\big]\Big)\ \mathrm{m/s} \]
+<p class="sub">\(v(\rho)\)는 Weidmann(1993)의 Kladek 식(§7.2 [2]). \(L_{st}\) = 관람 구역→출구 직선거리 × 우회계수 1.3(추정), \(\ell_1 = \min(300\,\mathrm{m}, L_{st})\)은 관람 구역 밀도 \(\rho_{\mathrm{zone}}\)로 걷는 초반 구간(추정), 이후는 가로 밀도 \(\rho_{\mathrm{street}}=1.5\)명/m²(추정). \(\rho_{\mathrm{zone}}\)은 당일 CCTV 등급에서 읽고(여유 1.5 · 주의 3.0 · 경계 4.0 · 심각 5.0명/m², §3.7), 관측이 없으면 3.0. 구현: <code>src/nowcast.py</code> <code>kladek()</code>·<code>lag_table()</code>.</p>
+
+<h4 style="font-size:14.5px;margin:22px 0 6px">표 3-1 — 기호·파라미터 일람</h4>
+<div class="tblwrap"><table>
+<tr><th>기호</th><th>뜻</th><th>값 · 산출</th><th>근거</th></tr>
+<tr><td>\(D_{st}(h)\)</td><td>역 \(st\)·시각 \(h\)의 출구 수요</td><td>본문 수요식</td><td>—</td></tr>
+<tr><td>\(\alpha\)</td><td>당일 규모 배율</td><td>사전 1.0 · 당일 사후분포 p50 (§3.4)</td><td>당일 관측</td></tr>
+<tr><td>\(E_{st}\)</td><td>축제일 초과 승차 (연도별)</td><td>표 3-2</td><td>OA-12921 · OA-12914</td></tr>
+<tr><td>\(\varphi_{st}(h)\)</td><td>도착 형태 (정규화)</td><td>KT 유출 곡선 × 도달 지연 배분</td><td>OA-22300</td></tr>
+<tr><td>\(\Delta_{2026}\)</td><td>쇼 종료 이동</td><td>+40분 (20:30 → 21:10)</td><td>공식 공지</td></tr>
+<tr><td>\(\tau_{st}\)</td><td>도달 지연</td><td>거리 ÷ \(v(\rho)\)</td><td>Weidmann 1993</td></tr>
+<tr><td>\(v(\rho)\)</td><td>밀도별 보행속도</td><td>\(v_0\) 1.34 m/s · \(\rho_{\max}\) 5.4명/m² · \(\gamma\) 1.913 · 하한 0.15</td><td>Weidmann 1993</td></tr>
+<tr><td>우회계수 · \(\ell_1\) · \(\rho_{\mathrm{street}}\)</td><td>경로 보정 상수</td><td>1.3 · 300 m · 1.5명/m²</td><td>추정</td></tr>
+<tr><td>\(C_{st}\)</td><td>처리 기록 최대</td><td>표 3-2 — 축제일 관측 최대 시간당 승차 (설계 용량 아님, 용량의 하한)</td><td>OA-12921 관측</td></tr>
+<tr><td>\(L_{st},\ Q_{st},\ W_{st}\)</td><td>부하율 · 대기열 · 대기시간</td><td>§3.3 보존식</td><td>—</td></tr>
+<tr><td>\(\sigma_{O1},\ \sigma_{O2}\)</td><td>관측 오차 (상대)</td><td>15% · 20%</td><td>추정</td></tr>
+</table></div>
+
+<h4 style="font-size:14.5px;margin:22px 0 6px">표 3-2 — \(E_{st}\)·\(C_{st}\) 실측값 (명)</h4>
+<div class="tblwrap"><table>
+<tr><th>역</th><th class="num">E 2024</th><th class="num">E 2025</th><th class="num">E 평균</th><th class="num">비중</th><th class="num">C<sub>st</sub></th><th>비고</th></tr>
+<tr><td>여의도(5)</td><td class="num">38,281</td><td class="num">25,159</td><td class="num">31,720</td><td class="num">29.1%</td><td class="num">17,788</td><td>—</td></tr>
+<tr><td>샛강(9)</td><td class="num">19,019</td><td class="num">18,268</td><td class="num">18,644</td><td class="num">17.1%</td><td class="num">8,455</td><td>†</td></tr>
+<tr><td>여의도(9)</td><td class="num">18,444</td><td class="num">17,787</td><td class="num">18,116</td><td class="num">16.6%</td><td class="num">13,208</td><td>†</td></tr>
+<tr><td>마포역 도보</td><td class="num">13,786</td><td class="num">15,277</td><td class="num">14,532</td><td class="num">13.3%</td><td class="num">15,000</td><td>† 보행로</td></tr>
+<tr><td>국회의사당(9)</td><td class="num">9,322</td><td class="num">14,410</td><td class="num">11,866</td><td class="num">10.9%</td><td class="num">7,373</td><td>†</td></tr>
+<tr><td>여의나루(5)</td><td class="num">7,454</td><td class="num">13,950</td><td class="num">10,702</td><td class="num">9.8%</td><td class="num">9,577</td><td>통제 20~21시</td></tr>
+<tr><td>신길(1·5)</td><td class="num">2,412</td><td class="num">4,477</td><td class="num">3,444</td><td class="num">3.2%</td><td class="num">5,546</td><td>† 1호선 합산</td></tr>
+<tr><td><b>합계</b></td><td class="num"><b>108,718</b></td><td class="num"><b>109,328</b></td><td class="num"><b>109,023</b></td><td class="num">100%</td><td class="num">—</td><td>총량 차 0.6%</td></tr>
+</table></div>
+<p class="sub">E = 축제일 승차 − 평시 토요일 중앙값(그 해 전체), 19~23시 합. † = 용량 추정(9호선·1호선 합산·보행로 — OA-12921 밖). 역별 E는 해마다 흔들리지만(여의도(5) 3.8만 ↔ 2.5만) 합계는 0.6% 차로 안정적이다 — 규모 예측이 성립하는 근거이자, 단일값 대신 2년 범위 밴드를 쓰는 이유다(§3.5 히스토리 표). 산출: <code>data/derived/exit_shares.json</code>.</p>
+
 <h3>3.3 부하율과 통제 규칙</h3>
 <ul>
   <li><b>부하율 = 수요 ÷ 처리용량.</b> 처리용량은 그 역이 한 시간에 실제로 태워 보낸 최대 인원(관측값). 1.0을 넘으면 그 시간 안에 다 못 타서 줄이 다음 시간으로 쌓인다 → 예상 대기시간으로 환산.</li>
   <li><b>통제 규칙:</b> 여의나루는 20~21시 수요 0(무정차). 그 시간에 여의나루로 걸어온 사람들은 사라지는 게 아니라 <b>해제(21:40)를 기다렸다가 바로 탄다</b> → 그 몫을 22시로 이월. 실측 근거: 해제 직후 시간대 승차가 2024년 2.3천 · 2025년 5.8천 명.</li>
   <li>이 이월 규칙 덕분에 모델이 "22시 여의나루가 가장 위험하다"는, 직관과 다른 결론을 낸다 (§4.3).</li>
 </ul>
+
+<p>기호로 적으면 — 부하율, 시간대를 넘는 대기열, 대기시간은</p>
+\[ L_{st}(h) = \frac{D_{st}(h)}{C_{st}}, \qquad Q_{st}(h) = \max\big(0,\ Q_{st}(h\!-\!1) + D_{st}(h) - C_{st}\big), \qquad W_{st}(h) = 60\,\frac{Q_{st}(h)}{C_{st}}\ \text{분} \]
+<p class="sub">\(Q\)는 유량 보존식이고 \(W\)는 Little 법칙(대기열 ÷ 처리율)이다 — 자유 파라미터가 없어, 수요와 용량이 맞으면 자동으로 맞는다. 통제 이월은 여의나루 \(h\in\{20,21\}\)에서 \(D=0\)으로 두고 그 도착분을 해제 후 첫 시간대(22시)에 가산하는 규칙이다. 보존 검증은 상시 테스트(<code>tests/test_model.py</code>), 대기 분의 실측 대조는 9/5 현장 스톱워치·CCTV 대기열로 한다(§5.2).</p>
 
 <h3>3.4 당일 보정 α — 오늘 규모를 실시간으로 갱신</h3>
 <div class="easy">
@@ -203,6 +249,16 @@ svg .pt{cursor:pointer}
   <li>관측 ② 귀가측: 여의도 일대 9개 역 30분 단위 승차 인원 (19시 이후, 사람들이 실제로 빠져나가는 규모)</li>
   <li>관측이 하나도 없으면? 사전 예측표를 그대로 쓴다. 즉 <b>라이브가 죽어도 서비스는 성립</b>한다.</li>
 </ul>
+
+<p>α 추정은 격자 베이즈 갱신이다. 로그 등간격 61점 \(\alpha \in [1/3, 3]\) 위에서</p>
+\[ w(\alpha) \;\propto\; p_0(\alpha) \prod_{i=1}^{n} \mathcal{N}\big(y_i;\ A_i\,\alpha + B_i,\ \sigma_i\big), \qquad p_0 = \mathrm{LogNormal}(0,\ 0.25) \]
+<p>를 계산하고 \(\hat\alpha = p50\), 예측 밴드는 \([p10, p90]\)을 쓴다. 사전분포 폭 0.25는 p10/p90이 0.73/1.38로 2년 관측 밴드와 맞도록 정했다. 관측 \(y_i\)는 두 채널이다:</p>
+<div class="tblwrap"><table>
+<tr><th>채널</th><th>관측 \(y\)</th><th>예측항 \(A\alpha + B\)</th><th class="num">\(\sigma\)</th><th>시간 창</th></tr>
+<tr><td><b>O1</b> 도착측</td><td>여의나루 30분 하차 증분</td><td>\(A\) = 2년 평균 증분, \(B = 0\)</td><td class="num">15%</td><td>~19시 (기준 증분 &lt; 200 창은 제외)</td></tr>
+<tr><td><b>O2</b> 귀가측</td><td>핫스팟 9역 합산 30분 승차</td><td>\(A = c \cdot\) 초과(α=1)/2, \(B = c \cdot\) 평시/2</td><td class="num">20%</td><td>19시~ (\(c\) = 커버리지 추정)</td></tr>
+</table></div>
+<p class="sub">구현: <code>src/nowcast.py</code> <code>assimilate()</code>. 사후분포가 격자 끝에 붙으면(edge_hit) 관측과 사전이 크게 어긋난다는 경고로 기록한다.</p>
 
 <h3>3.5 검증 — 타임머신 시험 (백테스트)</h3>
 <p>예측 모델은 "맞는지"를 반드시 숫자로 확인해야 한다. 방법: 한 해의 데이터를 가리고, 다른 해의 데이터만으로 그 해를 예측한 뒤 실측과 비교한다. B 모드가 2026년 예측이 실제로 놓이는 조건과 같다(과거 데이터만 있음).</p>
@@ -215,6 +271,19 @@ svg .pt{cursor:pointer}
 <tr><td><b>B: 다른 해 데이터로 예측</b></td><td class="num"><b>0.42</b></td><td class="num"><b>0.44</b></td><td>76% / 88%</td><td><b>2026 조건의 실전 오차</b></td></tr>
 </table></div>
 <p class="sub">오차 = |예측−실측| 합 ÷ 실측 합 (시간대 승차가 있는 4개 역 기준). B 오차의 주범은 해마다 총 인파가 다르다는 것(여의도(5) 21시: 2024년 17.8천 ↔ 2025년 12.5천) — 이 폭을 예측 밴드로 정직하게 표시한다. 등급 적중률이 더 중요하다: 관람객이 실제로 보는 것은 숫자가 아니라 <span class="grade g1">여유</span>~<span class="grade g4">심각</span> 등급이고, 이건 B에서도 76~88% 맞는다. 이 밖에 코드가 바뀔 때마다 자동으로 도는 논리 검증 테스트 22건(수요 총량 보존, 통제 이월, 스키마 등)이 상시 통과 상태다.</p>
+
+<p>오차 지표는 시간대 절대오차 합 대 실측 합의 비다:</p>
+\[ \mathrm{err} = \frac{\sum_h \big|\hat D(h) - D_{\mathrm{obs}}(h)\big|}{\sum_h D_{\mathrm{obs}}(h)} \]
+<h4 id="tbl-3-4" style="font-size:14.5px;margin:22px 0 6px">표 3-4 — 역별 오차·등급 적중 (오차 err, 괄호 = 등급 적중/시간대 수)</h4>
+<div class="tblwrap"><table>
+<tr><th>역</th><th class="num">A: 2024→2024</th><th class="num">A: 2025→2025</th><th class="num">B: 2025→2024</th><th class="num">B: 2024→2025</th></tr>
+<tr><td>여의도(5)</td><td class="num">0.17 (3/5)</td><td class="num">0.12 (5/5)</td><td class="num">0.38 (2/5)</td><td class="num">0.44 (4/5)</td></tr>
+<tr><td>여의나루(5)</td><td class="num">0.32 (1/2)</td><td class="num">0.18 (2/2)</td><td class="num">0.44 (1/2)</td><td class="num">0.54 (1/2)</td></tr>
+<tr><td>신길(1·5)</td><td class="num">0.26 (5/5)</td><td class="num">0.30 (5/5)</td><td class="num">0.69 (5/5)</td><td class="num">0.51 (5/5)</td></tr>
+<tr><td>마포역 도보</td><td class="num">0.38 (5/5)</td><td class="num">0.38 (5/5)</td><td class="num">0.47 (5/5)</td><td class="num">0.30 (5/5)</td></tr>
+<tr><td><b>전체</b></td><td class="num"><b>0.245 (14/17)</b></td><td class="num"><b>0.214 (17/17)</b></td><td class="num"><b>0.420 (13/17)</b></td><td class="num"><b>0.438 (15/17)</b></td></tr>
+</table></div>
+<p class="sub">읽는 법 — "2025→2024"는 2025년 데이터만으로 2024년을 예측한 교차 검증. 신길의 B 오차 0.69는 절대 규모가 작아(시간당 수백 명) 비율이 과장된 것으로, 등급은 5/5 전부 맞다. 여의나루 등급 분모가 2인 것은 통제로 열린 시간대가 두 개뿐이기 때문이다. 시간대별 원자료: <code>data/derived/backtest.json</code>.</p>
 
 <p><b>그림 4 — 백테스트: 모델 곡선이 실측을 따라가는가.</b> 대표로 여의도(5)역 저녁. 21시 정점의 높이·위치가 맞는다.</p>
 <div class="yrtog" id="btyr" hidden>
@@ -264,7 +333,7 @@ svg .pt{cursor:pointer}
 
 <h4 style="font-size:14.5px;margin:22px 0 6px">어떻게 찾았나 — 4단계</h4>
 <ol>
-  <li><b>초과 승차 계산</b>: 서울 1~8호선 전 역(253역)에 대해, 축제일 시간대별 승차 − 평시 토요일 중앙값. "평소에도 타는 사람"을 걷어낸 나머지.</li>
+  <li><b>초과 승차 계산</b>: 서울 1~8호선 전 역(253역)에서 축제일 시간대별 승차 − 평시 토요일 중앙값을 구한다. "평소에도 타는 사람"을 걷어낸 나머지.</li>
   <li><b>2년 필터</b>: 2024·2025 <b>두 해 연속</b> 초과가 난 역만 인정. 한 해만 튄 역은 다른 행사·우연일 수 있어 제외.</li>
   <li><b>KT 데이터로 제약</b>: KT 생활이동(휴대전화 기반)이 "여의도 유입이 어느 구(區)에서 출발했는지" 총량을 준다. 역별 초과분은 <b>그 구 총량을 넘지 않게</b> 배분 — 역 데이터 혼자 결론 내지 않고 독립된 두 소스를 맞물린다.</li>
   <li><b>교차 검증</b>: 배분한 합계가 여의도 도착과 규모(자릿수)·시간 모양에서 일치하는지 확인.</li>
@@ -341,7 +410,27 @@ svg .pt{cursor:pointer}
   <li>야간 작동 테스트 완료(8/29 밤 1시간, 23대 전부 정상 수신·야간 화질 문제 없음).</li>
 </ul>
 
-<h3>3.8 버린 결정 — 과정의 기록</h3>
+<h3 id="sec-3-8">3.8 규모의 외부 검증 — 생활인구·전야제</h3>
+<p>모델의 뼈대인 "규모"가 지하철 데이터 안에서만 맞는 것일 수 있다. 그래서 지하철과 독립인 제3의 소스(서울 생활인구, OA-14991 — 통신 기반 추계)로 같은 그림이 나오는지 확인했다.</p>
+
+<h4 style="font-size:14.5px;margin:22px 0 6px">표 3-5 — 여의동 생활인구: 평시 vs 축제 당일 (19시, 명)</h4>
+<div class="tblwrap"><table>
+<tr><th>연도</th><th class="num">평시 토요일 (월내 중앙값)</th><th class="num">축제 당일</th><th class="num">배수</th></tr>
+<tr><td>2024</td><td class="num">87,764</td><td class="num">393,403</td><td class="num"><b>4.48</b></td></tr>
+<tr><td>2025</td><td class="num">81,456</td><td class="num">359,281</td><td class="num"><b>4.41</b></td></tr>
+</table></div>
+<p>당일 피크(19시)가 2년 연속 같은 배수로 재현되고, 시간 곡선의 모양도 모델의 유출 곡선과 맞물린다. 지하철 승하차(교통공사) · 이동 OD(KT) · 생활인구(추계)라는 서로 독립인 세 소스가 규모에서 합의한다 — §3.6 근거 ③과 같은 삼각측량이다.</p>
+
+<h4 style="font-size:14.5px;margin:22px 0 6px">표 3-6 — 전야제(축제 전일 금) 여의나루 하차: 17~23시 합 (명)</h4>
+<div class="tblwrap"><table>
+<tr><th>연도</th><th class="num">전야제</th><th class="num">평시 금 중앙값 (51주)</th><th class="num">배수</th><th class="num">참고: 여의도역</th></tr>
+<tr><td>2024</td><td class="num">8,510</td><td class="num">4,521</td><td class="num"><b>1.88</b></td><td class="num">0.94</td></tr>
+<tr><td>2025</td><td class="num">7,254</td><td class="num">3,892</td><td class="num"><b>1.86</b></td><td class="num">1.08</td></tr>
+</table></div>
+<p>전야제 인파는 여의나루 하차 기준 평시 금요일의 1.9배 수준에서 2년 연속 재현되고, 여의도역은 평시 수준에 머문다. 이 수치가 <b>9/4 리허설의 정상 신호 기준</b>이다 — 그날 관측이 이 규모면 파이프라인이 맞게 돌고 있는 것이다. 한편 생활인구는 전야제를 동 단위에서 1.00~1.09배로만 본다 — 여의동의 평일 직장 인구에 희석되기 때문이다. 작은 행사는 역 단위 관측이 동 단위 추계보다 민감하다는, 우리 관측 설계(§3.4 O1·O2)의 방증이다.</p>
+<p class="sub">산출: <code>data/derived/lifepop_yeouido.json</code> · <code>data/derived/eve_rehearsal.json</code>.</p>
+
+<h3>3.9 버린 결정 — 과정의 기록</h3>
 <p>맞는 답만큼 중요한 게 "왜 그 길로 안 갔나"다. 심사 항목("만든 과정")이기도 하다.</p>
 <div class="tblwrap"><table>
 <tr><th>버린 것</th><th>왜 버렸나</th><th>대신 택한 것</th></tr>
@@ -447,6 +536,7 @@ svg .pt{cursor:pointer}
 <tr><td>티머니 교통카드 역별 일별 승하차</td><td>서울 열린데이터광장 <a href="https://data.seoul.go.kr/dataList/OA-12914/S/1/datasetView.do">OA-12914</a></td><td>2024-10 · 2025-09 월 파일 (1~9호선)</td><td>9호선 규모 · 용량 비례 추정</td></tr>
 <tr><td>KT 수도권 생활이동 — 목적별 OD</td><td>서울 열린데이터광장 <a href="https://data.seoul.go.kr/dataList/OA-22300/F/1/datasetView.do">OA-22300</a> (서울시×KT, 통신 기반 전수화 추정)</td><td>축제일 2일(2024-10-05 · 2025-09-27) + 대조 토요일</td><td>유출 시간 곡선 · 출발지(구 단위) 구성. 목적코드 3=귀가 (빅데이터캠퍼스 자료안내서 B078로 확정)</td></tr>
 <tr><td>KT 생활이동 — 수단별 OD</td><td>서울 열린데이터광장 <a href="https://data.seoul.go.kr/dataList/OA-22657/F/1/datasetView.do">OA-22657</a></td><td>축제일 1일</td><td>지하철 비중 (수단코드 6=지하철, 코드표 미공개라 "추정" 표기)</td></tr>
+<tr><td>서울 생활인구 (행정동)</td><td>서울 열린데이터광장 <a href="https://data.seoul.go.kr/dataList/OA-14991/S/1/datasetView.do">OA-14991</a></td><td>2024-10 · 2025-09 월 파일 (여의동 11560540)</td><td>규모 외부 검증 (§3.8) — 당일 4.4~4.8배 · 전야 동 단위 희석</td></tr>
 <tr><td>서울 실시간 도시데이터 (citydata)</td><td><a href="https://data.seoul.go.kr/SeoulRtd/">data.seoul.go.kr/SeoulRtd</a> API</td><td>핫스팟: 여의도한강공원(POI105)·여의도·여의서로 + 피더 12곳, 5분 주기</td><td>당일 α 관측(30분 승하차) · 피더 감시 · 서울시 12시간 예측과 오차 비교</td></tr>
 <tr><td>TOPIS 교통 CCTV</td><td><a href="https://topis.seoul.go.kr/">topis.seoul.go.kr</a> 공개 HLS</td><td>여의도 반경 23대, 720×480</td><td>보행 밀도 → 보행속도 보정. 프레임 미저장(집계만)</td></tr>
 <tr><td>2026 축제 공식 공지</td><td><a href="https://hanwhafireworks.com/">hanwhafireworks.com</a></td><td>공지 6호 등</td><td>통제 규칙(여의나루 20:40~21:40 · 여의동로 전면통제) · 쇼 21:10 종료</td></tr>
@@ -868,5 +958,7 @@ function countInit() {
 });
 })();
 </script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
 </body>
 </html>
