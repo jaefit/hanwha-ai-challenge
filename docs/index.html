@@ -613,7 +613,9 @@ function apfField(st){
   const x0=Math.min(...lngs)-pad,x1=Math.max(...lngs)+pad,y0=Math.min(...lats)-pad,y1=Math.max(...lats)+pad;
   const g={x0,y0,dx:(x1-x0)/APF_COLS,dy:(y1-y0)/APF_ROWS,cols:APF_COLS,rows:APF_ROWS};
   APF_GRID=g;
-  APF_FIELD=Field.buildField({observations:st.obs,grid:g,prior:st.prior,kernel:APF_KERNEL});
+  // 사전 평균을 관측 수준에서 잡는다. 고정 0.3 이면 주변이 다 붐벼도 사후가 여유로 끌려가
+  // 마커(지수 70)와 면(59)이 어긋났다. st.prior 는 관측이 없을 때의 기준값으로만 쓴다.
+  APF_FIELD=Field.buildField({observations:st.obs,grid:g,prior:null,fallbackPrior:st.prior,kernel:APF_KERNEL});
   apfPalette();
   // 폴리곤 대신 격자 크기 이미지를 만든다 — GPU 가 bilinear 로 늘려주므로 셀 경계가 안 보인다.
   // 이미지 경계가 직선으로 드러나지 않게 가장자리에서 알파를 0 으로 떨군다.

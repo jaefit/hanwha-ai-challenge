@@ -201,5 +201,37 @@ t('infoWeight 는 관측이 사후에 실제로 기여하는 정도를 0~1 로 �
   near(at(f, 2, 2), PRIOR + F.infoWeight(sigma, kxx) * (y - PRIOR), 1e-6, '사후 축소와 불일치');
 });
 
+t('autoPrior 는 관측들의 신뢰도 가중 평균으로 사전을 잡되, 관측이 적으면 기본값에 붙는다', () => {
+  const kxx = KERNEL.varShort + KERNEL.varLong;
+  // 관측 0 → 기본값
+  near(F.autoPrior([], kxx, .3), .3, 1e-12, '관측 없음');
+  // 신뢰 높은 관측이 여럿이면 그쪽으로
+  // 가짜 관측 PRIOR_PSEUDO 건이 섞이므로 관측 평균에 '근접' 하되 넘지는 않는다.
+  // 관측 12건(σ=0.1) 이면 기본값이 약 20% 남는다 — 관측이 적을수록 보수적이라는 뜻이다.
+  const many = Array.from({length: 12}, (_, i) => ({x:[126.93+i*.002,37.52], y:.8, sigma:.1}));
+  const pm = F.autoPrior(many, kxx, .3);
+  ok(pm > .65 && pm < .8, `다수 관측이면 관측 평균 쪽으로 (넘지는 않게): ${pm}`);
+  // 관측 1건이 지도 전체를 정하면 안 된다
+  const one = [{x:[126.93,37.52], y:1.0, sigma:.1}];
+  const p1 = F.autoPrior(one, kxx, .3);
+  ok(p1 > .3 && p1 < .6, `1건은 절제되어야: ${p1}`);
+  // σ 가 큰 관측은 덜 끌어당긴다
+  const tight = F.autoPrior([{x:[126.93,37.52],y:1,sigma:.1}], kxx, .3);
+  const loose = F.autoPrior([{x:[126.93,37.52],y:1,sigma:.9}], kxx, .3);
+  ok(tight > loose, `σ 작을수록 더 끌어야: ${tight} vs ${loose}`);
+});
+
+t('사전이 관측 수준을 따르면 주의급 관측이 여유로 주저앉지 않는다', () => {
+  // 미보정 카메라(σ=0.30) 하나가 0.70(주의) 을 보는데 주변도 붐비는 상황
+  const around = [];
+  for (let i = 0; i < 8; i++) around.push({x:[126.925+i*.004, 37.523+ (i%2)*.004], y:.72, sigma:.30});
+  const grid = { x0:126.92, y0:37.518, dx:.002, dy:.002, cols:10, rows:8 };
+  const at0 = (f) => f.mean[Math.round((37.523-grid.y0)/grid.dy)*grid.cols + Math.round((126.925-grid.x0)/grid.dx)];
+  const fixed = F.buildField({observations: around, grid, prior:.3, kernel:KERNEL});
+  const auto  = F.buildField({observations: around, grid, prior:null, kernel:KERNEL});
+  ok(at0(fixed) < .63, `고정 사전이면 여유로 주저앉는다(재현): ${at0(fixed)}`);
+  ok(at0(auto) >= .63, `자동 사전이면 주의 밴드에 남아야: ${at0(auto)}`);
+});
+
 process.stdout.write(JSON.stringify(results));
 process.exit(results.every(r => r.ok) ? 0 : 1);

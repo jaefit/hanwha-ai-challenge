@@ -96,6 +96,22 @@
     return kxx / (kxx + s2);
   }
 
+  // 사전 평균을 관측 수준에서 잡는다 (경험적 베이즈).
+  //   왜: 고정 0.3 이면 주변이 다 붐벼도 사후가 "여유" 로 끌려간다. 미보정 카메라(σ=0.30)가 0.70 을 봐도
+  //   사후는 0.3 + 0.735·(0.70−0.3) = 0.594 라 여유 밴드에 주저앉는다 — 화면의 마커(70)와 면(59)이 어긋난다.
+  //   관측이 말하는 수준을 사전으로 삼으면 이 편향이 사라진다.
+  //   단 관측 1건이 지도 전체를 정하면 안 되므로, 기본값을 PRIOR_PSEUDO 건만큼의 가짜 관측으로 섞는다.
+  var PRIOR_PSEUDO = 3;
+
+  function autoPrior(obs, kxx, fallback) {
+    var sw = PRIOR_PSEUDO, sy = PRIOR_PSEUDO * fallback, i, w;
+    for (i = 0; i < obs.length; i++) {
+      w = infoWeight(obs[i].sigma, kxx);
+      sw += w; sy += w * obs[i].y;
+    }
+    return sw > 0 ? sy / sw : fallback;
+  }
+
   /** 하삼각 L (A = LLᵀ). PD 가 아니면 null. */
   function cholesky(A) {
     var n = A.length, L = [], i, j, k;
@@ -148,9 +164,12 @@
    */
   function buildField(opts) {
     var obs = opts.observations || [], g = opts.grid, kern = opts.kernel;
-    var prior = opts.prior == null ? 0 : opts.prior;
     var n = obs.length, cells = g.cols * g.rows;
     var kxx = kern.varShort + kern.varLong;
+    // prior 를 주지 않으면 관측 수준에서 잡는다 (fallbackPrior 는 관측이 없거나 적을 때의 기준)
+    var prior = opts.prior == null
+      ? autoPrior(obs, kxx, opts.fallbackPrior == null ? 0.3 : opts.fallbackPrior)
+      : opts.prior;
     var mean = new Float64Array(cells), sd = new Float64Array(cells);
     var i, j, c, ix, iy;
 
@@ -210,6 +229,8 @@
     backSolve: backSolve,
     obsNoise: obsNoise,
     infoWeight: infoWeight,
+    autoPrior: autoPrior,
+    PRIOR_PSEUDO: PRIOR_PSEUDO,
     gradeToUnit: gradeToUnit,
     densityToUnit: densityToUnit,
     unitToGrade: unitToGrade,
