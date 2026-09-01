@@ -341,7 +341,7 @@ function render(){
   const html=open.map((r,i)=>{const lv=LV(r.load,false);const est=r.c.estimated_capacity??r.e.est;const w=Math.min(100,Math.round(r.load*100));
     let note="";const sb=(SATBASE[r.e.dk]||{})[Number(hour)];
     if(r.c.demand&&sb){const mul=r.c.demand/sb;note+=`· 평시 토요일의 ${mul>=10?Math.round(mul):mul.toFixed(1)}배 `;}
-    if(r.c.wait_min>0)note+=`· 대기 ~${r.c.wait_min}분(추정)`;else if(r.load>=0.7)note+="· 줄 서면 그 시간 안에 탐";else note+="· 줄 거의 없음";
+    if(r.c.wait_min>0)note+=`· 대기 ~${r.c.wait_min}분(추정)`;else if(r.load>=0.8)note+="· 줄 길어짐 — 그 시간 안엔 탐";else if(r.load>=0.5)note+="· 줄 서되 그 시간 안에 탐";else note+="· 줄 거의 없음";
     if(r.e.k==="naru"&&hour==="21")note+=" · 임시 통제 21:40까지, 이후 정차";
     const hasBand=r.c.load_lo!=null&&r.c.load_hi!=null&&r.c.load_hi>r.c.load_lo;
     const band=hasBand?`<b style="left:${Math.min(100,Math.round(r.c.load_lo*100))}%;width:${Math.max(1,Math.min(100,Math.round((r.c.load_hi-r.c.load_lo)*100)))}%"></b>`:"";
