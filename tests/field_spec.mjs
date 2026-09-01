@@ -188,5 +188,18 @@ t('levelToUnit 은 밀도 등급을 밴드 중앙값으로 되돌린다 (unitToG
   ok(F.levelToUnit('경계') < F.levelToUnit('심각'), '단조');
 });
 
+t('infoWeight 는 관측이 사후에 실제로 기여하는 정도를 0~1 로 준다', () => {
+  const kxx = KERNEL.varShort + KERNEL.varLong;
+  near(F.infoWeight(0, kxx), 1, 1e-12, 'σ=0 이면 관측이 사후를 완전히 결정');
+  ok(F.infoWeight(0.1, kxx) > 0.9, '정밀 관측');
+  ok(F.infoWeight(99, kxx) < 0.01, '3일 지난 관측은 사실상 기여 없음');
+  const w = [0.05, 0.2, 0.5, 2, 99].map(s => F.infoWeight(s, kxx));
+  for (let i = 1; i < w.length; i++) ok(w[i] < w[i - 1], `σ 커지면 단조 감소 아님 @${i}`);
+  // 사후 축소와 일치해야 한다: 관측점에서 μ 는 사전에서 관측 쪽으로 정확히 w 만큼 간다
+  const p = cellCenter(2, 2), y = 1.0, sigma = 0.3;
+  const f = F.buildField({ observations: [{ x: p, y, sigma }], grid: GRID, prior: PRIOR, kernel: KERNEL });
+  near(at(f, 2, 2), PRIOR + F.infoWeight(sigma, kxx) * (y - PRIOR), 1e-6, '사후 축소와 불일치');
+});
+
 process.stdout.write(JSON.stringify(results));
 process.exit(results.every(r => r.ok) ? 0 : 1);

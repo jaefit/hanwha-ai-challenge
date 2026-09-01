@@ -208,6 +208,8 @@ footer a{color:var(--ink-2)}
 .apf-mk:focus-visible{outline:3px solid var(--orange);outline-offset:2px}
 .apf-mapbox .maplibregl-popup-content{background:var(--pill-bg);color:var(--pill-ink);border:1px solid var(--pill-border);border-radius:4px;padding:9px 11px;font:12px/1.5 Pretendard,sans-serif}
 .apf-mapbox .maplibregl-popup-tip{display:none}
+.apf-state{position:absolute;left:10px;bottom:10px;z-index:4;padding:6px 10px;border-radius:4px;background:var(--pill-bg);color:var(--pill-ink);border:1px solid var(--pill-border);font:700 11.5px Pretendard,sans-serif;max-width:min(340px,calc(100% - 90px))}
+.apf-state.off{color:var(--note)}
 
 /* ── 모바일 375 · 1열 ── */
 @media (max-width:960px){
@@ -322,7 +324,7 @@ footer a{color:var(--ink-2)}
       <div class="apf-stat"><b>150·700m</b><span>길이척도 (가정)</span></div>
     </div>
   </div>
-  <div class="apf-mapbox"><div class="apf-tools"><label class="apf-toggle"><input id="apf-toggle" type="checkbox" checked>APF 표시</label><label class="route-label" for="route-station">① 지도 클릭으로 현재 위치 선택　② 목적역 선택</label><div class="route-row"><select id="route-station" aria-label="목적역"><option value="yeouido">여의도역 · 5·9호선</option><option value="yeouinaru">여의나루역 · 5호선</option><option value="assembly">국회의사당역 · 9호선</option><option value="saetgang">샛강역 · 9호선·신림선</option><option value="singil">신길역 · 1·5호선</option><option value="yeongdeungpo">영등포역 · 1호선</option><option value="market">영등포시장역 · 5호선</option><option value="dangsan">당산역 · 2·9호선</option><option value="office">영등포구청역 · 2·5호선</option><option value="mapo">마포역 · 5호선</option></select><button id="route-run" type="button" disabled>경로 찾기</button></div><div class="route-status" id="route-status" aria-live="polite">지도를 클릭해 출발점을 지정하세요.</div></div><div id="apf-map" role="application" aria-label="CCTV와 서울시 구역등급을 합친 인파 혼잡장 지도와 보행 경로. 클릭으로 출발 위치 선택 가능"></div></div>
+  <div class="apf-mapbox"><div class="apf-state off" id="apf-state">불러오는 중</div><div class="apf-tools"><label class="apf-toggle"><input id="apf-toggle" type="checkbox" checked>APF 표시</label><label class="route-label" for="route-station">① 지도 클릭으로 현재 위치 선택　② 목적역 선택</label><div class="route-row"><select id="route-station" aria-label="목적역"><option value="yeouido">여의도역 · 5·9호선</option><option value="yeouinaru">여의나루역 · 5호선</option><option value="assembly">국회의사당역 · 9호선</option><option value="saetgang">샛강역 · 9호선·신림선</option><option value="singil">신길역 · 1·5호선</option><option value="yeongdeungpo">영등포역 · 1호선</option><option value="market">영등포시장역 · 5호선</option><option value="dangsan">당산역 · 2·9호선</option><option value="office">영등포구청역 · 2·5호선</option><option value="mapo">마포역 · 5호선</option></select><button id="route-run" type="button" disabled>경로 찾기</button></div><div class="route-status" id="route-status" aria-live="polite">지도를 클릭해 출발점을 지정하세요.</div></div><div id="apf-map" role="application" aria-label="CCTV와 서울시 구역등급을 합친 인파 혼잡장 지도와 보행 경로. 클릭으로 출발 위치 선택 가능"></div></div>
   <div class="apf-legend"><span>혼잡 지수 · 서울시 기준</span><span>여유</span><span class="apf-scale" aria-hidden="true"></span><span>심각(5명/m²)</span><span>· 흐릴수록 불확실</span><span class="apf-walk-key" aria-hidden="true"></span><span>보행 가능 네트워크(경로 계산 시 표시) · 파란 점 = 출발 · 주황 점 = 목적역 · 밝은 선 = 혼잡 회피 경로</span></div>
   <div class="apf-detail" id="apf-detail" aria-live="polite">CCTV 원을 선택하면 근거(밀도 또는 등급)와 그 관측에 쓰인 σ 를 표시한다.</div>
   <p class="sub" style="margin-top:10px">한계 — ROI 보정은 23대 중 <b>5대</b>(강변)뿐이고 나머지는 점유율 기준 임시 등급이다. 서울시 구역 등급은 <b>여의도한강공원 1곳</b>만 장에 넣는다 — 여의도 전체는 업무지구가 섞여 참고로만 두고, 여의서로는 대응 좌표가 없다. 길이척도·노이즈는 가정이며 9/5 관측이 쌓이면 교차검증으로 교체한다. 유클리드 거리라 한강 건너로 번지는 몫이 남아 있다.</p>
@@ -529,7 +531,10 @@ function plans(){$("plans").innerHTML=PLANS.map(([c,t,s,items])=>`<div class="pl
 const APF_COLS=88,APF_ROWS=68;
 const APF_KERNEL={varShort:.125,lenShort:150,varLong:.125,lenLong:700};
 const APF_SD_MAX=Math.sqrt(APF_KERNEL.varShort+APF_KERNEL.varLong);
-const APF_PRIOR_FALLBACK=.3;   // 여의도 구역 등급이 없을 때. 확신이 아니라 사전값이며 불확실성(sd)이 최대로 남는다
+const APF_PRIOR_FALLBACK=.3;
+const APF_KXX=APF_KERNEL.varShort+APF_KERNEL.varLong;
+const APF_MIN_W=.10;   // 이보다 기여가 작으면 장에 사실상 안 들어간다 — 타일·마커·배지가 같은 기준을 쓴다
+const ageText=m=>m==null?"":m<60?`${Math.round(m)}분 전`:m<2880?`${Math.round(m/60)}시간 전`:`${(m/1440).toFixed(1)}일 전`;   // 여의도 구역 등급이 없을 때. 확신이 아니라 사전값이며 불확실성(sd)이 최대로 남는다
 // 도보 소요는 보고서 §3.2·src/nowcast.py travel_min() 과 같은 가정을 쓴다 — Weidmann(1993) Kladek 속도-밀도 식,
 // 처음 300m 는 관람구역 밀도 3.0명/m², 이후 가로 1.5명/m². 상수 75m/분(=1.25m/s)을 쓰면 같은 경로가 절반 시간으로 나와
 // 보고서와 2배 어긋난다(1.82km 기준 24분 vs 47분). (2026-09-01 마이그레이션 이탈 #1)
@@ -557,7 +562,7 @@ function apfRows(cctv,snap){
     }
     const ageMin=v?ageOf(v.ts):null;
     const sigma=y==null?null:Field.obsNoise({kind,confidence:v&&v.confidence,flags:v&&v.flags,ageMin});
-    rows.push({cam,v,y,kind,ageMin,sigma,count:v&&v.count!=null?Number(v.count):null});
+    rows.push({cam,v,y,kind,ageMin,sigma,w:sigma==null?0:Field.infoWeight(sigma,APF_KXX),count:v&&v.count!=null?Number(v.count):null});
     if(y!=null)obs.push({x:[cam.lng,cam.lat],y,sigma});
   });
   // 여의도한강공원(POI105) = 행사장. 좌표가 API 에 없어 저장소의 관람구역 5곳(nowcast.ZONES)에 배경으로 깐다.
@@ -572,8 +577,10 @@ function apfRows(cctv,snap){
   // 여의서로(POI126)는 대응 좌표가 없어 이번 패스에서 제외.
   // 사전 평균은 중립값으로 고정한다. 관측이 닿지 않는 곳은 "모른다" 가 맞고, 그건 색이 아니라 사후 표준편차가 말한다.
   const ydo=(snap||{})["여의도"];
-  const active=rows.filter(r=>r.y!=null);
-  return {rows,active,obs,prior:APF_PRIOR_FALLBACK,parkUnit:pu,parkGrade:park&&park.congest||null,ydoGrade:ydo&&ydo.congest||null};
+  const active=rows.filter(r=>r.y!=null&&r.w>=APF_MIN_W);
+  const seen=rows.filter(r=>r.y!=null);
+  const freshest=seen.length?Math.min.apply(null,seen.map(r=>r.ageMin==null?Infinity:r.ageMin)):null;
+  return {rows,active,seen,freshest,obs,prior:APF_PRIOR_FALLBACK,parkUnit:pu,parkGrade:park&&park.congest||null,ydoGrade:ydo&&ydo.congest||null};
 }
 function apfField(st){
   if(!CAMS.length)return{type:"FeatureCollection",features:[]};
@@ -599,12 +606,18 @@ function apfSelect(r){
   const basis=r.kind==="cctv_calibrated"?`밀도 ${r.v.density}명/m² (ROI 보정)`
              :`등급 ${esc(r.v.level||"—")} · 점유율 기준 임시값`;
   const warn=(r.v&&r.v.confidence==="low")?` · <b style="color:var(--note)">신뢰 낮음(${esc((r.v.flags||[]).join(",")||"low")}) — σ 확대 반영</b>`:"";
-  const age=r.ageMin!=null&&r.ageMin>=10?` · ${Math.round(r.ageMin)}분 전`:"";
-  d.innerHTML=`<b>${esc(r.cam.name)}</b> · ${basis} · 지수 ${Math.round(r.y*100)}/100 · ${apfLevel(r.y)} · σ ${r.sigma.toFixed(2)}${age}${ts}${warn}`;
+  const age=r.ageMin!=null&&r.ageMin>=10?` · ${ageText(r.ageMin)}`:"";
+  d.innerHTML=`<b>${esc(r.cam.name)}</b> · ${basis} · 지수 ${Math.round(r.y*100)}/100 · ${apfLevel(r.y)} · σ ${r.sigma.toFixed(2)} · <b>장 기여 ${Math.round(r.w*100)}%</b>${age}${ts}${warn}`;
 }
 function apfRender(cctv,snap){
   const st=apfRows(cctv,snap);APF_ROWS_BY_CAM=st.rows;APF_DATA=apfField(st);
   $("apf-active").textContent=`${st.active.length}/${CAMS.length||23}`;
+  // 장이 사실상 사전으로 돌아갔는데 타일·마커만 옛 관측을 말하면 화면이 자기모순이다. 같은 기준으로 알린다.
+  const badge=$("apf-state");
+  if(!st.seen.length)badge.textContent="관측 없음 — 배경만 표시";
+  else if(!st.active.length)badge.textContent=`관측이 오래됨(최근 ${ageText(st.freshest)}) — 배경만 표시, 색은 근거 없음`;
+  else badge.textContent=`관측 ${st.active.length}점 반영 · 최근 ${ageText(st.freshest)}`;
+  badge.className="apf-state"+(st.active.length?"":" off");
   // 장에서는 σ 로 눌린 관측이 타일에서만 최댓값으로 튀면 안 된다 — 신뢰 있는 것을 먼저 고르고, 없으면 표시에 경고를 붙인다.
   const trusted=st.active.filter(r=>!(r.v&&r.v.confidence==="low"));
   const top=(trusted.length?trusted:st.active).slice().sort((a,b)=>b.y-a.y)[0];
@@ -622,12 +635,14 @@ function apfMarkers(){
   APF_ROWS_BY_CAM.forEach(r=>{
     const has=r.y!=null,idx=has?Math.round(r.y*100):null,d=document.createElement("button");
     d.type="button";d.className="apf-mk"+(has?"":" no-data");d.textContent=has?String(idx):"—";
-    const label=has?`지수 ${idx}, ${apfLevel(r.y)}${r.v&&r.v.confidence==="low"?", 신뢰 낮음":""}`:"관측 없음";
+    const label=!has?"관측 없음":r.w<APF_MIN_W?`${ageText(r.ageMin)} 관측 — 장에 거의 반영 안 됨`:`지수 ${idx}, ${apfLevel(r.y)}${r.v&&r.v.confidence==="low"?", 신뢰 낮음":""}`;
     d.setAttribute("aria-label",`${r.cam.name}, ${label}`);
-    if(has){d.style.background=gc(apfLevel(r.y));if(r.v&&r.v.confidence==="low")d.style.opacity=".55";}
+    if(has){d.style.background=gc(apfLevel(r.y));
+      d.style.opacity=String(Math.max(.25,Math.min(1,r.w/APF_MIN_W)));   // 장에 기여하는 만큼만 진하게
+      if(r.w<APF_MIN_W){d.textContent="·";d.title=`${r.cam.name} — ${ageText(r.ageMin)} 관측, 장에 거의 반영 안 됨`;}}
     d.onclick=()=>apfSelect(r);
     const popup=new maplibregl.Popup({offset:22,closeButton:false})
-      .setHTML(`<b>${esc(r.cam.name)}</b><br>${has?`지수 ${idx}/100 · ${apfLevel(r.y)} · σ ${r.sigma.toFixed(2)}`:"관측 없음"}`);
+      .setHTML(`<b>${esc(r.cam.name)}</b><br>${!has?"관측 없음":`지수 ${idx}/100 · ${apfLevel(r.y)} · σ ${r.sigma.toFixed(2)} · 기여 ${Math.round(r.w*100)}%${r.ageMin!=null?" · "+ageText(r.ageMin):""}`}`);
     APF_MARKERS.push(new maplibregl.Marker({element:d}).setLngLat([r.cam.lng,r.cam.lat]).setPopup(popup).addTo(apfMap));
   });
 }

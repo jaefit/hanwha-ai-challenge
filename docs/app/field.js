@@ -88,6 +88,14 @@
     return s;
   }
 
+  /** 관측 하나가 자기 위치의 사후에 기여하는 비율. 단일 관측 사후 축소 계수와 같다: k/(k+σ²).
+   *  화면(타일·마커·배지)이 장과 같은 기준으로 "이 관측이 실제로 반영됐나" 를 말하게 하는 데 쓴다. */
+  function infoWeight(sigma, kxx) {
+    if (!(kxx > 0)) return 0;
+    var s2 = sigma * sigma;
+    return kxx / (kxx + s2);
+  }
+
   /** 하삼각 L (A = LLᵀ). PD 가 아니면 null. */
   function cholesky(A) {
     var n = A.length, L = [], i, j, k;
@@ -201,6 +209,7 @@
     forwardSolve: forwardSolve,
     backSolve: backSolve,
     obsNoise: obsNoise,
+    infoWeight: infoWeight,
     gradeToUnit: gradeToUnit,
     densityToUnit: densityToUnit,
     unitToGrade: unitToGrade,
