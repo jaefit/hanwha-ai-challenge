@@ -325,7 +325,7 @@ footer a{color:var(--ink-2)}
     </div>
   </div>
   <div class="apf-mapbox"><div class="apf-state off" id="apf-state">불러오는 중</div><div class="apf-tools"><label class="apf-toggle"><input id="apf-toggle" type="checkbox" checked>APF 표시</label><label class="route-label" for="route-station">① 지도 클릭으로 현재 위치 선택　② 목적역 선택</label><div class="route-row"><select id="route-station" aria-label="목적역"><option value="yeouido">여의도역 · 5·9호선</option><option value="yeouinaru">여의나루역 · 5호선</option><option value="assembly">국회의사당역 · 9호선</option><option value="saetgang">샛강역 · 9호선·신림선</option><option value="singil">신길역 · 1·5호선</option><option value="yeongdeungpo">영등포역 · 1호선</option><option value="market">영등포시장역 · 5호선</option><option value="dangsan">당산역 · 2·9호선</option><option value="office">영등포구청역 · 2·5호선</option><option value="mapo">마포역 · 5호선</option></select><button id="route-run" type="button" disabled>경로 찾기</button></div><div class="route-status" id="route-status" aria-live="polite">지도를 클릭해 출발점을 지정하세요.</div></div><div id="apf-map" role="application" aria-label="CCTV와 서울시 구역등급을 합친 인파 혼잡장 지도와 보행 경로. 클릭으로 출발 위치 선택 가능"></div></div>
-  <div class="apf-legend"><span>혼잡 지수 · 서울시 기준</span><span>여유</span><span class="apf-scale" aria-hidden="true"></span><span>심각(5명/m²)</span><span>· <b>회색 = 관측 부족</b></span><span class="apf-walk-key" aria-hidden="true"></span><span>보행 가능 네트워크(경로 계산 시 표시) · 파란 점 = 출발 · 주황 점 = 목적역 · 밝은 선 = 혼잡 회피 경로</span></div>
+  <div class="apf-legend"><span>혼잡 지수 · 서울시 기준</span><span>여유</span><span class="apf-scale" aria-hidden="true"></span><span>심각(5명/m²)</span><span>· <b>흐릴수록 관측 부족</b></span><span class="apf-walk-key" aria-hidden="true"></span><span>보행 가능 네트워크(경로 계산 시 표시) · 파란 점 = 출발 · 주황 점 = 목적역 · 밝은 선 = 혼잡 회피 경로</span></div>
   <div class="apf-detail" id="apf-detail" aria-live="polite">CCTV 원을 선택하면 근거(밀도 또는 등급)와 그 관측에 쓰인 σ 를 표시한다.</div>
   <p class="sub" style="margin-top:10px">한계 — ROI 보정은 23대 중 <b>5대</b>(강변)뿐이고 나머지는 점유율 기준 임시 등급이다. 서울시 구역 등급은 <b>여의도한강공원 1곳</b>만 장에 넣는다 — 여의도 전체는 업무지구가 섞여 참고로만 두고, 여의서로는 대응 좌표가 없다. 길이척도·노이즈는 가정이며 9/5 관측이 쌓이면 교차검증으로 교체한다. 유클리드 거리라 한강 건너로 번지는 몫이 남아 있다.</p>
 </section>
@@ -587,7 +587,10 @@ const hex2rgb=h=>{h=String(h).trim().replace("#","");if(h.length===3)h=h.split("
   return [parseInt(h.slice(0,2),16)||0,parseInt(h.slice(2,4),16)||0,parseInt(h.slice(4,6),16)||0];};
 let APF_RAMP=null,APF_NEUTRAL=null;
 function apfPalette(){   // 테마가 바뀌면 다시 읽는다
-  APF_RAMP=[[0,hex2rgb(gc("여유"))],[.6,hex2rgb(gc("주의"))],[.8,hex2rgb(gc("경계"))],[1,hex2rgb(gc("심각"))]];
+  // unitToGrade 기준 u<0.6 은 전부 "여유" 다. 선형 보간하면 u=0.35 가 초록58%+골드42%=올리브가 되어
+  // 등급과 어긋나고 대비도 죽는다. 각 등급 밴드 안에서는 그 색을 유지하고 경계에서만 넘어가게 한다.
+  const V=hex2rgb(gc("여유")),J=hex2rgb(gc("주의")),G=hex2rgb(gc("경계")),S=hex2rgb(gc("심각"));
+  APF_RAMP=[[0,V],[.50,V],[.63,J],[.78,G],[.92,S],[1,S]];
   APF_NEUTRAL=hex2rgb(css("--g-보정전")||"#9B958A");
 }
 function gradeHex(u){
@@ -616,11 +619,12 @@ function apfField(st){
     const c=iy*g.cols+ix,u=Math.max(0,Math.min(1,APF_FIELD.mean[c]));
     // 확실성. 관측 노이즈 때문에 보정 카메라 바로 위에서도 0.8 이 상한이고 미보정 위는 0.49 다.
     // 그래서 0.30 을 "충분히 안다" 로 보고 정규화한다 — 이 값이 색의 채도를 정한다.
-    const conf=Math.max(0,1-APF_FIELD.sd[c]/APF_SD_MAX),cn=Math.min(1,conf/.30);
+    // 색은 등급 그대로(회색 섞지 않는다). 불확실성은 불투명도로만 — 모르는 곳은 옅고, 아는 곳은 진하다.
+    const conf=Math.max(0,1-APF_FIELD.sd[c]/APF_SD_MAX),cn=Math.min(1,conf/.15);
     const hot=Math.max(0,Math.min(1,(u-.3)/.7));
-    const col=mixRgb(APF_NEUTRAL,gradeHex(u),cn),o=.20+.15*cn+.55*hot;
+    const col=gradeHex(u),o=(.45+.50*hot)*(.45+.55*cn);
     const j=((g.rows-1-iy)*g.cols+ix)*4;   // 캔버스는 위가 북쪽, 격자는 아래가 남쪽
-    px[j]=col[0];px[j+1]=col[1];px[j+2]=col[2];px[j+3]=Math.round(255*Math.max(0,Math.min(1,o)));
+    px[j]=col[0]|0;px[j+1]=col[1]|0;px[j+2]=col[2]|0;px[j+3]=Math.round(255*Math.max(0,Math.min(1,o)));
   }
   cx.putImageData(img,0,0);
   return {url:cv.toDataURL("image/png"),
