@@ -26,9 +26,10 @@ need = ["SEOUL_KEY_GENERAL", "SEOUL_KEY_SUBWAY"]
 missing = [k for k in need if not env.get(k)]
 if missing:
     print(f"중단: .env 필수 키 없음 — {', '.join(missing)}", file=sys.stderr); sys.exit(1)
-opt = [k for k in ("SEOUL_KEY_FEEDER", "SEOUL_KEY_FEEDER2") if not env.get(k)]
 n_sub = len([k for k in env if k.startswith("SEOUL_KEY_SUBWAY") and env[k]])
-print(f"키 점검 ok — 지하철 키 {n_sub}개" + (f" · 없는 선택 키: {', '.join(opt)}" if opt else ""))
+n_feed = len([k for k in env if k.startswith("SEOUL_KEY_FEEDER") and env[k]])
+# 일 한도 1,000 은 실시간 지하철 인증키만(열린데이터광장 이용방법, 2026-09-02 확인). 피더키는 없으면 일반키로 수집한다.
+print(f"키 점검 ok — 지하철 키 {n_sub}개(실시간 도착 336회/일 회전) · 피더키 {n_feed}개" + ("" if n_feed else " (없음 → 피더·관람지도 일반키)"))
 PY
 
 caffeinate -dims & CAF=$!

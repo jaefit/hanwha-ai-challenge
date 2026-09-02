@@ -6,8 +6,10 @@
   .venv/bin/python src/collector_api.py --budget   # 키별 일 호출 수만 출력 (호출 안 함)
 
 출력: data/live/api_YYYYMMDD.jsonl (1줄 = 1핫스팟 1시각). 키는 .env 에서 읽는다.
-예산(상한 1,000/키): 코어 3 × 5분 × 24h = 864회(일반키) · 지하철 4역 × 17~23시 = 336회(지하철키)
-                    피더 12곳 12~19시 + 관람지 6곳 17~23시 = 키당 576+252 = 828회(피더키 2개에 순번 분산)
+호출 한도(열린데이터광장 "Open API 이용방법", 2026-09-02 확인): **실시간 지하철 인증키만 하루 1,000건.** 일반 인증키(citydata)는
+  일 한도 문구가 없다(요청당 최대 1,000행 제한만). 2026-09-02 정정 — 전엔 모든 키를 1,000/일로 보고 예산을 짰다.
+  지하철 4역 × 17~23시 × 12회 = 336회를 지하철키 6개에 회전 → 키당 56/일.
+  citydata: 코어 3곳(일반키, 864/일) + 피더 12곳 12~19시·관람지 6곳 17~23시(피더키 있으면 순번 분산, 없으면 일반키) = 최대 2,520/일.
 
 환경변수:
   INTERVAL=300        틱 간격(초)
@@ -26,8 +28,22 @@ for line in (ROOT / ".env").read_text().splitlines():
 KG, KS = ENV["SEOUL_KEY_GENERAL"], ENV["SEOUL_KEY_SUBWAY"]
 # 실시간 도착(swopenAPI) 키들 — SEOUL_KEY_SUBWAY, SUBWAY2, SUBWAY3 … 번호순. (역 순번 + 틱 번호) % 키 수 로 회전 배정 → 키가 역보다 많아도 고르게 분산. 9/1 6개 = 키당 ~56/일.
 SUBWAY_KEYS = [KS] + [ENV[k].strip() for k in sorted((k for k in ENV if re.fullmatch(r"SEOUL_KEY_SUBWAY\d+", k)), key=lambda k: int(k[len("SEOUL_KEY_SUBWAY"):])) if ENV[k].strip()]
-# 피더 전용 citydata 키들 (일 쿼터 분리·분산, 2026-08-31 발급). 피더는 목록 순번 % 키 수 로 고정 배정 → 키당 6곳 × 8h × 12회 = 576/일
-FEEDER_KEYS = [v for v in (ENV.get("SEOUL_KEY_FEEDER", "").strip(), ENV.get("SEOUL_KEY_FEEDER2", "").strip()) if v]
+
+
+def _numbered(env, prefix):
+    """prefix, prefix2, prefix3 … 를 번호순으로. 빈 값 제외."""
+    keys = sorted((k for k in env if re.fullmatch(re.escape(prefix) + r"\d*", k)), key=lambda k: int(k[len(prefix):] or 1))
+    return [env[k].strip() for k in keys if env[k].strip()]
+
+
+def feeder_pool(env):
+    """피더·관람지 citydata 분산용 전용 피더키(SEOUL_KEY_FEEDER, FEEDER2, FEEDER3 …) 번호순. 빈 값 제외.
+    일반키는 일 한도가 없으므로 분산은 필수가 아니라 예방(단일 키 장애·미공지 제한 대비). 지하철키는 여기 넣지 않는다 —
+    실시간 지하철 인증키의 1,000/일은 지하철 호출에만 쓸 가치가 있다."""
+    return _numbered(env, "SEOUL_KEY_FEEDER")
+
+
+FEEDER_KEYS = feeder_pool(ENV)   # 피더는 (FEEDERS + WATCH) 목록 순번 % 키 수 로 고정 배정 → 재현 가능, 키당 부하 균등. 없으면 일반키
 
 CORE = ["여의도한강공원", "여의도", "여의서로"]   # 여의도 내부 구역 전부 — 121장소 전수 조회(9/1)로 이 3개가 끝임을 확인
 # 피더 기본 8곳 = 귀속 상위 × 개별 상관(feeder_leadlag.json) × citydata 실명 확인(8/31). 김포공항 r=-0.19 제외.
@@ -35,14 +51,14 @@ FEEDER_DEFAULT = ["영등포 타임스퀘어", "신도림역", "사당역", "홍
                   "신림역", "강남역", "성수카페거리", "잠실역", "오목교역·목동운동장", "가산디지털단지역"]   # 8/31 확장 12곳: 성수 r lag1 0.95, 잠실·오목교·가산 POI 확인
 _f = os.environ.get("FEEDERS", "").strip()
 FEEDERS = FEEDER_DEFAULT if _f == "default" else [x.strip() for x in _f.split(",") if x.strip()]   # 피더 핫스팟(선행지표)
-FEEDER_HOURS = range(12, 20)          # 피더키 예산 보호: 12~19시만 — 도착 창. 12곳 ÷ 키 2개 = 키당 576/일
+FEEDER_HOURS = range(12, 20)          # 도착 창 12~19시만 (선행지표 용도). 12곳 × 8h × 12회 = 1,152/일 (--budget 으로 확인)
 # 강 건너 관람 명당 — "여의도 붐비면 여기서 보세요" 분산 안내용 관측점. 실명은 121장소 전수 조회(9/1)로 확인.
 WATCH_DEFAULT = ["노들섬", "이촌한강공원", "반포한강공원", "망원한강공원", "양화한강공원", "용산역"]
 _w = os.environ.get("WATCH", "default").strip()
 WATCH = WATCH_DEFAULT if _w == "default" else [x.strip() for x in _w.split(",") if x.strip()]
-WATCH_HOURS = range(17, 24)           # 축제창만 — 관람지는 저녁에만 의미. 6곳 ÷ 키 2개 = 키당 3곳 × 7h × 12회 = 252/일
-if not FEEDER_KEYS and WATCH:
-    print("WARN: 피더 전용 키 없음 → 관람지 수집 비활성 (KG 키 864/1,000 이미 사용)", flush=True); WATCH = []
+WATCH_HOURS = range(17, 24)           # 축제창만 — 관람지는 저녁에만 의미. 6곳 × 7h × 12회 = 504/일
+if not FEEDER_KEYS and (FEEDERS or WATCH):
+    print("참고: 피더 전용 키 없음 → 피더·관람지도 일반키로 수집 (일반키는 일 한도 미공지, 2026-09-02 확인)", flush=True)
 HOTSPOTS = CORE + FEEDERS + WATCH
 STATIONS = ["여의나루", "여의도", "샛강", "국회의사당"]
 SUBWAY_HOURS = range(17, 24)          # 지하철키 예산 보호: 17~23시만
@@ -81,24 +97,26 @@ def role_of(name):
 
 
 def feeder_key(name):
-    if not FEEDER_KEYS: return KG                                     # 전용 키 없으면 KG 폴백
+    if not FEEDER_KEYS: return KG                                     # 전용 키 없으면 일반키 (일 한도 미공지 — 2026-09-02 확인)
     pool = FEEDERS + WATCH                                            # 피더 뒤에 관람지를 이어 붙임 → 기존 피더 배정 불변
     i = pool.index(name) if name in pool else 0
     return FEEDER_KEYS[i % len(FEEDER_KEYS)]                          # 순번 고정 배정 → 키당 부하 균등·재현 가능
 
 
 def budget():
-    """키별 일 호출 수 — 상한 1,000. 런북 점검용(--budget)."""
+    """키별 일 호출 수. 런북 점검용(--budget). 키 실체 기준으로 합산한다(같은 값이 두 이름으로 등록돼도 한 줄).
+    한도 판정은 지하철키(실시간 도착 1,000/일)만 — 일반키·피더키는 일 한도 미공지라 참고 수치."""
     ticks = 3600 // INTERVAL
-    rows = {"KG(코어)": len(CORE) * 24 * ticks}
-    per_key = -(-len(STATIONS) * len(SUBWAY_HOURS) * ticks // len(SUBWAY_KEYS))   # 회전 배정 → 균등(올림)
-    for i, _ in enumerate(SUBWAY_KEYS):
-        rows[f"지하철키{i + 1}"] = per_key
-    for i, _ in enumerate(FEEDER_KEYS):
-        n_f = len([x for j, x in enumerate(FEEDERS + WATCH) if j % len(FEEDER_KEYS) == i and x in FEEDERS])
-        n_w = len([x for j, x in enumerate(FEEDERS + WATCH) if j % len(FEEDER_KEYS) == i and x in WATCH])
-        rows[f"피더키{i + 1}"] = n_f * len(FEEDER_HOURS) * ticks + n_w * len(WATCH_HOURS) * ticks
-    return rows
+    label = {KG: "일반키(코어)"}
+    for i, k in enumerate(SUBWAY_KEYS): label.setdefault(k, f"지하철키{i + 1}")
+    for i, k in enumerate(FEEDER_KEYS): label.setdefault(k, f"피더키{i + 1}")
+    use = {k: 0 for k in label}
+    use[KG] += len(CORE) * 24 * ticks
+    per_sub = -(-len(STATIONS) * len(SUBWAY_HOURS) * ticks // len(SUBWAY_KEYS))   # 회전 배정 → 균등(올림)
+    for k in SUBWAY_KEYS: use[k] += per_sub
+    for h in FEEDERS: use[feeder_key(h)] += len(FEEDER_HOURS) * ticks
+    for w in WATCH: use[feeder_key(w)] += len(WATCH_HOURS) * ticks
+    return {label[k]: v for k, v in use.items()}
 
 
 def citydata(name):
@@ -158,7 +176,9 @@ def tick():
 
 if __name__ == "__main__":
     if "--budget" in sys.argv:
-        for k, v in budget().items(): print(f"{k:12s} {v:5d}/1000 {'OVER' if v > 1000 else 'ok'}")
+        for k, v in budget().items():
+            cap = 1000 if k.startswith("지하철키") else None   # 일 한도는 실시간 지하철 인증키만 (열린데이터광장 이용방법)
+            print(f"{k:12s} {v:5d}" + (f"/{cap} {'OVER' if v > cap else 'ok'}" if cap else "      (일 한도 미공지)"))
         sys.exit(0)
     if "--once" in sys.argv:
         tick(); sys.exit(0)

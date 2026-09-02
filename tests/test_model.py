@@ -238,10 +238,10 @@ def _collector():
     return importlib.reload(C)
 
 
-def test_watch_budget_within_key_limit():
-    """키별 일 호출 수가 서울 열린데이터 상한(1,000)을 넘지 않는다."""
+def test_subway_key_budget_within_daily_limit():
+    """실시간 지하철 인증키는 하루 1,000건(열린데이터광장 이용방법). 일반키·피더키는 일 한도 미공지 — 2026-09-02 정정."""
     C = _collector()
-    over = {k: v for k, v in C.budget().items() if v > 1000}
+    over = {k: v for k, v in C.budget().items() if k.startswith("지하철키") and v > 1000}
     assert not over, over
 
 
@@ -260,6 +260,34 @@ def test_watch_roles_and_core_key_isolation():
     assert C.role_of("강남역") == "feeder"
     if C.FEEDER_KEYS:                                   # 코어 쿼터에 관람지가 섞이면 안 됨
         assert all(C.feeder_key(w) != C.KG for w in C.WATCH)
+
+
+def test_feeder_pool_reads_numbered_feeder_keys_only():
+    """전용 피더키 FEEDER, FEEDER2, FEEDER3 … 를 번호순으로. 빈 값 제외. 지하철키는 섞지 않는다(1,000/일은 지하철 호출에만 쓸 것)."""
+    C = _collector()
+    env = {"SEOUL_KEY_GENERAL": "g", "SEOUL_KEY_SUBWAY": "s1", "SEOUL_KEY_SUBWAY2": "s2",
+           "SEOUL_KEY_FEEDER3": "f3", "SEOUL_KEY_FEEDER": "f1", "SEOUL_KEY_FEEDER2": ""}
+    assert C.feeder_pool(env) == ["f1", "f3"]
+    assert C.feeder_pool({"SEOUL_KEY_GENERAL": "g", "SEOUL_KEY_SUBWAY": "s1"}) == []
+
+
+def test_missing_feeder_keys_fall_back_to_general_key(monkeypatch):
+    # 일반 인증키는 일 한도가 없다(열린데이터광장 이용방법, 2026-09-02 확인) → 피더키 없으면 끄지 말고 일반키로 수집한다
+    C = _collector()
+    monkeypatch.setattr(C, "FEEDER_KEYS", [])
+    assert C.feeder_key("강남역") == C.KG and C.feeder_key("노들섬") == C.KG
+
+
+def test_budget_counts_every_planned_call_once_per_actual_key():
+    """budget() 은 키 실체 기준으로 합산한다 — 같은 값이 두 이름으로 등록돼 있어도 한 줄, 빠지는 호출도 없어야 한다."""
+    C = _collector()
+    if not C.FEEDER_KEYS: pytest.skip("피더키 없음")
+    ticks = 3600 // C.INTERVAL
+    planned = (len(C.CORE) * 24 * ticks + len(C.STATIONS) * len(C.SUBWAY_HOURS) * ticks
+               + len(C.FEEDERS) * len(C.FEEDER_HOURS) * ticks + len(C.WATCH) * len(C.WATCH_HOURS) * ticks)
+    b = C.budget()
+    assert abs(sum(b.values()) - planned) <= len(C.SUBWAY_KEYS)   # 지하철 회전은 올림 배정 → 키 수만큼 오차 허용
+    assert len(b) == len({C.KG, *C.SUBWAY_KEYS, *C.FEEDER_KEYS})   # 같은 키가 두 줄로 나뉘면 안 된다
 
 
 def test_watch_hours_are_festival_window_only():
