@@ -58,6 +58,7 @@ figcaption{font-size:12.5px;color:var(--sub);margin-top:7px}
 .dcard{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--ink);padding:15px 17px}
 .dcard b{display:block;font-size:16px;margin-bottom:6px}
 .dcard p{font-size:14px;margin:0;color:var(--sub)}
+code{font-family:var(--mono);font-size:.92em}
 table{border-collapse:collapse;width:100%;margin:14px 0;font-size:14px}
 th,td{border:0;border-bottom:1px solid var(--line);padding:9px 10px;text-align:left}
 th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);font-weight:800}
@@ -94,6 +95,7 @@ svg text{font-family:var(--mono)}
   <div class="meta">
     그날 밤 여의도에서 벌어지는 일과 우리가 만든 해결책을, 배경지식 없이 읽히게 설명한다.
     · <a href="report.html">자세한 보고서</a>
+    · <a href="deck.html">피치 덱</a>
     · <a href="https://jaefit.github.io/hanwha-ai-challenge/">실제 서비스 화면</a>
   </div>
 </header>
@@ -140,6 +142,7 @@ svg text{font-family:var(--mono)}
   <div class="cell"><b>여의나루</b><span class="grade" style="background:var(--g4)">통제</span></div>
 </div>
 <p class="sub">쇼 직후 21시의 예측 화면 축소판. 핵심은 상태("혼잡함")가 아니라 <b>행동("신길로 가라")</b>을 알려준다는 점이다.</p>
+<div class="fact"><b>9/1에 지도가 붙었다.</b> CCTV 23대와 서울시 구역 등급을 한 장의 면으로 합쳐 그린다 — <b>색은 붐빔, 진하기는 확신</b>. 관측이 없는 곳은 색이 옅어져 "잘 모른다"가 보인다. 그 위에서 지금 서 있는 곳부터 고른 역까지, 조금 돌더라도 <b>덜 막히는 길</b>과 걸리는 시간을 그린다. 축제 밤에는 최단 경로가 가장 붐비는 길이기 때문이다.</div>
 </section>
 
 <!-- 3 재료 -->
@@ -234,7 +237,7 @@ svg text{font-family:var(--mono)}
 <h2><span class="step">STEP 7 · 발견</span>데이터가 알려준 뜻밖의 사실 둘</h2>
 <div class="cards">
   <div class="dcard"><b>① 최악은 제일 큰 역이 아니다</b><p>쇼 직후 가장 위험한 곳은 제일 큰 여의도(5)역이 아니라 <b>샛강역</b>이다. 9호선 역이라 처리 용량이 작다.</p></div>
-  <div class="dcard"><b>② 여의나루는 "문 여는 22시"가 위험</b><p>통제가 풀리면 기다리던 사람들이 한꺼번에 몰린다. 부하 0.91 — 그날 밤 최고치.</p></div>
+  <div class="dcard"><b>② 여의나루는 "문 여는 22시"가 위험</b><p>통제가 풀리면 기다리던 사람들이 한꺼번에 몰린다. 부하 0.91 — 그날 밤 최고치. 이 값은 두 해 평균이고, <b>2년 중 1년은 용량을 19% 넘겼다</b>.</p></div>
 </div>
 <p>이 둘은 지도앱이 절대 알려주지 못한다. <b>우리 서비스가 존재하는 이유다.</b></p>
 </section>
@@ -244,17 +247,31 @@ svg text{font-family:var(--mono)}
 <h2><span class="step">STEP 8 · 당일</span>죽어도 죽지 않는 3층 구조</h2>
 <div class="layers">
   <div class="layer"><b>사전층</b><span>행사 전에 완성한 예측표 — 실시간이 전부 죽어도 서비스는 된다</span></div>
-  <div class="layer"><b>당일층</b><span>5분마다 실시간 관측으로 예측을 갱신 (α 보정)</span></div>
+  <div class="layer"><b>당일층</b><span>5분마다 실시간 관측으로 예측을 갱신 (α 보정). 수집기 3개가 죽으면 30초 안에 다시 띄우는 감시 루프가 지킨다</span></div>
   <div class="layer"><b>화면층</b><span>인터넷이 끊겨도 기기에 저장된 마지막 화면이 남는다</span></div>
 </div>
 <p class="sub">설계 원칙: 아래층이 죽어도 위층이 산다. 축제날 밤 통신은 반드시 느려지기 때문에, 처음부터 그걸 전제로 만들었다.</p>
 </section>
 
-<!-- 9 일정 -->
+<!-- 9 점검 -->
 <section class="rv">
-<h2><span class="step">STEP 9 · 다음</span>남은 일정</h2>
+<h2><span class="step">STEP 9 · 점검</span>우리 것을 우리가 먼저 깨 봤다</h2>
+<p>9/1, 실전 나흘 전에 "이 시스템을 깨라"는 주문을 AI(Claude Code)에 주고, 지적마다 <b>어느 파일 몇 번째 줄인지</b> 근거를 요구했다. 시험 전날 친구에게 답안지를 주고 틀린 데를 찾아 달라는 것과 같다.</p>
+<div class="cards">
+  <div class="dcard"><b>18개를 찾았다</b><p>치명 5 · 높음 5 · 중간 7 · 낮음 1. 예컨대 "발행이 실패해도 아무도 모른다", "수집기가 죽으면 재시작이 없다".</p></div>
+  <div class="dcard"><b>7개는 하루 안에 고쳤다</b><p>고치기 전에 실패하는 테스트부터 썼다. 자동 테스트가 22개에서 45개가 됐다. (2개는 절반만)</p></div>
+  <div class="dcard"><b>4개는 먼저 밝혔다</b><p>코드로 못 고치는 약점 — 이를테면 "9호선 3개 역은 검증 데이터가 없다". 심사위원이 찾기 전에 보고서에 적었다.</p></div>
+  <div class="dcard"><b>1개는 사람이 정한다</b><p>예측 범위를 정직하게 넓힐지(덜 인상적) 좁게 둘지(방어 불가). 9/4 코드 동결 전에 팀이 결정한다.</p></div>
+</div>
+<p class="sub">전체 목록과 처리 근거는 <a href="report.html">자세한 보고서</a> §5와 저장소의 <code>redteam-20260901.md</code>에 있다.</p>
+</section>
+
+<!-- 10 일정 -->
+<section class="rv">
+<h2><span class="step">STEP 10 · 다음</span>남은 일정</h2>
 <div class="timeline">
-  <div class="tl"><b>9/4</b><span>전야제에서 리허설</span></div>
+  <div class="tl"><b>9/2</b><span>저녁 30분 드라이런 — 감시 루프가 실제 수집기와 도는 첫 실행</span></div>
+  <div class="tl"><b>9/4</b><span>12:00 코드 동결 → 전야제에서 리허설</span></div>
   <div class="tl hot"><b>9/5</b><span><b>실전</b> — 12~24시 자동 운영</span></div>
   <div class="tl"><b>9/6~7</b><span>채점·검증·영상</span></div>
   <div class="tl"><b>9/8</b><span>20:00 제출</span></div>
@@ -263,7 +280,7 @@ svg text{font-family:var(--mono)}
 
 <div class="foot">
   더 알고 싶다면 — <a href="report.html">자세한 보고서</a> (근거·수식·검증 전체) · <a href="https://jaefit.github.io/hanwha-ai-challenge/">실제 서비스 화면</a> · <a href="https://github.com/jaefit/hanwha-ai-challenge">코드 저장소</a><br>
-  본문의 모든 숫자는 서울시 공개 데이터에서 나왔고, 저장소의 명령으로 재현할 수 있다. 기준일 2026-09-01.
+  본문의 모든 숫자는 서울시 공개 데이터에서 나왔고, 저장소의 명령으로 재현할 수 있다. 기준일 2026-09-02.
 </div>
 
 </div>

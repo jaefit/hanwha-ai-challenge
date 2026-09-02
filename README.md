@@ -66,7 +66,7 @@ F3 을 뚫어보다 나온 발견: `PLUS K방산` ETF 는 이름과 달리 **한
 | 11 | [routing/README.md](routing/README.md) | 보행 네트워크(OSM) · 경로탐색 · 핸드오프 편입 기록 |
 | 12 | [handoff/README.md](handoff/README.md) | 디자인 핸드오프 — 사실·브랜드·화면 구조·데이터 계약 (8/29 기준 + 이후 변경) |
 | 13 | `tests/` | 모델 불변식 pytest **45건**(2026-09-02) — `.venv/bin/python -m pytest tests -q`. `tests/field_spec.mjs` 는 배포 중인 `docs/app/field.js` 를 node 로 직접 검증한다 |
-| 14 | `src/backtest.py` → `data/derived/backtest.json` | 모델 백테스트 — 2024·2025 실측 시간대 승차. **A in-sample 승차오차 0.245/0.214**(2024/2025)·등급적중 82%/100%, **B cross-year(2026 조건) 0.420/0.438**·77%/88%. 생성 2026-08-30 (`52ff59a` 재생성분) |
+| 14 | `src/backtest.py` → `data/derived/backtest.json` | 모델 백테스트 — 2024·2025 실측 시간대 승차. **A in-sample 승차오차 0.245/0.214**(2024/2025)·등급적중 82%/100%, **B cross-year(2026 조건) 0.420/0.438**·76%/88%. 생성 2026-08-30 (`52ff59a` 재생성분) |
 
 ## 원본 자료
 
