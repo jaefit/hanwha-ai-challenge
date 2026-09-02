@@ -84,7 +84,15 @@ def test_nowcast_marks_prior_when_no_observations(tmp_path):
 
 
 def test_nowcast_clears_prior_when_observations_exist(tmp_path):
-    """관측이 있으면 prior 는 False 여야 한다 (항상 True 로 박아 두면 실황을 사전값이라 말한다)."""
+    """관측이 우도에 들어가면 prior 는 False 여야 한다 (항상 True 로 박아 두면 실황을 사전값이라 말한다).
+
+    불변식은 **"prior ⇔ 사후분포가 곧 사전분포"** 이지 "prior ⇔ 관측 0건" 이 아니다. 지금은 둘이 같지만,
+    프리즈 전 C1(관측이 적으면 사전 밴드로 클램프)이 들어가면 갈라진다 — 그때는 이 검사도 같이 옮겨야
+    하고, 이 테스트를 "관측 1건이면 무조건 live" 라는 사양으로 읽으면 안 된다.
+    """
+    src = ROOT / "data" / "live" / "api_20260829.jsonl"
+    if not src.exists():
+        pytest.skip("data/live/api_20260829.jsonl 없음 (git 미추적) — 수집분이 있는 기기에서만 도는 검사")
     fc = _nowcast(tmp_path, "20260829")          # 실제 수집분이 있는 날
     n = fc["assimilation"]["n_obs"]
     assert n["alighting"] + n["boarding"] > 0, "이 날짜에 관측이 없다 — 고정값을 바꿔야 한다"
