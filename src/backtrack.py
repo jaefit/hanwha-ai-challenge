@@ -280,6 +280,7 @@ def main():
             exits_out[st][str(h)] = {
                 "load": round(statistics.mean(loads), 2) if loads else None, "load_lo": round(min(loads) * 0.9, 2) if loads else None, "load_hi": round(max(loads) * 1.1, 2) if loads else None,
                 "demand": round(statistics.mean(v["demand"] for v in vals)), "capacity": N.CAP[st],
+                "baseline": round(statistics.mean(v["baseline"] for v in vals)), "demand_total": round(statistics.mean(v["demand_total"] for v in vals)),
                 "wait_min": round(statistics.mean(v["wait_min"] for v in vals if v["wait_min"] is not None)) if loads else None,
                 "closed": vals[0]["closed"], "estimated_capacity": st in N.ESTIMATED,
                 "by_year_observed": {y: per_year[y]["exits"][st][h]["load"] for y in DAYS},
@@ -306,10 +307,10 @@ def main():
           "show_end_2026": "21:10", "show_shift_min": N.SHIFT_MIN,
           "exits": exits_out, "ranking_by_hour": ranking,
           "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40"}],
-          "demand_basis": "observed_station_excess (exit_shares.json, 연도별 E_st) × KT 유출곡선 형태 × 도달 지연. 회랑 배정표는 by_year_corridor_basis_ref 참고용(2026-08-29 정정)",
+          "demand_basis": "observed_station_excess (exit_shares.json, 연도별 E_st) × KT 유출곡선 형태 × 도달 지연. 회랑 배정표는 by_year_corridor_basis_ref 참고용(2026-08-29 정정). demand 는 초과분, load 는 (demand+baseline)/capacity — CAP 이 축제일 총 승차 최댓값이라 단위를 맞춘다(2026-09-03 H9)",
           "station_totals_mean": (N.EXIT_SHARES or {}).get("E_mean"), "exit_share_mean": (N.EXIT_SHARES or {}).get("share_mean"),
           "band_note": "load = 관측 기준 2년 평균. load_lo/hi = {2024,2025} 관측 E 각각의 최소×0.9 / 최대×1.1 (±10% 버퍼 = MARTA 관행, 9/5 후 MAPE 로 교체). 용량 추정 오차 미포함. 회랑 기준은 실측과 어긋나 밴드에서 제외",
-          "notes": ["유출 곡선 +40분 이동(쇼 종료 20:30→21:10)", "도달 지연 40/60 추정", "9호선·도보·1호선 합산 용량은 추정(estimated_capacity)", "KT cnt 는 추정치 — 비율·순위 용도"]}
+          "notes": ["유출 곡선 +40분 이동(쇼 종료 20:30→21:10)", "도달 지연 40/60 추정", "9호선·도보·1호선 합산 용량은 추정(estimated_capacity)", "KT cnt 는 추정치 — 비율·순위 용도", "load 분자 = 초과 승차 + 평시 토요일 승차(baseline). 2026-09-03 이전 산출물은 평시가 빠져 부하가 낮았다"]}
     (DER / "feeder_origin.json").write_text(json.dumps(fo, ensure_ascii=False, indent=1), encoding="utf-8")
     (DER / "exit_forecast_2026.json").write_text(json.dumps(ef, ensure_ascii=False, indent=1), encoding="utf-8")
 

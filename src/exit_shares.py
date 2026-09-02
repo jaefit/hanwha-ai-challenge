@@ -92,14 +92,18 @@ def main():
     res["total_mean"] = round(statistics.mean(totals.values()))
     # 지하철 출구 6개(도보 제외)의 평시 토요일 시간대 승차 합 — nowcast 데이터동화 O2(여의도 핫스팟 30분 승차)의 평시 성분.
     # 5호선 3역은 시간대 중앙값, 9호선 3역은 일 중앙값 × 여의도(5) 시간대 형태(추정). 2년 평균.
-    by_year_base = {}
+    by_year_base, by_exit_base = {}, {}
     for y in FEST:
         hd = res["by_year"][y]["hourly_detail"]; dd = res["by_year"][y]["daily_detail"]; y5d = res["evidence"][y]["여의도(5)_check"]["saturday_median"]
         shape5 = {h: hd["여의도(5)"]["saturday_median_by_hour_all"][h] / y5d for h in range(5, 25)}
-        by_year_base[y] = {h: sum(hd[st]["saturday_median_by_hour_all"][h] for st in ("여의도(5)", "여의나루(5)", "신길(1·5)"))
-                              + sum(dd[st]["saturday_median"] * shape5[h] for st in DAILY) for h in range(5, 25)}
+        by_exit_base[y] = {st: {h: hd[st]["saturday_median_by_hour_all"][h] for h in range(5, 25)} for st in ("여의도(5)", "여의나루(5)", "신길(1·5)")} \
+                          | {st: {h: dd[st]["saturday_median"] * shape5[h] for h in range(5, 25)} for st in DAILY}
+        by_year_base[y] = {h: sum(by_exit_base[y][st][h] for st in by_exit_base[y]) for h in range(5, 25)}
     res["baseline_boarding_by_hour_6exits"] = {h: round(statistics.mean(by_year_base[y][h] for y in FEST)) for h in range(5, 25)}
-    res["baseline_boarding_basis"] = "지하철 출구 6개 평시 토요일 승차 합(2년 평균). 5호선 3역 시간대 중앙값 + 9호선 3역 일 중앙값 × 여의도(5) 시간대 형태(추정). 마포역 도보 제외"
+    # 출구별 분해 — nowcast.compute_exits 가 부하율 분모(총 처리량)와 단위를 맞추는 데 쓴다 (2026-09-03 결함 H9)
+    res["baseline_boarding_by_hour_by_exit"] = {st: {h: round(statistics.mean(by_exit_base[y][st][h] for y in FEST)) for h in range(5, 25)}
+                                                for st in by_exit_base["2024"]}
+    res["baseline_boarding_basis"] = "지하철 출구 6개 평시 토요일 승차(2년 평균). 5호선 3역 시간대 중앙값 + 9호선 3역 일 중앙값 × 여의도(5) 시간대 형태(추정). 마포역 도보 제외. 합계는 _6exits, 출구별은 _by_exit"
     res["notes"] += ["여의나루 초과는 통제 해제 후(22시~) 승차. 모델은 통제 시간대엔 여의도(5)로 이관, 해제 후 비중 적용",
                      "마포역 도보 = 마포역 5호선 초과만. 공덕(×3~4)은 경로 미확정이라 제외 — 보행 귀가 과소 가능",
                      "신길 1호선(코레일)은 두 데이터 모두 없음 → 5호선만. 과소 가능",

@@ -77,8 +77,29 @@ def test_load_is_demand_over_capacity_and_wait_nonnegative():
     lags = {st: {0: 1.0} for st in N.CAP}
     ex = N.compute_exits(total, dirs, 1.0, lags, hours=(20, 21))
     v = ex["여의도(5)"][20]
-    assert v["load"] == pytest.approx(v["demand"] / v["capacity"], abs=0.002)
+    assert v["load"] == pytest.approx(v["demand_total"] / v["capacity"], abs=0.002)
     assert v["wait_min"] >= 0 and v["backlog"] >= 0
+
+
+def test_load_counts_baseline_riders():
+    """결함 H9(2026-09-03). CAP 은 축제일 **총** 승차의 시간당 최댓값(baseline.subway_capacity)이라
+    분자도 평시 + 초과여야 단위가 맞는다. 평시를 빼고 세면 load 가 정확히 평시/CAP 만큼 낮게 나온다."""
+    lags = {st: {0: 1.0} for st in N.CAP}
+    ex = N.compute_exits({h: 1.0 for h in range(15, 25)}, None, None, lags, hours=(22,),
+                         station_totals={st: 1000.0 for st in N.CAP})
+    v = ex["여의도(5)"][22]
+    base = N.BASE_EXIT["여의도(5)"][22]
+    assert base > 0, "출구별 평시 승차가 exit_shares.json 에 있어야 한다"
+    assert v["baseline"] == pytest.approx(base, abs=1)
+    assert v["demand_total"] == pytest.approx(v["demand"] + base, abs=1)
+    assert v["load"] == pytest.approx(v["demand_total"] / v["capacity"], abs=0.002)
+    assert v["load"] - v["demand"] / v["capacity"] == pytest.approx(base / v["capacity"], abs=0.002)   # 결함의 크기
+    # 도보는 역이 아니라 평시 승차가 없다
+    assert ex["마포역 도보(마포대교)"][22]["baseline"] == 0
+    # 통제 시간대엔 열차가 안 서므로 평시도 0
+    ex2 = N.compute_exits({h: 1.0 for h in range(15, 25)}, None, None, lags, hours=(20, 22),
+                          station_totals={st: 1000.0 for st in N.CAP})
+    assert ex2["여의나루(5)"][20]["closed"] and ex2["여의나루(5)"][20]["baseline"] == 0
 
 
 def test_observed_mode_conserves_station_totals_and_reassigns_closure():

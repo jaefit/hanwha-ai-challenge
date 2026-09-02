@@ -60,6 +60,8 @@ _ES = DER / "exit_shares.json"
 EXIT_SHARES = json.loads(_ES.read_text(encoding="utf-8")) if _ES.exists() else None
 E_MEAN = {st: float(v) for st, v in EXIT_SHARES["E_mean"].items()} if EXIT_SHARES else None
 BASE6 = {int(h): float(v) for h, v in (EXIT_SHARES or {}).get("baseline_boarding_by_hour_6exits", {}).items()}   # 지하철 출구 6개 평시 토요일 시간대 승차 합
+# 출구별 평시 토요일 시간대 승차. CAP 은 축제일 **총** 승차의 시간당 최댓값이므로 부하율 분자에도 평시가 들어가야 단위가 맞는다 (결함 H9, 2026-09-03)
+BASE_EXIT = {st: {int(h): float(v) for h, v in byh.items()} for st, byh in (EXIT_SHARES or {}).get("baseline_boarding_by_hour_by_exit", {}).items()}
 # ── α 데이터동화 상수 (T1c) ──
 ALPHA_GRID = [3.0 ** ((i - 30) / 30) for i in range(61)]   # 로그 등간격 61점, 1/3 ~ 3, 중앙(i=30) = 1.0
 PRIOR_SIGMA = 0.25            # LogNormal(0, σ): p10/p90 = 0.73/1.38 ≈ 2년 관측 밴드 폭
@@ -241,8 +243,11 @@ def compute_exits(total, dirs, sub_share, lags, hours=(19, 20, 21, 22, 23), stat
     for h in hours:
         for st in CAP:
             dem = demand_by[st].get(h, 0.0); cap = CAP[st]; closed = (st, h) in CLOSED
-            backlog[st] = 0.0 if closed else max(0.0, backlog[st] + dem - cap)   # 시간대 넘어가는 누적 대기열
-            exits.setdefault(st, {})[h] = {"demand": round(dem), "capacity": cap, "load": None if closed else round(dem / cap, 3),
+            base = 0.0 if closed else BASE_EXIT.get(st, {}).get(h, 0.0)   # 평시 승객도 같은 개찰구·열차를 쓴다. 통제 시간대엔 열차가 안 서므로 0
+            tot = dem + base                                              # 용량과 비교할 도착 총량 (demand 는 초과분 그대로 둔다 — evaluate·backtest 가 그 단위를 쓴다)
+            backlog[st] = 0.0 if closed else max(0.0, backlog[st] + tot - cap)   # 시간대 넘어가는 누적 대기열
+            exits.setdefault(st, {})[h] = {"demand": round(dem), "baseline": round(base), "demand_total": round(tot), "capacity": cap,
+                                          "load": None if closed else round(tot / cap, 3),
                                           "backlog": round(backlog[st]), "wait_min": None if closed else round(backlog[st] / cap * 60),
                                           "closed": closed, "estimated_capacity": st in ESTIMATED}
     return exits
