@@ -4,6 +4,15 @@
 
 > 2026-08-29부터 **공개 저장소**다. 배포받은 원본 과제 자료(PDF·PNG)는 사내 자료라 저장소에 넣지 않는다(히스토리에서도 제거). 판독 결과만 `BRIEF.md`에 요약했다.
 
+## 바로 보기
+
+| 링크 | 내용 | 비고 |
+|---|---|---|
+| **[▶ 대시보드](https://jaefit.github.io/hanwha-ai-challenge/)** | 출구 랭킹 · 혼잡장 지도 · 보행 경로 · 오프라인 플랜 | 5분 갱신 |
+| **[팀 보고서](https://jaefit.github.io/hanwha-ai-challenge/report.html)** | 모델 수식·실측표·외부 검증·적대적 검증 | 수식 있는 정식판 |
+| **[보고서 쉬운 버전](https://jaefit.github.io/hanwha-ai-challenge/report_easy.html)** | 같은 내용을 수식 없이 | 비전공자용 |
+| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 발표용 12장 | |
+
 ## 현재 상태 (2026-09-02)
 
 **주제: 서울세계불꽃축제(9/5) 관람객 혼잡·귀가 내비.** 9/8(화) 20:00 제출(마감 22:00). 기준 문서는 [topic-fireworks.md](topic-fireworks.md), 실행 계획은 [플랜](docs/superpowers/plans/2026-08-29-submission-plan.md)이다.
@@ -14,15 +23,15 @@
 
 | 산출물 | 위치 | 무엇 |
 |---|---|---|
-| **대시보드** | [Pages](https://jaefit.github.io/hanwha-ai-challenge/) · `docs/index.html` | 출구 랭킹 · 지도(혼잡장 + 혼잡 회피 보행 경로) · CCTV 등급 · 오프라인 플랜. 5분 갱신 |
-| 팀 보고서 | [report.html](https://jaefit.github.io/hanwha-ai-challenge/report.html) | 모델 수식(KaTeX)·실측표·외부 검증. 쉬운 버전 [report_easy.html](https://jaefit.github.io/hanwha-ai-challenge/report_easy.html) |
-| 피치 덱 | [deck.html](https://jaefit.github.io/hanwha-ai-challenge/deck.html) | 발표용 12장 |
+| **대시보드** | `docs/index.html` | 출구 랭킹 · 지도(혼잡장 + 혼잡 회피 보행 경로) · CCTV 등급 · 오프라인 플랜. 5분 갱신 |
+| 팀 보고서 | `docs/report.html` | 모델 수식(KaTeX)·실측표·외부 검증. 쉬운 버전 `docs/report_easy.html` |
+| 피치 덱 | `docs/deck.html` | 발표용 12장 |
 | 예측 모델 | `src/nowcast.py` 외 | 4층(L1 베이스라인 → L2 α 나우캐스트 → L3 출구 배정 → L4 큐). 백테스트 `src/backtest.py` |
 | 수집·발행 | `run_all.sh` | 프로세스 3개 — `collector_api.py`(서울시 도시데이터 5분 + 실시간 지하철 도착 17~23시 + 피더 12~19시) · `collector_cctv.py`(TOPIS 23대, 기본 60초) · `nowcast`→`publish` 5분 루프. 워치독·`.env` 키 점검 포함 |
 | 혼잡장 | `docs/app/field.js` | CCTV 23대 + 서울시 구역등급을 **가우시안 과정 회귀**로 하나의 면에. 신뢰도는 배제가 아니라 관측 노이즈 σ 로 |
 | 보행 경로탐색 | `routing/` | OSM 보행망(노드 9,219) 위 A*, 비용 = 거리 × (1 + 1.25 × 혼잡위험) |
-| 자체 적대적 검증 | [redteam-20260901.md](redteam-20260901.md) | 결함 18건 + 조치 현황. **05의 결함 대장은 이 문서다** |
-| 회귀 테스트 | `tests/` | **45건**(2026-09-02 기준) — `.venv/bin/python -m pytest tests -q` |
+| 자체 적대적 검증 | [redteam-20260901.md](redteam-20260901.md) | 2회 패스 · 제기 26건(1회차 18 + 2회차 8) 중 1건 철회 + 조치 현황. **05의 결함 대장은 이 문서다** |
+| 회귀 테스트 | `tests/` | **54건**(2026-09-02 기준) — `.venv/bin/python -m pytest tests -q` |
 
 ### 이전 상태 (2026-08-29, 기록)
 
@@ -62,10 +71,10 @@ F3 을 뚫어보다 나온 발견: `PLUS K방산` ETF 는 이름과 달리 **한
 | 7 | [benchmark-crowd-systems.md](benchmark-crowd-systems.md) | 타 혼잡 예측 시스템 11건 대조 · 채택 개선 |
 | 8 | [docs/superpowers/specs/2026-08-29-submission-design.md](docs/superpowers/specs/2026-08-29-submission-design.md) | **제출 스펙** — 편집기 9항목 매핑 · 완료 정의 · 범위 밖 · 리스크 |
 | 9 | [docs/superpowers/plans/2026-08-29-submission-plan.md](docs/superpowers/plans/2026-08-29-submission-plan.md) | **실행 계획** 8/29→9/8 태스크 11개 · 런북 |
-| 10 | [redteam-20260901.md](redteam-20260901.md) | **자체 적대적 검증** 결함 18건 · 조치 현황 · 미조치 판단 근거 |
+| 10 | [redteam-20260901.md](redteam-20260901.md) | **자체 적대적 검증** 2회 패스 · 제기 26건(1건 철회) · 조치 현황 · 미조치 판단 근거 |
 | 11 | [routing/README.md](routing/README.md) | 보행 네트워크(OSM) · 경로탐색 · 핸드오프 편입 기록 |
 | 12 | [handoff/README.md](handoff/README.md) | 디자인 핸드오프 — 사실·브랜드·화면 구조·데이터 계약 (8/29 기준 + 이후 변경) |
-| 13 | `tests/` | 모델 불변식 pytest **45건**(2026-09-02) — `.venv/bin/python -m pytest tests -q`. `tests/field_spec.mjs` 는 배포 중인 `docs/app/field.js` 를 node 로 직접 검증한다 |
+| 13 | `tests/` | 모델 불변식 pytest **54건**(2026-09-02) — `.venv/bin/python -m pytest tests -q`. `tests/field_spec.mjs` 는 배포 중인 `docs/app/field.js` 를 node 로 직접 검증한다 |
 | 14 | `src/backtest.py` → `data/derived/backtest.json` | 모델 백테스트 — 2024·2025 실측 시간대 승차. **A in-sample 승차오차 0.245/0.214**(2024/2025)·등급적중 82%/100%, **B cross-year(2026 조건) 0.420/0.438**·76%/88%. 생성 2026-08-30 (`52ff59a` 재생성분) |
 
 ## 원본 자료
@@ -76,7 +85,7 @@ PDF 텍스트가 글리프로 박혀 있어 복사·검색이 되지 않는다. 
 ## 돌려보기
 
 ```bash
-.venv/bin/python -m pytest tests -q     # 회귀 45건
+.venv/bin/python -m pytest tests -q     # 회귀 54건
 .venv/bin/python src/nowcast.py         # 예측 1회 → data/live/forecast_latest.json
 ./run_all.sh                            # 수집기 3종 + 5분 발행 루프 (당일 운영)
 ./tools/demo.sh                         # 가상 관측으로 대시보드 미리보기 → 127.0.0.1:8080
@@ -94,6 +103,8 @@ PDF 텍스트가 글리프로 박혀 있어 복사·검색이 되지 않는다. 
 | 9/5(토) | 실전 12~24시. 쇼 종료 실시각 기입 담당 1명 |
 | 9/6~7 | `evaluate.py` 오차표 · 영상 3분 · 편집기 9항목 초안 |
 | 9/8(화) | 최종 점검 → 18:00 업로드 → **20:00 제출** |
+
+9/2 에 **2회차 적대적 검증**을 돌려 미감사 파일(`collector_cctv.py`·`field.js`)에서 높음 2건(CCTV 밀도 보정 스케일 · α 기준선 시프트 누락)을 찾아 고쳤다(`e5ecae9`). 상세는 결함 대장 2회차 절.
 
 동결 전 결정 2건이 남아 있다 — **C1 α 밴드 클램프**(관측 20건에 밴드가 ±5%로 좁아지는데 백테스트 오차는 ±42%)와 **전야제 합격선**(1.9배 미달 시 행동 미정의). 근거는 `redteam-20260901.md` §C1 과 `topic-fireworks.md` §9.
 
