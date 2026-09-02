@@ -82,14 +82,19 @@ while (( RUN )); do
     if allow_restart; then log "WATCHDOG: nowcast/publish 루프 사망 → 재기동"; start_loop; log "  새 pid=$P3"; fi
   fi
   # 프로세스는 살아 있는데 데이터가 안 자라는 경우 (API 무응답·쿼터 소진 등) — 죽음보다 잡기 어렵다
-  F="data/live/api_$(date +%Y%m%d).jsonl"
+  # 2026-09-03 H10: 로그 파일 mtime 을 보면 **오류 레코드로도** 갱신돼 "살아 있는데 아무것도 못 받는" 상태를 놓친다.
+  # collector_api 가 citydata 를 실제로 받은 틱에만 건드리는 표식 파일을 본다.
+  F="data/live/api_last_ok"; L="data/live/api_$(date +%Y%m%d).jsonl"
   if [ -f "$F" ]; then
     AGE=$(( $(date +%s) - $(stat -f %m "$F") ))
     if (( AGE > 600 )); then
-      (( STALE_WARNED )) || log "WATCHDOG 경고: $F 가 ${AGE}초째 그대로다 — logs/api.log 확인 (쿼터·키·네트워크)"
+      (( STALE_WARNED )) || log "WATCHDOG 경고: 성공 수신이 ${AGE}초째 없다 (로그는 자랄 수 있다 — 오류 레코드) — logs/api.log 확인 (쿼터·키·네트워크)"
       STALE_WARNED=1
     else
       STALE_WARNED=0;
     fi
+  elif [ -f "$L" ]; then
+    (( STALE_WARNED )) || log "WATCHDOG 경고: 수집 로그는 자라는데 성공 수신이 한 건도 없다 — logs/api.log 확인 (인증키·장소명)"
+    STALE_WARNED=1
   fi
 done

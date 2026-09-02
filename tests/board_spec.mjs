@@ -100,4 +100,26 @@ t('방향별 오프라인 플랜 4개가 있다', () => {
   for (const p of B.PLANS) ok(p.items.length >= 2, `${p.title} 항목 부족`);
 });
 
+t('수집이 끊기면 발행이 신선해도 실시간이라 말하지 않는다', () => {
+  const now = Date.parse('2026-09-05T22:00:00');
+  const pub = '2026-09-05T21:58:00';            // 발행은 2분 전 — 화면은 이것만 보고 "실시간"이라 했다 (H10)
+  const fresh = { data_freshness: { citydata: { last_ok: '2026-09-05T21:56:00' }, subway: { last_ok: '2026-09-05T21:57:00' } } };
+  const dead = { data_freshness: { citydata: { last_ok: '2026-09-05T21:20:00' }, subway: { last_ok: '2026-09-05T21:20:00' } },
+                 degraded_sources: ['citydata', 'subway'] };
+  const live = B.freshness(fresh, pub, now);
+  eq(live.reason, 'live'); eq(live.live, true); eq(live.srcAge, 4);
+  const gone = B.freshness(dead, pub, now);
+  eq(gone.reason, 'collection'); eq(gone.live, false); eq(gone.warn, true); eq(gone.srcAge, 40);
+  // degraded_sources 가 비어 있어도 나이만으로 잡는다 (nowcast 가 옛 스키마일 때 대비)
+  eq(B.freshness({ data_freshness: { citydata: { last_ok: '2026-09-05T21:20:00' } } }, pub, now).reason, 'collection');
+});
+
+t('수집 시작 전과 수집 끊김을 구분한다', () => {
+  const now = Date.parse('2026-09-05T22:00:00');
+  const pre = { data_freshness: { citydata: { last_ok: null }, subway: { last_ok: null } } };
+  eq(B.freshness(pre, '2026-09-05T21:58:00', now).reason, 'pre');
+  // 원천은 신선한데 발행이 늦은 경우는 또 다른 상태다
+  eq(B.freshness({ data_freshness: { citydata: { last_ok: '2026-09-05T21:56:00' } } }, '2026-09-05T21:00:00', now).reason, 'publish');
+});
+
 process.stdout.write(JSON.stringify(results));

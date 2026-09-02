@@ -263,6 +263,29 @@ def latest_api(date):
     return city, acdnt + dst
 
 
+SOURCE_MAX_AGE_MIN = 15   # 정상 틱 5분의 3배 — publish.forecast_stale_min 과 같은 기준(M9)
+
+
+def source_freshness(records, now, kinds=("citydata", "subway")):
+    """종류별 마지막 **성공** 레코드의 나이. 오류 레코드는 세지 않는다.
+
+    왜 필요한가(결함 H10, 2026-09-03): 수집이 끊겨도 nowcast 는 계속 돌아 새 ts 로 발행되고,
+    화면은 발행 시각으로 신선도를 재서 "3분 전 · 실시간"이라고 말했다. 파일 mtime 도 오류 레코드로
+    갱신돼 워치독을 속인다. 성공 레코드의 시각만이 수집기가 살아 있다는 증거다.
+    last_ok=None 은 '아직 한 번도 못 받음'(수집 시작 전)이고 stale 과 구분해 쓴다."""
+    out = {}
+    for kind in kinds:
+        ok = [r["ts"] for r in records if r.get("kind") == kind and "error" not in r and r.get("ts")]
+        if not ok:
+            out[kind] = {"last_ok": None, "age_min": None, "stale": False}   # 아직 시작 전 — '끊김' 과 다르다
+            continue
+        last = max(ok)
+        try: age = round((now - datetime.datetime.fromisoformat(last)).total_seconds() / 60)
+        except (ValueError, TypeError): age = None
+        out[kind] = {"last_ok": last, "age_min": age, "stale": age is None or age > SOURCE_MAX_AGE_MIN}
+    return out
+
+
 def _load_records(date):
     fn = LIVE / f"api_{date}.jsonl"
     if not fn.exists(): return []
@@ -357,6 +380,11 @@ def main():
     date = sys.argv[sys.argv.index("--date") + 1] if "--date" in sys.argv else datetime.datetime.now().strftime("%Y%m%d")
     now = datetime.datetime.now()
     city, alerts = latest_api(date)
+    records = _load_records(date)
+    fresh = source_freshness(records, now)
+    # 지하철 도착은 17~23시만 수집한다(collector_api.SUBWAY_HOURS) — 그 밖의 시간대에 '끊김'이라 말하면 늑대소년이 된다
+    expected = ["citydata"] + (["subway"] if 17 <= now.hour <= 23 else [])
+    degraded = sorted(k for k in expected if fresh.get(k, {}).get("stale"))
     out_base = {int(k): v for k, v in BASE["outflow_by_hour_mean"].items()}
     # 방향·지하철 비중: 역추적 사전 예측표(src/backtrack.py, 유입 출발지 기준)가 있으면 그것을, 없으면 baseline(유출 도착지 기준)
     prior_fn = DER / "exit_forecast_2026.json"
@@ -374,7 +402,7 @@ def main():
     if E_MEAN:
         ex1 = compute_exits(shifted, dirs, sub_share, lags, hours, station_totals=E_MEAN)
         excess1 = {h: sum(ex1[st][h]["demand"] for st in SUBWAY_EXITS) for h in hours}
-        obs, ometa = _observations(_load_records(date), excess1, BASE6, shift=shift)
+        obs, ometa = _observations(records, excess1, BASE6, shift=shift)
     else:
         obs, ometa = [], {"n_obs": {"alighting": 0, "boarding": 0}, "coverage_c": None, "coverage_basis": "n/a"}
     post = assimilate(obs)
@@ -406,6 +434,9 @@ def main():
         # 2026-09-02 T7 드라이런: 관측 0건이면 α=1 은 측정값이 아니라 사전분포의 중앙값이다. 이 플래그가 없으면
         # docs/app/board.js 가 mode="live" 로 읽어 관람객 화면이 "실시간 반영 · α 1.00" 이라 말한다 (결함 M6).
         "prior": not post["n_obs"],
+        # 수집기가 살아 있는지 — prior 와 다른 축이다. prior 는 '오늘 관측이 하나도 없다',
+        # 이건 '방금까지 받고 있나'. α 는 낮 동안 쌓인 관측을 계속 쓰는 게 맞으므로 여기서 관측을 버리지 않는다 (H10)
+        "data_freshness": fresh, "degraded_sources": degraded,
         "assimilation": {"method": "격자 사후분포 61점(1/3~3), 사전 LogNormal(0,0.25), 관측 O1 여의나루 30분 하차·O2 여의도 핫스팟 30분 승차", "grid_n": post["grid_n"],
                          "n_obs": ometa["n_obs"], "alpha": post["alpha"], "edge_hit": post["edge_hit"], "coverage_c": ometa.get("coverage_c"), "coverage_basis": ometa.get("coverage_basis"),
                          "coverage_samples": ometa.get("coverage_samples", 0), "coverage_spread": ometa.get("coverage_spread"), "window_note": ometa.get("window_note")},

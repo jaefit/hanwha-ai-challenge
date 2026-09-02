@@ -1,7 +1,7 @@
 """모델 불변식 테스트. 실행: .venv/bin/python -m pytest tests -q
 데이터 파일(data/derived/*.json)이 있어야 하는 테스트는 파일 없으면 skip.
 """
-import json, math, pathlib, sys
+import datetime, json, math, pathlib, sys
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -607,3 +607,40 @@ def test_dashboard_has_no_undefined_local_functions():
     called = set(re.findall(r"(?<![.\w$])([A-Za-z_$][\w$]*)\s*\(", script))
     missing = sorted(called - defined - keywords - globals_)
     assert not missing, f"정의 없이 호출되는 이름: {missing}"
+
+
+# ── 수집 신선도 (결함 H10, 2026-09-03) ──
+def _rec(kind, ts, error=None):
+    r = {"kind": kind, "ts": ts}
+    if error: r["error"] = error
+    return r
+
+
+def test_source_freshness_ignores_error_records():
+    """오류 레코드는 성공이 아니다. 파일 mtime 은 오류로도 갱신돼 워치독을 속인다 — 그래서 성공 레코드 시각만 센다."""
+    now = datetime.datetime(2026, 9, 5, 22, 0, 0)
+    recs = [_rec("citydata", "2026-09-05T21:40:00"),
+            _rec("citydata", "2026-09-05T21:55:00", error="INFO-100 인증키 무효"),
+            _rec("citydata", "2026-09-05T21:59:00", error="INFO-100 인증키 무효")]
+    f = N.source_freshness(recs, now)["citydata"]
+    assert f["last_ok"] == "2026-09-05T21:40:00"   # 21:55·21:59 오류는 무시
+    assert f["age_min"] == 20 and f["stale"] is True
+
+
+def test_source_freshness_fresh_and_not_started():
+    now = datetime.datetime(2026, 9, 5, 22, 0, 0)
+    f = N.source_freshness([_rec("citydata", "2026-09-05T21:56:00")], now)["citydata"]
+    assert f["age_min"] == 4 and f["stale"] is False
+    # 아직 한 건도 못 받은 상태는 '끊김' 이 아니다 — 화면이 "수집 시작 전" 과 "수집 끊김" 을 다르게 말해야 한다
+    g = N.source_freshness([], now)["citydata"]
+    assert g["last_ok"] is None and g["stale"] is False
+
+
+def test_source_freshness_threshold_matches_publish_stale_rule():
+    """15분 = 정상 틱 5분의 3배. M9(publish.forecast_stale_min)와 같은 기준을 쓴다."""
+    assert N.SOURCE_MAX_AGE_MIN == 15
+    now = datetime.datetime(2026, 9, 5, 22, 0, 0)
+    edge = N.source_freshness([_rec("citydata", "2026-09-05T21:45:00")], now)["citydata"]
+    assert edge["age_min"] == 15 and edge["stale"] is False        # 경계값은 아직 정상
+    over = N.source_freshness([_rec("citydata", "2026-09-05T21:44:00")], now)["citydata"]
+    assert over["age_min"] == 16 and over["stale"] is True

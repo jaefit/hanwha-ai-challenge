@@ -154,12 +154,14 @@ def subway(st):
 def tick():
     now = datetime.datetime.now()
     fn = OUT / f"api_{now:%Y%m%d}.jsonl"
+    ok_any = False        # 이 틱에 citydata 를 한 건이라도 받았나 (워치독용 — 결함 H10)
     with fn.open("a", encoding="utf-8") as f:
         for h in HOTSPOTS:
             if h in WATCH and now.hour not in WATCH_HOURS: continue        # 관람지는 축제창(17~23시)만
             if h in FEEDERS and now.hour not in FEEDER_HOURS: continue     # 피더키 예산 보호 (12~19시만)
             try:
                 rec = {"ts": now.isoformat(timespec="seconds"), "kind": "citydata", **citydata(h)}
+                ok_any = True
             except Exception as e:
                 rec = {"ts": now.isoformat(timespec="seconds"), "kind": "citydata", "area": h, "error": redact(e)[:300]}
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
@@ -172,6 +174,9 @@ def tick():
                     rec = {"ts": now.isoformat(timespec="seconds"), "kind": "subway", "station": st, "error": redact(e)[:300]}
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 print("   ", st, len(rec.get("arrivals", [])), "trains", rec.get("error", ""))
+    # 성공했을 때만 표식 파일을 건드린다. 로그 파일의 mtime 은 **오류 레코드로도** 갱신돼
+    # "프로세스는 살아 있는데 아무것도 못 받는" 상태를 워치독에게 숨긴다 (결함 H10, 2026-09-03).
+    if ok_any: (OUT / "api_last_ok").write_text(now.isoformat(timespec="seconds"), encoding="utf-8")
 
 
 if __name__ == "__main__":

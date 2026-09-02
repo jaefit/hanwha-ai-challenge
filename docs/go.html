@@ -146,9 +146,11 @@ async function load(){
 function stateLine(){
   const fc=(DATA&&DATA.forecast)||{};
   const age=Board.ageMin(DATA&&DATA.generated);
+  const fr=Board.freshness(fc,DATA&&DATA.generated);   // 발행 시각만 보면 수집 끊김을 놓친다 (H10)
   const r=Board.rank(fc,HOUR);
   let txt,warn=false;
   if(DATA&&DATA.__offline){txt="오프라인 — 이 기기에 저장된 마지막 정보";warn=true;}
+  else if(r.mode==="live"&&fr.reason==="collection")txt=`수집 끊김 · 마지막 수신 ${fr.srcAge==null?"기록 없음":fr.srcAge+"분 전"}`,warn=true;
   else if(r.mode==="live"&&age!=null&&age<=15)txt=`실시간 · ${age}분 전 갱신`;
   else if(r.mode==="live")txt=`${age==null?"":age+"분 전 갱신 · "}갱신이 늦다`,warn=true;
   else {txt=r.modeNote;warn=true;}

@@ -62,6 +62,21 @@ def test_two_pages_share_grade_thresholds():
             f"board.js 의 {label} 경계가 index.html({value}) 과 다르다"
 
 
+def test_three_places_share_collection_stale_threshold():
+    """수집 끊김 판정 기준(15분)이 세 곳에 흩어져 있다 — nowcast(생산) · board.js(관람객) · index.html(운영).
+    하나만 바뀌면 한 화면은 "실시간", 다른 화면은 "수집 끊김" 이라 말한다 (결함 H10, 2026-09-03)."""
+    import sys
+    sys.path.insert(0, str(ROOT / "src"))
+    import nowcast as N
+    idx = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
+    board = (ROOT / "docs" / "app" / "board.js").read_text(encoding="utf-8")
+    mi = re.search(r"const COLLECT_STALE_MIN=(\d+);", idx)
+    mb = re.search(r"var COLLECT_STALE_MIN = (\d+);", board)
+    assert mi and mb, "COLLECT_STALE_MIN 정의를 찾지 못했다 — 형태가 바뀌었으면 이 검사를 고쳐야 한다"
+    assert int(mi.group(1)) == int(mb.group(1)) == N.SOURCE_MAX_AGE_MIN, \
+        f"기준 불일치: index.html {mi.group(1)} · board.js {mb.group(1)} · nowcast {N.SOURCE_MAX_AGE_MIN}"
+
+
 # ── 생산자–소비자 계약 (2026-09-02 T7 드라이런에서 발견) ──────────────────────
 # board_spec.mjs 는 board.js 에 {prior:true} 를 **손으로 넣어** 통과한다. 그래서 nowcast 가 그 키를 아예
 # 안 준다는 사실을 구조적으로 못 잡았고, 관측 0건인 평일 예측이 공개 화면에서 "실시간 반영 · α 1.00" 으로
@@ -97,6 +112,19 @@ def test_nowcast_clears_prior_when_observations_exist(tmp_path):
     n = fc["assimilation"]["n_obs"]
     assert n["alighting"] + n["boarding"] > 0, "이 날짜에 관측이 없다 — 고정값을 바꿔야 한다"
     assert fc.get("prior") is False
+
+
+def test_nowcast_emits_freshness_keys_board_reads(tmp_path):
+    """board.js freshness() 가 읽는 키를 nowcast 가 실제로 내는지. board_spec 은 손으로 넣은 객체로 통과하므로
+    이 계약이 없으면 화면은 수집 끊김을 영영 못 본다 (결함 H10 — prior 때와 같은 구멍)."""
+    fc = _nowcast(tmp_path, "20200101")
+    assert "data_freshness" in fc and "degraded_sources" in fc
+    assert set(fc["data_freshness"]) >= {"citydata", "subway"}
+    for k, v in fc["data_freshness"].items():
+        assert set(v) == {"last_ok", "age_min", "stale"}, k
+    # 수집 기록이 없는 날은 '끊김' 이 아니라 '시작 전' 이다
+    assert fc["degraded_sources"] == []
+    assert all(v["last_ok"] is None for v in fc["data_freshness"].values())
 
 
 def test_board_reads_nowcast_prior_end_to_end(tmp_path):

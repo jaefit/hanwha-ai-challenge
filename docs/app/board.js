@@ -55,6 +55,29 @@
   ];
 
   var STALE_MIN = 12 * 60;   // index.html 과 같은 기준: 12시간 넘으면 사전 예측표로 물러난다
+  var COLLECT_STALE_MIN = 15;   // 수집 끊김 판정. 정상 틱 5분의 3배 = nowcast.SOURCE_MAX_AGE_MIN 과 같은 값이어야 한다
+
+  /** 화면이 "실시간"이라고 말해도 되는지 (결함 H10, 2026-09-03).
+   *  발행 시각만 보면 수집기가 죽어도 새 발행이 계속돼 "3분 전 · 실시간"으로 보인다.
+   *  reason — pre: 아직 한 번도 못 받음 · collection: 받다가 끊김 · publish: 발행이 늦음 · live: 정상
+   *  srcAge 는 원천(성공 레코드) 나이, pubAge 는 발행 나이. 둘 중 나쁜 쪽으로 말한다. */
+  function freshness(forecast, generated, now) {
+    var f = forecast || {}, src = f.data_freshness || {};
+    var pubAge = ageMin(generated, now), ages = [], seen = 0, started = 0, k;
+    for (k in src) {
+      if (!Object.prototype.hasOwnProperty.call(src, k)) continue;
+      seen++;
+      if (src[k] && src[k].last_ok != null) { started++; var a = ageMin(src[k].last_ok, now); if (a != null) ages.push(a); }
+    }
+    var srcAge = ages.length ? Math.max.apply(null, ages) : null;
+    var degraded = (f.degraded_sources || []).slice();
+    var out = { pubAge: pubAge, srcAge: srcAge, degraded: degraded };
+    if (seen && !started) { out.reason = "pre"; out.live = false; out.warn = true; return out; }
+    if (degraded.length || (srcAge != null && srcAge > COLLECT_STALE_MIN)) { out.reason = "collection"; out.live = false; out.warn = true; return out; }
+    if (pubAge == null) { out.reason = "pre"; out.live = false; out.warn = true; return out; }
+    if (pubAge > COLLECT_STALE_MIN) { out.reason = "publish"; out.live = false; out.warn = true; return out; }
+    out.reason = "live"; out.live = true; out.warn = false; return out;
+  }
 
   /** 부하율 → 서울시 4단계. index.html 의 LV 와 경계가 같아야 한다(tests/test_board.py 가 대조). */
   function grade(load) {
@@ -150,6 +173,7 @@
 
   return {
     EXITS: EXITS, FALLBACK: FALLBACK, PLANS: PLANS, CLOSED_NOTE: CLOSED_NOTE, STALE_MIN: STALE_MIN,
+    COLLECT_STALE_MIN: COLLECT_STALE_MIN, freshness: freshness,
     grade: grade, closedNote: closedNote, ageMin: ageMin, isStale: isStale,
     alphaLabel: alphaLabel, waitNote: waitNote, rank: rank, defaultHour: defaultHour,
   };

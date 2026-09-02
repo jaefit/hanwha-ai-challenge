@@ -38,3 +38,4 @@ logs/
 # 보행 네트워크 (routing/download_walk_network.py) — 재생성 가능한 중간 산출물
 routing/cache/
 data/pedestrian/
+data/live/api_last_ok

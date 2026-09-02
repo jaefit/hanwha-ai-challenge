@@ -782,9 +782,18 @@ async function load(){
   DATA=d;const g=d.generated?new Date(d.generated):null;const age=g?Math.round((Date.now()-g)/60000):null;
   const hm=g?g.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false}):"";
   const a=d.forecast&&d.forecast.alpha!=null?` · α ${Number(d.forecast.alpha).toFixed(1)}`:"";
+  // 수집이 끊겨도 발행은 계속돼 "3분 전 · 실시간"으로 보였다 (결함 H10, 2026-09-03). 원천(성공 레코드) 나이를 같이 본다.
+  // COLLECT_STALE_MIN = 15 는 nowcast.SOURCE_MAX_AGE_MIN · board.js 와 같은 값이어야 한다 (tests/test_board.py 가 대조).
+  const COLLECT_STALE_MIN=15;
+  const srcAges=Object.values((d.forecast||{}).data_freshness||{}).filter(v=>v&&v.last_ok!=null)
+    .map(v=>Math.round((Date.now()-Date.parse(String(v.last_ok).replace(" ","T")))/60000)).filter(v=>isFinite(v));
+  const srcAge=srcAges.length?Math.max(...srcAges):null;
+  const degraded=((d.forecast||{}).degraded_sources||[]);
+  const collectionDead=degraded.length>0||(srcAge!=null&&srcAge>COLLECT_STALE_MIN);
   let txt,live=false;
   if(!g)txt=d.forecast&&d.forecast.prior?"실시간 시작 전 · 사전 예측(2024·2025 출발지 기반)":"실시간 시작 전 · 2024·2025 실적";
   else if(offline)txt=`통신 끊김 · ${hm} 데이터${a}`;
+  else if(collectionDead)txt=`수집 끊김 · 마지막 수신 ${srcAge==null?"기록 없음":(srcAge<120?srcAge+"분":Math.round(srcAge/60)+"시간")+" 전"}${degraded.length?" ("+degraded.join("·")+")":""}${a}`;
   else if(age<=15){txt=`${hm} 기준 · ${age}분 전${a}`;live=true;}
   else txt=`${hm} 기준 · ${age<120?age+"분":Math.round(age/60)+"시간"} 전 · 오래됨${a}`;
   $("freshness").textContent=txt;$("dot").className="dot"+(live?"":" off");
