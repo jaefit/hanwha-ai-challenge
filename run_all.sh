@@ -43,7 +43,7 @@ start_api; start_cctv; start_loop
 log "running: api=$P1 cctv=$P2 nowcast/publish=$P3 caffeinate=$CAF  (logs/ 에 기록)"
 
 RUN=1
-trap 'RUN=0; kill $P1 $P2 $P3 $CAF 2>/dev/null; log "stopped"; exit 0' INT TERM
+trap 'RUN=0; kill $P1 $P2 $P3 $CAF $SLP 2>/dev/null; log "stopped"; exit 0' INT TERM
 
 if [ "${WATCHDOG:-1}" = "0" ]; then wait; exit 0; fi
 
@@ -67,7 +67,10 @@ allow_restart() {
 
 STALE_WARNED=0
 while (( RUN )); do
-  sleep $WD_POLL
+  # 2026-09-02 L5: 맨 `sleep` 은 zsh 트랩을 삼켜 Ctrl+C 후 정지까지 최대 WD_POLL 초가 걸린다(실측 38초).
+  # 현장에서 반응이 없다고 한 번 더 누르면 트랩이 버려지고 수집기·caffeinate 가 고아로 남는다.
+  # 배경으로 돌리고 wait 하면 wait 가 시그널에 깨므로 즉시 트랩이 돈다.
+  sleep $WD_POLL & SLP=$!; wait $SLP
   (( RUN )) || break
   if ! kill -0 $P1 2>/dev/null; then
     if allow_restart; then log "WATCHDOG: collector_api 사망 → 재기동 (직전 로그: $(tail -1 logs/api.log))"; start_api; log "  새 pid=$P1"; fi
