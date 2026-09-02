@@ -37,6 +37,18 @@ def slim_cctv(rec):
 FAIL_STREAK = LIVE / "publish_fail_streak"
 
 
+# 2026-09-02 M9: run_all.sh 의 nowcast/publish 루프는 서브셸이라 nowcast 가 매번 예외로 죽어도 프로세스는 살아 있다.
+# CCTV 는 매분 바뀌므로 same_payload 를 통과해 발행이 계속되고, 화면은 신선해 보이는데 예측만 얼어붙는다.
+FORECAST_STALE_MIN = 15   # 정상 틱 주기 5분의 3배
+
+
+def forecast_stale_min(fc, now=None):
+    """예측 산출 시각이 FORECAST_STALE_MIN 분 넘게 지났으면 그 분 수, 아니면 None (시각을 못 읽어도 None)."""
+    try: age = ((now or datetime.datetime.now()) - datetime.datetime.fromisoformat((fc or {})["ts"])).total_seconds() / 60
+    except Exception: return None
+    return round(age) if age > FORECAST_STALE_MIN else None
+
+
 def render(payload):
     return json.dumps(payload, ensure_ascii=False, indent=1)
 
@@ -78,6 +90,10 @@ def main():
     date = datetime.datetime.now().strftime("%Y%m%d")
     fc = json.loads((LIVE / "forecast_latest.json").read_text(encoding="utf-8")) if (LIVE / "forecast_latest.json").exists() else {}
     payload = {"generated": datetime.datetime.now().isoformat(timespec="seconds"), "forecast": fc, "cctv": latest_cctv(date)}
+    stale = forecast_stale_min(fc)
+    if stale is not None:
+        print(f"!!! 예측이 {stale}분째 그대로다 — nowcast 가 죽었을 수 있다(발행은 CCTV 때문에 계속된다). "
+              f"logs/nowcast.log 의 Traceback 확인 !!!", file=sys.stderr)
     # 예측 스냅샷 이력 (T6 evaluate.py 입력) — "그 시점에 뭐라고 예측했었나"를 사후 재현. repo 밖(data/live), 당일 종료 후 커밋
     hdir = LIVE / "forecast_history" / date; hdir.mkdir(parents=True, exist_ok=True)
     (hdir / f"{datetime.datetime.now():%H%M}.json").write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")

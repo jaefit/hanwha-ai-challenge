@@ -21,6 +21,23 @@ BASE = json.loads((DER / "baseline.json").read_text(encoding="utf-8"))
 
 # 축제일 여의나루 시간대별 하차 (2024-10-05 / 2025-09-27 평균, OA-12921). α 분모.
 YEOUINARU_GTOFF_BASE = {12: 4300, 13: 5800, 14: 7900, 15: 10600, 16: 13700, 17: 15565, 18: 4018, 19: 36, 20: 24}
+
+
+def o1_base_inc(h, half, shift):
+    """(시, 30분 구간) 창의 기준 30분 하차. 2026-09-02 H7 정정 — 쇼 종료가 shift 분 늦으면 도착도 그만큼 늦다.
+    유출 곡선은 이미 shift 만큼 밀었는데(main) O1 분모만 2024·2025 시각 그대로여서 오후 내내 α<1 로 읽혔다.
+    기준선의 '시간대 안 균등' 가정은 그대로 두고, 관측 창 [t0, t0+30분) 을 shift 만큼 앞당겨 그 구간의 기준 하차를 적분한다.
+    shift=0 이면 두 반시간 모두 예전과 같은 '그 시간대 값 ÷ 2'."""
+    t0 = h + 0.5 * half - shift / 60.0
+    t1 = t0 + 0.5
+    total, hh = 0.0, int(math.floor(t0))
+    while hh < t1:
+        lo, hi = max(t0, hh), min(t1, hh + 1)
+        if hi > lo: total += YEOUINARU_GTOFF_BASE.get(hh, 0) * (hi - lo)
+        hh += 1
+    return total
+
+
 # 회랑 → 지하철 출구 배정 (topic-fireworks.md §5 L3). 값 = 회랑 지하철 수요 중 비중. 나머지는 버스·도보.
 ASSIGN = {
     "서":   {"여의도(5)": 0.75, "신길(1·5)": 0.25},   # 2025 실적: 21시 신길 2.8k vs 여의도(5) 12.5k
@@ -116,6 +133,7 @@ DEFAULT_DENSITY = 3.0        # CCTV 없거나 신뢰 못 할 때 — 기존 40/6
 V_MIN = 0.15                 # 정체 하한 속도 m/s (추정: Kladek 식은 5명/m² 에서 0.04 까지 떨어짐)
 MIN_COUNT_FOR_DENSITY = 20   # 밀도맵 count 가 이보다 작으면 등급을 구역 밀도에 쓰지 않는다 (오탐 방지)
 ZONE_CAM_RADIUS_M = 500            # 마포대교남단 483m·원효대교남단 419m 포함 (구역 5곳 전부 카메라 1대 이상)
+CCTV_MAX_AGE_MIN = 30              # 2026-09-02 M10: 나이 컷이 없어 낮에 조건을 맞춘 등급이 밤까지 남았다
 
 
 def kladek(rho):
@@ -154,8 +172,10 @@ def lag_table(zone_density=None):
     return out
 
 
-def zone_density_from_cctv(date):
-    """오늘 CCTV 로그의 캘리브레이션된 카메라별 최신 등급 → 500m 안 구역의 밀도(최대). 미캘리브레이션·저신뢰·count<20 은 무시."""
+def zone_density_from_cctv(date, now=None):
+    """오늘 CCTV 로그의 캘리브레이션된 카메라별 최신 등급 → 500m 안 구역의 밀도(최대).
+    미캘리브레이션·저신뢰·count<20·CCTV_MAX_AGE_MIN 분 넘게 지난 관측은 무시."""
+    now = now or datetime.datetime.now()
     fn = LIVE / f"cctv_{date}.jsonl"
     cams_fn = DER / "topis_yeouido_cams.json"
     if not fn.exists() or not cams_fn.exists(): return {}, {}
@@ -165,7 +185,12 @@ def zone_density_from_cctv(date):
         if not l.strip(): continue
         r = json.loads(l)
         # 모델 입력 조건: 캘리브레이션된 카메라(ROI+roi_m2 → density 있음) · 신뢰도 ok · count≥20. 미캘리브레이션 카메라는 화면 참고용.
-        if r.get("ok") and r.get("level") in DENSITY_BY_LEVEL and r.get("density") is not None and r.get("confidence", "ok") == "ok" and (r.get("count") or 0) >= MIN_COUNT_FOR_DENSITY: latest[r["cam_id"]] = r
+        if not (r.get("ok") and r.get("level") in DENSITY_BY_LEVEL and r.get("density") is not None
+                and r.get("confidence", "ok") == "ok" and (r.get("count") or 0) >= MIN_COUNT_FOR_DENSITY): continue
+        try: age = (now - datetime.datetime.fromisoformat(r["ts"])).total_seconds() / 60
+        except Exception: continue
+        if age > CCTV_MAX_AGE_MIN: continue        # 묵은 등급을 현재 밀도로 쓰지 않는다 (M10)
+        latest[r["cam_id"]] = r
     zd, used = {}, {}
     for cid, r in latest.items():
         c = cams.get(str(cid)) or cams.get(cid)
@@ -256,16 +281,16 @@ def _mid(s, key):
     return (lo + hi) / 2, (hi - lo) / 2
 
 
-def _observations(records, excess1_by_hour, base_by_hour):
+def _observations(records, excess1_by_hour, base_by_hour, shift=0):
     """당일 로그 → 우도 항. obs = [(y, A, B, rel_sigma, abs_sigma, kind)], pred(α) = A·α + B, σ = rel·pred + abs.
-    O1 여의도한강공원(=여의나루 1역) 30분 하차: A = 2년 평균 30분 증분, B = 0. 창 종료 ≤ 19:00.
+    O1 여의도한강공원(=여의나루 1역) 30분 하차: A = 2년 평균 30분 증분(쇼 시프트 반영, o1_base_inc), B = 0. 창 종료 ≤ 19:00.
     O2 여의도 핫스팟(9역 합산) 30분 승차: A = c·초과(α=1)/2, B = c·평시/2. 창 시작 ≥ 19:00.
     c(커버리지) = 당일 14~17시 관측 30분 승차 ÷ 우리 6출구 평시 30분 승차 의 중앙값 (3창 이상), 없으면 COVERAGE_FALLBACK."""
     obs = []; park = _win(records, "여의도한강공원"); ydo = _win(records, "여의도")
     n1 = 0
     for (h, half), (t, s) in sorted(park.items()):
         if h > 18 or h < 12: continue
-        base_inc = YEOUINARU_GTOFF_BASE.get(h, 0) / 2
+        base_inc = o1_base_inc(h, half, shift)
         if base_inc < O1_MIN_BASE_INC: continue
         m = _mid(s, "SUB_30WTHN_GTOFF_PPLTN")
         if not m: continue
@@ -343,7 +368,7 @@ def main():
     if E_MEAN:
         ex1 = compute_exits(shifted, dirs, sub_share, lags, hours, station_totals=E_MEAN)
         excess1 = {h: sum(ex1[st][h]["demand"] for st in SUBWAY_EXITS) for h in hours}
-        obs, ometa = _observations(_load_records(date), excess1, BASE6)
+        obs, ometa = _observations(_load_records(date), excess1, BASE6, shift=shift)
     else:
         obs, ometa = [], {"n_obs": {"alighting": 0, "boarding": 0}, "coverage_c": None, "coverage_basis": "n/a"}
     post = assimilate(obs)
@@ -389,7 +414,7 @@ def main():
         "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx"),
                               "role": v.get("role", "feeder"), "fcst": [{"t": f["t"], "lvl": f["lvl"], "min": f["min"], "max": f["max"]} for f in (v.get("fcst") or [])[:2]]} for k, v in city.items()},
         "seoul_fcst_snapshot": seoul_fcst,
-        "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 = 거리÷밀도별 속도(Weidmann). CCTV 등급 없으면 구역 밀도 3명/m² 가정(≈기존 40/60)", "load_lo/hi = α 사후분포 p10/p90 비율 (관측 없으면 0.73~1.38, 관측 쌓이면 축소)", "대기열은 시간대를 넘어 누적(backlog)", "α = 격자 사후 p50. O1 여의나루 30분 하차(12~19시)·O2 여의도 핫스팟 30분 승차(19시~, 커버리지 c 추정)", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
+        "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 = 거리÷밀도별 속도(Weidmann). CCTV 등급 없으면 구역 밀도 3명/m² 가정(≈기존 40/60)", "load_lo/hi = α 사후분포 p10/p90 비율 (관측 없으면 0.73~1.38, 관측 쌓이면 축소)", "대기열은 시간대를 넘어 누적(backlog)", "α = 격자 사후 p50. O1 여의나루 30분 하차(12~19시, 기준선도 쇼 시프트만큼 이동)·O2 여의도 핫스팟 30분 승차(19시~, 커버리지 c 추정)", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
     }
     (LIVE / "forecast_latest.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"α={a} ({why})"); print("유출 예측:", result["outflow_forecast"])

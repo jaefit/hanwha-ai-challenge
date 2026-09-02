@@ -6,10 +6,14 @@
 
 출력: data/live/cctv_YYYYMMDD.jsonl — 1행 = 1카메라 1시각
   ts, cam_id, name, count(밀도맵 합), occupancy(전경 비율 0~1), flow(프레임간 평균 이동량), level, ok
-등급: count 를 ROI 면적(m², cams.json 의 roi_m2, 없으면 null)으로 나눈 밀도 → 서울시 기준 3/4/5명/m² = 주의/경계/심각.
+등급: count 를 **검증된** ROI 면적(roi_m2 + roi_m2_verified:true)으로 나눈 밀도 → 서울시 기준 3/4/5명/m² = 주의/경계/심각.
+  (2026-09-02 H6 정정) 기존 roi_m2 9,000~20,000m² 는 도로·교량 **전체** 면적이라 720x480 원거리 고각에서 DM-Count 가 셀 수 있는
+  규모와 두 자릿수 어긋난다 — 「주의」(3명/m²) 도달에 count 27,000~60,000 이 필요한데 8/29 야간 실측 최대는 8.4~29.3 이었다.
+  그 상태로 밀도를 내면 카메라가 언제나 「여유」로 고정돼 혼잡장(field.js σ 0.10, 가장 강한 관측)을 눌러 앉히고
+  구역 밀도도 1.5명/m² 로 낮춰 도달 지연을 낙관으로 만든다. 근경 부분 ROI 로 면적을 다시 재기 전까지 밀도 등급을 내지 않는다.
 신뢰도(confidence ok/low, flags): 저조도(brightness<40) · 배경차분 실패(occupancy≥0.9) · 밀도 포화(≥5명/m², 개체 검출 붕괴 구간) ·
 count<20 인데 점유율 높음(불일치). bg_fail 이면 등급을 "보정전"으로 내린다. 하류(nowcast)는 count<20 등급을 구역 밀도에 쓰지 않는다. (benchmark §4-6)
-     roi_m2 가 없으면 등급은 점유율 기준 임시값(0.15/0.30/0.45)으로 매긴다. 캘리브레이션 전까지는 '추세' 용도다.
+     검증된 roi_m2 가 없으면 등급은 점유율 기준 임시값(0.15/0.30/0.45)으로 매긴다. 캘리브레이션 전까지는 '추세' 용도다.
 ROI 마스크: cams.json 의 roi = [[x,y],...] (픽셀 폴리곤, 보행 영역만). 있으면 폴리곤 밖을 검게 지운 뒤 count·점유율·흐름을 계산한다.
   도로 카메라는 차량·노면 질감이 count 에 섞이므로(낮에 여의교남단 87.7 등) ROI 없는 카메라의 등급은 화면 참고용이고 nowcast 구역 밀도엔 쓰지 않는다.
   ROI 좌표 잡기: src/cam_calib.py (격자 프레임 1장을 저장소 밖에 저장).
@@ -64,10 +68,21 @@ def count_people(frame):
     return float(c)
 
 
-_bg, _seen = {}, {}
+def roi_area(cam):
+    """밀도 등급에 쓸 ROI 면적(m²). 사람이 근경 부분 ROI 로 다시 재고 roi_m2_verified:true 를 붙이기 전에는 None.
+    (2026-09-02 H6) 미검증 면적으로 낸 밀도는 언제나 「여유」라 관측이 아니라 잡음이다."""
+    return cam.get("roi_m2") if cam.get("roi_m2_verified") else None
+
+
+_bg, _seen, _shape = {}, {}, {}
 WARMUP = 3   # 배경 모델이 자리 잡기 전(첫 3틱)엔 점유율을 내지 않는다 — 첫 프레임은 전부 전경으로 잡힌다
 def occupancy(cam_id, frame):
-    """MOG2 배경차분 전경 비율. 카메라별 배경 모델 유지. 워밍업 전엔 None."""
+    """MOG2 배경차분 전경 비율. 카메라별 배경 모델 유지. 워밍업 전엔 None.
+    (2026-09-02 M8) HD(1280x720)↔SD(720x480) 폴백이 한 번 튀면 MOG2 가 내부적으로 재초기화돼 전경 100%(bg_fail)가 되는데
+    워밍업 카운터는 그대로라 보호를 못 받았다. 크기가 바뀌면 배경 모델과 카운터를 같이 리셋한다."""
+    shape = frame.shape[:2]
+    if _shape.get(cam_id) != shape:
+        _shape[cam_id] = shape; _bg.pop(cam_id, None); _seen[cam_id] = 0
     sub = _bg.setdefault(cam_id, cv2.createBackgroundSubtractorMOG2(history=200, varThreshold=32, detectShadows=False))
     m = sub.apply(frame)
     _seen[cam_id] = _seen.get(cam_id, 0) + 1
@@ -127,11 +142,11 @@ def tick(cams):
                 cnt = count_people(f0m); occ = occupancy(c["camId"], f0m); fl = flow(f0m, f1m)
                 if roi and occ is not None:                       # 점유율은 ROI 면적 기준으로 재정규화
                     m = np.zeros(f0.shape[:2], dtype=np.uint8); cv2.fillPoly(m, [np.array(roi, dtype=np.int32)], 1); occ = min(1.0, occ / max(1e-6, float(m.mean())))
-                lv, dens = level(cnt, occ, c.get("roi_m2"))
+                lv, dens = level(cnt, occ, roi_area(c))
                 conf, flags, bright = confidence(cnt, occ, dens, f0)
                 if "bg_fail" in flags or "count_vs_occ" in flags: lv = "보정전"   # 계측 자체가 깨진 경우만 등급을 내린다(저조도는 플래그만)
                 rec.update(ok=True, count=round(cnt, 1), occupancy=None if occ is None else round(occ, 4), flow=None if fl is None else round(fl, 3), density=dens, level=lv,
-                           confidence=conf, flags=flags, brightness=bright, calibrated=bool(roi and c.get("roi_m2")), origin=origin)
+                           confidence=conf, flags=flags, brightness=bright, calibrated=bool(roi and roi_area(c)), origin=origin)
             except Exception as e:
                 rec["error"] = str(e)[:120]
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")

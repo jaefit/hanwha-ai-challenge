@@ -105,6 +105,89 @@ def test_exit_shares_file_consistency():
     assert 0.95 < e["by_year"]["2024"]["total"] / e["by_year"]["2025"]["total"] < 1.05   # 규모 앵커: 2년 총량 안정
 
 
+# ── 2026-09-02 점검 조치 (H6·H7·M8·M9·M10) ──
+def test_o1_baseline_follows_show_end_shift():
+    """H7: 유출 곡선만 40분 밀고 O1 도착 기준선은 안 밀어 오후 내내 α<1 로 읽혔다.
+    2026 도착이 쇼 시각만큼 늦어지면 기준선도 같이 밀려야 α=1 이 나온다."""
+    def rec(h, half, off):
+        return {"kind": "citydata", "area": "여의도한강공원", "ts": f"2026-09-05T{h:02d}:{25 + 30 * half:02d}:10",
+                "sub_live": {"SUB_30WTHN_GTOFF_PPLTN_MIN": str(off - 50), "SUB_30WTHN_GTOFF_PPLTN_MAX": str(off + 50)}}
+    B, shift = N.YEOUINARU_GTOFF_BASE, 40
+    def truth(h, half):   # 2026 실제 도착 = 기준 곡선을 shift 만큼 뒤로 민 것
+        t = h + 0.5 * half - shift / 60
+        lo = int(t); f = t - lo
+        return ((1 - f) * B.get(lo, 0) + f * B.get(lo + 1, 0)) / 2
+    recs = [rec(h, half, round(truth(h, half))) for h in range(13, 18) for half in (0, 1)]
+    ex1 = {h: 10000.0 for h in range(15, 25)}; base = {h: 1000.0 for h in range(5, 25)}
+    before = N.assimilate(N._observations(recs, ex1, base, shift=0)[0])["alpha"]
+    after = N.assimilate(N._observations(recs, ex1, base, shift=shift)[0])["alpha"]
+    assert before[1] < 0.92, f"시프트 미반영인데 α={before[1]} — 결함이 재현되지 않는다"
+    assert before[2] < 1.0, "밴드 상단이 참값 1.0 을 배제하는 것이 이 결함의 해로움"
+    assert abs(after[1] - 1.0) < 0.08, f"시프트 반영 후 α={after[1]} (참값 1.0)"
+    assert after[0] <= 1.0 <= after[2], "반영 후 밴드는 참값을 담아야 한다"
+
+
+def test_o1_baseline_without_shift_is_unchanged():
+    """회귀 가드: shift=0 이면 기준선은 예전과 같은 '그 시간대 값 ÷ 2'."""
+    assert N.o1_base_inc(16, 0, 0) == pytest.approx(N.YEOUINARU_GTOFF_BASE[16] / 2)
+    assert N.o1_base_inc(16, 1, 0) == pytest.approx(N.YEOUINARU_GTOFF_BASE[16] / 2)
+    assert N.o1_base_inc(16, 0, 40) < N.o1_base_inc(16, 0, 0)   # 16시 창이 15~16시 수준을 보게 된다
+
+
+def test_zone_density_ignores_stale_cctv(tmp_path, monkeypatch):
+    """M10: 조건을 만족한 마지막 레코드를 시각 무관하게 써서 낮 등급이 밤까지 남았다."""
+    import datetime as dt, json as js
+    monkeypatch.setattr(N, "LIVE", tmp_path)
+    def row(ts):
+        return js.dumps({"ts": ts, "cam_id": "331", "name": "63빌딩", "ok": True, "count": 50.0, "density": 3.2,
+                         "level": "주의", "confidence": "ok", "flags": [], "calibrated": True}, ensure_ascii=False)
+    (tmp_path / "cctv_20260905.jsonl").write_text(row("2026-09-05T20:40:00") + "\n", encoding="utf-8")
+    now = dt.datetime(2026, 9, 5, 20, 50)
+    zd, _ = N.zone_density_from_cctv("20260905", now=now)
+    assert zd, "10분 전 관측은 써야 한다"
+    (tmp_path / "cctv_20260905.jsonl").write_text(row("2026-09-05T19:00:00") + "\n", encoding="utf-8")
+    zd, used = N.zone_density_from_cctv("20260905", now=now)
+    assert zd == {} and used == {}, f"110분 지난 관측이 남았다: {zd}"
+
+
+def test_publish_flags_frozen_forecast(tmp_path):
+    """M9: nowcast 가 죽어도 CCTV 는 매분 바뀌어 발행이 계속된다 — 예측만 얼어붙은 걸 알 수 없었다."""
+    import datetime as dt
+    import publish as P
+    now = dt.datetime(2026, 9, 5, 21, 0)
+    assert P.forecast_stale_min({"ts": "2026-09-05T20:58:00"}, now) is None
+    assert P.forecast_stale_min({"ts": "2026-09-05T20:30:00"}, now) == 30
+    assert P.forecast_stale_min({}, now) is None
+
+
+def test_calibrated_density_needs_verified_roi_area():
+    """H6: roi_m2 는 도로·교량 전체 면적(9,000~20,000m²)이라 count/roi_m2 가 두 자릿수 작다.
+    8/29 야간 실측 최대 count 8.4~29.3 vs 「주의」(3명/m²) 필요 27,000~60,000 — 검증 전엔 밀도 등급을 내지 않는다."""
+    pytest.importorskip("cv2")
+    import collector_cctv as CC
+    unverified = {"camId": "331", "roi_m2": 10000}
+    assert CC.roi_area(unverified) is None
+    assert CC.level(50.0, 0.32, CC.roi_area(unverified)) == ("경계", None)   # 점유율 임시 등급으로 복귀
+    assert CC.roi_area({"camId": "331", "roi_m2": 800, "roi_m2_verified": True}) == 800
+    cams = json.loads((ROOT / "data" / "derived" / "topis_yeouido_cams.json").read_text(encoding="utf-8"))
+    assert not [c["name"] for c in cams if CC.roi_area(c)], "검증 표기 없이 밀도 등급을 내는 카메라가 있다"
+
+
+def test_cctv_background_model_resets_on_frame_size_change():
+    """M8: HD(1280x720)↔SD(720x480) 폴백이 한 번 튀면 MOG2 가 재초기화돼 전경 100%(bg_fail) 인데
+    워밍업 카운터는 그대로라 보호가 없었다. 크기가 바뀌면 배경 모델과 워밍업을 같이 리셋한다."""
+    pytest.importorskip("cv2")
+    import numpy as np
+    import collector_cctv as CC
+    CC._bg.clear(); CC._seen.clear()
+    rng = np.random.default_rng(0)
+    sd = lambda: rng.integers(100, 110, (480, 720, 3)).astype(np.uint8)
+    for _ in range(CC.WARMUP + 3): CC.occupancy("t1", sd())
+    assert CC.occupancy("t1", sd()) < 0.5
+    hd = rng.integers(100, 110, (720, 1280, 3)).astype(np.uint8)
+    assert CC.occupancy("t1", hd) is None, "크기가 바뀐 직후엔 점유율을 내지 않아야 한다(워밍업 재시작)"
+
+
 # ── 쇼 종료 앵커 ──
 def test_shift_for_show_end():
     assert N.shift_for((21, 10)) == 40
