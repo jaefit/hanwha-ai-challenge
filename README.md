@@ -8,7 +8,8 @@
 
 | 링크 | 내용 | 비고 |
 |---|---|---|
-| **[▶ 대시보드](https://jaefit.github.io/hanwha-ai-challenge/)** | 출구 랭킹 · 혼잡장 지도 · 보행 경로 · 오프라인 플랜 | 5분 갱신 |
+| **[▶ 관람객 화면](https://jaefit.github.io/hanwha-ai-challenge/go.html)** | 지금 덜 막히는 출구 · 현재 혼잡도 · 걸어갈 길 · 오프라인 카드 | 실제 쓰는 화면 |
+| **[운영·근거 대시보드](https://jaefit.github.io/hanwha-ai-challenge/)** | 위 + 유출 예측 · 혼잡장(GP 회귀) · CCTV 등급 · 방법론 | 5분 갱신 |
 | **[팀 보고서](https://jaefit.github.io/hanwha-ai-challenge/report.html)** | 모델 수식·실측표·외부 검증·적대적 검증 | 수식 있는 정식판 |
 | **[보고서 쉬운 버전](https://jaefit.github.io/hanwha-ai-challenge/report_easy.html)** | 같은 내용을 수식 없이 | 비전공자용 |
 | **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 발표용 12장 | |
@@ -23,7 +24,8 @@
 
 | 산출물 | 위치 | 무엇 |
 |---|---|---|
-| **대시보드** | `docs/index.html` | 출구 랭킹 · 지도(혼잡장 + 혼잡 회피 보행 경로) · CCTV 등급 · 오프라인 플랜. 5분 갱신 |
+| **관람객 화면** | `docs/go.html` | 출구 3순위 · 현재 혼잡도 · 길찾기 · 오프라인 카드. 판정 규칙은 `docs/app/board.js` 공용 |
+| **운영 대시보드** | `docs/index.html` | 위 + 유출 예측 · 혼잡장 · CCTV 등급 · 방법론. 5분 갱신 |
 | 팀 보고서 | `docs/report.html` | 모델 수식(KaTeX)·실측표·외부 검증. 쉬운 버전 `docs/report_easy.html` |
 | 피치 덱 | `docs/deck.html` | 발표용 12장 |
 | 예측 모델 | `src/nowcast.py` 외 | 4층(L1 베이스라인 → L2 α 나우캐스트 → L3 출구 배정 → L4 큐). 백테스트 `src/backtest.py` |

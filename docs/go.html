@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>지금 어디로 나갈까 — 서울세계불꽃축제 2026</title>
+<meta name="description" content="여의도 불꽃축제 귀가 안내. 지금 덜 막히는 출구와 걸어갈 길.">
+<link rel="icon" href="favicon.ico">
+<style>
+:root{
+  --bg:#F5F4F1; --card:#FFFFFF; --ink:#14110C; --ink-2:#5B554B; --sub:#8F897D; --rule:#E2DFD8;
+  --g-여유:#2E7D5B; --g-주의:#B8860B; --g-경계:#C2622B; --g-심각:#B3352B; --g-통제:#8F897D;
+  --accent:#F37321; --shadow:0 1px 2px rgba(20,17,12,.06),0 8px 24px rgba(20,17,12,.05);
+}
+:root[data-theme="dark"]{
+  --bg:#14120F; --card:#1D1A16; --ink:#F5F4F1; --ink-2:#B7B2A8; --sub:#8F897D; --rule:#302B24;
+  --g-여유:#4FBF8B; --g-주의:#E2B33C; --g-경계:#E8874A; --g-심각:#E4594C; --g-통제:#6B6459;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px 56px}
+header{padding:18px 0 10px;display:flex;align-items:flex-start;gap:12px}
+h1{font-size:23px;line-height:1.28;margin:0;font-weight:800;letter-spacing:-.02em;flex:1}
+h2{font-size:15px;margin:26px 0 10px;font-weight:800;letter-spacing:-.01em}
+.ghost{background:none;border:1px solid var(--rule);color:var(--ink-2);border-radius:999px;
+  padding:6px 11px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
+.state{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin:0 0 14px}
+.dotp{width:7px;height:7px;border-radius:50%;background:var(--g-여유);flex:none}
+.dotp.warn{background:var(--g-주의)}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.tabs button{flex:none;background:var(--card);border:1px solid var(--rule);color:var(--ink-2);
+  border-radius:999px;padding:8px 15px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
+.ex{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:14px 15px;border-bottom:1px solid var(--rule)}
+.ex:last-child{border-bottom:0}
+.rk{font-size:12px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums;min-width:15px}
+.nm{font-size:16.5px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:6px}
+.nm .est{font-size:10px;color:var(--sub);font-weight:700}
+.ds{font-size:12.5px;color:var(--ink-2);margin-top:3px}
+.note{font-size:12.5px;color:var(--ink);font-weight:700;margin-top:3px}
+.tag{font-size:12.5px;font-weight:800;padding:5px 11px;border-radius:999px;white-space:nowrap;
+  color:#fff;background:var(--gc)}
+.ex[data-g="여유"]{--gc:var(--g-여유)} .ex[data-g="주의"]{--gc:var(--g-주의)}
+.ex[data-g="경계"]{--gc:var(--g-경계)} .ex[data-g="심각"]{--gc:var(--g-심각)}
+.ex[data-g="통제"],.ex[data-g="없음"]{--gc:var(--g-통제)}
+.ex[data-g="통제"] .nm,.ex[data-g="없음"] .nm{color:var(--sub)}
+.ex[data-g="통제"] .nm .t{text-decoration:line-through;text-decoration-thickness:2px}
+.top .nm{font-size:19px}
+.top{background:linear-gradient(180deg,color-mix(in srgb,var(--gc) 11%,transparent),transparent)}
+.ctrl{margin-top:12px;padding:12px 14px;border-radius:12px;border:1px dashed var(--rule);
+  font-size:12.5px;color:var(--ink-2);background:var(--card)}
+.ctrl b{color:var(--ink)}
+.now{display:flex;gap:10px;align-items:baseline;padding:14px 15px}
+.now b{font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--gc,var(--ink))}
+.now span{font-size:13px;color:var(--ink-2)}
+.route{padding:14px 15px}
+.route label{display:block;font-size:12.5px;color:var(--ink-2);margin-bottom:7px;font-weight:700}
+.route select{width:100%;padding:11px 12px;font:inherit;font-size:15px;border-radius:10px;
+  border:1px solid var(--rule);background:var(--bg);color:var(--ink)}
+.go{margin-top:10px;width:100%;padding:13px;border:0;border-radius:11px;background:var(--accent);
+  color:#fff;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
+.go:disabled{opacity:.45;cursor:default}
+#map{height:290px;margin-top:12px;border-radius:11px;overflow:hidden;background:var(--bg);display:none}
+#map.on{display:block}
+.rstat{margin-top:9px;font-size:12.5px;color:var(--ink-2);min-height:18px}
+.plan{padding:13px 15px;border-bottom:1px solid var(--rule)}
+.plan:last-child{border-bottom:0}
+.plan h3{margin:0 0 6px;font-size:14.5px;font-weight:800}
+.plan h3 small{display:block;font-size:11.5px;color:var(--sub);font-weight:700;margin-bottom:2px}
+.plan ol{margin:0;padding-left:17px;font-size:13px;color:var(--ink-2)}
+.plan li{margin:3px 0}
+footer{margin-top:30px;font-size:11.5px;color:var(--sub);line-height:1.7}
+footer a{color:var(--ink-2)}
+.hide{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1 id="title">지금 어디로 나갈까</h1>
+  <button class="ghost" id="theme">라이트</button>
+</header>
+
+<p class="state"><i class="dotp" id="dot"></i><span id="state">불러오는 중…</span></p>
+
+<div class="tabs" id="tabs" role="tablist"></div>
+<div class="card" id="board"></div>
+<div class="ctrl" id="ctrl"></div>
+
+<h2>지금 여의도</h2>
+<div class="card"><div class="now" id="now"><b>—</b><span>불러오는 중</span></div></div>
+
+<h2>걸어갈 길 찾기</h2>
+<div class="card">
+  <div class="route">
+    <label for="dest">어느 역으로 갈까</label>
+    <select id="dest"></select>
+    <button class="go" id="run">지도에서 출발점 찍기</button>
+    <div id="map"></div>
+    <div class="rstat" id="rstat">지도를 열면 현재 위치나 서 있는 곳을 찍을 수 있다.</div>
+  </div>
+</div>
+
+<h2>통신이 끊겨도</h2>
+<div class="card" id="plans"></div>
+
+<footer>
+  이 페이지를 한 번 열면 마지막 데이터가 기기에 남아 통신이 끊겨도 보인다.<br>
+  출처 — 서울시 실시간 도시데이터 · 서울교통공사 승하차 · KT 생활이동 · 서울 TOPIS 공개 CCTV. 지도 © OpenStreetMap contributors.<br>
+  숫자는 예측이고 현장과 다를 수 있다. 안전 안내는 현장 요원과 공식 방송을 따를 것.<br>
+  <a href="index.html">근거·운영 화면 보기 →</a>
+</footer>
+</div>
+
+<script src="app/board.js"></script>
+<script src="app/routing_extra.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let DATA=null,HOUR=null,PRIOR=null;
+
+// ── 테마 ──
+const theme=()=>document.documentElement.getAttribute("data-theme")||"dark";
+function setTheme(t,save){document.documentElement.setAttribute("data-theme",t);$("theme").textContent=t==="dark"?"라이트":"다크";if(save){try{localStorage.setItem("navi-theme",t)}catch(e){}}}
+try{const t=localStorage.getItem("navi-theme");setTheme(t||"dark");}catch(e){setTheme("dark")}
+$("theme").onclick=()=>setTheme(theme()==="dark"?"light":"dark",true);
+
+// ── 데이터 ──
+async function load(){
+  try{const r=await fetch("data/latest.json?"+Date.now(),{cache:"no-store"});
+      if(r.ok){DATA=await r.json();try{localStorage.setItem("go-latest",JSON.stringify(DATA))}catch(e){}}}catch(e){}
+  if(!DATA){try{const c=localStorage.getItem("go-latest");if(c){DATA=JSON.parse(c);DATA.__offline=true;}}catch(e){}}
+  try{const r=await fetch("data/exit_forecast_2026.json",{cache:"no-store"});if(r.ok)PRIOR=await r.json();}catch(e){}
+  // 12시간 넘게 오래된 실시간은 사전 예측표로 물러난다 (index.html 과 같은 기준)
+  const fc=(DATA&&DATA.forecast)||{};
+  if((!fc.exits||!Object.keys(fc.exits).length||Board.isStale(DATA&&DATA.generated))&&PRIOR){
+    DATA=Object.assign({},DATA,{forecast:Object.assign({},PRIOR,{prior:true})});
+  }
+  render();
+}
+
+function stateLine(){
+  const fc=(DATA&&DATA.forecast)||{};
+  const age=Board.ageMin(DATA&&DATA.generated);
+  const r=Board.rank(fc,HOUR);
+  let txt,warn=false;
+  if(DATA&&DATA.__offline){txt="오프라인 — 이 기기에 저장된 마지막 정보";warn=true;}
+  else if(r.mode==="live"&&age!=null&&age<=15)txt=`실시간 · ${age}분 전 갱신`;
+  else if(r.mode==="live")txt=`${age==null?"":age+"분 전 갱신 · "}갱신이 늦다`,warn=true;
+  else {txt=r.modeNote;warn=true;}
+  $("state").textContent=txt;
+  $("dot").className="dotp"+(warn?" warn":"");
+}
+
+function render(){
+  const fc=(DATA&&DATA.forecast)||{};
+  const first=Board.rank(fc,"21");
+  if(!HOUR)HOUR=Board.defaultHour();
+  if(!first.hours.includes(HOUR))HOUR=first.hours.includes("21")?"21":first.hours[0];
+  $("tabs").innerHTML=first.hours.map(h=>`<button role="tab" aria-selected="${h===HOUR}" data-h="${h}">${h}시</button>`).join("");
+  $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{HOUR=b.dataset.h;render();});
+
+  const r=Board.rank(fc,HOUR);
+  $("title").textContent=`${HOUR}시에 나가면 어디가 덜 막히나`;
+  const row=(x,g,i,top)=>`<div class="ex${top?" top":""}" data-g="${g}">
+      <div class="rk">${i==null?"—":String(i+1).padStart(2,"0")}</div>
+      <div><div class="nm"><span class="t">${esc(x.name)}</span>${x.estimated?'<span class="est">처리량 추정</span>':""}</div>
+        <div class="ds">${esc(x.desc)}</div><div class="note">${esc(x.note)}</div></div>
+      <div class="tag">${g}</div></div>`;
+  const html=r.open.map((x,i)=>row(x,x.grade,i,i===0)).join("")
+    +r.closed.map(x=>row(x,"통제",null)).join("")
+    +r.missing.map(x=>row(x,"없음",null)).join("");
+  $("board").innerHTML=html||`<div class="ex"><div class="rk">—</div><div><div class="nm">예측 없음</div><div class="ds">수집 시작 전이다.</div></div><div class="tag">—</div></div>`;
+  $("ctrl").innerHTML=`<b>오늘의 통제</b> · 여의동로 15~24시 전면 · 여의나루역 20:40~21:40 임시(무정차) · 원효대교 전면(차량)`;
+
+  const snap=(fc.live_snapshot||{})["여의도한강공원"]||{};
+  const nowEl=$("now");
+  if(snap.congest){
+    const gm={"여유":"여유","보통":"주의","약간 붐빔":"경계","붐빔":"심각"}[snap.congest]||"주의";
+    nowEl.style.setProperty("--gc",`var(--g-${gm})`);
+    const pp=(snap.ppltn&&snap.ppltn[0]!=null)?` · ${Number(snap.ppltn[0]).toLocaleString()}~${Number(snap.ppltn[1]).toLocaleString()}명`:"";
+    nowEl.innerHTML=`<b>${esc(snap.congest)}</b><span>행사장 실시간 혼잡도${pp}</span>`;
+  }else nowEl.innerHTML=`<b>—</b><span>실시간 혼잡도를 아직 받지 못했다</span>`;
+  stateLine();
+  $("plans").innerHTML=Board.PLANS.map(p=>`<div class="plan"><h3><small>${esc(p.where)} · ${esc(p.share)}</small>${esc(p.title)}</h3><ol>${p.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ol></div>`).join("");
+}
+
+// ── 길찾기 (지도·보행망은 누를 때만 받는다 — 축제일 통신 포화 대비) ──
+const STATIONS={yeouido:{name:"여의도역",lng:126.924194,lat:37.521754},yeouinaru:{name:"여의나루역",lng:126.932901,lat:37.527098},
+  assembly:{name:"국회의사당역",lng:126.917874,lat:37.528105},saetgang:{name:"샛강역",lng:126.928422,lat:37.517274},
+  singil:{name:"신길역",lng:126.916352,lat:37.517243},mapo:{name:"마포역",lng:126.945708,lat:37.539141}};
+$("dest").innerHTML=Object.entries(STATIONS).map(([k,v])=>`<option value="${k}">${esc(v.name)}</option>`).join("");
+let MAP=null,GRAPH=null,START=null,SM=null,DM=null;
+const distM=(a,b)=>{const la=(a[1]+b[1])*Math.PI/360;return Math.hypot((a[0]-b[0])*111320*Math.cos(la),(a[1]-b[1])*111320);};
+const tagv=v=>String(v==null?"":v).toLowerCase();
+const allowed=e=>!/(motorway|trunk|busway)/.test(tagv(e.h))&&!/(^|,)(no|private)(,|$)/.test(tagv(e.f))&&!/(^|,)(no|private)(,|$)/.test(tagv(e.a));
+
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>no(new Error("지도 라이브러리를 받지 못했다."));document.head.appendChild(s);});}
+function loadCss(href){return new Promise(ok=>{const l=document.createElement("link");l.rel="stylesheet";l.href=href;l.onload=ok;l.onerror=ok;document.head.appendChild(l);});}
+
+async function openMap(){
+  $("rstat").textContent="지도를 여는 중…";
+  await loadCss("https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css");
+  await loadScript("https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js");
+  $("map").classList.add("on");
+  MAP=new maplibregl.Map({container:"map",style:{version:8,sources:{osm:{type:"raster",tiles:["https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png"],tileSize:256,attribution:"© OpenStreetMap"}},layers:[{id:"osm",type:"raster",source:"osm"}]},center:[126.934,37.529],zoom:13.2});
+  MAP.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");
+  MAP.on("load",()=>{MAP.addSource("route",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
+    MAP.addLayer({id:"route",type:"line",source:"route",paint:{"line-color":"#F37321","line-width":5,"line-opacity":.95}});});
+  MAP.on("click",e=>{START=[e.lngLat.lng,e.lngLat.lat];if(SM)SM.remove();SM=new maplibregl.Marker({color:"#F37321"}).setLngLat(START).addTo(MAP);
+    $("run").textContent="경로 찾기";$("run").disabled=false;$("rstat").textContent="출발점을 정했다. 경로 찾기를 누르면 된다.";});
+  $("run").textContent="지도를 눌러 출발점을 찍으세요";$("run").disabled=true;
+  $("rstat").textContent="지금 서 있는 곳을 지도에서 눌러라.";
+}
+
+async function graph(){
+  if(GRAPH)return GRAPH;
+  const g=await(await fetch("data/routing/walk_graph.json")).json();
+  const edges=(typeof RoutingExtra!=="undefined")?RoutingExtra.withExtraEdges(g.edges):g.edges;
+  const adj=new Map(),usable=new Set();
+  for(const e of edges){if(!allowed(e))continue;if(!adj.has(e.u))adj.set(e.u,[]);adj.get(e.u).push(e);usable.add(e.u);usable.add(e.v);}
+  GRAPH={nodes:g.nodes,adj,usable:[...usable]};return GRAPH;
+}
+function nearest(g,p){let b=null,bd=Infinity;for(const id of g.usable){const c=g.nodes[id];if(!c)continue;const d=distM(p,c);if(d<bd){bd=d;b=id;}}return b;}
+function astar(g,s,t){
+  const dist=new Map([[s,0]]),came=new Map(),q=[[0,s]],goal=g.nodes[t];
+  while(q.length){q.sort((a,b)=>a[0]-b[0]);const[,u]=q.shift();if(u===t)break;
+    for(const e of g.adj.get(u)||[]){const nd=dist.get(u)+(Number(e.m)||0.1);
+      if(nd<(dist.has(e.v)?dist.get(e.v):Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e]);q.push([nd+distM(g.nodes[e.v],goal),e.v]);}}}
+  if(!came.has(t)&&s!==t)return null;
+  const es=[];let u=t;while(u!==s){const v=came.get(u);if(!v)break;es.push(v[1]);u=v[0];}
+  return{edges:es.reverse(),meters:dist.get(t)};
+}
+// 보행 속도는 운영 화면과 같은 밀도별 모델(§3.2)을 쓰지 않고, 관람객에게는 보수적 고정값으로 말한다.
+const walkMin=m=>Math.max(1,Math.round(m/67));   // 67m/분 = 인파 속 보행(보수적). 화면에 근거를 밝힌다
+$("run").onclick=async()=>{
+  const b=$("run");
+  if(!MAP){b.disabled=true;try{await openMap();}catch(e){$("rstat").textContent=e.message;b.disabled=false;}return;}
+  if(!START){$("rstat").textContent="지도를 눌러 출발점을 먼저 찍어라.";return;}
+  b.disabled=true;$("rstat").textContent="걸어갈 길을 찾는 중…";
+  try{
+    const g=await graph(),s=STATIONS[$("dest").value];
+    const out=astar(g,nearest(g,START),nearest(g,[s.lng,s.lat]));
+    if(!out)throw new Error("연결된 보행 경로를 찾지 못했다.");
+    const coords=[];for(const e of out.edges){const u=g.nodes[e.u];let seg=(e.g||[u,g.nodes[e.v]]).slice();
+      if(seg.length>1&&distM(seg[0],u)>distM(seg[seg.length-1],u))seg.reverse();
+      for(const c of seg){const l=coords[coords.length-1];if(!l||l[0]!==c[0]||l[1]!==c[1])coords.push(c);}}
+    MAP.getSource("route").setData({type:"FeatureCollection",features:[{type:"Feature",geometry:{type:"LineString",coordinates:coords}}]});
+    if(DM)DM.remove();DM=new maplibregl.Marker({color:"#2E7D5B"}).setLngLat([s.lng,s.lat]).addTo(MAP);
+    const bb=new maplibregl.LngLatBounds();coords.forEach(c=>bb.extend(c));
+    MAP.fitBounds(bb,{padding:40,maxZoom:16});
+    const viaMapo=out.edges.some(e=>e.mapo_walk);
+    $("rstat").textContent=`${s.name}까지 ${(out.meters/1000).toFixed(2)}km · 걸어서 약 ${walkMin(out.meters)}분(인파 속 보행 기준)`
+      +(viaMapo?" · 마포대교 보행 구간은 길이 근사":"");
+  }catch(e){$("rstat").textContent=e.message||"경로를 찾지 못했다.";}
+  finally{b.disabled=false;}
+};
+
+load();
+setInterval(load,5*60*1000);
+</script>
+</body>
+</html>
