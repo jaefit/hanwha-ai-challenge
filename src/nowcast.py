@@ -3,6 +3,7 @@
 
   .venv/bin/python src/nowcast.py            # 1회 계산
   .venv/bin/python src/nowcast.py --date 20260905
+  .venv/bin/python src/nowcast.py --out /tmp/fc.json   # 라이브 forecast_latest.json 을 건드리지 않고 산출 (테스트용)
 
 L2 α     = 출구 수요 규모 배율. 격자 사후분포(61점, 1/3~3, 사전 LogNormal(0,0.25))를 당일 관측 2종으로 갱신(2026-08-30 T1c):
            O1 도착측 = 여의나루(여의도한강공원 핫스팟) 30분 하차 증분 vs α×2년 평균 증분 (12~19시, σ 15%+범위)
@@ -397,6 +398,9 @@ def main():
     seoul_fcst = (city.get("여의도한강공원") or {}).get("fcst", [])
     result = {
         "ts": now.isoformat(timespec="seconds"), "date": date, "alpha": a, "alpha_reason": why,
+        # 2026-09-02 T7 드라이런: 관측 0건이면 α=1 은 측정값이 아니라 사전분포의 중앙값이다. 이 플래그가 없으면
+        # docs/app/board.js 가 mode="live" 로 읽어 관람객 화면이 "실시간 반영 · α 1.00" 이라 말한다 (결함 M6).
+        "prior": not post["n_obs"],
         "assimilation": {"method": "격자 사후분포 61점(1/3~3), 사전 LogNormal(0,0.25), 관측 O1 여의나루 30분 하차·O2 여의도 핫스팟 30분 승차", "grid_n": post["grid_n"],
                          "n_obs": ometa["n_obs"], "alpha": post["alpha"], "edge_hit": post["edge_hit"], "coverage_c": ometa.get("coverage_c"), "coverage_basis": ometa.get("coverage_basis"),
                          "coverage_samples": ometa.get("coverage_samples", 0), "coverage_spread": ometa.get("coverage_spread"), "window_note": ometa.get("window_note")},
@@ -416,7 +420,8 @@ def main():
         "seoul_fcst_snapshot": seoul_fcst,
         "notes": ["유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)", "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)", "역 도달 지연 = 거리÷밀도별 속도(Weidmann). CCTV 등급 없으면 구역 밀도 3명/m² 가정(≈기존 40/60)", "load_lo/hi = α 사후분포 p10/p90 비율 (관측 없으면 0.73~1.38, 관측 쌓이면 축소)", "대기열은 시간대를 넘어 누적(backlog)", "α = 격자 사후 p50. O1 여의나루 30분 하차(12~19시, 기준선도 쇼 시프트만큼 이동)·O2 여의도 핫스팟 30분 승차(19시~, 커버리지 c 추정)", "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"],
     }
-    (LIVE / "forecast_latest.json").write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
+    out = pathlib.Path(sys.argv[sys.argv.index("--out") + 1]) if "--out" in sys.argv else LIVE / "forecast_latest.json"
+    out.write_text(json.dumps(result, ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"α={a} ({why})"); print("유출 예측:", result["outflow_forecast"])
     for h in ("20", "21", "22"):
         print(f"{h}시 출구 랭킹(부하율):", ", ".join(f"{st} {l:.2f}{'' if not w else f'/{w}분'}" for st, l, w in ranking[h]))

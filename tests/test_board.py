@@ -3,7 +3,7 @@
 관람객용 화면(docs/go.html)과 운영용 화면(docs/index.html)이 같은 규칙을 쓰게 하려고 뺀 모듈이다.
 두 화면이 조용히 어긋나는 것을 막는 정합 검사도 여기 있다.
 """
-import json, pathlib, re, shutil, subprocess
+import json, pathlib, re, shutil, subprocess, sys
 
 import pytest
 
@@ -60,3 +60,53 @@ def test_two_pages_share_grade_thresholds():
     for label, value in (("심각", severe), ("경계", alert), ("주의", caution)):
         assert re.search(rf">=\s*{re.escape(value)}\s*\?\s*\"{label}\"", board), \
             f"board.js 의 {label} 경계가 index.html({value}) 과 다르다"
+
+
+# ── 생산자–소비자 계약 (2026-09-02 T7 드라이런에서 발견) ──────────────────────
+# board_spec.mjs 는 board.js 에 {prior:true} 를 **손으로 넣어** 통과한다. 그래서 nowcast 가 그 키를 아예
+# 안 준다는 사실을 구조적으로 못 잡았고, 관측 0건인 평일 예측이 공개 화면에서 "실시간 반영 · α 1.00" 으로
+# 나갔다 (Pages 서빙본 2026-09-02T18:33:16 에서 확인). M6 은 소비자 쪽만 닫혀 있었다.
+
+def _nowcast(tmp_path, date):
+    out = tmp_path / f"fc_{date}.json"
+    r = subprocess.run([sys.executable, "src/nowcast.py", "--date", date, "--out", str(out)],
+                       cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 0, f"nowcast 실패\n{r.stderr[-1500:]}"
+    assert out.exists(), "--out 이 파일을 쓰지 않았다 (라이브 forecast_latest.json 을 건드리면 안 된다)"
+    return json.loads(out.read_text(encoding="utf-8"))
+
+
+def test_nowcast_marks_prior_when_no_observations(tmp_path):
+    """관측 0건이면 payload 에 prior=True 가 있어야 한다. 없으면 board.js 가 사전값을 측정값으로 말한다."""
+    fc = _nowcast(tmp_path, "20200101")          # 수집 데이터가 없는 날
+    assert fc["assimilation"]["n_obs"] == {"alighting": 0, "boarding": 0}
+    assert fc.get("prior") is True, "관측이 없는데 prior 가 True 가 아니다 — 화면이 '실시간 반영' 으로 읽는다"
+
+
+def test_nowcast_clears_prior_when_observations_exist(tmp_path):
+    """관측이 있으면 prior 는 False 여야 한다 (항상 True 로 박아 두면 실황을 사전값이라 말한다)."""
+    fc = _nowcast(tmp_path, "20260829")          # 실제 수집분이 있는 날
+    n = fc["assimilation"]["n_obs"]
+    assert n["alighting"] + n["boarding"] > 0, "이 날짜에 관측이 없다 — 고정값을 바꿔야 한다"
+    assert fc.get("prior") is False
+
+
+def test_board_reads_nowcast_prior_end_to_end(tmp_path):
+    """실제 nowcast 산출물을 board.js 에 먹여 라벨까지 확인한다 — 두 모듈이 같은 키를 쓰는지가 요점이다."""
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node 없음")
+    fc = _nowcast(tmp_path, "20200101")
+    (tmp_path / "fc.json").write_text(json.dumps(fc, ensure_ascii=False), encoding="utf-8")
+    script = (
+        "const B=require(process.argv[1]);const fc=require(process.argv[2]);"
+        "const r=B.rank(fc,'21');"
+        "console.log(JSON.stringify({mode:r.mode,note:r.modeNote,alpha:B.alphaLabel(fc)}));"
+    )
+    r = subprocess.run([node, "-e", script, str(ROOT / "docs" / "app" / "board.js"), str(tmp_path / "fc.json")],
+                       cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-800:]
+    got = json.loads(r.stdout)
+    assert got["mode"] == "prior", f"관측 없는 예측을 {got['mode']} 로 읽는다 — {got}"
+    assert "실시간" not in got["note"], got["note"]
+    assert got["alpha"].startswith("사전값"), f"α 라벨이 측정값처럼 보인다: {got['alpha']}"
