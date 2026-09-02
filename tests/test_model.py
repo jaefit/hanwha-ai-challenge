@@ -272,7 +272,7 @@ def test_feeder_pool_reads_numbered_feeder_keys_only():
 
 
 def test_missing_feeder_keys_fall_back_to_general_key(monkeypatch):
-    # 일반 인증키는 일 한도가 없다(열린데이터광장 이용방법, 2026-09-02 확인) → 피더키 없으면 끄지 말고 일반키로 수집한다
+    # 일반 인증키는 일 한도가 공지돼 있지 않다(열린데이터광장 이용방법, 2026-09-02 확인) → 피더키 없으면 끄지 말고 일반키로 수집한다
     C = _collector()
     monkeypatch.setattr(C, "FEEDER_KEYS", [])
     assert C.feeder_key("강남역") == C.KG and C.feeder_key("노들섬") == C.KG
