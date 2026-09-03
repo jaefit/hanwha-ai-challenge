@@ -41,3 +41,42 @@ def test_dashboard_loads_routing_extra():
     html = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
     assert "app/routing_extra.js" in html, "index.html 이 routing_extra.js 를 로드하지 않는다"
     assert "withExtraEdges" in html, "routeGraph 가 병합 함수를 부르지 않는다"
+
+
+def test_both_pages_route_by_walking_time_not_a_penalty_weight():
+    """경로 비용은 '거리 × 벌점' 이 아니라 '그 간선을 걷는 데 걸리는 시간' 이어야 한다.
+
+    옛 비용은 `거리 × (1 + 1.25 × 혼잡)` 이었다. 1.25 는 출처가 없었고(보고서 §3.10 이
+    그렇게 적었다), 최소화 대상이 사람이 신경 쓰는 값도 아니었다. 더 나쁜 것은 경로는
+    벌점으로 고르면서 화면에 뜨는 소요 시간은 따로 계산해 둘이 따로 놀았다는 점이다.
+    이제 두 화면 모두 field.js 의 walkSeconds 를 쓴다 — 고르는 기준과 보여주는 값이 같다.
+    """
+    for name in ("go.html", "index.html"):
+        html = (ROOT / "docs" / name).read_text(encoding="utf-8")
+        assert "Field.walkSeconds" in html, f"{name}: 경로 비용이 시간 기반이 아니다"
+        assert "ROUTE_CROWD_WEIGHT" not in html, f"{name}: 출처 없는 벌점 상수가 남아 있다"
+        assert "app/field.js" in html, f"{name}: field.js 를 로드하지 않는다"
+
+
+def test_walk_speed_matches_nowcast_kladek():
+    """화면(field.js)과 모델(nowcast.py)의 속도식이 갈리면 안 된다.
+
+    같은 인파에서 화면이 말하는 소요 시간과 모델이 쓰는 도착 지연이 어긋나게 된다.
+    """
+    import sys
+    sys.path.insert(0, str(ROOT / "src"))
+    import nowcast as N  # noqa: E402
+
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node 없음")
+    script = (
+        "const F=require(process.argv[1]);"
+        "console.log(JSON.stringify([0.5,1.5,3.0,4.0,5.4].map(r=>F.walkSpeed(r))));"
+    )
+    r = subprocess.run([node, "-e", script, str(ROOT / "docs" / "app" / "field.js")],
+                       cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-500:]
+    got = json.loads(r.stdout)
+    for rho, v in zip([0.5, 1.5, 3.0, 4.0, 5.4], got):
+        assert abs(v - N.kladek(rho)) < 1e-12, f"밀도 {rho}: field.js {v} vs nowcast {N.kladek(rho)}"

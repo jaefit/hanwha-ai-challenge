@@ -31,6 +31,18 @@
   // 서울시 실시간 도시데이터 혼잡도 4단계
   var GRADES = { "여유": 0, "보통": 1 / 3, "약간 붐빔": 2 / 3, "붐빔": 1 };
 
+  // 보행 속도-밀도 (Weidmann 1993 Kladek). src/nowcast.py kladek() 과 같은 값이어야 한다 —
+  // 두 곳이 갈리면 화면이 말하는 소요 시간과 모델이 쓰는 지연이 어긋난다.
+  var V_FREE = 1.34;      // 자유보행 m/s
+  var RHO_JAM = 5.4;      // 정체 밀도 명/m²
+  var KLADEK_G = 1.913;
+  var V_MIN = 0.15;       // 하한(추정). 원식은 5명/m² 에서 0.04 m/s 까지 떨어져 비현실적이다
+  // §3.2 의 구조. 혼잡은 국소적이라는 가정이다 — 출구 방향 첫 300m 만 관람구역 밀도로 걷고
+  // 그 뒤는 가로 밀도가 상한이다. 이게 없으면 매끈한 장이 높은 밀도를 경로 전체로 번지게 해
+  // 1.5km 를 157분이라 말하게 된다. src/nowcast.py travel_min() 과 같은 구조.
+  var DENSE_SEG_M = 300;
+  var STREET_RHO = 1.5;
+
   var BASE_SIGMA = { cctv_calibrated: 0.10, cctv_uncalibrated: 0.30, poi: 0.20 };
   var LOW_CONFIDENCE_MULT = 2.5;   // 배제가 아니라 확대 — 오탐이 사후를 못 끌게
   var FLAG_MULT = 1.3;             // 플래그(저조도·배경차분 실패·밀도 포화) 하나당
@@ -52,6 +64,52 @@
 
   function gradeToUnit(grade) {
     return Object.prototype.hasOwnProperty.call(GRADES, grade) ? GRADES[grade] : null;
+  }
+
+  /** 밀도(명/m²) → 보행 속도(m/s). */
+  function walkSpeed(rho) {
+    if (!(rho > 0)) return V_FREE;
+    return Math.max(V_MIN, V_FREE * (1 - Math.exp(-KLADEK_G * (1 / rho - 1 / RHO_JAM))));
+  }
+
+  // 등급 → 밀도 사다리. 보고서 §3.2·§3.7 이 쓰는 값이고 LEVEL_UNIT 의 역이다.
+  // 선형(u×5)으로 사상하면 「여유」가 1.5 가 아니라 0~3 으로 퍼져 한산한 시각에도 느리게 읽힌다.
+  var UNIT_RHO = [[0, 0.5], [0.3, 1.5], [0.7, 3.0], [0.9, 4.0], [1, DENSITY_SEVERE]];
+
+  /** 장 값 0~1 → 밀도(명/m²). 등급 대표값을 지나는 단조 증가 꺾은선. */
+  function unitToDensity(u) {
+    u = Math.max(0, Math.min(1, u || 0));
+    for (var i = 0; i < UNIT_RHO.length - 1; i++) {
+      var a = UNIT_RHO[i], b = UNIT_RHO[i + 1];
+      if (u >= a[0] && u <= b[0]) {
+        var t = b[0] > a[0] ? (u - a[0]) / (b[0] - a[0]) : 0;
+        return a[1] + (b[1] - a[1]) * t;
+      }
+    }
+    return DENSITY_SEVERE;
+  }
+
+  /** 그 혼잡도에서 이 거리를 걷는 데 걸리는 초. 경로 비용이자 화면에 뜨는 시간이다.
+   *  거리 × 벌점(1.25) 로 고르던 것을 여기로 바꾼다 — 벌점은 출처가 없었고,
+   *  최소화 대상이 사람이 신경 쓰는 값(시간)도 아니었다. */
+  function walkSeconds(meters, unit) {
+    return Math.max(0, meters || 0) / walkSpeed(unitToDensity(unit));
+  }
+
+  /** 경로 소요 초. segs = [{meters, unit}] 를 순서대로. 화면에 뜨는 값이 이것이다.
+   *  경로를 **고르는** 비용(walkSeconds)은 장 전체를 그대로 쓴다 — 상대 비교라 상한이 필요 없다. */
+  function pathSeconds(segs) {
+    var done = 0, total = 0;
+    for (var i = 0; i < (segs || []).length; i++) {
+      var m = Math.max(0, segs[i].meters || 0), rho = unitToDensity(segs[i].unit);
+      // 300m 경계에 걸치는 구간은 잘라서 각각 적분한다 (분할 불변)
+      var dense = Math.max(0, Math.min(m, DENSE_SEG_M - done));
+      if (dense > 0) total += dense / walkSpeed(rho);
+      var rest = m - dense;
+      if (rest > 0) total += rest / walkSpeed(Math.min(rho, STREET_RHO));
+      done += m;
+    }
+    return total;
   }
 
   function densityToUnit(rho) {
@@ -232,6 +290,14 @@
     autoPrior: autoPrior,
     PRIOR_PSEUDO: PRIOR_PSEUDO,
     gradeToUnit: gradeToUnit,
+    walkSpeed: walkSpeed,
+    unitToDensity: unitToDensity,
+    walkSeconds: walkSeconds,
+    pathSeconds: pathSeconds,
+    DENSE_SEG_M: DENSE_SEG_M,
+    STREET_RHO: STREET_RHO,
+    V_FREE: V_FREE,
+    V_MIN: V_MIN,
     densityToUnit: densityToUnit,
     unitToGrade: unitToGrade,
     levelToUnit: levelToUnit,

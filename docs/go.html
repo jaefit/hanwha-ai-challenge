@@ -242,7 +242,7 @@ async function openMap(){
 const F_KERNEL={varShort:.125,lenShort:150,varLong:.125,lenLong:1200};
 const F_SD_MAX=Math.sqrt(F_KERNEL.varShort+F_KERNEL.varLong);
 const F_PAD=.012,F_COLS=140,F_ROWS=110,F_FEATHER=.18;
-let CAMS=null,FIELD_PAINTED=false;
+let CAMS=null,FIELD_PAINTED=false,FIELD=null,FGRID=null;
 
 const gcol=g=>getComputedStyle(document.documentElement).getPropertyValue("--g-"+g).trim();
 const hex2rgb=h=>{h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));};
@@ -288,6 +288,7 @@ async function paintField(){
     const y0=Math.min(...lats)-F_PAD,y1=Math.max(...lats)+F_PAD;
     const g={x0,y0,dx:(x1-x0)/F_COLS,dy:(y1-y0)/F_ROWS,cols:F_COLS,rows:F_ROWS};
     const fld=Field.buildField({observations:obs,grid:g,prior:null,fallbackPrior:.3,kernel:F_KERNEL});
+    FIELD=fld;FGRID=g;                                   // 경로 비용이 같은 장을 읽는다
     const ramp=fRamp(),cv=document.createElement("canvas");cv.width=g.cols;cv.height=g.rows;
     const cx=cv.getContext("2d"),img=cx.createImageData(g.cols,g.rows),px=img.data;
     // 가장자리에서 알파를 0 으로 — 사각형 경계선이 보이면 "여기까지가 데이터"라고 오해된다
@@ -321,26 +322,51 @@ async function paintField(){
   }catch(e){$("fkey").hidden=true;}                        // 색이 없어도 길찾기는 그대로 돈다
 }
 
+/** 간선 중점의 혼잡도 0~1. 장이 없으면 0 — 그러면 비용이 자유보행 시간이라 거리 기준과 같은 경로가 나온다. */
+function edgeUnit(e){
+  if(!FIELD||!FGRID)return 0;
+  const c=(e.g&&e.g.length)?e.g[Math.floor(e.g.length/2)]:null;
+  const a=c||GRAPH_NODES[e.u],b=c?null:GRAPH_NODES[e.v];
+  const x=c?c[0]:(a&&b?(a[0]+b[0])/2:null),y=c?c[1]:(a&&b?(a[1]+b[1])/2:null);
+  if(x==null)return 0;
+  const ix=Math.floor((x-FGRID.x0)/FGRID.dx),iy=Math.floor((y-FGRID.y0)/FGRID.dy);
+  if(ix<0||iy<0||ix>=FGRID.cols||iy>=FGRID.rows)return 0;
+  return Math.max(0,Math.min(1,FIELD.mean[iy*FGRID.cols+ix]));
+}
+let GRAPH_NODES=null;
+
 async function graph(){
   if(GRAPH)return GRAPH;
   const g=await(await fetch("data/routing/walk_graph.json")).json();
   const edges=(typeof RoutingExtra!=="undefined")?RoutingExtra.withExtraEdges(g.edges):g.edges;
   const adj=new Map(),usable=new Set();
   for(const e of edges){if(!allowed(e))continue;if(!adj.has(e.u))adj.set(e.u,[]);adj.get(e.u).push(e);usable.add(e.u);usable.add(e.v);}
-  GRAPH={nodes:g.nodes,adj,usable:[...usable]};return GRAPH;
+  GRAPH={nodes:g.nodes,adj,usable:[...usable]};GRAPH_NODES=g.nodes;return GRAPH;
 }
 function nearest(g,p){let b=null,bd=Infinity;for(const id of g.usable){const c=g.nodes[id];if(!c)continue;const d=distM(p,c);if(d<bd){bd=d;b=id;}}return b;}
+/* 비용은 거리가 아니라 **그 간선을 걷는 데 걸리는 시간**이다(초).
+   전에는 거리로 고르고 소요 시간은 67m/분 고정으로 따로 계산해 둘이 따로 놀았다.
+   이제 고르는 기준과 화면에 뜨는 값이 같은 계산에서 나온다. 혼잡한 구간은 느려지므로
+   충분히 뾰족한 혼잡이면 돌아가는 쪽이 더 빨라진다. 휴리스틱은 자유보행 시간(허용적). */
 function astar(g,s,t){
+  const cost=e=>Field.walkSeconds(Math.max(0.1,Number(e.m)||0.1),edgeUnit(e));
   const dist=new Map([[s,0]]),came=new Map(),q=[[0,s]],goal=g.nodes[t];
   while(q.length){q.sort((a,b)=>a[0]-b[0]);const[,u]=q.shift();if(u===t)break;
-    for(const e of g.adj.get(u)||[]){const nd=dist.get(u)+(Number(e.m)||0.1);
-      if(nd<(dist.has(e.v)?dist.get(e.v):Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e]);q.push([nd+distM(g.nodes[e.v],goal),e.v]);}}}
+    for(const e of g.adj.get(u)||[]){const nd=dist.get(u)+cost(e);
+      if(nd<(dist.has(e.v)?dist.get(e.v):Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e]);
+        q.push([nd+distM(g.nodes[e.v],goal)/Field.V_FREE,e.v]);}}}
   if(!came.has(t)&&s!==t)return null;
   const es=[];let u=t;while(u!==s){const v=came.get(u);if(!v)break;es.push(v[1]);u=v[0];}
-  return{edges:es.reverse(),meters:dist.get(t)};
+  es.reverse();
+  let meters=0;const segs=[];
+  for(const e of es){const m=Number(e.m)||0;meters+=m;segs.push({meters:m,unit:edgeUnit(e)});}
+  // cost 는 장 전체(경로를 고르는 상대 비교), 표시는 §3.2 구조(처음 300m 만 구역 밀도)
+  return{edges:es,meters,seconds:Field.pathSeconds(segs)};
 }
 // 보행 속도는 운영 화면과 같은 밀도별 모델(§3.2)을 쓰지 않고, 관람객에게는 보수적 고정값으로 말한다.
-const walkMin=m=>Math.max(1,Math.round(m/67));   // 67m/분 = 인파 속 보행(보수적). 화면에 근거를 밝힌다
+// 소요 시간은 혼잡도별 속도로 낸다(§3.2 — 처음 300m 는 구역 밀도, 그 뒤는 가로 1.5명/m² 상한).
+// 장이 없으면 예전 기준(67m/분 = 인파 속 보행)으로 보수적으로 말한다.
+const walkMin=out=>Math.max(1,Math.round(FIELD?out.seconds/60:out.meters/67));
 $("run").onclick=async()=>{
   const b=$("run");
   if(!MAP){b.disabled=true;try{await openMap();}catch(e){$("rstat").textContent=e.message;b.disabled=false;}return;}
@@ -358,7 +384,7 @@ $("run").onclick=async()=>{
     const bb=new maplibregl.LngLatBounds();coords.forEach(c=>bb.extend(c));
     MAP.fitBounds(bb,{padding:40,maxZoom:16});
     const viaMapo=out.edges.some(e=>e.mapo_walk);
-    $("rstat").textContent=`${s.name}까지 ${(out.meters/1000).toFixed(2)}km · 걸어서 약 ${walkMin(out.meters)}분(인파 속 보행 기준)`
+    $("rstat").textContent=`${s.name}까지 ${(out.meters/1000).toFixed(2)}km · 걸어서 약 ${walkMin(out)}분(${FIELD?"지금 혼잡도 반영":"인파 속 보행 기준"})`
       +(viaMapo?" · 마포대교 보행 구간은 길이 근사":"");
   }catch(e){$("rstat").textContent=e.message||"경로를 찾지 못했다.";}
   finally{b.disabled=false;}

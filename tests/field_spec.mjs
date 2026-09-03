@@ -233,5 +233,71 @@ t('사전이 관측 수준을 따르면 주의급 관측이 여유로 주저앉�
   ok(at0(auto) >= .63, `자동 사전이면 주의 밴드에 남아야: ${at0(auto)}`);
 });
 
+/* ── 혼잡도별 보행 속도·시간 (경로 비용의 근거) ────────────────────
+   경로를 "거리 × 벌점(1.25)" 으로 고르던 것을 "실제 걸리는 시간" 으로 바꾼다.
+   1.25 는 출처가 없었고, 최소화 대상이 사람이 신경 쓰는 값도 아니었다. */
+t('walkSpeed: 자유보행 1.34 m/s 에서 시작해 밀도가 오르면 단조 감소', () => {
+  near(F.walkSpeed(0), 1.34, 1e-9, '밀도 0');
+  let prev = Infinity;
+  for (const r of [0.5, 1, 1.5, 2, 3, 4, 5]) {
+    const v = F.walkSpeed(r);
+    ok(v < prev, `밀도 ${r} 에서 속도가 안 줄었다`);
+    prev = v;
+  }
+});
+t('walkSpeed: 정체 하한 0.15 아래로 안 떨어진다 (원식은 0.04 까지 간다)', () => {
+  ok(F.walkSpeed(5.4) >= 0.15 - 1e-12, '하한 미달');
+  ok(F.walkSpeed(99) >= 0.15 - 1e-12, '극단 밀도에서 하한 미달');
+});
+t('walkSpeed: nowcast.kladek 과 같은 값 (Weidmann 1993, v0 1.34 · ρmax 5.4 · γ 1.913)', () => {
+  const ref = r => Math.max(0.15, 1.34 * (1 - Math.exp(-1.913 * (1 / r - 1 / 5.4))));
+  for (const r of [0.5, 1.5, 3.0, 4.0]) near(F.walkSpeed(r), ref(r), 1e-12, `밀도 ${r}`);
+});
+t('unitToDensity: 등급 대표값(여유1.5·주의3.0·경계4.0·심각5.0)을 지난다', () => {
+  near(F.unitToDensity(0.3), 1.5, 1e-12, '여유');
+  near(F.unitToDensity(0.7), 3.0, 1e-12, '주의');
+  near(F.unitToDensity(0.9), 4.0, 1e-12, '경계');
+  near(F.unitToDensity(1.0), F.DENSITY_SEVERE, 1e-12, '심각');
+  ok(F.unitToDensity(0) < 1.5, '완전히 빈 곳이 여유보다 덜해야 한다');
+  let prev = -1;                       // 단조 증가여야 경로 비용이 뒤집히지 않는다
+  for (let u = 0; u <= 1.0001; u += 0.05) { const d = F.unitToDensity(u); ok(d > prev, `u ${u.toFixed(2)}`); prev = d; }
+});
+t('walkSeconds: 거리 ÷ 속도. 혼잡할수록 오래 걸린다', () => {
+  const free = F.walkSeconds(1000, 0), busy = F.walkSeconds(1000, 0.7), jam = F.walkSeconds(1000, 1);
+  // u=0 도 자유보행은 아니다 — 장의 바닥은 0.5명/m² 로 잡는다. 축제 밤에 80m/분은 없다.
+  near(free, 1000 / F.walkSpeed(0.5), 1e-9, '장 바닥(0.5명/m²)');
+  ok(free < 1000 / 1.0, '그래도 가장 빠른 축이어야 한다');
+  ok(busy > free * 2, `주의(3명/m²)면 두 배 넘게 걸려야 한다 — ${busy} vs ${free}`);
+  ok(jam > busy, '심각이 주의보다 오래 걸려야 한다');
+});
+t('walkSeconds: 같은 밀도면 거리에 비례한다', () => {
+  near(F.walkSeconds(2000, 0.5), 2 * F.walkSeconds(1000, 0.5), 1e-9);
+});
+
+/* pathSeconds — 화면에 뜨는 소요 시간. §3.2 의 구조를 지킨다:
+   처음 300m 는 관람구역(장) 밀도로 걷고, 그 뒤는 가로 밀도 1.5명/m² 를 상한으로 둔다.
+   혼잡은 국소적이라는 가정이고, 이게 없으면 매끈한 장이 높은 밀도를 경로 전체로 번지게 해
+   1.5km 를 157분이라 말하게 된다. 경로를 **고르는** 비용은 장 전체를 그대로 쓴다. */
+t('pathSeconds: 300m 를 넘어가면 가로 밀도로 상한이 걸린다', () => {
+  const capped = F.pathSeconds([{ meters: 2000, unit: 0.9 }]);   // 전 구간 「경계」
+  // 앞 300m 는 장 밀도, 남은 1700m 는 가로 밀도 — 임의 임계값 대신 구조로 못박는다
+  const want = F.walkSeconds(300, 0.9) + 1700 / F.walkSpeed(F.STREET_RHO);
+  near(capped, want, 1e-6, '상한 적용 방식이 §3.2 와 다르다');
+  ok(F.walkSeconds(2000, 0.9) > capped * 2, '상한 없는 값보다 충분히 짧아야 한다');
+});
+t('pathSeconds: 처음 300m 는 장 밀도를 그대로 받는다', () => {
+  const busy = F.pathSeconds([{ meters: 300, unit: 0.9 }]);
+  near(busy, F.walkSeconds(300, 0.9), 1e-9, '300m 이내는 상한 없음');
+});
+t('pathSeconds: 가로보다 한산하면 상한이 발목을 안 잡는다', () => {
+  const quiet = [{ meters: 1000, unit: 0 }];
+  near(F.pathSeconds(quiet), F.walkSeconds(1000, 0), 1e-9);
+});
+t('pathSeconds: 구간을 쪼개도 합이 같다 (경계에 걸쳐도)', () => {
+  const one = F.pathSeconds([{ meters: 900, unit: 0.7 }]);
+  const many = F.pathSeconds([{ meters: 100, unit: 0.7 }, { meters: 350, unit: 0.7 }, { meters: 450, unit: 0.7 }]);
+  near(one, many, 1e-6, '분할 불변이 아니다');
+});
+
 process.stdout.write(JSON.stringify(results));
 process.exit(results.every(r => r.ok) ? 0 : 1);
