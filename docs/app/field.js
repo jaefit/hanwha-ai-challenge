@@ -37,11 +37,10 @@
   var RHO_JAM = 5.4;      // 정체 밀도 명/m²
   var KLADEK_G = 1.913;
   var V_MIN = 0.15;       // 하한(추정). 원식은 5명/m² 에서 0.04 m/s 까지 떨어져 비현실적이다
-  // §3.2 의 구조. 혼잡은 국소적이라는 가정이다 — 출구 방향 첫 300m 만 관람구역 밀도로 걷고
-  // 그 뒤는 가로 밀도가 상한이다. 이게 없으면 매끈한 장이 높은 밀도를 경로 전체로 번지게 해
-  // 1.5km 를 157분이라 말하게 된다. src/nowcast.py travel_min() 과 같은 구조.
-  var DENSE_SEG_M = 300;
+  // 못 본 곳의 기본 밀도(가로, 명/m²). 관측이 없는 곳을 사전 평균(0.3~0.5 → 1.5~2.25)으로 읽으면
+  // 카메라 없는 이면도로까지 붐비는 것으로 보여 우회가 사라진다. 확신도로 관측과 이 값을 섞는다.
   var STREET_RHO = 1.5;
+  var CONF_FULL = 0.15;   // index.html 과 같은 정규화 — 미보정 카메라 바로 위(conf≈0.49)도 '충분히 안다'
 
   var BASE_SIGMA = { cctv_calibrated: 0.10, cctv_uncalibrated: 0.30, poi: 0.20 };
   var LOW_CONFIDENCE_MULT = 2.5;   // 배제가 아니라 확대 — 오탐이 사후를 못 끌게
@@ -96,20 +95,25 @@
     return Math.max(0, meters || 0) / walkSpeed(unitToDensity(unit));
   }
 
-  /** 경로 소요 초. segs = [{meters, unit}] 를 순서대로. 화면에 뜨는 값이 이것이다.
-   *  경로를 **고르는** 비용(walkSeconds)은 장 전체를 그대로 쓴다 — 상대 비교라 상한이 필요 없다. */
-  function pathSeconds(segs) {
-    var done = 0, total = 0;
-    for (var i = 0; i < (segs || []).length; i++) {
-      var m = Math.max(0, segs[i].meters || 0), rho = unitToDensity(segs[i].unit);
-      // 300m 경계에 걸치는 구간은 잘라서 각각 적분한다 (분할 불변)
-      var dense = Math.max(0, Math.min(m, DENSE_SEG_M - done));
-      if (dense > 0) total += dense / walkSpeed(rho);
-      var rest = m - dense;
-      if (rest > 0) total += rest / walkSpeed(Math.min(rho, STREET_RHO));
-      done += m;
-    }
-    return total;
+  /** 장의 σ → 확신도 0~1. σ 가 사전 폭(sdMax)이면 0. index.html 의 cn 과 같은 정규화. */
+  function confidence(sd, sdMax) {
+    if (!(sdMax > 0)) return 0;
+    var conf = Math.max(0, 1 - (sd == null ? sdMax : sd) / sdMax);
+    return Math.max(0, Math.min(1, conf / CONF_FULL));
+  }
+
+  /** 확신도 혼합 밀도. 본 곳은 관측 밀도, 못 본 곳은 가로 기본, 사이는 선형.
+   *  경로를 고르는 비용과 화면에 보여주는 시간이 **같이** 이것을 쓴다 —
+   *  2026-09-04: 라우터가 장 전체를 믿고 표시가 처음 300m 만 믿어 "더 돌게 하고
+   *  더 느리다고 말하는" 모순이 났다. 한 함수로 합친다. */
+  function blendDensity(unit, sd, sdMax) {
+    var cn = confidence(sd, sdMax);
+    return cn * unitToDensity(unit) + (1 - cn) * STREET_RHO;
+  }
+
+  /** 그 간선을 걷는 데 걸리는 초 — 경로 비용이자 표시 시간. */
+  function blendSeconds(meters, unit, sd, sdMax) {
+    return Math.max(0, meters || 0) / walkSpeed(blendDensity(unit, sd, sdMax));
   }
 
   function densityToUnit(rho) {
@@ -293,8 +297,9 @@
     walkSpeed: walkSpeed,
     unitToDensity: unitToDensity,
     walkSeconds: walkSeconds,
-    pathSeconds: pathSeconds,
-    DENSE_SEG_M: DENSE_SEG_M,
+    confidence: confidence,
+    blendDensity: blendDensity,
+    blendSeconds: blendSeconds,
     STREET_RHO: STREET_RHO,
     V_FREE: V_FREE,
     V_MIN: V_MIN,

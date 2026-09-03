@@ -274,29 +274,39 @@ t('walkSeconds: 같은 밀도면 거리에 비례한다', () => {
   near(F.walkSeconds(2000, 0.5), 2 * F.walkSeconds(1000, 0.5), 1e-9);
 });
 
-/* pathSeconds — 화면에 뜨는 소요 시간. §3.2 의 구조를 지킨다:
-   처음 300m 는 관람구역(장) 밀도로 걷고, 그 뒤는 가로 밀도 1.5명/m² 를 상한으로 둔다.
-   혼잡은 국소적이라는 가정이고, 이게 없으면 매끈한 장이 높은 밀도를 경로 전체로 번지게 해
-   1.5km 를 157분이라 말하게 된다. 경로를 **고르는** 비용은 장 전체를 그대로 쓴다. */
-t('pathSeconds: 300m 를 넘어가면 가로 밀도로 상한이 걸린다', () => {
-  const capped = F.pathSeconds([{ meters: 2000, unit: 0.9 }]);   // 전 구간 「경계」
-  // 앞 300m 는 장 밀도, 남은 1700m 는 가로 밀도 — 임의 임계값 대신 구조로 못박는다
-  const want = F.walkSeconds(300, 0.9) + 1700 / F.walkSpeed(F.STREET_RHO);
-  near(capped, want, 1e-6, '상한 적용 방식이 §3.2 와 다르다');
-  ok(F.walkSeconds(2000, 0.9) > capped * 2, '상한 없는 값보다 충분히 짧아야 한다');
+/* ── 확신도 혼합 밀도 (경로 비용 = 표시 시간, 한 함수) ───────────────
+   본 곳은 관측 밀도, 못 본 곳은 가로 기본 1.5명/m². 장의 σ 에서 확신도 cn 을 얻어 섞는다.
+   2026-09-04: 라우터가 장 전체를 믿고 표시가 300m 만 믿어 "더 돌게 하고 더 느리다고 말하는"
+   모순이 났다. 사전 0.3 + σ 0.3 수축이 카메라 없는 곳까지 2.25명/m² 로 읽어 우회를 눌렀다. */
+t('confidence: σ 가 사전 폭이면 0, 0 이면 1, 단조 감소', () => {
+  const sdMax = Math.sqrt(0.25);
+  near(F.confidence(sdMax, sdMax), 0, 1e-12, 'σ=sdMax');
+  near(F.confidence(0, sdMax), 1, 1e-12, 'σ=0');
+  let prev = 2;
+  for (const sd of [0, 0.1, 0.2, 0.3, 0.4, 0.5]) { const c = F.confidence(sd, sdMax); ok(c <= prev + 1e-12, `σ ${sd}`); prev = c; }
+  ok(F.confidence(0.6, sdMax) === 0, '사전 폭보다 큰 σ 는 0 으로 잘린다');
 });
-t('pathSeconds: 처음 300m 는 장 밀도를 그대로 받는다', () => {
-  const busy = F.pathSeconds([{ meters: 300, unit: 0.9 }]);
-  near(busy, F.walkSeconds(300, 0.9), 1e-9, '300m 이내는 상한 없음');
+t('confidence: 미보정 카메라 바로 위(conf≈0.49)도 cn=1 — index.html 과 같은 0.15 정규화', () => {
+  const sdMax = Math.sqrt(0.25);
+  ok(F.confidence(sdMax * (1 - 0.15), sdMax) >= 1 - 1e-12, 'conf 0.15 에서 이미 1');
 });
-t('pathSeconds: 가로보다 한산하면 상한이 발목을 안 잡는다', () => {
-  const quiet = [{ meters: 1000, unit: 0 }];
-  near(F.pathSeconds(quiet), F.walkSeconds(1000, 0), 1e-9);
+t('blendDensity: cn=1 이면 관측 밀도, cn=0 이면 가로 기본, 사이는 선형', () => {
+  const sdMax = Math.sqrt(0.25);
+  near(F.blendDensity(0.9, 0, sdMax), F.unitToDensity(0.9), 1e-12, '확신');
+  near(F.blendDensity(0.9, sdMax, sdMax), F.STREET_RHO, 1e-12, '무지');
+  const mid = F.blendDensity(0.9, sdMax * (1 - 0.075), sdMax);          // cn = 0.5
+  near(mid, 0.5 * F.unitToDensity(0.9) + 0.5 * F.STREET_RHO, 1e-9, '반반');
 });
-t('pathSeconds: 구간을 쪼개도 합이 같다 (경계에 걸쳐도)', () => {
-  const one = F.pathSeconds([{ meters: 900, unit: 0.7 }]);
-  const many = F.pathSeconds([{ meters: 100, unit: 0.7 }, { meters: 350, unit: 0.7 }, { meters: 450, unit: 0.7 }]);
-  near(one, many, 1e-6, '분할 불변이 아니다');
+t('blendDensity: 못 본 곳이 한산한 관측보다 느리게 읽히지 않는다 (사전 수축 제거의 요점)', () => {
+  const sdMax = Math.sqrt(0.25);
+  // 옛 방식: 사전으로 수축한 u≈0.5 → 2.25명/m². 새 방식: 못 본 곳 = 1.5
+  ok(F.blendDensity(0.5, sdMax, sdMax) <= F.STREET_RHO + 1e-12, '못 본 곳은 가로 기본 이하');
+});
+t('blendSeconds: 거리 ÷ 속도(혼합 밀도). σ=0 이면 walkSeconds 와 같다', () => {
+  const sdMax = Math.sqrt(0.25);
+  near(F.blendSeconds(1000, 0.7, 0, sdMax), F.walkSeconds(1000, 0.7), 1e-9, '확신 = 옛 값');
+  near(F.blendSeconds(1000, 0.9, sdMax, sdMax), 1000 / F.walkSpeed(F.STREET_RHO), 1e-9, '무지 = 가로 속도');
+  ok(F.blendSeconds(1000, 0.9, 0, sdMax) > F.blendSeconds(1000, 0.9, sdMax, sdMax), '본 곳의 심각이 못 본 곳보다 느려야');
 });
 
 process.stdout.write(JSON.stringify(results));

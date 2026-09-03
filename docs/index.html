@@ -723,13 +723,21 @@ function routeRisk(e){
   if(ix<0||iy<0||ix>=g.cols||iy>=g.rows)return 0;
   return Math.max(0,Math.min(1,APF_FIELD.mean[iy*g.cols+ix]));
 }
+// 간선 중점의 장 σ. 장이 없으면 사전 폭(APF_SD_MAX) → 확신도 0 → 가로 기본 밀도로 걷는다
+function routeSd(e){
+  const c=e.g&&e.g.length?e.g[Math.floor(e.g.length/2)]:null;
+  if(!c||!APF_FIELD||!APF_GRID)return APF_SD_MAX;
+  const g=APF_GRID,ix=Math.floor((c[0]-g.x0)/g.dx),iy=Math.floor((c[1]-g.y0)/g.dy);
+  if(ix<0||iy<0||ix>=g.cols||iy>=g.rows)return APF_SD_MAX;
+  return APF_FIELD.sd[iy*g.cols+ix];
+}
 class RouteHeap{constructor(){this.a=[];}push(x){const a=this.a;a.push(x);let i=a.length-1;while(i){const p=(i-1)>>1;if(a[p][0]<=x[0])break;a[i]=a[p];i=p;}a[i]=x;}pop(){const a=this.a;if(!a.length)return null;const top=a[0],x=a.pop();if(a.length){let i=0;while(true){let l=i*2+1,r=l+1;if(l>=a.length)break;let c=r<a.length&&a[r][0]<a[l][0]?r:l;if(a[c][0]>=x[0])break;a[i]=a[c];i=c;}a[i]=x;}return top;}get length(){return this.a.length;}}
 function routeAstar(g,start,goal,adj){
   const q=new RouteHeap(),dist=new Map([[start,0]]),came=new Map(),target=g.nodes[goal];q.push([0,start]);
-  while(q.length){const [,u]=q.pop(),du=dist.get(u);if(u===goal)break;for(const e of adj.get(u)||[]){const risk=routeRisk(e),nd=du+Field.walkSeconds(Math.max(0.1,Number(e.m)||0.1),risk);if(nd<(dist.get(e.v)??Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e,risk]);q.push([nd+apfDistanceM(g.nodes[e.v],target)/Field.V_FREE,e.v]);}}}
+  while(q.length){const [,u]=q.pop(),du=dist.get(u);if(u===goal)break;for(const e of adj.get(u)||[]){const risk=routeRisk(e),nd=du+Field.blendSeconds(Math.max(0.1,Number(e.m)||0.1),risk,routeSd(e),APF_SD_MAX);if(nd<(dist.get(e.v)??Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e,risk]);q.push([nd+apfDistanceM(g.nodes[e.v],target)/Field.V_FREE,e.v]);}}}
   if(!came.has(goal))return null;const edges=[];let u=goal;while(u!==start){const v=came.get(u);if(!v)return null;edges.push({edge:v[1],risk:v[2]});u=v[0];}edges.reverse();return edges;
 }
-function routeGeojson(edges){const coords=[];const segs=[];let meters=0,riskSum=0;edges.forEach(({edge,risk})=>{let g=(edge.g||[]).slice();const u=WALK_GRAPH.nodes[edge.u];if(g.length>1&&u&&apfDistanceM(g[0],u)>apfDistanceM(g[g.length-1],u))g.reverse();g.forEach(c=>{const last=coords[coords.length-1];if(!last||c[0]!==last[0]||c[1]!==last[1])coords.push(c);});const m=Number(edge.m)||0;meters+=m;riskSum+=m*risk;segs.push({meters:m,unit:risk});});const seconds=Field.pathSeconds(segs);return{data:{type:"FeatureCollection",features:[{type:"Feature",properties:{},geometry:{type:"LineString",coordinates:coords}}]},meters,seconds,risk:meters?riskSum/meters:0,coords};}
+function routeGeojson(edges){const coords=[];let meters=0,riskSum=0,seconds=0;edges.forEach(({edge,risk})=>{let g=(edge.g||[]).slice();const u=WALK_GRAPH.nodes[edge.u];if(g.length>1&&u&&apfDistanceM(g[0],u)>apfDistanceM(g[g.length-1],u))g.reverse();g.forEach(c=>{const last=coords[coords.length-1];if(!last||c[0]!==last[0]||c[1]!==last[1])coords.push(c);});const m=Number(edge.m)||0;meters+=m;riskSum+=m*risk;seconds+=Field.blendSeconds(m,risk,routeSd(edge),APF_SD_MAX);});return{data:{type:"FeatureCollection",features:[{type:"Feature",properties:{},geometry:{type:"LineString",coordinates:coords}}]},meters,seconds,risk:meters?riskSum/meters:0,coords};}
 function routeMarker(kind,p){const d=document.createElement("div");d.className="route-pin"+(kind==="station"?" station":"");return new maplibregl.Marker({element:d}).setLngLat(p).addTo(apfMap);}
 function routeSetStart(lngLat){routeGraph().catch(()=>{});ROUTE_START=[lngLat.lng,lngLat.lat];if(ROUTE_START_MARKER)ROUTE_START_MARKER.remove();ROUTE_START_MARKER=routeMarker("start",ROUTE_START);const src=apfMap.getSource("route-line");if(src)src.setData({type:"FeatureCollection",features:[]});$("route-run").disabled=false;$("route-status").textContent="출발점이 지정되었습니다. 목적역을 선택하고 경로 찾기를 누르세요.";}
 function routeSetStation(){const s=routeStation();if(ROUTE_STATION_MARKER)ROUTE_STATION_MARKER.remove();ROUTE_STATION_MARKER=routeMarker("station",[s.lng,s.lat]);}

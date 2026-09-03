@@ -322,17 +322,22 @@ async function paintField(){
   }catch(e){$("fkey").hidden=true;}                        // 색이 없어도 길찾기는 그대로 돈다
 }
 
-/** 간선 중점의 혼잡도 0~1. 장이 없으면 0 — 그러면 비용이 자유보행 시간이라 거리 기준과 같은 경로가 나온다. */
-function edgeUnit(e){
-  if(!FIELD||!FGRID)return 0;
+/** 간선 중점이 떨어지는 장 격자 칸. 장이 없거나 밖이면 -1. */
+function edgeCell(e){
+  if(!FIELD||!FGRID)return -1;
   const c=(e.g&&e.g.length)?e.g[Math.floor(e.g.length/2)]:null;
   const a=c||GRAPH_NODES[e.u],b=c?null:GRAPH_NODES[e.v];
   const x=c?c[0]:(a&&b?(a[0]+b[0])/2:null),y=c?c[1]:(a&&b?(a[1]+b[1])/2:null);
-  if(x==null)return 0;
+  if(x==null)return -1;
   const ix=Math.floor((x-FGRID.x0)/FGRID.dx),iy=Math.floor((y-FGRID.y0)/FGRID.dy);
-  if(ix<0||iy<0||ix>=FGRID.cols||iy>=FGRID.rows)return 0;
-  return Math.max(0,Math.min(1,FIELD.mean[iy*FGRID.cols+ix]));
+  if(ix<0||iy<0||ix>=FGRID.cols||iy>=FGRID.rows)return -1;
+  return iy*FGRID.cols+ix;
 }
+/** 간선의 혼잡도 0~1 과 σ. 장이 없으면 σ=사전 폭 → 확신도 0 → 가로 기본 밀도 → 거리 기준과 같은 경로. */
+const edgeUnit=e=>{const k=edgeCell(e);return k<0?0:Math.max(0,Math.min(1,FIELD.mean[k]));};
+const edgeSd=e=>{const k=edgeCell(e);return k<0?F_SD_MAX:FIELD.sd[k];};
+/** 그 간선을 걷는 초 — 경로를 고르는 비용이자 화면에 보여주는 시간. 본 곳은 관측 밀도, 못 본 곳은 가로 기본. */
+const edgeSeconds=(m,e)=>Field.blendSeconds(m,edgeUnit(e),edgeSd(e),F_SD_MAX);
 let GRAPH_NODES=null;
 
 async function graph(){
@@ -344,12 +349,11 @@ async function graph(){
   GRAPH={nodes:g.nodes,adj,usable:[...usable]};GRAPH_NODES=g.nodes;return GRAPH;
 }
 function nearest(g,p){let b=null,bd=Infinity;for(const id of g.usable){const c=g.nodes[id];if(!c)continue;const d=distM(p,c);if(d<bd){bd=d;b=id;}}return b;}
-/* 비용은 거리가 아니라 **그 간선을 걷는 데 걸리는 시간**이다(초).
-   전에는 거리로 고르고 소요 시간은 67m/분 고정으로 따로 계산해 둘이 따로 놀았다.
-   이제 고르는 기준과 화면에 뜨는 값이 같은 계산에서 나온다. 혼잡한 구간은 느려지므로
-   충분히 뾰족한 혼잡이면 돌아가는 쪽이 더 빨라진다. 휴리스틱은 자유보행 시간(허용적). */
+/* 비용은 거리가 아니라 **그 간선을 걷는 데 걸리는 시간**이다(초). 고르는 기준과 화면에 뜨는
+   값이 같은 계산(edgeSeconds)에서 나온다. 본 곳(카메라 근처)은 관측 밀도, 못 본 곳은 가로 기본이라
+   병목을 봤을 때만 그 병목을 피해 돈다. 휴리스틱은 자유보행 시간(허용적). */
 function astar(g,s,t){
-  const cost=e=>Field.walkSeconds(Math.max(0.1,Number(e.m)||0.1),edgeUnit(e));
+  const cost=e=>edgeSeconds(Math.max(0.1,Number(e.m)||0.1),e);
   const dist=new Map([[s,0]]),came=new Map(),q=[[0,s]],goal=g.nodes[t];
   while(q.length){q.sort((a,b)=>a[0]-b[0]);const[,u]=q.shift();if(u===t)break;
     for(const e of g.adj.get(u)||[]){const nd=dist.get(u)+cost(e);
@@ -358,13 +362,12 @@ function astar(g,s,t){
   if(!came.has(t)&&s!==t)return null;
   const es=[];let u=t;while(u!==s){const v=came.get(u);if(!v)break;es.push(v[1]);u=v[0];}
   es.reverse();
-  let meters=0;const segs=[];
-  for(const e of es){const m=Number(e.m)||0;meters+=m;segs.push({meters:m,unit:edgeUnit(e)});}
-  // cost 는 장 전체(경로를 고르는 상대 비교), 표시는 §3.2 구조(처음 300m 만 구역 밀도)
-  return{edges:es,meters,seconds:Field.pathSeconds(segs)};
+  let meters=0;for(const e of es)meters+=Number(e.m)||0;
+  // 고르는 비용과 보여주는 시간이 같은 계산이다 — 둘이 갈리면 "더 돌게 하고 더 느리다"고 말하게 된다
+  return{edges:es,meters,seconds:dist.get(t)};
 }
 // 보행 속도는 운영 화면과 같은 밀도별 모델(§3.2)을 쓰지 않고, 관람객에게는 보수적 고정값으로 말한다.
-// 소요 시간은 혼잡도별 속도로 낸다(§3.2 — 처음 300m 는 구역 밀도, 그 뒤는 가로 1.5명/m² 상한).
+// 소요 시간은 경로 비용 그대로다(구간별 혼잡도 반영 — 본 곳은 관측 밀도, 못 본 곳은 가로 1.5명/m²).
 // 장이 없으면 예전 기준(67m/분 = 인파 속 보행)으로 보수적으로 말한다.
 const walkMin=out=>Math.max(1,Math.round(FIELD?out.seconds/60:out.meters/67));
 $("run").onclick=async()=>{

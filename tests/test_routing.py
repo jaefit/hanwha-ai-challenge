@@ -53,8 +53,10 @@ def test_both_pages_route_by_walking_time_not_a_penalty_weight():
     """
     for name in ("go.html", "index.html"):
         html = (ROOT / "docs" / name).read_text(encoding="utf-8")
-        assert "Field.walkSeconds" in html, f"{name}: 경로 비용이 시간 기반이 아니다"
+        assert "Field.blendSeconds" in html, f"{name}: 경로 비용이 확신도 혼합 시간이 아니다"
         assert "ROUTE_CROWD_WEIGHT" not in html, f"{name}: 출처 없는 벌점 상수가 남아 있다"
+        # 표시 시간 함수가 둘이면 또 갈린다 — 고르는 비용과 보여주는 시간은 한 함수(blendSeconds)
+        assert "pathSeconds" not in html, f"{name}: 표시용 별도 시간 함수가 남아 있다"
         assert "app/field.js" in html, f"{name}: field.js 를 로드하지 않는다"
 
 
