@@ -228,12 +228,12 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
     <div class="rv">
       <h4>② 부하율 — 평시 승객도 같은 열차를 탄다</h4>
       \[ \mathrm{load}_{s,h} = \frac{D_{s,h} + B_{s,h}}{C_s} \]
-      <p>분모 <b>C</b>는 축제일 시간당 최대 승차라 <b>평시 B</b>가 이미 들어 있다. 분자에서 빠뜨려 부하를 낮게 읽던 것이 9/3 교차검증에서 잡힌 결함(H9)이다.</p>
+      <p>분모 <b>C</b>는 축제일 시간당 최대 승차라 <b>평시 B</b>가 이미 들어 있다. 분자에서 빠뜨려 부하율을 낮게 읽던 것이 9/3 교차검증에서 잡힌 결함(H9)이다.</p>
     </div>
     <div class="rv">
       <h4>③ 대기열 — 시간대를 넘어 쌓인다</h4>
       \[ Q_{s,h} = \max\!\left(0,\; Q_{s,h-1} + D_{s,h} + B_{s,h} - C_s\right) \]
-      <p>대기 시간 = <span class="mono">Q ÷ C × 60</span>분. 통제 시간대엔 열차가 안 서므로 도착분이 다음 시간대로 이월된다 — 여의나루 22시가 위험한 이유가 이 한 줄에서 나온다.</p>
+      <p>대기 시간 = <span class="mono">Q ÷ C × 60</span>분. 통제 시간대엔 열차가 안 서므로 도착분이 다음 시간대로 이월된다. 여의나루 22시가 위험한 이유가 이 한 줄에서 나온다.</p>
     </div>
     <div class="rv">
       <h4>④ α — 오늘이 예년의 몇 배인가</h4>
@@ -254,7 +254,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
     <span><i style="background:var(--c1)"></i>사후분포 <b class="mono" data-alpha-now>—</b></span>
     <span class="tag warn">관측 y 는 α=1.15 가정 · 사전·격자·σ·A 는 코드의 실제 값</span>
   </div>
-  <p class="src rv">30분 창마다 한 건씩. 밴드 폭 34.8% → 10.8%로 좁아지고 참값 1.15를 내내 담는다. 좁아지는 속도가 너무 빠른 것이 지금 열려 있는 결정 C1이다 — 백테스트 오차 ±42%를 밴드에 넣을지.</p>
+  <p class="src rv">30분 창마다 한 건씩. 밴드 폭 34.8% → 10.8%로 좁아지고 참값 1.15를 내내 담는다. 다만 좁아지는 속도가 너무 빠르다. 백테스트 오차 ±42%를 밴드에 넣을지가 지금 열려 있는 결정 C1이다.</p>
 </section>
 
 <!-- 6 ─ 검증 -->
@@ -282,7 +282,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
     <span><i style="background:var(--c1)"></i>등급 불일치</span>
     <span><b class="mono" data-bt-hit>—</b> · 2025 교차연도 (B 모드)</span>
   </div>
-  <p class="src rv">가로 = 모델 예측 승차, 세로 = 실제 승차(OA-12921). 대각선이 완벽. 역·시간대 하나가 점 하나다. 오차가 남아도 <b>등급</b>은 88% 맞는다 — 화면이 말하는 건 숫자가 아니라 등급이다.</p>
+  <p class="src rv">가로 = 모델 예측 승차, 세로 = 실제 승차(OA-12921). 역·시간대 하나가 점 하나다. 오차가 남아도 <b>등급</b>은 88% 맞는다 — 화면이 말하는 건 숫자가 아니라 등급이다.</p>
 </section>
 
 <!-- 7 ─ 반전 발견 -->
@@ -312,7 +312,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
     <span><b class="mono" data-field-n>—</b></span>
     <span class="tag warn">등급 배치는 예시 · 좌표·커널·σ·GP 식은 실제 값</span>
   </div>
-  <p class="src rv">가우시안 과정 회귀(커널 150m·1200m 이중). 관측이 적은 곳은 배제하지 않고 <b>불확실성 σ</b>로 남긴다 — 흐릿할수록 근거가 얇은 곳이다. 구현 <span class="mono">docs/app/field.js</span>, 순수 함수라 node로 그대로 검증된다.</p>
+  <p class="src rv">가우시안 과정 회귀(커널 150m·1200m 이중). 관측이 적은 곳은 배제하지 않고 <b>불확실성 σ</b>로 남긴다 — 흐릿할수록 근거가 얇은 곳이다. 구현 <span class="mono">docs/app/field.js</span> — DOM을 만지지 않는 순수 함수다. 테스트가 배포본을 node로 그대로 돌린다.</p>
 </section>
 
 <!-- 7c ─ 경로 -->
@@ -350,7 +350,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
     <span><i style="background:var(--c2)"></i>여의도 하차 초과</span>
     <span>상관계수 <b class="mono" data-feeder-r>—</b></span>
   </div>
-  <p class="src rv">2025 축제일. 피더 곡선을 1시간 뒤로 밀면 r 0.72 → 0.98. 두 해 통합 0.988. — 단, 피더 승차는 OD 총량 제약으로 귀속한 값이고(순수 관측 아님) 여의도 하차는 5호선 두 역만이다. 5분 해상도 실측 검증은 9/5 당일 수집으로.</p>
+  <p class="src rv">2025 축제일. 피더 곡선을 1시간 뒤로 밀면 r 0.72 → 0.98. 두 해 통합 0.988. 단, 피더 승차는 OD 총량 제약으로 귀속한 값이라 순수 관측이 아니다. 여의도 하차는 5호선 두 역만 센다. 5분 해상도 실측 검증은 9/5 당일 수집으로.</p>
 </section>
 
 <!-- 9 ─ 아키텍처 -->
