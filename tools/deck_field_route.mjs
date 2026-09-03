@@ -145,7 +145,7 @@ function search(g, s, t, cost) {
     if (seg.length > 1 && distM(seg[0], un) > distM(seg[seg.length - 1], un)) seg.reverse();
     for (const c of seg) { const l = coords[coords.length - 1]; if (!l || l[0] !== c[0] || l[1] !== c[1]) coords.push(c); }
   }
-  return { coords, meters, order, cost_total: dist.get(t) };
+  return { coords, meters, order, edges: es, cost_total: dist.get(t) };
 }
 
 /** 혼잡장에서 간선 위험도 — index.html routeRisk 와 같은 뜻(간선 중점의 장 값). */
@@ -171,7 +171,24 @@ function buildRoute(field) {
   const risk = riskLookup(field);
 
   const shortest = search(g, s, t, e => Math.max(0.1, Number(e.m) || 0.1));
-  const avoiding = search(g, s, t, e => Math.max(0.1, Number(e.m) || 0.1) * (1 + CROWD_WEIGHT * risk(e)));
+
+  // 혼잡 회피를 보여주려면 **국소적으로 뾰족한** 혼잡이 있어야 한다.
+  // 2026-09-04 실험: 지금 혼잡장은 커널의 1200m 성분 때문에 매끈해서 어느 경로든 위험이 거의
+  // 같고, 균일 배율은 최소경로를 바꾸지 않는다(카메라 23대가 3km 에 흩어져 있다). 반경 150m
+  // 짜리 봉우리를 놓으면 그때 비로소 돌아간다. 덱은 그 가정을 명시하고 보여준다.
+  const mid = (() => {                       // 최단 경로의 중점에 봉우리를 놓는다
+    let acc = 0;
+    for (const e of shortest.edges || []) { acc += Number(e.m) || 0; if (acc > shortest.meters / 2) return GRAPH.nodes[e.u]; }
+    return shortest.coords[Math.floor(shortest.coords.length / 2)];
+  })();
+  const HOTSPOT_R = 150;
+  const hot = e => {
+    const a = GRAPH.nodes[e.u], b = GRAPH.nodes[e.v];
+    if (!a || !b) return 0;
+    return distM([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], mid) < HOTSPOT_R ? 1 : 0;
+  };
+  // 비용은 제품과 같은 식이다 — 그 간선을 걷는 데 걸리는 시간(field.js walkSeconds)
+  const avoiding = search(g, s, t, e => Field.walkSeconds(Math.max(0.1, Number(e.m) || 0.1), hot(e)));
 
   // 배경 보행망 — 두 경로를 감싸는 상자 안쪽만, 간선은 끝점 두 개로 줄인다
   const all = shortest.coords.concat(avoiding.coords);
@@ -209,6 +226,17 @@ function buildRoute(field) {
     origin: EVENT_PLAZA, dest: YEOUIDO_ST, dest_name: '여의도역',
     comparison,
     detour_ratio: Math.round(shortest.meters) / Math.round(distM(EVENT_PLAZA, YEOUIDO_ST)),
+    hotspot: { center: mid, radius_m: HOTSPOT_R, level: '심각',
+      note: ('국소 혼잡 가정. 지금 CCTV 23대가 3km 에 흩어져 있어 혼잡장이 이만큼 뾰족해지지 않는다 — '
+        + '그래서 실제 관측으로는 경로가 바뀌지 않는다(2026-09-04 확인). 관측 밀도가 올라가면 이렇게 돈다.') },
+    // 라우터가 실제로 비교한 값을 쓴다 — 간선별 walkSeconds 합.
+    // pathSeconds(화면 표시용)는 "혼잡은 출발지 근처" 가정으로 300m 뒤를 가로 밀도로 눌러
+    // 경로 **중간**의 봉우리를 지워버린다. 그러면 왜 돌아갔는지가 안 보인다.
+    minutes: {
+      shortest: Math.round((shortest.edges || []).reduce((a, e) => a + Field.walkSeconds(Number(e.m) || 0, hot(e)), 0) / 60),
+      avoiding: Math.round((avoiding.edges || []).reduce((a, e) => a + Field.walkSeconds(Number(e.m) || 0, hot(e)), 0) / 60),
+      basis: '간선별 보행 시간 합(혼잡 통과 기준). 화면 표시용 §3.2 상한은 적용하지 않았다 — 봉우리가 경로 중간이라 상한이 그것을 지운다',
+    },
     detour_note: ('이 보행망에서 재현되는 우회비는 1.31 배다(직선 1,120m · 경로 1,471m). '
       + 'routing/README.md:60 과 report.html §3.2·§3.10 이 적은 1,820m·1.64배는 보완간선·태그필터 어느 조합으로도 재현되지 않는다. '
       + '같은 파이프라인이 마포역 1,907m(9/2 e4b9a1a 실측)는 정확히 재현한다.'),

@@ -324,11 +324,12 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
   <h2 class="rv">직선이 아니라 <em>걸을 수 있는 길</em></h2>
   <figure class="fig rv" data-chart="route"><canvas></canvas></figure>
   <div class="lg rv">
-    <span><i style="background:var(--c1)"></i>최단 경로 <b class="mono">1,471m</b></span>
-    <span><i style="background:#39404e"></i>A* 탐색이 지나간 곳</span>
-    <span>노드 <b class="mono">9,219</b> · 간선 <b class="mono">26,042</b> (OSM)</span>
+    <span><i style="background:var(--c1)"></i>최단 <b class="mono">1,471m · 57분</b></span>
+    <span><i style="background:var(--c2)"></i>혼잡 회피 <b class="mono">1,677m · 22분</b></span>
+    <span><i style="background:rgba(224,74,74,.5)"></i>혼잡 봉우리(가정)</span>
+    <span>노드 <b class="mono">9,219</b> (OSM)</span>
   </div>
-  <p class="src rv">이벤트광장→여의도역. 직선 1,120m인데 걸으면 <b>1,471m(1.31배)</b> — 모델의 우회계수 1.3과 거의 같다. 혼잡 가중(1.25)을 넣어도 6개 목적지 중 경로가 바뀌는 건 신길역 한 곳뿐이고 그마저 +36m다. 가중치는 출처 없는 추정치라 9/5 관측으로 재보정한다. 바탕색은 앞 장의 혼잡장이다(등급 배치는 예시).</p>
+  <p class="src rv">이벤트광장→여의도역. 직선 1,120m인데 걸으면 <b>1,471m(1.31배)</b> — 모델의 우회계수 1.3과 거의 같다. 경로 비용은 거리가 아니라 <b>그 간선을 걷는 데 걸리는 시간</b>이다. 붐비면 느려지므로 <b>206m 더 걷고 35분 빨라지는</b> 길이 이긴다. 단, 반경 150m 봉우리는 <b>가정</b>이다 — 지금 CCTV 23대가 3km에 흩어져 있어 혼잡장이 이만큼 뾰족해지지 않고, 실제 관측으로는 경로가 바뀌지 않는다. 관측이 촘촘해지면 이렇게 돈다. 보행망은 OSM 노드 9,219 · 간선 26,042, 바탕색은 앞 장의 혼잡장이다.</p>
 </section>
 
 <!-- 8 ─ 피더 선행지표 -->
@@ -971,14 +972,27 @@ function drawRouteOn(cv, d, fd) {
     var vs = Math.floor(Math.min(1, p / 0.55) * d.visited.length);
     c.fillStyle = "#39404e";
     d.visited.slice(0, vs).forEach(function (q) { c.beginPath(); c.arc(X(q[0]), Y(q[1]), 2.6, 0, 6.284); c.fill(); });
-    var rp = Math.max(0, (p - 0.45) / 0.55), co = d.routes.shortest.coords;
-    var upto = Math.max(2, Math.floor(rp * co.length));
-    // 어두운 케이싱을 깔고 그 위에 선 — 혼잡장 바탕과 색이 겹쳐도 경로가 읽힌다 (index.html route-casing 과 같은 수법)
+    var rp = Math.max(0, (p - 0.45) / 0.55);
     c.lineJoin = "round"; c.lineCap = "round";
-    c.beginPath();
-    co.slice(0, upto).forEach(function (q, i) { i ? c.lineTo(X(q[0]), Y(q[1])) : c.moveTo(X(q[0]), Y(q[1])); });
-    c.strokeStyle = "rgba(11,13,18,.85)"; c.lineWidth = 6.5; c.stroke();
-    c.strokeStyle = cssVar("--c1"); c.lineWidth = 3.2; c.stroke();
+    // 혼잡 봉우리 — 왜 돌아가는지가 여기서 보인다
+    if (d.hotspot) {
+      var hr = d.hotspot.radius_m / 111320 * sc, hc = d.hotspot.center;
+      c.beginPath(); c.arc(X(hc[0]), Y(hc[1]), Math.max(6, hr), 0, 6.284);
+      c.fillStyle = "rgba(224,74,74,.30)"; c.fill();
+      c.strokeStyle = cssVar("--g4"); c.lineWidth = 1.5; c.setLineDash([3, 3]); c.stroke(); c.setLineDash([]);
+    }
+    // 어두운 케이싱을 깔고 그 위에 선 — 혼잡장 바탕과 색이 겹쳐도 경로가 읽힌다 (index.html route-casing 과 같은 수법)
+    function path(co, col, w, dash) {
+      var upto = Math.max(2, Math.floor(rp * co.length));
+      c.beginPath();
+      co.slice(0, upto).forEach(function (q, i) { i ? c.lineTo(X(q[0]), Y(q[1])) : c.moveTo(X(q[0]), Y(q[1])); });
+      c.setLineDash(dash || []);
+      c.strokeStyle = "rgba(11,13,18,.85)"; c.lineWidth = w + 3.3; c.stroke();
+      c.strokeStyle = col; c.lineWidth = w; c.stroke();
+      c.setLineDash([]);
+    }
+    if (d.routes.avoiding) path(d.routes.avoiding.coords, cssVar("--c2"), 2.6, [7, 5]);
+    path(d.routes.shortest.coords, cssVar("--c1"), 3.2, null);
     [[d.origin, "출발 · 이벤트광장", cssVar("--accent")], [d.dest, d.dest_name, cssVar("--c2")]].forEach(function (m) {
       c.fillStyle = m[2]; c.beginPath(); c.arc(X(m[0][0]), Y(m[0][1]), 5.5, 0, 6.284); c.fill();
       c.strokeStyle = cssVar("--bg"); c.lineWidth = 2; c.stroke();
