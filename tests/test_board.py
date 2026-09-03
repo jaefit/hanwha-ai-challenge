@@ -146,3 +146,18 @@ def test_board_reads_nowcast_prior_end_to_end(tmp_path):
     assert got["mode"] == "prior", f"관측 없는 예측을 {got['mode']} 로 읽는다 — {got}"
     assert "실시간" not in got["note"], got["note"]
     assert got["alpha"].startswith("사전값"), f"α 라벨이 측정값처럼 보인다: {got['alpha']}"
+
+
+def test_map_pages_use_style_json_not_raster_template():
+    """지도 바닥이 실제로 그려지는가 — URL 형태로 본다.
+
+    OpenFreeMap 은 벡터 타일과 스타일 JSON 만 낸다. `/styles/<name>/{z}/{x}/{y}.png` 는 존재하지
+    않아 요청이 전부 404 이고, 화면에는 컨트롤과 저작권 표시만 남아 바닥이 회색으로 비어 보인다.
+    2026-09-03: docs/go.html 이 그 형태를 type:"raster" 로 물고 있어 관람객 화면의 길찾기가
+    통째로 못 쓰는 상태였다. 헤드리스 검증은 WebGL 이 없어 이 종류를 잡지 못한다 — 그래서 정적으로 본다.
+    """
+    bad = re.compile(r"tiles\.openfreemap\.org/styles/[a-z]+/\{z\}")
+    for name in ("go.html", "index.html"):
+        html = (ROOT / "docs" / name).read_text(encoding="utf-8")
+        assert not bad.search(html), f"{name}: OpenFreeMap 에 없는 래스터 타일 URL(404) 을 쓴다"
+        assert "tiles.openfreemap.org/styles/" in html, f"{name}: 지도 스타일 URL 이 없다"

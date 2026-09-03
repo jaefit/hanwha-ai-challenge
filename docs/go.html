@@ -209,7 +209,7 @@ async function openMap(){
   await loadCss("https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css");
   await loadScript("https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js");
   $("map").classList.add("on");
-  MAP=new maplibregl.Map({container:"map",style:{version:8,sources:{osm:{type:"raster",tiles:["https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png"],tileSize:256,attribution:"© OpenStreetMap"}},layers:[{id:"osm",type:"raster",source:"osm"}]},center:[126.934,37.529],zoom:13.2});
+  MAP=new maplibregl.Map({container:"map",style:"https://tiles.openfreemap.org/styles/"+(theme()==="light"?"positron":"dark"),center:[126.934,37.529],zoom:13.2});
   MAP.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");
   MAP.on("load",()=>{MAP.addSource("route",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
     MAP.addLayer({id:"route",type:"line",source:"route",paint:{"line-color":"#F37321","line-width":5,"line-opacity":.95}});});
