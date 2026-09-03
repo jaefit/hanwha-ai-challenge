@@ -328,7 +328,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
     <span><i style="background:#39404e"></i>A* 탐색이 지나간 곳</span>
     <span>노드 <b class="mono">9,219</b> · 간선 <b class="mono">26,042</b> (OSM)</span>
   </div>
-  <p class="src rv">이벤트광장→여의도역. 직선 1,120m인데 걸으면 <b>1,471m(1.31배)</b> — 모델의 우회계수 1.3과 거의 같다. 혼잡 가중(1.25)을 넣어도 6개 목적지 중 경로가 바뀌는 건 신길역 한 곳뿐이고 그마저 +36m다. 가중치는 출처 없는 추정치라 9/5 관측으로 재보정한다.</p>
+  <p class="src rv">이벤트광장→여의도역. 직선 1,120m인데 걸으면 <b>1,471m(1.31배)</b> — 모델의 우회계수 1.3과 거의 같다. 혼잡 가중(1.25)을 넣어도 6개 목적지 중 경로가 바뀌는 건 신길역 한 곳뿐이고 그마저 +36m다. 가중치는 출처 없는 추정치라 9/5 관측으로 재보정한다. 바탕색은 앞 장의 혼잡장이다(등급 배치는 예시).</p>
 </section>
 
 <!-- 8 ─ 피더 선행지표 -->
@@ -918,9 +918,34 @@ function drawFieldCanvas(cv, d, slide) {
   });
 }
 
-/* ⑤ A* — 탐색이 번지고 경로가 뽑힌다 */
-function drawRoute(cv, d) {
-  var b = d.bbox;
+/* ⑤ A* — 혼잡장 위에서 탐색이 번지고 경로가 뽑힌다.
+   바탕은 11번 슬라이드와 같은 장이다(등급 배치는 예시). 두 장을 잇는 게 요점 —
+   "혼잡장을 만든다" 다음이 "그 장 위에서 길을 고른다" 이다. */
+function drawRoute(cv, d, slide) {
+  chartData("field_grid").then(function (fd) { drawRouteOn(cv, d, fd); })
+    .catch(function () { drawRouteOn(cv, d, null); });
+}
+function drawRouteOn(cv, d, fd) {
+  var b = d.bbox, fcv = null;
+  if (fd) {                                  // 장을 격자 크기 캔버스에 한 번만 그려 둔다
+    var fg = fd.grid, last = fd.frames[fd.frames.length - 1], ramp = apfRamp();
+    fcv = document.createElement("canvas");
+    fcv.width = fg.cols; fcv.height = fg.rows;
+    var fx = fcv.getContext("2d"), fim = fx.createImageData(fg.cols, fg.rows), fp = fim.data;
+    for (var iy = 0; iy < fg.rows; iy++) {
+      for (var ix = 0; ix < fg.cols; ix++) {
+        var c = iy * fg.cols + ix;
+        var u = Math.max(0, Math.min(1, last.mean[c] / fd.scale));
+        var conf = Math.max(0, 1 - (last.sd[c] / fd.scale) / APF_SD_MAX), cn = Math.min(1, conf / 0.15);
+        var hot = Math.max(0, Math.min(1, (u - 0.3) / 0.7));
+        var col = rampHex(ramp, u), o = (0.45 + 0.50 * hot) * (0.45 + 0.55 * cn);
+        var j = ((fg.rows - 1 - iy) * fg.cols + ix) * 4;
+        fp[j] = col[0] | 0; fp[j + 1] = col[1] | 0; fp[j + 2] = col[2] | 0;
+        fp[j + 3] = Math.round(255 * Math.max(0, Math.min(1, o)) * 0.62);   // 경로선이 위로 읽히게 낮춘다
+      }
+    }
+    fx.putImageData(fim, 0, 0);
+  }
   animate(cv, 3000, function (p) {
     var out = fitCanvas(cv), c = out.ctx, w = out.w, h = out.h;
     var kx = Math.cos((b[1] + b[3]) / 2 * Math.PI / 180);
@@ -929,6 +954,16 @@ function drawRoute(cv, d) {
     var ox = (w - sx * sc) / 2, oy = (h - sy * sc) / 2;
     var X = function (lng) { return ox + (lng - b[0]) * kx * sc; };
     var Y = function (lat) { return h - oy - (lat - b[1]) * sc; };
+    if (fcv) {                                 // 장에서 이 경로 상자에 해당하는 부분만 오려 깐다
+      var fg2 = fd.grid;
+      var sx = (b[0] - fg2.x0) / (fg2.x1 - fg2.x0) * fg2.cols;
+      var sx1 = (b[2] - fg2.x0) / (fg2.x1 - fg2.x0) * fg2.cols;
+      var sy = (1 - (b[3] - fg2.y0) / (fg2.y1 - fg2.y0)) * fg2.rows;
+      var sy1 = (1 - (b[1] - fg2.y0) / (fg2.y1 - fg2.y0)) * fg2.rows;
+      c.imageSmoothingEnabled = true;
+      c.drawImage(fcv, sx, sy, Math.max(1, sx1 - sx), Math.max(1, sy1 - sy),
+                  X(b[0]), Y(b[3]), X(b[2]) - X(b[0]), Y(b[1]) - Y(b[3]));
+    }
     c.strokeStyle = cssVar("--line"); c.lineWidth = 1;
     c.beginPath();
     d.background_edges.forEach(function (e) { c.moveTo(X(e[0]), Y(e[1])); c.lineTo(X(e[2]), Y(e[3])); });
@@ -938,10 +973,12 @@ function drawRoute(cv, d) {
     d.visited.slice(0, vs).forEach(function (q) { c.beginPath(); c.arc(X(q[0]), Y(q[1]), 2.6, 0, 6.284); c.fill(); });
     var rp = Math.max(0, (p - 0.45) / 0.55), co = d.routes.shortest.coords;
     var upto = Math.max(2, Math.floor(rp * co.length));
-    c.strokeStyle = cssVar("--c1"); c.lineWidth = 3.2; c.lineJoin = "round";
+    // 어두운 케이싱을 깔고 그 위에 선 — 혼잡장 바탕과 색이 겹쳐도 경로가 읽힌다 (index.html route-casing 과 같은 수법)
+    c.lineJoin = "round"; c.lineCap = "round";
     c.beginPath();
     co.slice(0, upto).forEach(function (q, i) { i ? c.lineTo(X(q[0]), Y(q[1])) : c.moveTo(X(q[0]), Y(q[1])); });
-    c.stroke();
+    c.strokeStyle = "rgba(11,13,18,.85)"; c.lineWidth = 6.5; c.stroke();
+    c.strokeStyle = cssVar("--c1"); c.lineWidth = 3.2; c.stroke();
     [[d.origin, "출발 · 이벤트광장", cssVar("--accent")], [d.dest, d.dest_name, cssVar("--c2")]].forEach(function (m) {
       c.fillStyle = m[2]; c.beginPath(); c.arc(X(m[0][0]), Y(m[0][1]), 5.5, 0, 6.284); c.fill();
       c.strokeStyle = cssVar("--bg"); c.lineWidth = 2; c.stroke();

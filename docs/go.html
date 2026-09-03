@@ -66,6 +66,12 @@ h2{font-size:15px;margin:26px 0 10px;font-weight:800;letter-spacing:-.01em}
 .go:disabled{opacity:.45;cursor:default}
 #map{height:290px;margin-top:12px;border-radius:11px;overflow:hidden;background:var(--bg);display:none}
 #map.on{display:block}
+.fkey{display:none;gap:10px;flex-wrap:wrap;align-items:center;margin-top:9px;font-size:11.5px;color:var(--ink-2)}
+.fkey:not([hidden]){display:flex}
+.fkey i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.fkey .k1{background:var(--g-여유)}.fkey .k2{background:var(--g-주의)}
+.fkey .k3{background:var(--g-경계)}.fkey .k4{background:var(--g-심각)}
+.fkey em{font-style:normal;color:var(--sub);flex:1 1 100%;font-size:11px;line-height:1.5}
 .rstat{margin-top:9px;font-size:12.5px;color:var(--ink-2);min-height:18px}
 .plan{padding:13px 15px;border-bottom:1px solid var(--rule)}
 .plan:last-child{border-bottom:0}
@@ -101,6 +107,10 @@ footer a{color:var(--ink-2)}
     <select id="dest"></select>
     <button class="go" id="run">지도에서 출발점 찍기</button>
     <div id="map"></div>
+    <div class="fkey" id="fkey" hidden>
+      <span><i class="k1"></i>여유</span><span><i class="k2"></i>주의</span><span><i class="k3"></i>경계</span><span><i class="k4"></i>심각</span>
+      <em id="fnote">CCTV 23대가 본 지금 혼잡도. 옅은 곳은 근거가 얇다.</em>
+    </div>
     <div class="rstat" id="rstat">지도를 열면 현재 위치나 서 있는 곳을 찍을 수 있다.</div>
   </div>
 </div>
@@ -117,6 +127,7 @@ footer a{color:var(--ink-2)}
 </div>
 
 <script src="app/board.js"></script>
+<script src="app/field.js"></script>
 <script src="app/routing_extra.js"></script>
 <script>
 const $=id=>document.getElementById(id);
@@ -127,7 +138,7 @@ let DATA=null,HOUR=null,PRIOR=null;
 const theme=()=>document.documentElement.getAttribute("data-theme")||"dark";
 function setTheme(t,save){document.documentElement.setAttribute("data-theme",t);$("theme").textContent=t==="dark"?"라이트":"다크";if(save){try{localStorage.setItem("navi-theme",t)}catch(e){}}}
 try{const t=localStorage.getItem("navi-theme");setTheme(t||"dark");}catch(e){setTheme("dark")}
-$("theme").onclick=()=>setTheme(theme()==="dark"?"light":"dark",true);
+$("theme").onclick=()=>{setTheme(theme()==="dark"?"light":"dark",true);if(MAP&&FIELD_PAINTED)paintField();};
 
 // ── 데이터 ──
 async function load(){
@@ -141,6 +152,7 @@ async function load(){
     DATA=Object.assign({},DATA,{forecast:Object.assign({},PRIOR,{prior:true})});
   }
   render();
+  if(MAP&&FIELD_PAINTED)paintField();   // 5분 틱마다 색도 같이 갱신
 }
 
 function stateLine(){
@@ -211,12 +223,102 @@ async function openMap(){
   $("map").classList.add("on");
   MAP=new maplibregl.Map({container:"map",style:"https://tiles.openfreemap.org/styles/"+(theme()==="light"?"positron":"dark"),center:[126.934,37.529],zoom:13.2});
   MAP.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");
-  MAP.on("load",()=>{MAP.addSource("route",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
+  MAP.on("load",async()=>{
+    await paintField();                       // 혼잡장을 경로선보다 먼저 깔아야 선이 위로 온다
+    MAP.addSource("route",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
     MAP.addLayer({id:"route",type:"line",source:"route",paint:{"line-color":"#F37321","line-width":5,"line-opacity":.95}});});
   MAP.on("click",e=>{START=[e.lngLat.lng,e.lngLat.lat];if(SM)SM.remove();SM=new maplibregl.Marker({color:"#F37321"}).setLngLat(START).addTo(MAP);
     $("run").textContent="경로 찾기";$("run").disabled=false;$("rstat").textContent="출발점을 정했다. 경로 찾기를 누르면 된다.";});
   $("run").textContent="지도를 눌러 출발점을 찍으세요";$("run").disabled=true;
   $("rstat").textContent="지금 서 있는 곳을 지도에서 눌러라.";
+}
+
+/* ── 지금 혼잡도를 지도에 깐다 ─────────────────────────────────────
+   운영 화면(index.html)이 쓰는 것과 같은 경로다: CCTV 등급 → 혼잡장 회귀
+   (docs/app/field.js — 방법은 그 파일과 보고서 §3.9 에 있다) → 격자 크기 PNG →
+   지도 image 소스. 상수도 같은 값이어야 한다.
+   방법론 용어를 이 파일에 쓰지 않는다 — 관람객 화면이라 tests/test_board.py 가 막는다.
+   여기서 다시 계산하면 같은 시각에 두 화면이 다른 색을 내게 된다. */
+const F_KERNEL={varShort:.125,lenShort:150,varLong:.125,lenLong:1200};
+const F_SD_MAX=Math.sqrt(F_KERNEL.varShort+F_KERNEL.varLong);
+const F_PAD=.012,F_COLS=140,F_ROWS=110,F_FEATHER=.18;
+let CAMS=null,FIELD_PAINTED=false;
+
+const gcol=g=>getComputedStyle(document.documentElement).getPropertyValue("--g-"+g).trim();
+const hex2rgb=h=>{h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));};
+/* index.html apfPalette 와 같은 램프 — 등급 밴드 안에서는 색을 유지하고 경계에서만 넘어간다.
+   선형 보간하면 u=0.35 가 초록+골드 = 올리브가 되어 등급과 어긋난다. */
+function fRamp(){const V=hex2rgb(gcol("여유")),J=hex2rgb(gcol("주의")),G=hex2rgb(gcol("경계")),S=hex2rgb(gcol("심각"));
+  return [[0,V],[.50,V],[.63,J],[.78,G],[.92,S],[1,S]];}
+function fHex(ramp,u){u=Math.max(0,Math.min(1,u));
+  for(let i=0;i<ramp.length-1;i++){const[a,va]=ramp[i],[b,vb]=ramp[i+1];
+    if(u>=a&&u<=b){const t=b>a?(u-a)/(b-a):0;return [0,1,2].map(k=>va[k]+(vb[k]-va[k])*t);}}
+  return ramp[ramp.length-1][1];}
+
+/** CCTV 레코드 → 관측. 신뢰도는 배제가 아니라 σ 로 표현한다 (index.html apfRows 와 같은 기준). */
+function fieldObs(){
+  const cctv=(DATA&&DATA.cctv)||{};
+  const vals=Object.entries(cctv).map(([id,v])=>Object.assign({id:String(id)},v));
+  const byId=new Map(vals.map(v=>[String(v.cam_id||v.id),v])),byName=new Map(vals.map(v=>[v.name,v]));
+  const now=Date.now();
+  const obs=[];
+  (CAMS||[]).forEach(cam=>{
+    const v=byId.get(String(cam.camId))||byName.get(cam.name)||null;
+    if(!v||v.ok===false)return;
+    let y=null,kind="cctv_uncalibrated";
+    if(v.calibrated&&v.density!=null){y=Field.densityToUnit(v.density);kind="cctv_calibrated";}
+    else y=Field.levelToUnit(v.level);
+    if(y==null)return;                                   // 「보정전」 등 등급이 없으면 정보가 없다
+    const t=v.ts?Date.parse(String(v.ts).replace(" ","T")):NaN;
+    const ageMin=isFinite(t)?Math.max(0,(now-t)/60000):null;
+    obs.push({x:[cam.lng,cam.lat],y,
+      sigma:Field.obsNoise({kind,confidence:v.confidence,flags:v.flags,ageMin})});
+  });
+  return obs;
+}
+
+async function paintField(){
+  try{
+    if(!CAMS)CAMS=await(await fetch("data/cams.json",{cache:"no-store"})).json();
+    if(!CAMS||!CAMS.length||typeof Field==="undefined")return;
+    const obs=fieldObs();
+    if(!obs.length){$("fkey").hidden=true;return;}
+    const lngs=CAMS.map(c=>c.lng),lats=CAMS.map(c=>c.lat);
+    const x0=Math.min(...lngs)-F_PAD,x1=Math.max(...lngs)+F_PAD;
+    const y0=Math.min(...lats)-F_PAD,y1=Math.max(...lats)+F_PAD;
+    const g={x0,y0,dx:(x1-x0)/F_COLS,dy:(y1-y0)/F_ROWS,cols:F_COLS,rows:F_ROWS};
+    const fld=Field.buildField({observations:obs,grid:g,prior:null,fallbackPrior:.3,kernel:F_KERNEL});
+    const ramp=fRamp(),cv=document.createElement("canvas");cv.width=g.cols;cv.height=g.rows;
+    const cx=cv.getContext("2d"),img=cx.createImageData(g.cols,g.rows),px=img.data;
+    // 가장자리에서 알파를 0 으로 — 사각형 경계선이 보이면 "여기까지가 데이터"라고 오해된다
+    const fade=(i,len)=>{const t=Math.min(i+.5,len-.5-i)/(len*F_FEATHER);return t>=1?1:t<=0?0:t*t*(3-2*t);};
+    for(let iy=0;iy<g.rows;iy++)for(let ix=0;ix<g.cols;ix++){
+      const c=iy*g.cols+ix,u=Math.max(0,Math.min(1,fld.mean[c]));
+      const conf=Math.max(0,1-fld.sd[c]/F_SD_MAX),cn=Math.min(1,conf/.15);
+      const hot=Math.max(0,Math.min(1,(u-.3)/.7));
+      const col=fHex(ramp,u),o=(.45+.50*hot)*(.45+.55*cn);
+      const j=((g.rows-1-iy)*g.cols+ix)*4;                // 캔버스는 위가 북쪽, 격자는 아래가 남쪽
+      const a=fade(ix,g.cols)*fade(iy,g.rows);
+      px[j]=col[0]|0;px[j+1]=col[1]|0;px[j+2]=col[2]|0;px[j+3]=Math.round(255*Math.max(0,Math.min(1,o))*a);
+    }
+    cx.putImageData(img,0,0);
+    const coords=[[x0,y1],[x1,y1],[x1,y0],[x0,y0]];       // 좌상·우상·우하·좌하
+    const url=cv.toDataURL("image/png");
+    const src=MAP.getSource("crowd");
+    if(src){src.updateImage({url,coordinates:coords});}
+    else{
+      MAP.addSource("crowd",{type:"image",url,coordinates:coords});
+      MAP.addLayer({id:"crowd",type:"raster",source:"crowd",
+        paint:{"raster-opacity":1,"raster-resampling":"linear","raster-fade-duration":0}});
+      // 물 레이어를 위에 다시 올린다 — 안 그러면 혼잡도가 한강을 덮는다
+      const w=(MAP.getStyle().layers||[]).find(L=>L.type==="fill"&&(/water/i.test(L.id)||/water/i.test(L["source-layer"]||"")));
+      if(w)MAP.addLayer(Object.assign({},w,{id:"crowd-water",paint:Object.assign({},w.paint||{},{"fill-opacity":1})}));
+    }
+    const cal=Object.values((DATA&&DATA.cctv)||{}).filter(v=>v.calibrated).length;
+    $("fnote").textContent="CCTV "+obs.length+"대가 본 지금 혼잡도"
+      +(cal?"":" — 밀도 보정 전이라 등급만 읽는다")+". 옅은 곳은 근거가 얇다.";
+    $("fkey").hidden=false;FIELD_PAINTED=true;
+  }catch(e){$("fkey").hidden=true;}                        // 색이 없어도 길찾기는 그대로 돈다
 }
 
 async function graph(){
