@@ -1,15 +1,15 @@
 {
- "generated": "2026-09-03T11:05:16",
+ "generated": "2026-09-03T11:10:18",
  "forecast": {
-  "ts": "2026-09-03T11:05:16",
+  "ts": "2026-09-03T11:10:18",
   "date": "20260903",
   "alpha": 1.0,
   "alpha_reason": "관측 없음 → 사전분포 α=1 [0.73–1.38]",
   "prior": true,
   "data_freshness": {
    "citydata": {
-    "last_ok": null,
-    "age_min": null,
+    "last_ok": "2026-09-03T11:10:16",
+    "age_min": 0,
     "stale": false
    },
    "subway": {
@@ -795,9 +795,174 @@
     "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"
    }
   ],
-  "alerts_live": [],
-  "live_snapshot": {},
-  "seoul_fcst_snapshot": [],
+  "alerts_live": [
+   {
+    "DST_SE_NM": "기타",
+    "EMRG_STEP_NM": "안전안내",
+    "MSG_CN": "서울세계불꽃축제로 교통통제 안내  원효대교 전면 교통통제 ▲9.5. 09시~9.6. 03시 여의동로 전면통제 ▲9.5. 15시~24시 우회 및 대중교통 이용 바랍니다.[영등포구]",
+    "CRT_DT": "2026-09-03 09:33:21"
+   },
+   {
+    "DST_SE_NM": "기타",
+    "EMRG_STEP_NM": "안전안내",
+    "MSG_CN": "서울세계불꽃축제로 교통통제 안내  원효대교 전면 교통통제 ▲9.5. 09시~9.6. 03시 여의동로 전면통제 ▲9.5. 15시~24시 우회 및 대중교통 이용 바랍니다.[영등포구]",
+    "CRT_DT": "2026-09-03 09:33:21"
+   },
+   {
+    "DST_SE_NM": "기타",
+    "EMRG_STEP_NM": "안전안내",
+    "MSG_CN": "서울세계불꽃축제로 교통통제 안내  원효대교 전면 교통통제 ▲9.5. 09시~9.6. 03시 여의동로 전면통제 ▲9.5. 15시~24시 우회 및 대중교통 이용 바랍니다.[영등포구]",
+    "CRT_DT": "2026-09-03 09:33:21"
+   }
+  ],
+  "live_snapshot": {
+   "여의도한강공원": {
+    "congest": "보통",
+    "ppltn": [
+     3500,
+     4000
+    ],
+    "ts": "2026-09-03 10:40",
+    "road": "원활",
+    "role": "core",
+    "fcst": [
+     {
+      "t": "2026-09-03 12:00",
+      "lvl": "약간 붐빔",
+      "min": 3500,
+      "max": 4000
+     },
+     {
+      "t": "2026-09-03 13:00",
+      "lvl": "약간 붐빔",
+      "min": 4000,
+      "max": 4500
+     }
+    ]
+   },
+   "여의도": {
+    "congest": "약간 붐빔",
+    "ppltn": [
+     150000,
+     155000
+    ],
+    "ts": "2026-09-03 10:40",
+    "road": "서행",
+    "role": "core",
+    "fcst": [
+     {
+      "t": "2026-09-03 12:00",
+      "lvl": "붐빔",
+      "min": 155000,
+      "max": 160000
+     },
+     {
+      "t": "2026-09-03 13:00",
+      "lvl": "붐빔",
+      "min": 160000,
+      "max": 165000
+     }
+    ]
+   },
+   "여의서로": {
+    "congest": "보통",
+    "ppltn": [
+     1500,
+     2000
+    ],
+    "ts": "2026-09-03 10:40",
+    "road": "원활",
+    "role": "core",
+    "fcst": [
+     {
+      "t": "2026-09-03 12:00",
+      "lvl": "약간 붐빔",
+      "min": 1500,
+      "max": 2000
+     },
+     {
+      "t": "2026-09-03 13:00",
+      "lvl": "약간 붐빔",
+      "min": 1500,
+      "max": 2000
+     }
+    ]
+   }
+  },
+  "seoul_fcst_snapshot": [
+   {
+    "t": "2026-09-03 12:00",
+    "lvl": "약간 붐빔",
+    "min": 3500,
+    "max": 4000
+   },
+   {
+    "t": "2026-09-03 13:00",
+    "lvl": "약간 붐빔",
+    "min": 4000,
+    "max": 4500
+   },
+   {
+    "t": "2026-09-03 14:00",
+    "lvl": "약간 붐빔",
+    "min": 4000,
+    "max": 4500
+   },
+   {
+    "t": "2026-09-03 15:00",
+    "lvl": "약간 붐빔",
+    "min": 4000,
+    "max": 4500
+   },
+   {
+    "t": "2026-09-03 16:00",
+    "lvl": "약간 붐빔",
+    "min": 4000,
+    "max": 4500
+   },
+   {
+    "t": "2026-09-03 17:00",
+    "lvl": "약간 붐빔",
+    "min": 4000,
+    "max": 4500
+   },
+   {
+    "t": "2026-09-03 18:00",
+    "lvl": "약간 붐빔",
+    "min": 4000,
+    "max": 4500
+   },
+   {
+    "t": "2026-09-03 19:00",
+    "lvl": "약간 붐빔",
+    "min": 4000,
+    "max": 4500
+   },
+   {
+    "t": "2026-09-03 20:00",
+    "lvl": "보통",
+    "min": 2500,
+    "max": 3000
+   },
+   {
+    "t": "2026-09-03 21:00",
+    "lvl": "여유",
+    "min": 2500,
+    "max": 3000
+   },
+   {
+    "t": "2026-09-03 22:00",
+    "lvl": "여유",
+    "min": 2000,
+    "max": 2500
+   },
+   {
+    "t": "2026-09-03 23:00",
+    "lvl": "여유",
+    "min": 1500,
+    "max": 2000
+   }
+  ],
   "notes": [
    "유출 곡선은 불꽃쇼 종료 앵커 기준 +40분 이동(2025 20:30 → 2026 21:10)",
    "용량 중 estimated_capacity=true 는 추정치(9호선·도보·1호선 합산)",
@@ -808,5 +973,309 @@
    "cnt 기반 수치는 KT 추정치 — 비율·순위 용도"
   ]
  },
- "cctv": {}
+ "cctv": {
+  "331": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "63빌딩",
+   "level": "주의",
+   "count": 0.0,
+   "occupancy": 0.2035,
+   "flow": 0.135,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "361": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "국회",
+   "level": "여유",
+   "count": 5.3,
+   "occupancy": 0.1263,
+   "flow": 0.499,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "729": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "국회도서관",
+   "level": "여유",
+   "count": 0.4,
+   "occupancy": 0.1021,
+   "flow": 0.077,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "24": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "노량진 수산시장 앞",
+   "level": "여유",
+   "count": 62.3,
+   "occupancy": 0.0864,
+   "flow": 1.001,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "318": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "노량진삼거리",
+   "level": "여유",
+   "count": 0.9,
+   "occupancy": 0.0453,
+   "flow": 0.068,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "14": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "마포~원효중간",
+   "level": "여유",
+   "count": 0.7,
+   "occupancy": 0.0988,
+   "flow": 0.998,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "192": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "마포대교남단",
+   "level": "여유",
+   "count": 0.0,
+   "occupancy": 0.0531,
+   "flow": 0.142,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "39": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "마포대교북단",
+   "level": "여유",
+   "count": 0.0,
+   "occupancy": 0.1026,
+   "flow": 0.021,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "17": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "서강대교북단",
+   "level": "여유",
+   "count": 7.9,
+   "occupancy": 0.128,
+   "flow": 1.29,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "268": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "서울교남단",
+   "level": "보정전",
+   "count": 7.1,
+   "occupancy": 0.4007,
+   "flow": 0.904,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "low",
+   "flags": [
+    "count_vs_occ"
+   ]
+  },
+  "1012": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "신길역(노들길)",
+   "level": "여유",
+   "count": 15.7,
+   "occupancy": 0.1253,
+   "flow": 0.166,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "26": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "양화~서강중간",
+   "level": "여유",
+   "count": 14.2,
+   "occupancy": 0.1439,
+   "flow": 1.133,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "4": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "여의2교남단",
+   "level": "주의",
+   "count": 15.9,
+   "occupancy": 0.244,
+   "flow": 0.648,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "310": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "여의공원",
+   "level": "여유",
+   "count": 0.0,
+   "occupancy": 0.0442,
+   "flow": 0.012,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "1043": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "여의교",
+   "level": "주의",
+   "count": 11.2,
+   "occupancy": 0.2046,
+   "flow": 1.581,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "342": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "여의교남단",
+   "level": "여유",
+   "count": 61.5,
+   "occupancy": 0.1179,
+   "flow": 0.468,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "241": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "여의교북단",
+   "level": "여유",
+   "count": 14.4,
+   "occupancy": 0.1112,
+   "flow": 0.152,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "894": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "여의도공원",
+   "level": "여유",
+   "count": 10.4,
+   "occupancy": 0.1078,
+   "flow": 0.834,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "700": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "여의도국민은행",
+   "level": "보정전",
+   "count": 1.7,
+   "occupancy": 0.3182,
+   "flow": 0.159,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "low",
+   "flags": [
+    "count_vs_occ"
+   ]
+  },
+  "355": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "여의하류IC",
+   "level": "여유",
+   "count": 9.6,
+   "occupancy": 0.1324,
+   "flow": 0.225,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "344": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "영등포역",
+   "level": "주의",
+   "count": 21.2,
+   "occupancy": 0.1552,
+   "flow": 0.124,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "714": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "영등포전화국",
+   "level": "주의",
+   "count": 3.2,
+   "occupancy": 0.2873,
+   "flow": 0.193,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  },
+  "725": {
+   "ts": "2026-09-03T11:09:17",
+   "name": "원효대교남단",
+   "level": "여유",
+   "count": 0.0,
+   "occupancy": 0.0592,
+   "flow": 0.308,
+   "ok": true,
+   "density": null,
+   "calibrated": false,
+   "confidence": "ok",
+   "flags": []
+  }
+ }
 }
