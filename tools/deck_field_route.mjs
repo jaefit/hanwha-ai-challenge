@@ -136,16 +136,31 @@ function search(g, s, t, cost) {
   const es = []; let u = t;
   while (u !== s) { const v = came.get(u); if (!v) break; es.push(v[1]); u = v[0]; }
   es.reverse();
-  const coords = [];
-  let meters = 0;
+  const tr = traceCoords(g, es, null);
+  return { coords: tr.coords, meters: tr.meters, order, edges: es, cost_total: dist.get(t) };
+}
+
+/** 간선열 → 좌표열. secFn 을 주면 좌표마다 누적 보행 초(times)도 같이 낸다 —
+ *  덱이 경로를 걷는 시간에 비례해 그리기 위해서다(붐비는 구간에서 선이 느리게 자란다). */
+function traceCoords(g, es, secFn) {
+  const coords = [], times = [];
+  let meters = 0, tAcc = 0;
   for (const e of es) {
-    meters += Number(e.m) || 0;
+    const m = Number(e.m) || 0;
+    meters += m;
     const un = g.nodes[e.u];
     let seg = (e.g || [un, g.nodes[e.v]]).slice();
     if (seg.length > 1 && distM(seg[0], un) > distM(seg[seg.length - 1], un)) seg.reverse();
-    for (const c of seg) { const l = coords[coords.length - 1]; if (!l || l[0] !== c[0] || l[1] !== c[1]) coords.push(c); }
+    // 이 간선의 시간을 구간 길이 비례로 나눠 좌표에 얹는다
+    let segLen = 0; for (let i = 1; i < seg.length; i++) segLen += distM(seg[i - 1], seg[i]);
+    const eSec = secFn ? secFn(e) : 0;
+    for (let i = 0; i < seg.length; i++) {
+      const c = seg[i], l = coords[coords.length - 1];
+      if (i > 0) tAcc += segLen > 0 ? eSec * distM(seg[i - 1], c) / segLen : (i === seg.length - 1 ? eSec : 0);
+      if (!l || l[0] !== c[0] || l[1] !== c[1]) { coords.push(c); times.push(Math.round(tAcc * 10) / 10); }
+    }
   }
-  return { coords, meters, order, edges: es, cost_total: dist.get(t) };
+  return { coords, times, meters };
 }
 
 /** 혼잡장에서 간선 위험도 — index.html routeRisk 와 같은 뜻(간선 중점의 장 값). */
@@ -188,7 +203,11 @@ function buildRoute(field) {
     return distM([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], mid) < HOTSPOT_R ? 1 : 0;
   };
   // 비용은 제품과 같은 식이다 — 그 간선을 걷는 데 걸리는 시간(field.js walkSeconds)
-  const avoiding = search(g, s, t, e => Field.walkSeconds(Math.max(0.1, Number(e.m) || 0.1), hot(e)));
+  const secOf = e => Field.walkSeconds(Math.max(0.1, Number(e.m) || 0.1), hot(e));
+  const avoiding = search(g, s, t, secOf);
+  // 두 경로 모두 봉우리를 반영한 시간으로 좌표별 누적 초를 붙인다 — 최단 경로는 봉우리 안에서 느리게 자란다
+  Object.assign(shortest, traceCoords(g, shortest.edges, secOf));
+  Object.assign(avoiding, traceCoords(g, avoiding.edges, secOf));
 
   // 배경 보행망 — 두 경로를 감싸는 상자 안쪽만, 간선은 끝점 두 개로 줄인다
   const all = shortest.coords.concat(avoiding.coords);
@@ -245,8 +264,8 @@ function buildRoute(field) {
     background_edges: bg,
     visited: orderPts,
     routes: {
-      shortest: { coords: shortest.coords.map(c => [r6(c[0]), r6(c[1])]), meters: Math.round(shortest.meters) },
-      avoiding: { coords: avoiding.coords.map(c => [r6(c[0]), r6(c[1])]), meters: Math.round(avoiding.meters) },
+      shortest: { coords: shortest.coords.map(c => [r6(c[0]), r6(c[1])]), times: shortest.times, meters: Math.round(shortest.meters) },
+      avoiding: { coords: avoiding.coords.map(c => [r6(c[0]), r6(c[1])]), times: avoiding.times, meters: Math.round(avoiding.meters) },
     },
     straight_m: Math.round(distM(EVENT_PLAZA, YEOUIDO_ST)),
     crowd_weight: CROWD_WEIGHT,

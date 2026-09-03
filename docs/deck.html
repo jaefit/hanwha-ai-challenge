@@ -994,18 +994,38 @@ function drawRouteOn(cv, d, fd) {
       }
       c.lineJoin = "round"; c.lineCap = "round";
       var rp = idx === 0 ? Math.max(0, (ph - 0.45) / 0.55) : ph;
-      var path = function (co, col, wd, dash) {
-        var upto = Math.max(2, Math.floor(rp * co.length));
+      // 선은 인덱스가 아니라 **걷는 시간**에 비례해 자란다. 두 사람이 동시에 출발한 것처럼 —
+      // 봉우리 안에서는 기어가고, 회피 경로는 먼저 도착한다. ③ 은 둘을 같은 시계로 그린다.
+      var total = function (r) { return r && r.times && r.times.length ? r.times[r.times.length - 1] : 0; };
+      var clock = mode === "both" ? Math.max(total(S), total(A)) : (mode === "avoiding" ? total(A) : total(S));
+      var tau = rp * clock;
+      var path = function (r, col, wd, dash) {
+        var co = r.coords, tm = r.times || [];
+        var i = 0;
+        while (i + 1 < co.length && tm[i + 1] <= tau) i++;
+        var done = i >= co.length - 1 || tau >= total(r);
         c.beginPath();
-        co.slice(0, upto).forEach(function (q, i) { i ? c.lineTo(X(q[0]), Y(q[1])) : c.moveTo(X(q[0]), Y(q[1])); });
+        for (var k = 0; k <= i; k++) k ? c.lineTo(X(co[k][0]), Y(co[k][1])) : c.moveTo(X(co[k][0]), Y(co[k][1]));
+        if (!done && tm.length) {                          // 다음 점까지 부분 진행 — 선이 뚝뚝 끊기지 않게
+          var f = (tau - tm[i]) / Math.max(1e-6, tm[i + 1] - tm[i]);
+          c.lineTo(X(co[i][0] + (co[i + 1][0] - co[i][0]) * f), Y(co[i][1] + (co[i + 1][1] - co[i][1]) * f));
+        }
         c.setLineDash(dash || []);
         c.strokeStyle = "rgba(11,13,18,.85)"; c.lineWidth = wd + 3.3; c.stroke();
         c.strokeStyle = col; c.lineWidth = wd; c.stroke();
         c.setLineDash([]);
+        if (done && tau > 0) {                              // 도착 — 목적지에 그 색 고리
+          var e = co[co.length - 1];
+          c.beginPath(); c.arc(X(e[0]), Y(e[1]), 9, 0, 6.284);
+          c.strokeStyle = col; c.lineWidth = 2; c.stroke();
+        }
       };
-      if (mode === "shortest") path(S.coords, cssVar("--c1"), 3.2, null);
-      else if (mode === "avoiding" && A) path(A.coords, cssVar("--c2"), 2.6, [7, 5]);
-      else { if (A) path(A.coords, cssVar("--c2"), 2.6, [7, 5]); path(S.coords, cssVar("--c1"), 3.2, null); }
+      if (mode === "shortest") path(S, cssVar("--c1"), 3.2, null);
+      else if (mode === "avoiding" && A) path(A, cssVar("--c2"), 2.6, [7, 5]);
+      else { if (A) path(A, cssVar("--c2"), 2.6, [7, 5]); path(S, cssVar("--c1"), 3.2, null); }
+      if (mode === "both" && tau > 0 && tau < clock) {      // 지금 몇 분째인지
+        label(c, Math.round(tau / 60) + "분 경과", w - 10, 31, cssVar("--sub"), "right", 11);
+      }
       [[d.origin, "출발", cssVar("--accent")], [d.dest, d.dest_name, cssVar("--c2")]].forEach(function (m) {
         var mx = X(m[0][0]), my = Y(m[0][1]);
         c.fillStyle = m[2]; c.beginPath(); c.arc(mx, my, 5, 0, 6.284); c.fill();
