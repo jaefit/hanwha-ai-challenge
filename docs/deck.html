@@ -61,6 +61,9 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 /* ── 수학 슬라이드 차트 ── */
 .fig{margin:1.4vh 0 0;position:relative}
 .fig canvas{display:block;width:100%;height:min(42vh,400px)}
+.fig canvas[hidden]{display:none}   /* display:block 이 hidden 속성을 이긴다 — 폴백 캔버스가 자리를 먹었다 */
+.fig .fmap{width:100%;height:min(42vh,400px);background:var(--panel)}
+.fig .fmap .maplibregl-ctrl-attrib{font-size:9px}
 .lg{display:flex;gap:1.6vw;flex-wrap:wrap;align-items:center;font:600 clamp(10.5px,1vw,13px) var(--mono);color:var(--sub);margin-top:1vh}
 .lg i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px;border-radius:2px}
 .lg b{color:var(--ink);font-weight:600}
@@ -305,7 +308,7 @@ td.num,th.num{text-align:right;font-family:var(--mono)}
 <section class="slide" id="s7b">
   <div class="kicker rv">공간 — 점 23개를 한 장의 면으로</div>
   <h2 class="rv">모르는 곳을 <em>모른다고</em> 말한다</h2>
-  <figure class="fig rv" data-chart="field"><canvas></canvas></figure>
+  <figure class="fig rv" data-chart="field"><div class="fmap"></div><canvas hidden></canvas></figure>
   <div class="lg rv">
     <span><i style="background:var(--g1)"></i>여유</span><span><i style="background:var(--g2)"></i>주의</span>
     <span><i style="background:var(--g3)"></i>경계</span><span><i style="background:var(--g4)"></i>심각</span>
@@ -723,8 +726,56 @@ function drawBacktest(cv, d, slide) {
   });
 }
 
-/* ④ 혼잡장 — 관측이 하나씩, 면이 생기고 불확실성이 줄어든다 */
+/* ④ 혼잡장 — 관측이 하나씩, 면이 생기고 불확실성이 줄어든다.
+   운영 화면(index.html apfField)과 같은 방식으로 그린다: 격자 크기 PNG 를 만들어
+   지도에 image 소스로 얹고 GPU bilinear 에 맡긴다. 색·불투명도 공식도 그대로 옮겼다 —
+   덱과 실제 화면이 다르게 보이면 "이게 우리 화면이다" 라고 말할 수 없다. */
+var APF_SD_MAX = Math.sqrt(0.125 + 0.125);   // index.html:539 · 커널 varShort+varLong
+var APF_FEATHER = 0.18;                      // index.html:537 · 사각형 경계선을 숨긴다
 var FIELD_STOPS = [[0, "--g1"], [0.6, "--g2"], [0.8, "--g3"], [1, "--g4"]];
+/* index.html apfPalette 의 램프. 등급 밴드 안에서는 색을 유지하고 경계에서만 넘어간다 —
+   선형 보간하면 u=0.35 가 초록+골드 = 올리브가 되어 등급과 어긋난다. */
+function apfRamp() {
+  var V = hex(cssVar("--g1")), J = hex(cssVar("--g2")), G = hex(cssVar("--g3")), S = hex(cssVar("--g4"));
+  return [[0, V], [0.50, V], [0.63, J], [0.78, G], [0.92, S], [1, S]];
+}
+function rampHex(ramp, u) {
+  u = Math.max(0, Math.min(1, u));
+  for (var i = 0; i < ramp.length - 1; i++) {
+    var a = ramp[i], b = ramp[i + 1];
+    if (u >= a[0] && u <= b[0]) {
+      var t = b[0] > a[0] ? (u - a[0]) / (b[0] - a[0]) : 0;
+      return [a[1][0] + (b[1][0] - a[1][0]) * t, a[1][1] + (b[1][1] - a[1][1]) * t, a[1][2] + (b[1][2] - a[1][2]) * t];
+    }
+  }
+  return ramp[ramp.length - 1][1];
+}
+/* 프레임 하나를 격자 크기 PNG 로. index.html:630-641 과 같은 식이다. */
+function fieldPng(d, f) {
+  var g = d.grid, ramp = apfRamp();
+  var cv = document.createElement("canvas");
+  cv.width = g.cols; cv.height = g.rows;
+  var cx = cv.getContext("2d"), img = cx.createImageData(g.cols, g.rows), px = img.data;
+  var edgeFade = function (i, len) {
+    var t = Math.min(i + 0.5, len - 0.5 - i) / (len * APF_FEATHER);
+    return t >= 1 ? 1 : t <= 0 ? 0 : t * t * (3 - 2 * t);
+  };
+  for (var iy = 0; iy < g.rows; iy++) {
+    for (var ix = 0; ix < g.cols; ix++) {
+      var c = iy * g.cols + ix;
+      var u = Math.max(0, Math.min(1, f.mean[c] / d.scale));
+      var conf = Math.max(0, 1 - (f.sd[c] / d.scale) / APF_SD_MAX), cn = Math.min(1, conf / 0.15);
+      var hot = Math.max(0, Math.min(1, (u - 0.3) / 0.7));
+      var col = rampHex(ramp, u), o = (0.45 + 0.50 * hot) * (0.45 + 0.55 * cn);
+      var j = ((g.rows - 1 - iy) * g.cols + ix) * 4;   // 캔버스는 위가 북쪽, 격자는 아래가 남쪽
+      var fade = edgeFade(ix, g.cols) * edgeFade(iy, g.rows);
+      px[j] = col[0] | 0; px[j + 1] = col[1] | 0; px[j + 2] = col[2] | 0;
+      px[j + 3] = Math.round(255 * Math.max(0, Math.min(1, o)) * fade);
+    }
+  }
+  cx.putImageData(img, 0, 0);
+  return cv.toDataURL("image/png");
+}
 /* 등급 경계(0.6/0.8/1.0)를 그대로 칠한다 — 연속 보간하면 중간 올리브색으로 뭉개지고,
    무엇보다 제품이 말하는 단위(등급)와 그림이 어긋난다. field.js unitToGrade 와 같은 경계. */
 function fieldColor(u) {
@@ -732,7 +783,94 @@ function fieldColor(u) {
   return hex(cssVar(k));
 }
 function hex(s) { s = s.replace("#", ""); return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16)]; }
+/* 지도 라이브러리는 이 슬라이드에 처음 들어올 때만 받는다 (덱 첫 로드를 무겁게 하지 않는다) */
+var MLIB = null;
+function maplibre() {
+  if (MLIB) return MLIB;
+  MLIB = new Promise(function (ok, no) {
+    var l = document.createElement("link");
+    l.rel = "stylesheet"; l.href = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";
+    document.head.appendChild(l);
+    var sc = document.createElement("script");
+    sc.src = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
+    sc.onload = function () { window.maplibregl ? ok(window.maplibregl) : no(new Error("maplibregl 없음")); };
+    sc.onerror = function () { no(new Error("지도 라이브러리를 받지 못했다")); };
+    document.head.appendChild(sc);
+  });
+  return MLIB;
+}
+
+/* 지도 위 혼잡장 — 관람객·운영자가 실제로 보는 화면과 같은 그림.
+   타일이나 라이브러리가 안 오면 캔버스 렌더로 물러난다(발표 중 빈 슬라이드보다 낫다). */
+function drawFieldMap(fig, d, slide) {
+  var host = fig.querySelector(".fmap"), nEl = slide.querySelector("[data-field-n]");
+  if (fig.__map) { try { fig.__map.remove(); } catch (e) {} fig.__map = null; }
+  return maplibre().then(function (mgl) {
+    var g = d.grid;
+    var coords = [[g.x0, g.y1], [g.x1, g.y1], [g.x1, g.y0], [g.x0, g.y0]];   // 좌상·우상·우하·좌하
+    var map = new mgl.Map({
+      container: host, style: "https://tiles.openfreemap.org/styles/dark",
+      center: [(g.x0 + g.x1) / 2, (g.y0 + g.y1) / 2], zoom: 12.6,
+      interactive: false, attributionControl: { compact: true },
+    });
+    fig.__map = map;
+    host.__fi = -1;            // 재생마다 첫 프레임부터 다시 그린다
+    return new Promise(function (done, fail) {
+      // 발표 중 통신이 느리면 load 가 영영 안 온다. 6초 안에 안 뜨면 캔버스로 물러난다.
+      var gaveUp = false;
+      var timer = setTimeout(function () { gaveUp = true; fail(new Error("지도 타임아웃")); }, 6000);
+      map.on("error", function (e) { clearTimeout(timer); fail(e && e.error ? e.error : new Error("지도 오류")); });
+      map.on("load", function () {
+        clearTimeout(timer);
+        if (gaveUp) return;
+        map.fitBounds([[g.x0, g.y0], [g.x1, g.y1]], { padding: 18, animate: false });
+        // 물 레이어를 장 위에 다시 올린다 — 안 그러면 혼잡장이 한강을 덮는다 (index.html 과 같은 처리)
+        var water = (map.getStyle().layers || []).find(function (L) {
+          return L.type === "fill" && (/water/i.test(L.id) || /water/i.test(L["source-layer"] || ""));
+        });
+        map.addSource("apf-field", { type: "image", url: fieldPng(d, d.frames[0]), coordinates: coords });
+        map.addLayer({ id: "apf-field", type: "raster", source: "apf-field",
+                       paint: { "raster-opacity": 1, "raster-resampling": "linear", "raster-fade-duration": 0 } });
+        if (water) map.addLayer(Object.assign({}, water, { id: "apf-water-mask",
+                     paint: Object.assign({}, water.paint || {}, { "fill-opacity": 1 }) }));
+        var marks = [];
+        animate(host, 3200, function (p) {
+          var fi = Math.min(d.frames.length - 1, Math.floor(p * (d.frames.length - 0.001)));
+          var f = d.frames[fi];
+          if (host.__fi !== fi) {
+            host.__fi = fi;
+            var src = map.getSource("apf-field");
+            if (src) src.updateImage({ url: fieldPng(d, f), coordinates: coords });
+            marks.forEach(function (m) { m.remove(); });
+            marks = d.observations.slice(0, f.n).map(function (o) {
+              var el = document.createElement("div");
+              el.style.cssText = "width:9px;height:9px;border-radius:50%;background:" + cssVar("--ink")
+                + ";box-shadow:0 0 0 2px " + cssVar("--bg");
+              return new mgl.Marker({ element: el }).setLngLat(o.x).addTo(map);
+            });
+            var sdAvg = 0; for (var i = 0; i < f.sd.length; i++) sdAvg += f.sd[i];
+            sdAvg = sdAvg / f.sd.length / d.scale;
+            if (nEl) nEl.textContent = "관측 " + f.n + "대 · 평균 σ " + sdAvg.toFixed(2);
+          }
+        });
+        done(map);
+      });
+    });
+  });
+}
+
 function drawField(cv, d, slide) {
+  var fig = cv.parentNode;
+  drawFieldMap(fig, d, slide).catch(function () {
+    // 타일·라이브러리 실패 → 바탕 없이 격자만 그린다
+    var host = fig.querySelector(".fmap");
+    if (host) host.hidden = true;
+    cv.hidden = false;
+    drawFieldCanvas(cv, d, slide);
+  });
+}
+
+function drawFieldCanvas(cv, d, slide) {
   var g = d.grid, nEl = slide.querySelector("[data-field-n]");
   var off = document.createElement("canvas");
   off.width = g.cols; off.height = g.rows;
