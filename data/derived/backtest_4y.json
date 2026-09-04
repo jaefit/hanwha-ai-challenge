@@ -1,0 +1,3593 @@
+{
+ "generated": "2026-09-04T23:41:53",
+ "doc": "4년 교차 검증 — 보고서·제안사항용. 라이브 모델 미반영 (tools/backtest_4y.py)",
+ "festival_days": {
+  "2022": "20221008",
+  "2023": "20231007",
+  "2024": "20241005",
+  "2025": "20250927"
+ },
+ "closed_by_year": {
+  "2022": [
+   20
+  ],
+  "2023": [
+   19,
+   20
+  ],
+  "2024": [
+   19,
+   20,
+   21
+  ],
+  "2025": [
+   19,
+   20,
+   21
+  ]
+ },
+ "sources": [
+  "2023",
+  "2024",
+  "2025"
+ ],
+ "targets": [
+  "2022",
+  "2023",
+  "2024",
+  "2025"
+ ],
+ "E_by_year": {
+  "2022": {
+   "여의도(5)": 35928,
+   "여의나루(5)": 10530,
+   "신길(1·5)": 1820,
+   "마포역 도보(마포대교)": 14308,
+   "여의도(9)": 21445,
+   "샛강(9)": 16245,
+   "국회의사당(9)": 8906
+  },
+  "2023": {
+   "여의도(5)": 30502,
+   "여의나루(5)": 14889,
+   "신길(1·5)": 2401,
+   "마포역 도보(마포대교)": 14528,
+   "여의도(9)": 14396,
+   "샛강(9)": 16692,
+   "국회의사당(9)": 6161
+  },
+  "2024": {
+   "여의도(5)": 38281,
+   "여의나루(5)": 7454,
+   "신길(1·5)": 2412,
+   "마포역 도보(마포대교)": 13786,
+   "여의도(9)": 18444,
+   "샛강(9)": 19019,
+   "국회의사당(9)": 9322
+  },
+  "2025": {
+   "여의도(5)": 25159,
+   "여의나루(5)": 13950,
+   "신길(1·5)": 4477,
+   "마포역 도보(마포대교)": 15277,
+   "여의도(9)": 17787,
+   "샛강(9)": 18268,
+   "국회의사당(9)": 14410
+  }
+ },
+ "pairs": {
+  "2023->2022": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 3319,
+       "obs": 1149,
+       "obs_raw": 1149,
+       "pred_excess": 2293,
+       "obs_excess": 123,
+       "pred_load": 0.129,
+       "obs_load": 0.007,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 8805,
+       "obs": 10413,
+       "obs_raw": 10413,
+       "pred_excess": 7542,
+       "obs_excess": 9150,
+       "pred_load": 0.424,
+       "obs_load": 0.514,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 14114,
+       "obs": 18679,
+       "obs_raw": 18679,
+       "pred_excess": 13165,
+       "obs_excess": 17730,
+       "pred_load": 0.74,
+       "obs_load": 0.997,
+       "pred_grade": "주의",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 6605,
+       "obs": 8599,
+       "obs_raw": 8599,
+       "pred_excess": 6036,
+       "obs_excess": 8030,
+       "pred_load": 0.339,
+       "obs_load": 0.451,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1639,
+       "obs": 1068,
+       "obs_raw": 1068,
+       "pred_excess": 1466,
+       "obs_excess": 895,
+       "pred_load": 0.082,
+       "obs_load": 0.05,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.273,
+     "err_excess": 0.304,
+     "grade_hits": 3,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 2492,
+       "obs": 2830,
+       "obs_raw": 2830,
+       "pred_excess": 1381,
+       "obs_excess": 1719,
+       "pred_load": 0.144,
+       "obs_load": 0.179,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 444,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 12333,
+       "obs": 2276,
+       "obs_raw": 1832,
+       "pred_excess": 10783,
+       "obs_excess": 726,
+       "pred_load": 1.126,
+       "obs_load": 0.076,
+       "pred_grade": "심각",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 3583,
+       "obs": 8546,
+       "obs_raw": 8546,
+       "pred_excess": 2256,
+       "obs_excess": 7219,
+       "pred_load": 0.236,
+       "obs_load": 0.754,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 880,
+       "obs": 2824,
+       "obs_raw": 2824,
+       "pred_excess": 470,
+       "obs_excess": 2414,
+       "pred_load": 0.049,
+       "obs_load": 0.252,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 1.05,
+     "err_excess": 1.433,
+     "grade_hits": 2,
+     "grade_n": 4,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 247,
+       "obs": 247,
+       "obs_raw": 247,
+       "pred_excess": 136,
+       "obs_excess": 136,
+       "pred_load": 0.025,
+       "obs_load": 0.025,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 379,
+       "obs": 224,
+       "obs_raw": 224,
+       "pred_excess": 295,
+       "obs_excess": 140,
+       "pred_load": 0.053,
+       "obs_load": 0.025,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1139,
+       "obs": 987,
+       "obs_raw": 987,
+       "pred_excess": 1045,
+       "obs_excess": 893,
+       "pred_load": 0.188,
+       "obs_load": 0.161,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 773,
+       "obs": 675,
+       "obs_raw": 675,
+       "pred_excess": 695,
+       "obs_excess": 597,
+       "pred_load": 0.125,
+       "obs_load": 0.108,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 274,
+       "obs": 97,
+       "obs_raw": 97,
+       "pred_excess": 231,
+       "obs_excess": 54,
+       "pred_load": 0.042,
+       "obs_load": 0.01,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.261,
+     "err_excess": 0.32,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1249,
+       "obs": 1115,
+       "obs_raw": 1115,
+       "pred_excess": 882,
+       "obs_excess": 748,
+       "pred_load": 0.059,
+       "obs_load": 0.05,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2665,
+       "obs": 4791,
+       "obs_raw": 4791,
+       "pred_excess": 2264,
+       "obs_excess": 4390,
+       "pred_load": 0.151,
+       "obs_load": 0.293,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 7081,
+       "obs": 5119,
+       "obs_raw": 5119,
+       "pred_excess": 6646,
+       "obs_excess": 4684,
+       "pred_load": 0.443,
+       "obs_load": 0.312,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4004,
+       "obs": 4242,
+       "obs_raw": 4242,
+       "pred_excess": 3667,
+       "obs_excess": 3905,
+       "pred_load": 0.244,
+       "obs_load": 0.26,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1197,
+       "obs": 709,
+       "obs_raw": 709,
+       "pred_excess": 1069,
+       "obs_excess": 581,
+       "pred_load": 0.071,
+       "obs_load": 0.039,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.31,
+     "err_excess": 0.346,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.452,
+   "total_err_excess": 0.526,
+   "grade_hit_rate": 0.789,
+   "grade_hits": 15,
+   "grade_n": 19,
+   "source_year": "2023",
+   "target_year": "2022"
+  },
+  "2024->2022": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 3860,
+       "obs": 1149,
+       "obs_raw": 1149,
+       "pred_excess": 2834,
+       "obs_excess": 123,
+       "pred_load": 0.159,
+       "obs_load": 0.007,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 10133,
+       "obs": 10413,
+       "obs_raw": 10413,
+       "pred_excess": 8870,
+       "obs_excess": 9150,
+       "pred_load": 0.499,
+       "obs_load": 0.514,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 16763,
+       "obs": 18679,
+       "obs_raw": 18679,
+       "pred_excess": 15814,
+       "obs_excess": 17730,
+       "pred_load": 0.889,
+       "obs_load": 0.997,
+       "pred_grade": "경계",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 9029,
+       "obs": 8599,
+       "obs_raw": 8599,
+       "pred_excess": 8460,
+       "obs_excess": 8030,
+       "pred_load": 0.476,
+       "obs_load": 0.451,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 2475,
+       "obs": 1068,
+       "obs_raw": 1068,
+       "pred_excess": 2302,
+       "obs_excess": 895,
+       "pred_load": 0.129,
+       "obs_load": 0.05,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.169,
+     "err_excess": 0.188,
+     "grade_hits": 4,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 1786,
+       "obs": 2830,
+       "obs_raw": 2830,
+       "pred_excess": 675,
+       "obs_excess": 1719,
+       "pred_load": 0.07,
+       "obs_load": 0.179,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 444,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 6749,
+       "obs": 2276,
+       "obs_raw": 1832,
+       "pred_excess": 5199,
+       "obs_excess": 726,
+       "pred_load": 0.543,
+       "obs_load": 0.076,
+       "pred_grade": "주의",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 2618,
+       "obs": 8546,
+       "obs_raw": 8546,
+       "pred_excess": 1291,
+       "obs_excess": 7219,
+       "pred_load": 0.135,
+       "obs_load": 0.754,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 699,
+       "obs": 2824,
+       "obs_raw": 2824,
+       "pred_excess": 289,
+       "obs_excess": 2414,
+       "pred_load": 0.03,
+       "obs_load": 0.252,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.824,
+     "err_excess": 1.124,
+     "grade_hits": 2,
+     "grade_n": 4,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 246,
+       "obs": 247,
+       "obs_raw": 247,
+       "pred_excess": 135,
+       "obs_excess": 136,
+       "pred_load": 0.024,
+       "obs_load": 0.025,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 370,
+       "obs": 224,
+       "obs_raw": 224,
+       "pred_excess": 286,
+       "obs_excess": 140,
+       "pred_load": 0.052,
+       "obs_load": 0.025,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1072,
+       "obs": 987,
+       "obs_raw": 987,
+       "pred_excess": 978,
+       "obs_excess": 893,
+       "pred_load": 0.176,
+       "obs_load": 0.161,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 813,
+       "obs": 675,
+       "obs_raw": 675,
+       "pred_excess": 735,
+       "obs_excess": 597,
+       "pred_load": 0.133,
+       "obs_load": 0.108,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 321,
+       "obs": 97,
+       "obs_raw": 97,
+       "pred_excess": 278,
+       "obs_excess": 54,
+       "pred_load": 0.05,
+       "obs_load": 0.01,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.266,
+     "err_excess": 0.326,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1198,
+       "obs": 1115,
+       "obs_raw": 1115,
+       "pred_excess": 831,
+       "obs_excess": 748,
+       "pred_load": 0.055,
+       "obs_load": 0.05,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2449,
+       "obs": 4791,
+       "obs_raw": 4791,
+       "pred_excess": 2048,
+       "obs_excess": 4390,
+       "pred_load": 0.137,
+       "obs_load": 0.293,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 6334,
+       "obs": 5119,
+       "obs_raw": 5119,
+       "pred_excess": 5899,
+       "obs_excess": 4684,
+       "pred_load": 0.393,
+       "obs_load": 0.312,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4101,
+       "obs": 4242,
+       "obs_raw": 4242,
+       "pred_excess": 3764,
+       "obs_excess": 3905,
+       "pred_load": 0.251,
+       "obs_load": 0.26,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1372,
+       "obs": 709,
+       "obs_raw": 709,
+       "pred_excess": 1244,
+       "obs_excess": 581,
+       "pred_load": 0.083,
+       "obs_load": 0.039,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.278,
+     "err_excess": 0.311,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.34,
+   "total_err_excess": 0.395,
+   "grade_hit_rate": 0.842,
+   "grade_hits": 16,
+   "grade_n": 19,
+   "source_year": "2024",
+   "target_year": "2022"
+  },
+  "2025->2022": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 2726,
+       "obs": 1149,
+       "obs_raw": 1149,
+       "pred_excess": 1700,
+       "obs_excess": 123,
+       "pred_load": 0.096,
+       "obs_load": 0.007,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 6994,
+       "obs": 10413,
+       "obs_raw": 10413,
+       "pred_excess": 5731,
+       "obs_excess": 9150,
+       "pred_load": 0.322,
+       "obs_load": 0.514,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 11771,
+       "obs": 18679,
+       "obs_raw": 18679,
+       "pred_excess": 10822,
+       "obs_excess": 17730,
+       "pred_load": 0.608,
+       "obs_load": 0.997,
+       "pred_grade": "주의",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 6160,
+       "obs": 8599,
+       "obs_raw": 8599,
+       "pred_excess": 5591,
+       "obs_excess": 8030,
+       "pred_load": 0.314,
+       "obs_load": 0.451,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1488,
+       "obs": 1068,
+       "obs_raw": 1068,
+       "pred_excess": 1315,
+       "obs_excess": 895,
+       "pred_load": 0.074,
+       "obs_load": 0.05,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.37,
+     "err_excess": 0.411,
+     "grade_hits": 3,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 2230,
+       "obs": 2830,
+       "obs_raw": 2830,
+       "pred_excess": 1119,
+       "obs_excess": 1719,
+       "pred_load": 0.117,
+       "obs_load": 0.179,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 444,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 11546,
+       "obs": 2276,
+       "obs_raw": 1832,
+       "pred_excess": 9996,
+       "obs_excess": 726,
+       "pred_load": 1.044,
+       "obs_load": 0.076,
+       "pred_grade": "심각",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 3690,
+       "obs": 8546,
+       "obs_raw": 8546,
+       "pred_excess": 2363,
+       "obs_excess": 7219,
+       "pred_load": 0.247,
+       "obs_load": 0.754,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 881,
+       "obs": 2824,
+       "obs_raw": 2824,
+       "pred_excess": 471,
+       "obs_excess": 2414,
+       "pred_load": 0.049,
+       "obs_load": 0.252,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 1.012,
+     "err_excess": 1.38,
+     "grade_hits": 2,
+     "grade_n": 4,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 357,
+       "obs": 247,
+       "obs_raw": 247,
+       "pred_excess": 246,
+       "obs_excess": 136,
+       "pred_load": 0.044,
+       "obs_load": 0.025,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 559,
+       "obs": 224,
+       "obs_raw": 224,
+       "pred_excess": 475,
+       "obs_excess": 140,
+       "pred_load": 0.086,
+       "obs_load": 0.025,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1971,
+       "obs": 987,
+       "obs_raw": 987,
+       "pred_excess": 1877,
+       "obs_excess": 893,
+       "pred_load": 0.338,
+       "obs_load": 0.161,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 1479,
+       "obs": 675,
+       "obs_raw": 675,
+       "pred_excess": 1401,
+       "obs_excess": 597,
+       "pred_load": 0.253,
+       "obs_load": 0.108,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 522,
+       "obs": 97,
+       "obs_raw": 97,
+       "pred_excess": 479,
+       "obs_excess": 54,
+       "pred_load": 0.086,
+       "obs_load": 0.01,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 1.192,
+     "err_excess": 1.46,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1246,
+       "obs": 1115,
+       "obs_raw": 1115,
+       "pred_excess": 879,
+       "obs_excess": 748,
+       "pred_load": 0.059,
+       "obs_load": 0.05,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2499,
+       "obs": 4791,
+       "obs_raw": 4791,
+       "pred_excess": 2098,
+       "obs_excess": 4390,
+       "pred_load": 0.14,
+       "obs_load": 0.293,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 7235,
+       "obs": 5119,
+       "obs_raw": 5119,
+       "pred_excess": 6800,
+       "obs_excess": 4684,
+       "pred_load": 0.453,
+       "obs_load": 0.312,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4599,
+       "obs": 4242,
+       "obs_raw": 4242,
+       "pred_excess": 4262,
+       "obs_excess": 3905,
+       "pred_load": 0.284,
+       "obs_load": 0.26,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1366,
+       "obs": 709,
+       "obs_raw": 709,
+       "pred_excess": 1238,
+       "obs_excess": 581,
+       "pred_load": 0.083,
+       "obs_load": 0.039,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.348,
+     "err_excess": 0.388,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.531,
+   "total_err_excess": 0.618,
+   "grade_hit_rate": 0.789,
+   "grade_hits": 15,
+   "grade_n": 19,
+   "source_year": "2025",
+   "target_year": "2022"
+  },
+  "2024->2023": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 4068,
+       "obs": 1990,
+       "obs_raw": 1990,
+       "pred_excess": 2834,
+       "obs_excess": 756,
+       "pred_load": 0.159,
+       "obs_load": 0.043,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 10373,
+       "obs": 10467,
+       "obs_raw": 10467,
+       "pred_excess": 8870,
+       "obs_excess": 8964,
+       "pred_load": 0.499,
+       "obs_load": 0.504,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 16801,
+       "obs": 15242,
+       "obs_raw": 15242,
+       "pred_excess": 15814,
+       "obs_excess": 14255,
+       "pred_load": 0.889,
+       "obs_load": 0.801,
+       "pred_grade": "경계",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 9047,
+       "obs": 5954,
+       "obs_raw": 5954,
+       "pred_excess": 8460,
+       "obs_excess": 5367,
+       "pred_load": 0.476,
+       "obs_load": 0.302,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 2474,
+       "obs": 1332,
+       "obs_raw": 1332,
+       "pred_excess": 2302,
+       "obs_excess": 1160,
+       "pred_load": 0.129,
+       "obs_load": 0.065,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.228,
+     "err_excess": 0.261,
+     "grade_hits": 4,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 46,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 55,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 7405,
+       "obs": 8539,
+       "obs_raw": 8438,
+       "pred_excess": 5874,
+       "obs_excess": 7008,
+       "pred_load": 0.613,
+       "obs_load": 0.732,
+       "pred_grade": "주의",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "22": {
+       "pred": 2389,
+       "obs": 8301,
+       "obs_raw": 8301,
+       "pred_excess": 1291,
+       "obs_excess": 7203,
+       "pred_load": 0.135,
+       "obs_load": 0.752,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 561,
+       "obs": 3852,
+       "obs_raw": 3852,
+       "pred_excess": 289,
+       "obs_excess": 3580,
+       "pred_load": 0.03,
+       "obs_load": 0.374,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.5,
+     "err_excess": 0.581,
+     "grade_hits": 2,
+     "grade_n": 3,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 256,
+       "obs": 198,
+       "obs_raw": 198,
+       "pred_excess": 135,
+       "obs_excess": 77,
+       "pred_load": 0.024,
+       "obs_load": 0.014,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 389,
+       "obs": 185,
+       "obs_raw": 185,
+       "pred_excess": 286,
+       "obs_excess": 82,
+       "pred_load": 0.052,
+       "obs_load": 0.015,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1087,
+       "obs": 1420,
+       "obs_raw": 1420,
+       "pred_excess": 978,
+       "obs_excess": 1311,
+       "pred_load": 0.176,
+       "obs_load": 0.236,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 830,
+       "obs": 932,
+       "obs_raw": 932,
+       "pred_excess": 735,
+       "obs_excess": 837,
+       "pred_load": 0.133,
+       "obs_load": 0.151,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 330,
+       "obs": 146,
+       "obs_raw": 146,
+       "pred_excess": 278,
+       "obs_excess": 94,
+       "pred_load": 0.05,
+       "obs_load": 0.017,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.306,
+     "err_excess": 0.367,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1256,
+       "obs": 1316,
+       "obs_raw": 1316,
+       "pred_excess": 831,
+       "obs_excess": 891,
+       "pred_load": 0.055,
+       "obs_load": 0.059,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2487,
+       "obs": 5198,
+       "obs_raw": 5198,
+       "pred_excess": 2048,
+       "obs_excess": 4759,
+       "pred_load": 0.137,
+       "obs_load": 0.317,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 6385,
+       "obs": 6295,
+       "obs_raw": 6295,
+       "pred_excess": 5899,
+       "obs_excess": 5809,
+       "pred_load": 0.393,
+       "obs_load": 0.387,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4130,
+       "obs": 2626,
+       "obs_raw": 2626,
+       "pred_excess": 3764,
+       "obs_excess": 2260,
+       "pred_load": 0.251,
+       "obs_load": 0.151,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1396,
+       "obs": 961,
+       "obs_raw": 961,
+       "pred_excess": 1244,
+       "obs_excess": 809,
+       "pred_load": 0.083,
+       "obs_load": 0.054,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.293,
+     "err_excess": 0.33,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.32,
+   "total_err_excess": 0.368,
+   "grade_hit_rate": 0.889,
+   "grade_hits": 16,
+   "grade_n": 18,
+   "source_year": "2024",
+   "target_year": "2023"
+  },
+  "2025->2023": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 2934,
+       "obs": 1990,
+       "obs_raw": 1990,
+       "pred_excess": 1700,
+       "obs_excess": 756,
+       "pred_load": 0.096,
+       "obs_load": 0.043,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 7234,
+       "obs": 10467,
+       "obs_raw": 10467,
+       "pred_excess": 5731,
+       "obs_excess": 8964,
+       "pred_load": 0.322,
+       "obs_load": 0.504,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 11809,
+       "obs": 15242,
+       "obs_raw": 15242,
+       "pred_excess": 10822,
+       "obs_excess": 14255,
+       "pred_load": 0.608,
+       "obs_load": 0.801,
+       "pred_grade": "주의",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 6178,
+       "obs": 5954,
+       "obs_raw": 5954,
+       "pred_excess": 5591,
+       "obs_excess": 5367,
+       "pred_load": 0.314,
+       "obs_load": 0.302,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1487,
+       "obs": 1332,
+       "obs_raw": 1332,
+       "pred_excess": 1315,
+       "obs_excess": 1160,
+       "pred_load": 0.074,
+       "obs_load": 0.065,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.228,
+     "err_excess": 0.262,
+     "grade_hits": 3,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 46,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 55,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 12647,
+       "obs": 8539,
+       "obs_raw": 8438,
+       "pred_excess": 11116,
+       "obs_excess": 7008,
+       "pred_load": 1.161,
+       "obs_load": 0.732,
+       "pred_grade": "심각",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "22": {
+       "pred": 3461,
+       "obs": 8301,
+       "obs_raw": 8301,
+       "pred_excess": 2363,
+       "obs_excess": 7203,
+       "pred_load": 0.247,
+       "obs_load": 0.752,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 743,
+       "obs": 3852,
+       "obs_raw": 3852,
+       "pred_excess": 471,
+       "obs_excess": 3580,
+       "pred_load": 0.049,
+       "obs_load": 0.374,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.583,
+     "err_excess": 0.678,
+     "grade_hits": 1,
+     "grade_n": 3,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 367,
+       "obs": 198,
+       "obs_raw": 198,
+       "pred_excess": 246,
+       "obs_excess": 77,
+       "pred_load": 0.044,
+       "obs_load": 0.014,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 578,
+       "obs": 185,
+       "obs_raw": 185,
+       "pred_excess": 475,
+       "obs_excess": 82,
+       "pred_load": 0.086,
+       "obs_load": 0.015,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1986,
+       "obs": 1420,
+       "obs_raw": 1420,
+       "pred_excess": 1877,
+       "obs_excess": 1311,
+       "pred_load": 0.338,
+       "obs_load": 0.236,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 1496,
+       "obs": 932,
+       "obs_raw": 932,
+       "pred_excess": 1401,
+       "obs_excess": 837,
+       "pred_load": 0.253,
+       "obs_load": 0.151,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 531,
+       "obs": 146,
+       "obs_raw": 146,
+       "pred_excess": 479,
+       "obs_excess": 94,
+       "pred_load": 0.086,
+       "obs_load": 0.017,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.721,
+     "err_excess": 0.865,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1304,
+       "obs": 1316,
+       "obs_raw": 1316,
+       "pred_excess": 879,
+       "obs_excess": 891,
+       "pred_load": 0.059,
+       "obs_load": 0.059,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2537,
+       "obs": 5198,
+       "obs_raw": 5198,
+       "pred_excess": 2098,
+       "obs_excess": 4759,
+       "pred_load": 0.14,
+       "obs_load": 0.317,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 7286,
+       "obs": 6295,
+       "obs_raw": 6295,
+       "pred_excess": 6800,
+       "obs_excess": 5809,
+       "pred_load": 0.453,
+       "obs_load": 0.387,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4628,
+       "obs": 2626,
+       "obs_raw": 2626,
+       "pred_excess": 4262,
+       "obs_excess": 2260,
+       "pred_load": 0.284,
+       "obs_load": 0.151,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1390,
+       "obs": 961,
+       "obs_raw": 961,
+       "pred_excess": 1238,
+       "obs_excess": 809,
+       "pred_load": 0.083,
+       "obs_load": 0.054,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.372,
+     "err_excess": 0.42,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.376,
+   "total_err_excess": 0.433,
+   "grade_hit_rate": 0.778,
+   "grade_hits": 14,
+   "grade_n": 18,
+   "source_year": "2025",
+   "target_year": "2023"
+  },
+  "2023->2024": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 3552,
+       "obs": 1552,
+       "obs_raw": 1552,
+       "pred_excess": 2293,
+       "obs_excess": 293,
+       "pred_load": 0.129,
+       "obs_load": 0.016,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 9053,
+       "obs": 11148,
+       "obs_raw": 11148,
+       "pred_excess": 7542,
+       "obs_excess": 9637,
+       "pred_load": 0.424,
+       "obs_load": 0.542,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 14201,
+       "obs": 17788,
+       "obs_raw": 17788,
+       "pred_excess": 13165,
+       "obs_excess": 16752,
+       "pred_load": 0.74,
+       "obs_load": 0.942,
+       "pred_grade": "주의",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 6620,
+       "obs": 11009,
+       "obs_raw": 11009,
+       "pred_excess": 6036,
+       "obs_excess": 10425,
+       "pred_load": 0.339,
+       "obs_load": 0.586,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 1631,
+       "obs": 1339,
+       "obs_raw": 1339,
+       "pred_excess": 1466,
+       "obs_excess": 1174,
+       "pred_load": 0.082,
+       "obs_load": 0.066,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.289,
+     "err_excess": 0.323,
+     "grade_hits": 2,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 10,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 17,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 2308,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "22": {
+       "pred": 15489,
+       "obs": 10505,
+       "obs_raw": 8170,
+       "pred_excess": 14419,
+       "obs_excess": 9435,
+       "pred_load": 1.506,
+       "obs_load": 0.985,
+       "pred_grade": "심각",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "23": {
+       "pred": 868,
+       "obs": 2580,
+       "obs_raw": 2580,
+       "pred_excess": 470,
+       "obs_excess": 2182,
+       "pred_load": 0.049,
+       "obs_load": 0.228,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.512,
+     "err_excess": 0.576,
+     "grade_hits": 1,
+     "grade_n": 2,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 275,
+       "obs": 209,
+       "obs_raw": 209,
+       "pred_excess": 136,
+       "obs_excess": 70,
+       "pred_load": 0.025,
+       "obs_load": 0.013,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 415,
+       "obs": 299,
+       "obs_raw": 299,
+       "pred_excess": 295,
+       "obs_excess": 179,
+       "pred_load": 0.053,
+       "obs_load": 0.032,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1173,
+       "obs": 1033,
+       "obs_raw": 1033,
+       "pred_excess": 1045,
+       "obs_excess": 905,
+       "pred_load": 0.188,
+       "obs_load": 0.163,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 820,
+       "obs": 1253,
+       "obs_raw": 1253,
+       "pred_excess": 695,
+       "obs_excess": 1128,
+       "pred_load": 0.125,
+       "obs_load": 0.203,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 292,
+       "obs": 191,
+       "obs_raw": 191,
+       "pred_excess": 231,
+       "obs_excess": 130,
+       "pred_load": 0.042,
+       "obs_load": 0.023,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.287,
+     "err_excess": 0.355,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1316,
+       "obs": 1663,
+       "obs_raw": 1663,
+       "pred_excess": 882,
+       "obs_excess": 1229,
+       "pred_load": 0.059,
+       "obs_load": 0.082,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2722,
+       "obs": 5109,
+       "obs_raw": 5109,
+       "pred_excess": 2264,
+       "obs_excess": 4651,
+       "pred_load": 0.151,
+       "obs_load": 0.31,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 7142,
+       "obs": 4502,
+       "obs_raw": 4502,
+       "pred_excess": 6646,
+       "obs_excess": 4006,
+       "pred_load": 0.443,
+       "obs_load": 0.267,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4031,
+       "obs": 3497,
+       "obs_raw": 3497,
+       "pred_excess": 3667,
+       "obs_excess": 3133,
+       "pred_load": 0.244,
+       "obs_load": 0.209,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1216,
+       "obs": 914,
+       "obs_raw": 914,
+       "pred_excess": 1069,
+       "obs_excess": 767,
+       "pred_load": 0.071,
+       "obs_load": 0.051,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.396,
+     "err_excess": 0.45,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.35,
+   "total_err_excess": 0.395,
+   "grade_hit_rate": 0.765,
+   "grade_hits": 13,
+   "grade_n": 17,
+   "source_year": "2023",
+   "target_year": "2024"
+  },
+  "2025->2024": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 2959,
+       "obs": 1552,
+       "obs_raw": 1552,
+       "pred_excess": 1700,
+       "obs_excess": 293,
+       "pred_load": 0.096,
+       "obs_load": 0.016,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 7242,
+       "obs": 11148,
+       "obs_raw": 11148,
+       "pred_excess": 5731,
+       "obs_excess": 9637,
+       "pred_load": 0.322,
+       "obs_load": 0.542,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 11858,
+       "obs": 17788,
+       "obs_raw": 17788,
+       "pred_excess": 10822,
+       "obs_excess": 16752,
+       "pred_load": 0.608,
+       "obs_load": 0.942,
+       "pred_grade": "주의",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 6175,
+       "obs": 11009,
+       "obs_raw": 11009,
+       "pred_excess": 5591,
+       "obs_excess": 10425,
+       "pred_load": 0.314,
+       "obs_load": 0.586,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 1480,
+       "obs": 1339,
+       "obs_raw": 1339,
+       "pred_excess": 1315,
+       "obs_excess": 1174,
+       "pred_load": 0.074,
+       "obs_load": 0.066,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.379,
+     "err_excess": 0.424,
+     "grade_hits": 2,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 10,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 17,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 2308,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "22": {
+       "pred": 14549,
+       "obs": 10505,
+       "obs_raw": 8170,
+       "pred_excess": 13479,
+       "obs_excess": 9435,
+       "pred_load": 1.407,
+       "obs_load": 0.985,
+       "pred_grade": "심각",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "23": {
+       "pred": 869,
+       "obs": 2580,
+       "obs_raw": 2580,
+       "pred_excess": 471,
+       "obs_excess": 2182,
+       "pred_load": 0.049,
+       "obs_load": 0.228,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.44,
+     "err_excess": 0.495,
+     "grade_hits": 1,
+     "grade_n": 2,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 385,
+       "obs": 209,
+       "obs_raw": 209,
+       "pred_excess": 246,
+       "obs_excess": 70,
+       "pred_load": 0.044,
+       "obs_load": 0.013,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 595,
+       "obs": 299,
+       "obs_raw": 299,
+       "pred_excess": 475,
+       "obs_excess": 179,
+       "pred_load": 0.086,
+       "obs_load": 0.032,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 2005,
+       "obs": 1033,
+       "obs_raw": 1033,
+       "pred_excess": 1877,
+       "obs_excess": 905,
+       "pred_load": 0.338,
+       "obs_load": 0.163,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 1526,
+       "obs": 1253,
+       "obs_raw": 1253,
+       "pred_excess": 1401,
+       "obs_excess": 1128,
+       "pred_load": 0.253,
+       "obs_load": 0.203,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 540,
+       "obs": 191,
+       "obs_raw": 191,
+       "pred_excess": 479,
+       "obs_excess": 130,
+       "pred_load": 0.086,
+       "obs_load": 0.023,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.692,
+     "err_excess": 0.857,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1313,
+       "obs": 1663,
+       "obs_raw": 1663,
+       "pred_excess": 879,
+       "obs_excess": 1229,
+       "pred_load": 0.059,
+       "obs_load": 0.082,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2556,
+       "obs": 5109,
+       "obs_raw": 5109,
+       "pred_excess": 2098,
+       "obs_excess": 4651,
+       "pred_load": 0.14,
+       "obs_load": 0.31,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 7296,
+       "obs": 4502,
+       "obs_raw": 4502,
+       "pred_excess": 6800,
+       "obs_excess": 4006,
+       "pred_load": 0.453,
+       "obs_load": 0.267,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4626,
+       "obs": 3497,
+       "obs_raw": 3497,
+       "pred_excess": 4262,
+       "obs_excess": 3133,
+       "pred_load": 0.284,
+       "obs_load": 0.209,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1385,
+       "obs": 914,
+       "obs_raw": 914,
+       "pred_excess": 1238,
+       "obs_excess": 767,
+       "pred_load": 0.083,
+       "obs_load": 0.051,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.465,
+     "err_excess": 0.529,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.42,
+   "total_err_excess": 0.474,
+   "grade_hit_rate": 0.765,
+   "grade_hits": 13,
+   "grade_n": 17,
+   "source_year": "2025",
+   "target_year": "2024"
+  },
+  "2023->2025": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 3503,
+       "obs": 1737,
+       "obs_raw": 1737,
+       "pred_excess": 2293,
+       "obs_excess": 527,
+       "pred_load": 0.129,
+       "obs_load": 0.03,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 9011,
+       "obs": 8311,
+       "obs_raw": 8311,
+       "pred_excess": 7542,
+       "obs_excess": 6842,
+       "pred_load": 0.424,
+       "obs_load": 0.385,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 14147,
+       "obs": 12473,
+       "obs_raw": 12473,
+       "pred_excess": 13165,
+       "obs_excess": 11491,
+       "pred_load": 0.74,
+       "obs_load": 0.646,
+       "pred_grade": "주의",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "22": {
+       "pred": 6606,
+       "obs": 6002,
+       "obs_raw": 6002,
+       "pred_excess": 6036,
+       "obs_excess": 5432,
+       "pred_load": 0.339,
+       "obs_load": 0.305,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1631,
+       "obs": 1032,
+       "obs_raw": 1032,
+       "pred_excess": 1466,
+       "obs_excess": 867,
+       "pred_load": 0.082,
+       "obs_load": 0.049,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.181,
+     "err_excess": 0.212,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 0,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 3,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 5834,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "22": {
+       "pred": 15175,
+       "obs": 15414,
+       "obs_raw": 9577,
+       "pred_excess": 14419,
+       "obs_excess": 14658,
+       "pred_load": 1.506,
+       "obs_load": 1.531,
+       "pred_grade": "심각",
+       "obs_grade": "심각",
+       "closed": false
+      },
+      "23": {
+       "pred": 696,
+       "obs": 2907,
+       "obs_raw": 2907,
+       "pred_excess": 470,
+       "obs_excess": 2681,
+       "pred_load": 0.049,
+       "obs_load": 0.28,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.134,
+     "err_excess": 0.141,
+     "grade_hits": 2,
+     "grade_n": 2,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 278,
+       "obs": 216,
+       "obs_raw": 216,
+       "pred_excess": 136,
+       "obs_excess": 74,
+       "pred_load": 0.025,
+       "obs_load": 0.013,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 421,
+       "obs": 519,
+       "obs_raw": 519,
+       "pred_excess": 295,
+       "obs_excess": 393,
+       "pred_load": 0.053,
+       "obs_load": 0.071,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1173,
+       "obs": 2773,
+       "obs_raw": 2773,
+       "pred_excess": 1045,
+       "obs_excess": 2645,
+       "pred_load": 0.188,
+       "obs_load": 0.477,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 806,
+       "obs": 1379,
+       "obs_raw": 1379,
+       "pred_excess": 695,
+       "obs_excess": 1268,
+       "pred_load": 0.125,
+       "obs_load": 0.229,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 292,
+       "obs": 158,
+       "obs_raw": 158,
+       "pred_excess": 231,
+       "obs_excess": 97,
+       "pred_load": 0.042,
+       "obs_load": 0.017,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.489,
+     "err_excess": 0.551,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1309,
+       "obs": 935,
+       "obs_raw": 935,
+       "pred_excess": 882,
+       "obs_excess": 508,
+       "pred_load": 0.059,
+       "obs_load": 0.034,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2710,
+       "obs": 5809,
+       "obs_raw": 5809,
+       "pred_excess": 2264,
+       "obs_excess": 5363,
+       "pred_load": 0.151,
+       "obs_load": 0.358,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 7126,
+       "obs": 6123,
+       "obs_raw": 6123,
+       "pred_excess": 6646,
+       "obs_excess": 5643,
+       "pred_load": 0.443,
+       "obs_load": 0.376,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4037,
+       "obs": 3527,
+       "obs_raw": 3527,
+       "pred_excess": 3667,
+       "obs_excess": 3157,
+       "pred_load": 0.244,
+       "obs_load": 0.21,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1217,
+       "obs": 754,
+       "obs_raw": 754,
+       "pred_excess": 1069,
+       "obs_excess": 606,
+       "pred_load": 0.071,
+       "obs_load": 0.04,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.318,
+     "err_excess": 0.357,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.224,
+   "total_err_excess": 0.252,
+   "grade_hit_rate": 1.0,
+   "grade_hits": 17,
+   "grade_n": 17,
+   "source_year": "2023",
+   "target_year": "2025"
+  },
+  "2024->2025": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 4044,
+       "obs": 1737,
+       "obs_raw": 1737,
+       "pred_excess": 2834,
+       "obs_excess": 527,
+       "pred_load": 0.159,
+       "obs_load": 0.03,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 10339,
+       "obs": 8311,
+       "obs_raw": 8311,
+       "pred_excess": 8870,
+       "obs_excess": 6842,
+       "pred_load": 0.499,
+       "obs_load": 0.385,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 16796,
+       "obs": 12473,
+       "obs_raw": 12473,
+       "pred_excess": 15814,
+       "obs_excess": 11491,
+       "pred_load": 0.889,
+       "obs_load": 0.646,
+       "pred_grade": "경계",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "22": {
+       "pred": 9030,
+       "obs": 6002,
+       "obs_raw": 6002,
+       "pred_excess": 8460,
+       "obs_excess": 5432,
+       "pred_load": 0.476,
+       "obs_load": 0.305,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 2467,
+       "obs": 1032,
+       "obs_raw": 1032,
+       "pred_excess": 2302,
+       "obs_excess": 867,
+       "pred_load": 0.129,
+       "obs_load": 0.049,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.444,
+     "err_excess": 0.522,
+     "grade_hits": 4,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 0,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 3,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 5834,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "22": {
+       "pred": 7921,
+       "obs": 15414,
+       "obs_raw": 9577,
+       "pred_excess": 7165,
+       "obs_excess": 14658,
+       "pred_load": 0.748,
+       "obs_load": 1.531,
+       "pred_grade": "주의",
+       "obs_grade": "심각",
+       "closed": false
+      },
+      "23": {
+       "pred": 515,
+       "obs": 2907,
+       "obs_raw": 2907,
+       "pred_excess": 289,
+       "obs_excess": 2681,
+       "pred_load": 0.03,
+       "obs_load": 0.28,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.54,
+     "err_excess": 0.57,
+     "grade_hits": 1,
+     "grade_n": 2,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 277,
+       "obs": 216,
+       "obs_raw": 216,
+       "pred_excess": 135,
+       "obs_excess": 74,
+       "pred_load": 0.024,
+       "obs_load": 0.013,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 412,
+       "obs": 519,
+       "obs_raw": 519,
+       "pred_excess": 286,
+       "obs_excess": 393,
+       "pred_load": 0.052,
+       "obs_load": 0.071,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1106,
+       "obs": 2773,
+       "obs_raw": 2773,
+       "pred_excess": 978,
+       "obs_excess": 2645,
+       "pred_load": 0.176,
+       "obs_load": 0.477,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 846,
+       "obs": 1379,
+       "obs_raw": 1379,
+       "pred_excess": 735,
+       "obs_excess": 1268,
+       "pred_load": 0.133,
+       "obs_load": 0.229,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 339,
+       "obs": 158,
+       "obs_raw": 158,
+       "pred_excess": 278,
+       "obs_excess": 97,
+       "pred_load": 0.05,
+       "obs_load": 0.017,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.505,
+     "err_excess": 0.569,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1258,
+       "obs": 935,
+       "obs_raw": 935,
+       "pred_excess": 831,
+       "obs_excess": 508,
+       "pred_load": 0.055,
+       "obs_load": 0.034,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2494,
+       "obs": 5809,
+       "obs_raw": 5809,
+       "pred_excess": 2048,
+       "obs_excess": 5363,
+       "pred_load": 0.137,
+       "obs_load": 0.358,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 6379,
+       "obs": 6123,
+       "obs_raw": 6123,
+       "pred_excess": 5899,
+       "obs_excess": 5643,
+       "pred_load": 0.393,
+       "obs_load": 0.376,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4134,
+       "obs": 3527,
+       "obs_raw": 3527,
+       "pred_excess": 3764,
+       "obs_excess": 3157,
+       "pred_load": 0.251,
+       "obs_load": 0.21,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1392,
+       "obs": 754,
+       "obs_raw": 754,
+       "pred_excess": 1244,
+       "obs_excess": 606,
+       "pred_load": 0.083,
+       "obs_load": 0.04,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.3,
+     "err_excess": 0.336,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.438,
+   "total_err_excess": 0.493,
+   "grade_hit_rate": 0.882,
+   "grade_hits": 15,
+   "grade_n": 17,
+   "source_year": "2024",
+   "target_year": "2025"
+  }
+ },
+ "in_sample": {
+  "2023": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 3527,
+       "obs": 1990,
+       "obs_raw": 1990,
+       "pred_excess": 2293,
+       "obs_excess": 756,
+       "pred_load": 0.129,
+       "obs_load": 0.043,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 9045,
+       "obs": 10467,
+       "obs_raw": 10467,
+       "pred_excess": 7542,
+       "obs_excess": 8964,
+       "pred_load": 0.424,
+       "obs_load": 0.504,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 14152,
+       "obs": 15242,
+       "obs_raw": 15242,
+       "pred_excess": 13165,
+       "obs_excess": 14255,
+       "pred_load": 0.74,
+       "obs_load": 0.801,
+       "pred_grade": "주의",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 6623,
+       "obs": 5954,
+       "obs_raw": 5954,
+       "pred_excess": 6036,
+       "obs_excess": 5367,
+       "pred_load": 0.339,
+       "obs_load": 0.302,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1638,
+       "obs": 1332,
+       "obs_raw": 1332,
+       "pred_excess": 1466,
+       "obs_excess": 1160,
+       "pred_load": 0.082,
+       "obs_load": 0.065,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.144,
+     "err_excess": 0.165,
+     "grade_hits": 3,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 46,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 55,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 13695,
+       "obs": 8539,
+       "obs_raw": 8438,
+       "pred_excess": 12164,
+       "obs_excess": 7008,
+       "pred_load": 1.27,
+       "obs_load": 0.732,
+       "pred_grade": "심각",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "22": {
+       "pred": 3354,
+       "obs": 8301,
+       "obs_raw": 8301,
+       "pred_excess": 2256,
+       "obs_excess": 7203,
+       "pred_load": 0.236,
+       "obs_load": 0.752,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 742,
+       "obs": 3852,
+       "obs_raw": 3852,
+       "pred_excess": 470,
+       "obs_excess": 3580,
+       "pred_load": 0.049,
+       "obs_load": 0.374,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.639,
+     "err_excess": 0.743,
+     "grade_hits": 1,
+     "grade_n": 3,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 257,
+       "obs": 198,
+       "obs_raw": 198,
+       "pred_excess": 136,
+       "obs_excess": 77,
+       "pred_load": 0.025,
+       "obs_load": 0.014,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 398,
+       "obs": 185,
+       "obs_raw": 185,
+       "pred_excess": 295,
+       "obs_excess": 82,
+       "pred_load": 0.053,
+       "obs_load": 0.015,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1154,
+       "obs": 1420,
+       "obs_raw": 1420,
+       "pred_excess": 1045,
+       "obs_excess": 1311,
+       "pred_load": 0.188,
+       "obs_load": 0.236,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 790,
+       "obs": 932,
+       "obs_raw": 932,
+       "pred_excess": 695,
+       "obs_excess": 837,
+       "pred_load": 0.125,
+       "obs_load": 0.151,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 283,
+       "obs": 146,
+       "obs_raw": 146,
+       "pred_excess": 231,
+       "obs_excess": 94,
+       "pred_load": 0.042,
+       "obs_load": 0.017,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.284,
+     "err_excess": 0.34,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1307,
+       "obs": 1316,
+       "obs_raw": 1316,
+       "pred_excess": 882,
+       "obs_excess": 891,
+       "pred_load": 0.059,
+       "obs_load": 0.059,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2703,
+       "obs": 5198,
+       "obs_raw": 5198,
+       "pred_excess": 2264,
+       "obs_excess": 4759,
+       "pred_load": 0.151,
+       "obs_load": 0.317,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 7132,
+       "obs": 6295,
+       "obs_raw": 6295,
+       "pred_excess": 6646,
+       "obs_excess": 5809,
+       "pred_load": 0.443,
+       "obs_load": 0.387,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4033,
+       "obs": 2626,
+       "obs_raw": 2626,
+       "pred_excess": 3667,
+       "obs_excess": 2260,
+       "pred_load": 0.244,
+       "obs_load": 0.151,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1221,
+       "obs": 961,
+       "obs_raw": 961,
+       "pred_excess": 1069,
+       "obs_excess": 809,
+       "pred_load": 0.071,
+       "obs_load": 0.054,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.305,
+     "err_excess": 0.345,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.321,
+   "total_err_excess": 0.369,
+   "grade_hit_rate": 0.778,
+   "grade_hits": 14,
+   "grade_n": 18,
+   "source_year": "2023",
+   "target_year": "2023"
+  },
+  "2024": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 4093,
+       "obs": 1552,
+       "obs_raw": 1552,
+       "pred_excess": 2834,
+       "obs_excess": 293,
+       "pred_load": 0.159,
+       "obs_load": 0.016,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 10381,
+       "obs": 11148,
+       "obs_raw": 11148,
+       "pred_excess": 8870,
+       "obs_excess": 9637,
+       "pred_load": 0.499,
+       "obs_load": 0.542,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "21": {
+       "pred": 16850,
+       "obs": 17788,
+       "obs_raw": 17788,
+       "pred_excess": 15814,
+       "obs_excess": 16752,
+       "pred_load": 0.889,
+       "obs_load": 0.942,
+       "pred_grade": "경계",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "22": {
+       "pred": 9044,
+       "obs": 11009,
+       "obs_raw": 11009,
+       "pred_excess": 8460,
+       "obs_excess": 10425,
+       "pred_load": 0.476,
+       "obs_load": 0.586,
+       "pred_grade": "여유",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "23": {
+       "pred": 2467,
+       "obs": 1339,
+       "obs_raw": 1339,
+       "pred_excess": 2302,
+       "obs_excess": 1174,
+       "pred_load": 0.129,
+       "obs_load": 0.066,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.171,
+     "err_excess": 0.192,
+     "grade_hits": 3,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 10,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 17,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 2308,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "22": {
+       "pred": 8235,
+       "obs": 10505,
+       "obs_raw": 8170,
+       "pred_excess": 7165,
+       "obs_excess": 9435,
+       "pred_load": 0.748,
+       "obs_load": 0.985,
+       "pred_grade": "주의",
+       "obs_grade": "경계",
+       "closed": false
+      },
+      "23": {
+       "pred": 687,
+       "obs": 2580,
+       "obs_raw": 2580,
+       "pred_excess": 289,
+       "obs_excess": 2182,
+       "pred_load": 0.03,
+       "obs_load": 0.228,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.318,
+     "err_excess": 0.358,
+     "grade_hits": 1,
+     "grade_n": 2,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 274,
+       "obs": 209,
+       "obs_raw": 209,
+       "pred_excess": 135,
+       "obs_excess": 70,
+       "pred_load": 0.024,
+       "obs_load": 0.013,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 406,
+       "obs": 299,
+       "obs_raw": 299,
+       "pred_excess": 286,
+       "obs_excess": 179,
+       "pred_load": 0.052,
+       "obs_load": 0.032,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 1106,
+       "obs": 1033,
+       "obs_raw": 1033,
+       "pred_excess": 978,
+       "obs_excess": 905,
+       "pred_load": 0.176,
+       "obs_load": 0.163,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 860,
+       "obs": 1253,
+       "obs_raw": 1253,
+       "pred_excess": 735,
+       "obs_excess": 1128,
+       "pred_load": 0.133,
+       "obs_load": 0.203,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 339,
+       "obs": 191,
+       "obs_raw": 191,
+       "pred_excess": 278,
+       "obs_excess": 130,
+       "pred_load": 0.05,
+       "obs_load": 0.023,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.263,
+     "err_excess": 0.326,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1265,
+       "obs": 1663,
+       "obs_raw": 1663,
+       "pred_excess": 831,
+       "obs_excess": 1229,
+       "pred_load": 0.055,
+       "obs_load": 0.082,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2506,
+       "obs": 5109,
+       "obs_raw": 5109,
+       "pred_excess": 2048,
+       "obs_excess": 4651,
+       "pred_load": 0.137,
+       "obs_load": 0.31,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 6395,
+       "obs": 4502,
+       "obs_raw": 4502,
+       "pred_excess": 5899,
+       "obs_excess": 4006,
+       "pred_load": 0.393,
+       "obs_load": 0.267,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4128,
+       "obs": 3497,
+       "obs_raw": 3497,
+       "pred_excess": 3764,
+       "obs_excess": 3133,
+       "pred_load": 0.251,
+       "obs_load": 0.209,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1391,
+       "obs": 914,
+       "obs_raw": 914,
+       "pred_excess": 1244,
+       "obs_excess": 767,
+       "pred_load": 0.083,
+       "obs_load": 0.051,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.383,
+     "err_excess": 0.435,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.245,
+   "total_err_excess": 0.277,
+   "grade_hit_rate": 0.824,
+   "grade_hits": 14,
+   "grade_n": 17,
+   "source_year": "2024",
+   "target_year": "2024"
+  },
+  "2025": {
+   "stations": {
+    "여의도(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 2910,
+       "obs": 1737,
+       "obs_raw": 1737,
+       "pred_excess": 1700,
+       "obs_excess": 527,
+       "pred_load": 0.096,
+       "obs_load": 0.03,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 7200,
+       "obs": 8311,
+       "obs_raw": 8311,
+       "pred_excess": 5731,
+       "obs_excess": 6842,
+       "pred_load": 0.322,
+       "obs_load": 0.385,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 11804,
+       "obs": 12473,
+       "obs_raw": 12473,
+       "pred_excess": 10822,
+       "obs_excess": 11491,
+       "pred_load": 0.608,
+       "obs_load": 0.646,
+       "pred_grade": "주의",
+       "obs_grade": "주의",
+       "closed": false
+      },
+      "22": {
+       "pred": 6161,
+       "obs": 6002,
+       "obs_raw": 6002,
+       "pred_excess": 5591,
+       "obs_excess": 5432,
+       "pred_load": 0.314,
+       "obs_load": 0.305,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1480,
+       "obs": 1032,
+       "obs_raw": 1032,
+       "pred_excess": 1315,
+       "obs_excess": 867,
+       "pred_load": 0.074,
+       "obs_load": 0.049,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.12,
+     "err_excess": 0.142,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 17788,
+     "estimated_capacity": false
+    },
+    "여의나루(5)": {
+     "by_hour": {
+      "19": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 0,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "20": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 3,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "21": {
+       "pred": 0,
+       "obs": 0,
+       "obs_raw": 5834,
+       "pred_excess": 0,
+       "obs_excess": 0,
+       "pred_load": 0.0,
+       "obs_load": 0.0,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": true
+      },
+      "22": {
+       "pred": 14235,
+       "obs": 15414,
+       "obs_raw": 9577,
+       "pred_excess": 13479,
+       "obs_excess": 14658,
+       "pred_load": 1.407,
+       "obs_load": 1.531,
+       "pred_grade": "심각",
+       "obs_grade": "심각",
+       "closed": false
+      },
+      "23": {
+       "pred": 697,
+       "obs": 2907,
+       "obs_raw": 2907,
+       "pred_excess": 471,
+       "obs_excess": 2681,
+       "pred_load": 0.049,
+       "obs_load": 0.28,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.185,
+     "err_excess": 0.195,
+     "grade_hits": 2,
+     "grade_n": 2,
+     "capacity": 9577,
+     "estimated_capacity": false
+    },
+    "신길(1·5)": {
+     "by_hour": {
+      "19": {
+       "pred": 388,
+       "obs": 216,
+       "obs_raw": 216,
+       "pred_excess": 246,
+       "obs_excess": 74,
+       "pred_load": 0.044,
+       "obs_load": 0.013,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 601,
+       "obs": 519,
+       "obs_raw": 519,
+       "pred_excess": 475,
+       "obs_excess": 393,
+       "pred_load": 0.086,
+       "obs_load": 0.071,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 2005,
+       "obs": 2773,
+       "obs_raw": 2773,
+       "pred_excess": 1877,
+       "obs_excess": 2645,
+       "pred_load": 0.338,
+       "obs_load": 0.477,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 1512,
+       "obs": 1379,
+       "obs_raw": 1379,
+       "pred_excess": 1401,
+       "obs_excess": 1268,
+       "pred_load": 0.253,
+       "obs_load": 0.229,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 540,
+       "obs": 158,
+       "obs_raw": 158,
+       "pred_excess": 479,
+       "obs_excess": 97,
+       "pred_load": 0.086,
+       "obs_load": 0.017,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.305,
+     "err_excess": 0.343,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 5546,
+     "estimated_capacity": true
+    },
+    "마포역 도보(마포대교)": {
+     "by_hour": {
+      "19": {
+       "pred": 1306,
+       "obs": 935,
+       "obs_raw": 935,
+       "pred_excess": 879,
+       "obs_excess": 508,
+       "pred_load": 0.059,
+       "obs_load": 0.034,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "20": {
+       "pred": 2544,
+       "obs": 5809,
+       "obs_raw": 5809,
+       "pred_excess": 2098,
+       "obs_excess": 5363,
+       "pred_load": 0.14,
+       "obs_load": 0.358,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "21": {
+       "pred": 7280,
+       "obs": 6123,
+       "obs_raw": 6123,
+       "pred_excess": 6800,
+       "obs_excess": 5643,
+       "pred_load": 0.453,
+       "obs_load": 0.376,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "22": {
+       "pred": 4632,
+       "obs": 3527,
+       "obs_raw": 3527,
+       "pred_excess": 4262,
+       "obs_excess": 3157,
+       "pred_load": 0.284,
+       "obs_load": 0.21,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      },
+      "23": {
+       "pred": 1386,
+       "obs": 754,
+       "obs_raw": 754,
+       "pred_excess": 1238,
+       "obs_excess": 606,
+       "pred_load": 0.083,
+       "obs_load": 0.04,
+       "pred_grade": "여유",
+       "obs_grade": "여유",
+       "closed": false
+      }
+     },
+     "err_boarding": 0.381,
+     "err_excess": 0.427,
+     "grade_hits": 5,
+     "grade_n": 5,
+     "capacity": 15000,
+     "estimated_capacity": true
+    }
+   },
+   "total_err_boarding": 0.214,
+   "total_err_excess": 0.241,
+   "grade_hit_rate": 1.0,
+   "grade_hits": 17,
+   "grade_n": 17,
+   "source_year": "2025",
+   "target_year": "2025"
+  }
+ },
+ "summary": {
+  "n_pairs": 9,
+  "err_excess": {
+   "mean": 0.439,
+   "median": 0.433,
+   "min": 0.252,
+   "max": 0.618
+  },
+  "grade_hit_rate_pooled": 0.832,
+  "grade_hits": 134,
+  "grade_n": 161,
+  "prev_2y": {
+   "pairs": 2,
+   "err_excess": [
+    0.474,
+    0.493
+   ]
+  }
+ }
+}
