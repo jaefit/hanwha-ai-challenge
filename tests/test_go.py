@@ -21,7 +21,9 @@ def test_visitor_page_asks_nothing(html):
     assert "<select" not in html, "목적지 드롭다운이 남아 있다"
     assert 'role="tab"' not in html, "시간 탭이 남아 있다"
     assert "navigator.geolocation" in html, "출발지를 위치 권한으로 자동으로 잡지 않는다"
-    assert "이벤트광장" in html and "위치 켜기" in html, "위치 거절 흐름(이벤트광장 기본 + 위치 켜기)이 없다"
+    assert "이벤트광장" in html, "위치 거절 흐름(이벤트광장 기본)이 없다"
+    assert 'id="locate"' in html, "내 위치 토글이 없다 (2026-09-04: 켜짐=GPS 고정 · 꺼짐=핀 드래그 · 거절/밖=흐림)"
+    assert "위치 켜기" not in html, "글자 버튼 「위치 켜기」는 내 위치 토글로 대체했다"
     assert "Board.defaultHour(" in html, "시각 기본값이 '지금'이 아니다"
 
 

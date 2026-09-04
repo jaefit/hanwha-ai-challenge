@@ -55,6 +55,11 @@ button{font:inherit;cursor:pointer}
 .legend span{display:flex;align-items:center;gap:4px}
 .legend i{width:10px;height:10px;border-radius:3px;display:block}
 .legend em{font-style:normal;font-weight:500;color:var(--sub)}
+/* 내 위치로 — 핀은 언제나 끌 수 있고, 이 버튼이 GPS 자리로 되돌린다. 검정 = 핀이 내 자리에 있음 · 흐림 = 위치 못 씀 */
+.loc{position:absolute;right:12px;bottom:0;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.92);color:var(--ink-2);
+  box-shadow:0 1px 2px rgba(20,17,12,.08),0 6px 18px rgba(20,17,12,.12);display:flex;align-items:center;justify-content:center}
+.loc.on{background:var(--ink);color:#fff}
+.loc.dim{opacity:.45}
 html.open .top,html.open .over{opacity:0}
 
 /* 바텀시트 */
@@ -134,9 +139,11 @@ html.open{--sheet-h:calc(100% - var(--sheet-top))}
   <div class="over" id="over">
     <div class="note" id="geonote" hidden>
       <span id="geotext"><b>이벤트광장 기준</b> · 핀을 끌어 옮기세요</span>
-      <button id="askgeo" type="button">위치 켜기</button>
       <button id="geoclose" type="button" class="x" aria-label="안내 닫기">×</button>
     </div>
+    <button id="locate" type="button" class="loc" aria-label="내 위치로" title="내 위치로">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    </button>
     <div class="legend" id="legend" hidden>
       <span><i style="background:#2E7D5B"></i>여유</span><span><i style="background:#B8860B"></i>주의</span>
       <span><i style="background:#C2622B"></i>경계</span><span><i style="background:#B3352B"></i>심각</span>
@@ -442,7 +449,7 @@ function render(){
   const H=hoursOf(fc,r);
   const nowH=new Date().getHours(),isNow=nowH>=19&&nowH<=23&&HOUR===String(nowH),hl=isNow?"지금":HOUR+"시";   // 축제 창 밖이면 "21시"라고 말한다
   const f=freshUI(r);$("fresh").className="pill "+f.cls;$("fword").textContent=f.word;$("ftime").textContent=f.time;
-  $("origin").textContent=GEO==="ok"?"내 위치에서":(ORIGIN[0]!==EVENT[0]||ORIGIN[1]!==EVENT[1])?"옮긴 핀에서":"이벤트광장에서";
+  $("origin").textContent=same(ORIGIN,GPS)?"내 위치에서":same(ORIGIN,EVENT)?"이벤트광장에서":"옮긴 핀에서";
   $("ranklab").textContent=hl+" 순위";
   if(!h){$("hname").textContent="예측 없음";$("hmin").textContent="—";$("hkm").textContent="";$("gchip").textContent="";$("hwait").textContent="수집 시작 전";
     $("chips").innerHTML="";$("rank").innerHTML="";$("eyebrow").textContent=hl;return;}
@@ -531,16 +538,20 @@ $("handle").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.pr
 $("handle").tabIndex=0;
 
 // ── 위치 — 묻지 않는다. 권한 팝업은 브라우저 것이고, 거절이면 이벤트광장 기준으로 그냥 간다 ──
-let NOTE_CLOSED=false;                        // × 로 닫으면 다시 안 띄운다 — 핀은 그대로 끌 수 있다
+/* 핀은 언제나 끌 수 있다. GPS 를 받으면 핀을 거기 두고, ⌖ 를 누르면 다시 거기로 돌아온다(2026-09-04 결정).
+   거절·여의도 밖이면 이벤트광장에서 출발하고 안내 한 줄. */
+let NOTE_CLOSED=false,GPS=null;                // × 로 닫으면 다시 안 띄운다 · GPS = 마지막 위치
+const same=(a,b)=>!!a&&!!b&&a[0]===b[0]&&a[1]===b[1];
 $("geoclose").onclick=()=>{NOTE_CLOSED=true;$("geonote").hidden=true;};
+function locUI(){const b=$("locate");b.classList.toggle("on",same(ORIGIN,GPS));b.classList.toggle("dim",GEO!=="ok");}
 function setGeo(state,pos){
-  GEO=state;if(pos)ORIGIN=pos;
-  const note=$("geonote"),txt=$("geotext"),btn=$("askgeo");
+  GEO=state;if(pos){GPS=pos;ORIGIN=pos.slice();}
+  const note=$("geonote"),txt=$("geotext");
   if(state==="ok"||NOTE_CLOSED){note.hidden=true;}
   else{note.hidden=false;
-    txt.innerHTML=state==="far"?"<b>여의도 밖이라 이벤트광장 기준</b> · 핀을 끌어 옮기세요":"<b>이벤트광장 기준</b> · 핀을 끌어 옮기세요";
-    btn.hidden=state==="far"||!navigator.geolocation;}
-  if(ME){ME.setDraggable(state!=="ok");ME.getElement().classList.toggle("drag",state!=="ok");ME.setLngLat(ORIGIN);}
+    txt.innerHTML=state==="far"?"<b>여의도 밖이라 이벤트광장 기준</b> · 핀을 끌어 옮기세요":"<b>이벤트광장 기준</b> · 핀을 끌어 옮기세요";}
+  if(ME)ME.setLngLat(ORIGIN);
+  locUI();
   if(DATA)render();
 }
 function askGeo(){
@@ -550,7 +561,7 @@ function askGeo(){
     if(distM(q,EVENT)>FAR_M)setGeo("far");else setGeo("ok",q);
   },()=>setGeo("denied"),{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
 }
-$("askgeo").onclick=askGeo;
+$("locate").onclick=()=>{if(GEO==="ok"&&GPS){ORIGIN=GPS.slice();if(ME)ME.setLngLat(ORIGIN);locUI();render();}else askGeo();};
 
 // ── 지도 — 풀블리드. 오프라인이면 타일 없는 빈 바탕에 혼잡장과 경로만. ──
 function sheetH(){return $("sheet").getBoundingClientRect().height;}
@@ -570,10 +581,10 @@ function initMap(){
     const LBL_OFF={yd5:[0,-13],yd9:[0,13]};
     Board.EXITS.forEach(e=>{const el=document.createElement("div");el.className="lbl";el.textContent=e.sh;LABELS[e.k]=el;
       new maplibregl.Marker({element:el,anchor:"center",offset:LBL_OFF[e.k]||[0,0]}).setLngLat(DEST[e.k]||[e.ll[1],e.ll[0]]).addTo(MAP);});
-    const me=document.createElement("div");me.className="me"+(GEO!=="ok"?" drag":"");
-    me.innerHTML='<img src="assets/ci_logo_s.png" alt="현재 위치">';
-    ME=new maplibregl.Marker({element:me,draggable:GEO!=="ok",anchor:"center"}).setLngLat(ORIGIN).addTo(MAP);
-    ME.on("dragend",()=>{const p=ME.getLngLat();ORIGIN=[p.lng,p.lat];render();});
+    const me=document.createElement("div");me.className="me drag";
+    me.innerHTML='<img src="assets/ci_logo_s.png" alt="출발점">';
+    ME=new maplibregl.Marker({element:me,draggable:true,anchor:"center"}).setLngLat(ORIGIN).addTo(MAP);
+    ME.on("dragend",()=>{const p=ME.getLngLat();ORIGIN=[p.lng,p.lat];locUI();render();});
     MAPREADY=true;
     paintField();
     drawRoute(true);
