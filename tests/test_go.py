@@ -107,3 +107,23 @@ def test_station_labels_sit_on_route_endpoints(html):
     """라벨과 경로 끝이 어긋났다(2026-09-04 사용자 발견) — 라벨은 Board.EXITS.ll, 경로는 DEST 를 써서.
     라벨은 경로가 끝나는 점에 놓아야 한다."""
     assert "setLngLat(DEST[e.k]" in html, "역 라벨이 경로 끝점(DEST)이 아닌 좌표에 놓인다"
+
+
+def test_yeouido_line5_and_line9_have_their_own_destinations(html):
+    """여의도(5)·(9)는 다른 건물이다 — 서울 열린데이터광장 subwayStationMaster(2026-09-04 조회):
+    5호선 37.521747/126.924357 · 9호선 37.52176/126.92403. 한 점으로 합치면 라벨·경로 끝이 같은 자리에 겹친다."""
+    import json, shutil, subprocess
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node 없음")
+    m = re.search(r"const DEST=\{.*?\};", html, re.S)
+    assert m, "DEST 를 찾지 못했다"
+    r = subprocess.run([node, "-e", m.group(0) + "console.log(JSON.stringify(DEST))"], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-400:]
+    dest = json.loads(r.stdout)
+    assert dest["yd5"] != dest["yd9"], "여의도(5)·(9) 도착점이 같다"
+    master = {"yd5": [126.924357, 37.521747], "yd9": [126.92403, 37.52176],
+              "gukhoe": [126.917874, 37.528105], "saet": [126.928422, 37.517274], "naru": [126.932901, 37.527098]}
+    for k, (lng, lat) in master.items():
+        dl = (dest[k][0] - lng) * 88_000, (dest[k][1] - lat) * 111_000
+        assert (dl[0] ** 2 + dl[1] ** 2) ** .5 < 30, f"{k} 도착점이 역사마스터 좌표에서 {int((dl[0]**2+dl[1]**2)**.5)}m 벗어난다"
