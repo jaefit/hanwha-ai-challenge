@@ -200,6 +200,16 @@ const WAY={naru:[[126.9327,37.5271]],
   singil:[[126.9318,37.5268],[126.9250,37.5230],[126.9190,37.5190],[126.9137,37.5170]],
   mapo:[[126.9299,37.5287],[126.9426,37.5375],[126.9459,37.5391]]};
 const DETOUR=1.15;
+// @pure path start
+/** 원점에서 역까지의 경유점 열. 경유점은 광장 출발 기준이라, 핀을 옮기면 뒤에 남은 것은 버리고
+    남은 길이가 가장 짧아지는 경유점부터 이어 붙인다 — 안 그러면 광장 옆으로 되돌아가는 길을 잰다. */
+function path(key){
+  const W=WAY[key]||[];if(!W.length)return[ORIGIN];
+  let best=0,bl=Infinity;
+  for(let j=0;j<W.length;j++){let L=distM(ORIGIN,W[j]);for(let k=j;k<W.length-1;k++)L+=distM(W[k],W[k+1]);if(L<bl){bl=L;best=j;}}
+  return [ORIGIN].concat(W.slice(best));
+}
+// @pure path end
 
 // ── 데이터 ──
 async function load(){
@@ -311,7 +321,7 @@ function paintField(){
 // ── 걷는 시간 — 경유점 사이를 8점씩 나눠 그 자리의 혼잡도로 속도를 정한다. 운영 화면과 같은 속도식(app/field.js).
 //    본 곳(카메라 근처)은 관측 밀도, 못 본 곳은 가로 기본 — 장이 없으면 σ 최대 = 확신도 0 = 가로 기본.
 function walk(key){
-  const pts=[ORIGIN].concat(WAY[key]||[]);let sec=0,m=0;
+  const pts=path(key);let sec=0,m=0;
   for(let i=1;i<pts.length;i++){
     const a=pts[i-1],b=pts[i],L=distM(a,b)*DETOUR,n=8;m+=L;
     for(let s=0;s<n;s++){const t=(s+.5)/n,p=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t],f=fieldAt(p);
@@ -353,7 +363,7 @@ function render(){
   const H=hoursOf(fc,r);
   const nowH=new Date().getHours(),isNow=nowH>=19&&nowH<=23&&HOUR===String(nowH),hl=isNow?"지금":HOUR+"시";   // 축제 창 밖이면 "21시"라고 말한다
   const f=freshUI(r);$("fresh").className="pill "+f.cls;$("fword").textContent=f.word;$("ftime").textContent=f.time;
-  $("origin").textContent=GEO==="ok"?"내 위치에서":"이벤트광장에서";
+  $("origin").textContent=GEO==="ok"?"내 위치에서":(ORIGIN[0]!==EVENT[0]||ORIGIN[1]!==EVENT[1])?"옮긴 핀에서":"이벤트광장에서";
   $("ranklab").textContent=hl+" 순위";
   if(!h){$("hname").textContent="예측 없음";$("hmin").textContent="—";$("hkm").textContent="";$("gchip").textContent="";$("hwait").textContent="수집 시작 전";
     $("chips").innerHTML="";$("rank").innerHTML="";$("eyebrow").textContent=hl;return;}
@@ -496,7 +506,7 @@ function drawRoute(force){
   if(!MAPREADY||!CUR||!CUR.h||!MAP.getSource("route"))return;
   const h=CUR.h;
   for(const k in LABELS)LABELS[k].classList.toggle("on",k===h.key);
-  const pts=[ORIGIN].concat(WAY[h.key]||[]);
+  const pts=path(h.key);
   MAP.getSource("route").setData({type:"FeatureCollection",features:[{type:"Feature",geometry:{type:"LineString",coordinates:smooth(pts)}}]});
   if(OPEN)return;                                              // 펼친 시트 아래로 지도를 맞출 자리가 없다
   const key=h.key+"|"+ORIGIN.join(",");

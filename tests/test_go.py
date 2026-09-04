@@ -56,3 +56,37 @@ def test_visitor_page_keeps_field_ramp_in_sync_with_operator_page(html):
 def test_visitor_page_keeps_safety_notice(html):
     assert "숫자는 예측" in html, "예측 고지가 빠졌다"
     assert "OpenStreetMap" in html, "지도 저작권 표시가 빠졌다"
+
+
+def _node_geometry(js_body):
+    """go.html 의 WAY 와 path() 를 그대로 떼어 node 로 돌린다 — 화면 코드와 갈리지 않게 파일에서 읽는다."""
+    import json, shutil, subprocess
+    node = shutil.which("node")
+    if not node:
+        pytest.skip("node 없음")
+    html = GO.read_text(encoding="utf-8")
+    way = re.search(r"const WAY=\{.*?\};", html, re.S)
+    path = re.search(r"// @pure path start\n(.*?)// @pure path end", html, re.S)
+    assert way and path, "go.html 에서 WAY 나 path() 를 찾지 못했다 — 표식 주석이 빠졌나"
+    src = ("const Field=require('./docs/app/field.js');const distM=(a,b)=>Field.distanceM(a,b);let ORIGIN=null;"
+           + way.group(0) + path.group(1) + js_body)
+    r = subprocess.run([node, "-e", src], cwd=ROOT, capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr[-800:]
+    return json.loads(r.stdout)
+
+
+def test_route_from_moved_pin_does_not_walk_back_to_the_plaza():
+    """핀을 국회 쪽으로 끌었는데 경로가 광장 옆 첫 경유점으로 되돌아갔다(2026-09-04 사용자 발견).
+
+    시작 경유점은 남은 길이가 가장 짧아지는 곳이어야 한다 — 뒤에 있는 경유점은 버린다.
+    """
+    out = _node_geometry("""
+      ORIGIN=[126.9215,37.5290];                       // 국회 서쪽 — 광장(126.932) 보다 훨씬 서쪽
+      const p=path('yd9'), total=(P)=>P.slice(1).reduce((s,c,i)=>s+distM(P[i],c),0);
+      const viaAll=total([ORIGIN].concat(WAY.yd9));
+      ORIGIN=WAY.saet[WAY.saet.length-1];              // 역 위에 서 있으면 경로는 점 하나
+      console.log(JSON.stringify({first:p[1], total:total(p), viaAll, atStation:path('saet').length}));
+    """)
+    assert out["first"] != [126.9318, 37.5268], "여전히 광장 옆 첫 경유점으로 되돌아간다"
+    assert out["total"] < out["viaAll"], "경유점을 버렸는데 더 길다"
+    assert out["atStation"] == 2, "역 위에 있으면 원점→역 한 구간이어야 한다"
