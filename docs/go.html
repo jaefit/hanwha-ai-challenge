@@ -557,8 +557,11 @@ function initMap(){
   MAP.on("load",()=>{
     MAP.addSource("route",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
     MAP.addLayer({id:"route",type:"line",source:"route",paint:{"line-color":"#1A1A1A","line-width":3},layout:{"line-cap":"round","line-join":"round"}});
+    // 라벨은 경로가 끝나는 점(DEST)에 — Board.EXITS.ll 은 운영 화면 라벨 배치용이라 경로 끝과 어긋난다.
+    // 여의도(5)·(9)는 같은 역이라 위아래로 비켜 세운다.
+    const LBL_OFF={yd5:[0,-13],yd9:[0,13]};
     Board.EXITS.forEach(e=>{const el=document.createElement("div");el.className="lbl";el.textContent=e.sh;LABELS[e.k]=el;
-      new maplibregl.Marker({element:el,anchor:"center"}).setLngLat([e.ll[1],e.ll[0]]).addTo(MAP);});
+      new maplibregl.Marker({element:el,anchor:"center",offset:LBL_OFF[e.k]||[0,0]}).setLngLat(DEST[e.k]||[e.ll[1],e.ll[0]]).addTo(MAP);});
     const me=document.createElement("div");me.className="me"+(GEO!=="ok"?" drag":"");
     me.innerHTML='<img src="assets/ci_logo_s.png" alt="현재 위치">';
     ME=new maplibregl.Marker({element:me,draggable:GEO!=="ok",anchor:"center"}).setLngLat(ORIGIN).addTo(MAP);

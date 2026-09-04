@@ -101,3 +101,9 @@ def test_visitor_page_routes_on_walk_graph_with_approx_fallback(html):
         assert need in html, f"go.html 에 {need} 가 없다 — 보행망 A* 가 빠졌다"
     assert "// @pure path start" in html, "보행망을 받기 전 폴백(근사 경유점)이 없다"
     assert "근사" in html, "보행망을 받기 전엔 화면에 근사라고 적어야 한다"
+
+
+def test_station_labels_sit_on_route_endpoints(html):
+    """라벨과 경로 끝이 어긋났다(2026-09-04 사용자 발견) — 라벨은 Board.EXITS.ll, 경로는 DEST 를 써서.
+    라벨은 경로가 끝나는 점에 놓아야 한다."""
+    assert "setLngLat(DEST[e.k]" in html, "역 라벨이 경로 끝점(DEST)이 아닌 좌표에 놓인다"
