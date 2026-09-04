@@ -59,6 +59,36 @@ for name, lvl, pp in (("여의도한강공원", "붐빔", [120000, 150000]),
                       ("여의서로", "붐빔", [1500, 2200])):
     snap.setdefault(name, {}).update(congest=lvl, ts=now.strftime("%Y-%m-%d %H:%M"),
                                      ppltn=pp, role="core", fcst=[])
+# ── YEAR=2025 (또는 2024): 출구 부하율을 그 해 실측(exit_forecast_2026.json by_year_observed)으로 바꾼다 —
+#    "그 해만큼 사람이 오면 관람객 화면이 어떻게 보이나". 대기는 nowcast 와 같은 누적 대기열 규칙(backlog/cap·60).
+#    가상 시나리오다. 보고서·덱에 인용하지 말 것.
+import os
+year = os.environ.get("YEAR")
+if year:
+    prior = json.loads((root / "docs" / "data" / "exit_forecast_2026.json").read_text(encoding="utf-8"))
+    ex = {}
+    for st, row in prior["exits"].items():
+        ex[st] = {}; backlog = 0.0
+        for h in sorted(row, key=int):
+            c = dict(row[h]); obs = (c.get("by_year_observed") or {}).get(year)
+            if c.get("closed") or obs is None:
+                backlog = 0.0
+            else:
+                cap = c.get("capacity") or 1
+                ratio = obs / c["load"] if c.get("load") else 1.0
+                c["load"] = round(obs, 2)
+                c["load_lo"] = round((c.get("load_lo") or obs * .8) * ratio, 2)
+                c["load_hi"] = round((c.get("load_hi") or obs * 1.2) * ratio, 2)
+                backlog = max(0.0, backlog + (obs - 1.0) * cap)
+                c["backlog"] = round(backlog); c["wait_min"] = round(backlog / cap * 60)
+                c["demand_total"] = round(obs * cap)
+            c.pop("by_year_observed", None); c.pop("by_year_corridor_basis_ref", None)
+            ex[st][h] = c
+    fc = payload.setdefault("forecast", {})
+    fc["exits"] = ex; fc["prior"] = False; fc["alpha"] = 1.0
+    fc["alpha_reason"] = f"가상 — {year} 실측 부하율 그대로 (demo.sh YEAR={year})"
+    fc.pop("ranking_by_hour", None)
+    print(f"출구 부하율 = {year} 실측으로 교체 (가상)")
 p.write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
 n_cal = sum(1 for v in cctv.values() if v["calibrated"])
 n_low = sum(1 for v in cctv.values() if v["confidence"] == "low")
