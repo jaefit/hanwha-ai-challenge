@@ -12,7 +12,7 @@
 | **[운영·근거 대시보드](https://jaefit.github.io/hanwha-ai-challenge/)** | 위 + 유출 예측 · 혼잡장(GP 회귀) · CCTV 등급 · 방법론 | 5분 갱신 |
 | **[팀 보고서](https://jaefit.github.io/hanwha-ai-challenge/report.html)** | 모델 수식·실측표·외부 검증·적대적 검증 | 수식 있는 정식판 |
 | **[보고서 쉬운 버전](https://jaefit.github.io/hanwha-ai-challenge/report_easy.html)** | 같은 내용을 수식 없이 | 비전공자용 |
-| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 발표용 18장 | |
+| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 발표용 12장 · 5분 | |
 
 ## 현재 상태 (2026-09-02)
 
@@ -27,7 +27,7 @@
 | **관람객 화면** | `docs/go.html` | v2(2026-09-04, Claude Design 「귀가 내비 v2」 이식) — 풀블리드 지도 + 바텀시트. 출발지 위치 자동(거절·여의도 밖이면 이벤트광장 + 핀 드래그) · 1위 = 도보+대기 시간 · 시각 = 지금(차트 스크럽). 판정 규칙 `docs/app/board.js`, 혼잡장·속도식 `docs/app/field.js` 공용. 경로는 운영 화면과 같은 보행망 A*(`data/routing/walk_graph.json`, 첫 화면 뒤 수신) — 받기 전엔 근사 경유점에 「근사」 표시 |
 | **운영 대시보드** | `docs/index.html` | 위 + 유출 예측 · 혼잡장 · CCTV 등급 · 방법론. 5분 갱신 |
 | 팀 보고서 | `docs/report.html` | 모델 수식(KaTeX)·실측표·외부 검증. 쉬운 버전 `docs/report_easy.html` |
-| 피치 덱 | `docs/deck.html` | 발표용 18장 |
+| 피치 덱 | `docs/deck.html` | 발표용 12장 · 5분 · 라이트 테마 (v2, 2026-09-04) |
 | 예측 모델 | `src/nowcast.py` 외 | 4층(L1 베이스라인 → L2 α 나우캐스트 → L3 출구 배정 → L4 큐). 백테스트 `src/backtest.py` |
 | 수집·발행 | `run_all.sh` | 프로세스 3개 — `collector_api.py`(서울시 도시데이터 5분 + 실시간 지하철 도착 17~23시 + 피더 12~19시) · `collector_cctv.py`(TOPIS 23대, 기본 60초) · `nowcast`→`publish` 5분 루프. 워치독·`.env` 키 점검 포함 |
 | 혼잡장 | `docs/app/field.js` | CCTV 23대 + 서울시 구역등급을 **가우시안 과정 회귀**로 하나의 면에. 신뢰도는 배제가 아니라 관측 노이즈 σ 로 |
@@ -119,3 +119,11 @@ PDF 텍스트가 글리프로 박혀 있어 복사·검색이 되지 않는다. 
 - 프롬프트 설계 문서 작성 — 평가 배점 25점에 직결된다
 - 가상 설문 1,000건 생성 여부 확정 후 분석
 - 마감일·제출 형식·개인/팀 여부 확인 (전부 미확정)
+
+## 발표 (피치 덱)
+
+- 덱 `docs/deck.html` — 12장, 5분. `← →` 이동, `n` 발표자 노트(장마다 25초 대본 + 경과 시계), `t` 시계 리셋.
+- 3장·4장은 배포본 `go.html`·`index.html` 을 iframe 으로 그대로 띄운다. 위치 권한은 주지 않아 팝업이 없고 이벤트광장 기준 가상 위치로 뜬다.
+- **통신이 없으면** 8초 뒤 `docs/deck/fallback_go.png`·`fallback_ops.png` 캡처로 바뀐다. 캡처는 실기기에서 직접 찍어 그 이름으로 넣는다(없으면 "라이브 화면 — 통신 필요" 문구).
+- 발표장엔 노트북 지참 + 휴대폰 테더링. 덱 데이터(`docs/deck/*.json`)는 `.venv/bin/python tools/deck_data.py` 로 다시 만들고, 코드 스트립이 소스와 어긋나면 `tests/test_deck.py` 가 잡는다.
+- 10장(실전 결과)은 `docs/deck/live_result.json` 을 채우면 자동으로 타일이 된다 — 9/6 `evaluate.py` 결과로.

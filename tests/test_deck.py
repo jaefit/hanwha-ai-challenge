@@ -212,3 +212,12 @@ def test_embeds_are_real_screens_without_geolocation_prompt(html):
 def test_code_strip_slots_match_export(html):
     slots = re.findall(r'<pre class="strip[^"]*" data-strip="([a-z]+)"', html)
     assert slots == ["demand", "alpha", "blend"]
+
+
+def test_speaker_notes_fit_five_minutes(html):
+    """장당 25초 — 한국어 발화 ≈ 분당 300자. 60~140자면 20~30초. 빈 노트는 발표 중 화면이 침묵한다."""
+    notes = re.findall(r'<aside class="notes">(.*?)</aside>', html, re.S)
+    assert len(notes) == 12
+    for i, n in enumerate(notes, 1):
+        t = re.sub(r"\s+", " ", n).strip()
+        assert 60 <= len(t) <= 170, f"s{i} 노트 {len(t)}자 — 60~170자로"
