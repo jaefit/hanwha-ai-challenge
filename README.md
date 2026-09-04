@@ -8,11 +8,11 @@
 
 | 링크 | 내용 | 비고 |
 |---|---|---|
-| **[▶ 관람객 화면](https://jaefit.github.io/hanwha-ai-challenge/go.html)** | 지금 덜 막히는 출구 · 현재 혼잡도 · 걸어갈 길 · 오프라인 카드 | 실제 쓰는 화면 |
+| **[▶ 관람객 화면](https://jaefit.github.io/hanwha-ai-challenge/go.html)** | 열면 바로 — 도보+대기 1위 역 · 걸어서 N분 · 지도 위 혼잡도 · 시간대 스크럽. 묻는 것 0 | 실제 쓰는 화면 · v2 2026-09-04 |
 | **[운영·근거 대시보드](https://jaefit.github.io/hanwha-ai-challenge/)** | 위 + 유출 예측 · 혼잡장(GP 회귀) · CCTV 등급 · 방법론 | 5분 갱신 |
 | **[팀 보고서](https://jaefit.github.io/hanwha-ai-challenge/report.html)** | 모델 수식·실측표·외부 검증·적대적 검증 | 수식 있는 정식판 |
 | **[보고서 쉬운 버전](https://jaefit.github.io/hanwha-ai-challenge/report_easy.html)** | 같은 내용을 수식 없이 | 비전공자용 |
-| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 발표용 12장 | |
+| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 발표용 18장 | |
 
 ## 현재 상태 (2026-09-02)
 
@@ -24,10 +24,10 @@
 
 | 산출물 | 위치 | 무엇 |
 |---|---|---|
-| **관람객 화면** | `docs/go.html` | 출구 3순위 · 현재 혼잡도 · 길찾기 · 오프라인 카드. 판정 규칙은 `docs/app/board.js` 공용 |
+| **관람객 화면** | `docs/go.html` | v2(2026-09-04, Claude Design 「귀가 내비 v2」 이식) — 풀블리드 지도 + 바텀시트. 출발지 위치 자동(거절·여의도 밖이면 이벤트광장 + 핀 드래그) · 1위 = 도보+대기 시간 · 시각 = 지금(차트 스크럽). 판정 규칙 `docs/app/board.js`, 혼잡장·속도식 `docs/app/field.js` 공용. 경로는 역별 근사 경유점(보행망 A* 는 운영 화면만) |
 | **운영 대시보드** | `docs/index.html` | 위 + 유출 예측 · 혼잡장 · CCTV 등급 · 방법론. 5분 갱신 |
 | 팀 보고서 | `docs/report.html` | 모델 수식(KaTeX)·실측표·외부 검증. 쉬운 버전 `docs/report_easy.html` |
-| 피치 덱 | `docs/deck.html` | 발표용 12장 |
+| 피치 덱 | `docs/deck.html` | 발표용 18장 |
 | 예측 모델 | `src/nowcast.py` 외 | 4층(L1 베이스라인 → L2 α 나우캐스트 → L3 출구 배정 → L4 큐). 백테스트 `src/backtest.py` |
 | 수집·발행 | `run_all.sh` | 프로세스 3개 — `collector_api.py`(서울시 도시데이터 5분 + 실시간 지하철 도착 17~23시 + 피더 12~19시) · `collector_cctv.py`(TOPIS 23대, 기본 60초) · `nowcast`→`publish` 5분 루프. 워치독·`.env` 키 점검 포함 |
 | 혼잡장 | `docs/app/field.js` | CCTV 23대 + 서울시 구역등급을 **가우시안 과정 회귀**로 하나의 면에. 신뢰도는 배제가 아니라 관측 노이즈 σ 로 |

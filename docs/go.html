@@ -1,254 +1,236 @@
 <!doctype html>
-<html lang="ko" data-theme="dark">
+<html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>지금 어디로 나갈까 — 서울세계불꽃축제 2026</title>
-<meta name="description" content="여의도 불꽃축제 귀가 안내. 지금 덜 막히는 출구와 걸어갈 길.">
+<meta name="description" content="여의도 불꽃축제 귀가 안내. 열면 바로 — 지금 가장 빨리 나갈 수 있는 역과 걸어갈 길.">
+<meta name="theme-color" content="#F5F4F1">
 <link rel="icon" href="favicon.ico">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <style>
+/* ── 토큰 — Claude Design 「귀가 내비 v2」(2026-09-04) 그대로. 라이트 단일. ── */
 :root{
-  --bg:#F5F4F1; --card:#FFFFFF; --ink:#14110C; --ink-2:#5B554B; --sub:#8F897D; --rule:#E2DFD8;
-  --g-여유:#2E7D5B; --g-주의:#B8860B; --g-경계:#C2622B; --g-심각:#B3352B; --g-통제:#8F897D;
-  --accent:#F37321; --shadow:0 1px 2px rgba(20,17,12,.06),0 8px 24px rgba(20,17,12,.05);
-}
-:root[data-theme="dark"]{
-  --bg:#14120F; --card:#1D1A16; --ink:#F5F4F1; --ink-2:#B7B2A8; --sub:#8F897D; --rule:#302B24;
-  --g-여유:#4FBF8B; --g-주의:#E2B33C; --g-경계:#E8874A; --g-심각:#E4594C; --g-통제:#6B6459;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.28);
+  --bg:#F5F4F1; --sheet:#FFFFFF; --ink:#14110C; --ink-2:#5B554B; --sub:#8F897D; --rule:#E2DFD8;
+  --live:#2A78D6; --offline:#D0342C;
+  --g-여유:#2E7D5B; --g-주의:#8A6400; --g-경계:#B0521C; --g-심각:#B3352B; --g-통제:#8F897D; --g-없음:#8F897D;
+  --sheet-h:280px; --sheet-top:104px;
+  --shadow-sheet:0 -2px 6px rgba(20,17,12,.06),0 -18px 48px rgba(20,17,12,.12);
+  --ease-sheet:320ms cubic-bezier(.2,.8,.2,1);
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",system-ui,sans-serif;
-  -webkit-font-smoothing:antialiased;line-height:1.5}
-.wrap{max-width:520px;margin:0 auto;padding:0 16px 56px}
-header{padding:18px 0 10px;display:flex;align-items:flex-start;gap:12px}
-h1{font-size:23px;line-height:1.28;margin:0;font-weight:800;letter-spacing:-.02em;flex:1}
-h2{font-size:15px;margin:26px 0 10px;font-weight:800;letter-spacing:-.01em}
-.ghost{background:none;border:1px solid var(--rule);color:var(--ink-2);border-radius:999px;
-  padding:6px 11px;font:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}
-.state{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-2);margin:0 0 14px}
-.dotp{width:7px;height:7px;border-radius:50%;background:var(--g-여유);flex:none}
-.dotp.warn{background:var(--g-주의)}
-.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
-.tabs button{flex:none;background:var(--card);border:1px solid var(--rule);color:var(--ink-2);
-  border-radius:999px;padding:8px 15px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.card{background:var(--card);border:1px solid var(--rule);border-radius:14px;box-shadow:var(--shadow);overflow:hidden}
-.ex{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:14px 15px;border-bottom:1px solid var(--rule)}
-.ex:last-child{border-bottom:0}
-.rk{font-size:12px;font-weight:800;color:var(--sub);font-variant-numeric:tabular-nums;min-width:15px}
-.nm{font-size:16.5px;font-weight:800;letter-spacing:-.01em;display:flex;align-items:center;gap:6px}
-.nm .est{font-size:10px;color:var(--sub);font-weight:700}
-.ds{font-size:12.5px;color:var(--ink-2);margin-top:3px}
-.note{font-size:12.5px;color:var(--ink);font-weight:700;margin-top:3px}
-.tag{font-size:12.5px;font-weight:800;padding:5px 11px;border-radius:999px;white-space:nowrap;
-  color:#fff;background:var(--gc)}
-.ex[data-g="여유"]{--gc:var(--g-여유)} .ex[data-g="주의"]{--gc:var(--g-주의)}
-.ex[data-g="경계"]{--gc:var(--g-경계)} .ex[data-g="심각"]{--gc:var(--g-심각)}
-.ex[data-g="통제"],.ex[data-g="없음"]{--gc:var(--g-통제)}
-.ex[data-g="통제"] .nm,.ex[data-g="없음"] .nm{color:var(--sub)}
-.ex[data-g="통제"] .nm .t{text-decoration:line-through;text-decoration-thickness:2px}
-.top .nm{font-size:19px}
-.top{background:linear-gradient(180deg,color-mix(in srgb,var(--gc) 11%,transparent),transparent)}
-.ctrl{margin-top:12px;padding:12px 14px;border-radius:12px;border:1px dashed var(--rule);
-  font-size:12.5px;color:var(--ink-2);background:var(--card)}
-.ctrl b{color:var(--ink)}
-.now{display:flex;gap:10px;align-items:baseline;padding:14px 15px}
-.now b{font-size:24px;font-weight:800;letter-spacing:-.02em;color:var(--gc,var(--ink))}
-.now span{font-size:13px;color:var(--ink-2)}
-.route{padding:14px 15px}
-.route label{display:block;font-size:12.5px;color:var(--ink-2);margin-bottom:7px;font-weight:700}
-.route select{width:100%;padding:11px 12px;font:inherit;font-size:15px;border-radius:10px;
-  border:1px solid var(--rule);background:var(--bg);color:var(--ink)}
-.go{margin-top:10px;width:100%;padding:13px;border:0;border-radius:11px;background:var(--accent);
-  color:#fff;font:inherit;font-size:16px;font-weight:800;cursor:pointer}
-.go:disabled{opacity:.45;cursor:default}
-#map{height:290px;margin-top:12px;border-radius:11px;overflow:hidden;background:var(--bg);display:none}
-#map.on{display:block}
-.fkey{display:none;gap:10px;flex-wrap:wrap;align-items:center;margin-top:9px;font-size:11.5px;color:var(--ink-2)}
-.fkey:not([hidden]){display:flex}
-.fkey i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
-.fkey .k1{background:var(--g-여유)}.fkey .k2{background:var(--g-주의)}
-.fkey .k3{background:var(--g-경계)}.fkey .k4{background:var(--g-심각)}
-.fkey em{font-style:normal;color:var(--sub);flex:1 1 100%;font-size:11px;line-height:1.5}
-.rstat{margin-top:9px;font-size:12.5px;color:var(--ink-2);min-height:18px}
-.plan{padding:13px 15px;border-bottom:1px solid var(--rule)}
-.plan:last-child{border-bottom:0}
-.plan h3{margin:0 0 6px;font-size:14.5px;font-weight:800}
-.plan h3 small{display:block;font-size:11.5px;color:var(--sub);font-weight:700;margin-bottom:2px}
-.plan ol{margin:0;padding-left:17px;font-size:13px;color:var(--ink-2)}
-.plan li{margin:3px 0}
-footer{margin-top:30px;font-size:11.5px;color:var(--sub);line-height:1.7}
-footer a{color:var(--ink-2)}
-.hide{display:none}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);overflow:hidden;
+  font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;
+  font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;line-height:1.45}
+[hidden]{display:none!important}
+button{font:inherit;cursor:pointer}
+#stage{position:fixed;inset:0;overflow:hidden}
+#map{position:absolute;inset:0;background:#E9E6DF}
+.maplibregl-ctrl-bottom-right,.maplibregl-ctrl-attrib{display:none!important}
+#hatch{position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(135deg,rgba(20,17,12,.03) 0 6px,transparent 6px 14px)}
+
+/* 상단 — 신선도 필 하나 */
+.top{position:absolute;top:calc(12px + env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:flex-end;
+  pointer-events:none;transition:opacity .25s}
+.pill{display:flex;align-items:center;gap:7px;height:36px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.92);
+  box-shadow:0 1px 2px rgba(20,17,12,.08),0 6px 18px rgba(20,17,12,.08);font-size:13px;font-weight:700;color:var(--ink-2)}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--sub);display:block}
+.pill.live i{background:var(--live)} .pill.off i{background:var(--offline)}
+.pill em{font-style:normal;font-weight:500;color:var(--sub)}
+
+/* 지도 위, 시트 바로 위 — 위치 안내 · 범례 */
+.over{position:absolute;left:12px;right:12px;bottom:calc(var(--sheet-h) + 12px);display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  transition:opacity .25s,bottom var(--ease-sheet)}
+.note{align-self:stretch;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;border-radius:14px;background:rgba(20,17,12,.88);color:#F5F4F1;
+  font-size:15px;line-height:1.35;box-shadow:0 8px 24px rgba(20,17,12,.18)}
+.note span{flex:1} .note b{font-weight:800}
+.note button{flex:none;height:36px;padding:0 12px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#F5F4F1;font-size:14px;font-weight:700}
+.legend{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.86);font-size:12px;font-weight:700;color:var(--ink-2);pointer-events:none}
+.legend span{display:flex;align-items:center;gap:4px}
+.legend i{width:10px;height:10px;border-radius:3px;display:block}
+.legend em{font-style:normal;font-weight:500;color:var(--sub)}
+html.open .top,html.open .over{opacity:0}
+
+/* 바텀시트 */
+.sheet{position:absolute;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;height:var(--sheet-h);background:var(--sheet);border-radius:24px 24px 0 0;
+  box-shadow:var(--shadow-sheet);display:flex;flex-direction:column;transition:height var(--ease-sheet)}
+html.open{--sheet-h:calc(100% - var(--sheet-top))}
+.handle{flex:none;height:28px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none}
+.handle i{width:44px;height:5px;border-radius:3px;background:var(--rule);display:block}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:0 20px calc(24px + env(safe-area-inset-bottom))}
+
+/* 히어로 */
+.eyebrow{padding:16px 0 4px;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.eyebrow b{font-size:16px;font-weight:700;color:var(--ink-2)}
+.eyebrow span{font-size:14px;font-weight:700;color:var(--sub)}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.hero .l{min-width:0}
+.hname{font-size:34px;line-height:1.15;font-weight:800;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hmin{display:flex;align-items:baseline;gap:6px;margin-top:2px}
+.hmin .w{font-size:18px;font-weight:700;color:var(--ink-2)}
+.hmin .n{font-size:64px;line-height:1;font-weight:800;letter-spacing:-.04em;color:var(--gc)}
+.hmin .u{font-size:22px;font-weight:800;color:var(--gc)}
+.hmin .km{font-size:14px;font-weight:600;color:var(--sub);margin-left:6px}
+.hero .r{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding-bottom:10px}
+.gchip{height:34px;padding:0 14px;border-radius:999px;background:var(--gc);color:#fff;font-size:16px;font-weight:800;display:inline-flex;align-items:center}
+.hwait{font-size:13px;font-weight:700;color:var(--sub);min-height:18px}
+.hreason{margin-top:6px;font-size:16px;line-height:1.45;color:var(--ink-2)}
+
+/* 목적지 칩 */
+.chips{display:flex;gap:8px;overflow-x:auto;margin:12px -20px 0;padding:0 20px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;height:52px;padding:0 16px 0 14px;border-radius:16px;border:0;background:var(--bg);color:var(--ink);
+  display:inline-flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:1px;white-space:nowrap}
+.chip b{font-size:15px;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+.chip small{font-size:13px;font-weight:600;line-height:1.2;opacity:.7}
+.chip.on{background:var(--ink);color:var(--bg);box-shadow:0 6px 16px rgba(20,17,12,.22)}
+.chip.dim{opacity:.55}
+
+/* 펼침 — 근거 */
+.more{margin-top:22px;display:flex;flex-direction:column;gap:22px}
+.sec{font-size:14px;font-weight:800;color:var(--sub);letter-spacing:.02em;margin-bottom:8px}
+.sec.row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.sec .hint{font-size:13px;font-weight:700;color:var(--sub)}
+.rank{border:1px solid var(--rule);border-radius:16px;overflow:hidden}
+.rk{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:13px 14px;border-bottom:1px solid var(--rule);cursor:pointer;background:var(--sheet)}
+.rk:last-child{border-bottom:0}
+.rk.on{background:var(--bg)}
+.rk .no{font-size:13px;font-weight:800;color:var(--sub)}
+.rk .nm{font-size:17px;font-weight:800;letter-spacing:-.01em;min-width:0}
+.rk .nm small{font-size:15px;font-weight:700;color:var(--ink-2)}
+.rk .why{font-size:14px;color:var(--ink-2);margin-top:2px}
+.rk .g{font-size:14px;font-weight:800;color:var(--gc)}
+.chart{position:relative;height:132px;max-width:350px;margin:0 auto;touch-action:none;cursor:ew-resize;user-select:none;-webkit-user-select:none}
+.chart svg{display:block;width:100%;height:132px;overflow:hidden}
+.tip{position:absolute;top:0;transform:translateX(-50%);padding:3px 8px;border-radius:6px;background:var(--ink);color:var(--bg);font-size:12px;font-weight:800;white-space:nowrap;pointer-events:none}
+.ctrl{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:12px;background:var(--bg);font-size:15px;line-height:1.45;color:var(--ink-2)}
+.ctrl b{flex:none;color:var(--ink);font-weight:800}
+.src{font-size:12px;line-height:1.6;color:var(--sub)}
+.src a{color:var(--ink-2)}
+
+/* 지도 마커 */
+.lbl{font:700 11px Pretendard,system-ui,sans-serif;color:var(--ink);pointer-events:none;background:rgba(255,255,255,.85);padding:1px 5px;border-radius:4px;white-space:nowrap}
+.lbl.on{background:#1A1A1A;color:#fff}
+.me{width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(20,17,12,.3);display:flex;align-items:center;justify-content:center}
+.me img{width:24px;height:auto;display:block;pointer-events:none}
+.me.drag{cursor:grab}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header>
-  <h1 id="title">지금 어디로 나갈까</h1>
-  <button class="ghost" id="theme">라이트</button>
-</header>
+<div id="stage">
+  <div id="map"></div>
+  <div id="hatch" hidden></div>
 
-<p class="state"><i class="dotp" id="dot"></i><span id="state">불러오는 중…</span></p>
-
-<div class="tabs" id="tabs" role="tablist"></div>
-<div class="card" id="board"></div>
-<div class="ctrl" id="ctrl"></div>
-
-<h2>지금 여의도</h2>
-<div class="card"><div class="now" id="now"><b>—</b><span>불러오는 중</span></div></div>
-
-<h2>걸어갈 길 찾기</h2>
-<div class="card">
-  <div class="route">
-    <label for="dest">어느 역으로 갈까</label>
-    <select id="dest"></select>
-    <button class="go" id="run">지도에서 출발점 찍기</button>
-    <div id="map"></div>
-    <div class="fkey" id="fkey" hidden>
-      <span><i class="k1"></i>여유</span><span><i class="k2"></i>주의</span><span><i class="k3"></i>경계</span><span><i class="k4"></i>심각</span>
-      <em id="fnote">CCTV 23대가 본 지금 혼잡도. 옅은 곳은 근거가 얇다.</em>
-    </div>
-    <div class="rstat" id="rstat">지도를 열면 현재 위치나 서 있는 곳을 찍을 수 있다.</div>
+  <div class="top" id="top">
+    <div class="pill" id="fresh"><i></i><span id="fword">불러오는 중</span><em id="ftime"></em></div>
   </div>
-</div>
 
-<h2>통신이 끊겨도</h2>
-<div class="card" id="plans"></div>
+  <div class="over" id="over">
+    <div class="note" id="geonote" hidden>
+      <span id="geotext"><b>이벤트광장 기준</b> · 핀을 끌어 옮기세요</span>
+      <button id="askgeo" type="button">위치 켜기</button>
+    </div>
+    <div class="legend" id="legend" hidden>
+      <span><i style="background:#2E7D5B"></i>여유</span><span><i style="background:#B8860B"></i>주의</span>
+      <span><i style="background:#C2622B"></i>경계</span><span><i style="background:#B3352B"></i>심각</span>
+      <em>옅음 = 근거 얇음</em>
+    </div>
+  </div>
 
-<footer>
-  이 페이지를 한 번 열면 마지막 데이터가 기기에 남아 통신이 끊겨도 보인다.<br>
-  출처 — 서울시 실시간 도시데이터 · 서울교통공사 승하차 · KT 생활이동 · 서울 TOPIS 공개 CCTV. 지도 © OpenStreetMap contributors.<br>
-  숫자는 예측이고 현장과 다를 수 있다. 안전 안내는 현장 요원과 공식 방송을 따를 것.<br>
-  <a href="index.html">근거·운영 화면 보기 →</a>
-</footer>
+  <section class="sheet" id="sheet" aria-label="지금 어디로 나갈까">
+    <div class="handle" id="handle"><i></i></div>
+    <div class="body" id="body">
+      <div class="eyebrow"><b id="eyebrow">지금</b><span id="origin">내 위치에서</span></div>
+      <div class="hero" id="hero">
+        <div class="l">
+          <div class="hname" id="hname">…</div>
+          <div class="hmin"><span class="w">걸어서</span><span class="n" id="hmin">—</span><span class="u">분</span><span class="km" id="hkm"></span></div>
+        </div>
+        <div class="r"><span class="gchip" id="gchip"></span><span class="hwait" id="hwait"></span></div>
+      </div>
+      <div class="hreason" id="hreason" hidden></div>
+      <div class="chips" id="chips"></div>
+
+      <div class="more" id="more" hidden>
+        <div><div class="sec" id="ranklab">지금 순위</div><div class="rank" id="rank"></div></div>
+        <div>
+          <div class="sec row"><span id="chartlab">시간대별</span><span class="hint">좌우로 밀어 시간 이동</span></div>
+          <div class="chart" id="chart">
+            <svg viewBox="0 0 350 132" id="svg"></svg>
+            <div class="tip" id="tip"></div>
+          </div>
+        </div>
+        <div class="ctrl"><b>통제</b><span>여의동로 15~24시 · 여의나루역 20:40~21:40 무정차 · 원효대교 차량</span></div>
+        <div class="src">숫자는 예측이고 현장과 다를 수 있다. 안전 안내는 현장 요원과 공식 방송을 따를 것.<br>
+          출처 — 서울시 실시간 도시데이터 · 서울교통공사 · KT 생활이동 · TOPIS CCTV · 지도 © OpenStreetMap contributors.
+          <a href="index.html">근거·운영 화면 →</a></div>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script src="app/board.js"></script>
 <script src="app/field.js"></script>
-<script src="app/routing_extra.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
+/* 관람객 화면 v2 — 묻지 않는다.
+   출발지는 위치 권한으로(거절·여의도 밖이면 이벤트광장 + 핀 드래그), 목적지는 도보+대기 1위,
+   시각은 지금(차트를 문질러 옮긴다). 판정 규칙은 app/board.js, 혼잡장·속도식은 app/field.js —
+   운영 화면(index.html)과 같은 모듈이라 같은 데이터에 같은 답을 낸다.
+   디자인: Claude Design 「귀가 내비 v2」 2026-09-04. */
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let DATA=null,HOUR=null,PRIOR=null;
+const EVENT=[126.9320,37.5292];               // 이벤트광장 — 위치 못 받으면 여기서 출발
+const FAR_M=3000;                             // 여의도에서 이보다 멀면 "여기 없다"고 보고 이벤트광장 기준
+const distM=(a,b)=>Field.distanceM(a,b);
+let DATA=null,PRIOR=null,HOUR=null,SEL=null,OPEN=false,ORIGIN=EVENT.slice(),GEO="asking";
+let MAP=null,MAPREADY=false,CAMS=null,FIELD=null,FGRID=null,FBOUNDS=null,NOBS=0,LABELS={},ME=null,FITKEY="",FITTED=false;
 
-// ── 테마 ──
-const theme=()=>document.documentElement.getAttribute("data-theme")||"dark";
-function setTheme(t,save){document.documentElement.setAttribute("data-theme",t);$("theme").textContent=t==="dark"?"라이트":"다크";if(save){try{localStorage.setItem("navi-theme",t)}catch(e){}}}
-try{const t=localStorage.getItem("navi-theme");setTheme(t||"dark");}catch(e){setTheme("dark")}
-$("theme").onclick=()=>{setTheme(theme()==="dark"?"light":"dark",true);if(MAP&&FIELD_PAINTED)paintField();};
+/* 역별 근사 경유점 (디자인 그대로) — 보행망 5.9MB 를 축제 통신에서 받지 않는다.
+   길이는 직선합 ×1.15. 정확한 보행망 경로는 운영 화면에 있다. */
+const WAY={naru:[[126.9327,37.5271]],
+  yd9:[[126.9318,37.5268],[126.9290,37.5238],[126.9262,37.5206]],
+  yd5:[[126.9318,37.5268],[126.9270,37.5240],[126.9238,37.5222]],
+  saet:[[126.9318,37.5268],[126.9300,37.5225],[126.9287,37.5172]],
+  gukhoe:[[126.9300,37.5290],[126.9240,37.5292],[126.9174,37.5281]],
+  singil:[[126.9318,37.5268],[126.9250,37.5230],[126.9190,37.5190],[126.9137,37.5170]],
+  mapo:[[126.9299,37.5287],[126.9426,37.5375],[126.9459,37.5391]]};
+const DETOUR=1.15;
 
 // ── 데이터 ──
 async function load(){
+  let fresh=null;
   try{const r=await fetch("data/latest.json?"+Date.now(),{cache:"no-store"});
-      if(r.ok){DATA=await r.json();try{localStorage.setItem("go-latest",JSON.stringify(DATA))}catch(e){}}}catch(e){}
-  if(!DATA){try{const c=localStorage.getItem("go-latest");if(c){DATA=JSON.parse(c);DATA.__offline=true;}}catch(e){}}
-  try{const r=await fetch("data/exit_forecast_2026.json",{cache:"no-store"});if(r.ok)PRIOR=await r.json();}catch(e){}
+      if(r.ok){fresh=await r.json();try{localStorage.setItem("go-latest",JSON.stringify(fresh))}catch(e){}}}catch(e){}
+  if(fresh)DATA=fresh;
+  else if(!DATA){try{const c=localStorage.getItem("go-latest");if(c){DATA=JSON.parse(c);DATA.__offline=true;}}catch(e){}}
+  else DATA.__offline=true;                  // 갱신 실패 — 들고 있던 것으로 계속
+  if(!PRIOR){try{const r=await fetch("data/exit_forecast_2026.json",{cache:"no-store"});if(r.ok)PRIOR=await r.json();}catch(e){}}
+  if(!CAMS){try{CAMS=await(await fetch("data/cams.json",{cache:"no-store"})).json();}catch(e){}}
+  if(!DATA)DATA={};
   // 12시간 넘게 오래된 실시간은 사전 예측표로 물러난다 (index.html 과 같은 기준)
-  const fc=(DATA&&DATA.forecast)||{};
-  if((!fc.exits||!Object.keys(fc.exits).length||Board.isStale(DATA&&DATA.generated))&&PRIOR){
+  const fc=DATA.forecast||{};
+  if((!fc.exits||!Object.keys(fc.exits).length||Board.isStale(DATA.generated))&&PRIOR){
     DATA=Object.assign({},DATA,{forecast:Object.assign({},PRIOR,{prior:true})});
   }
+  buildField();
   render();
-  if(MAP&&FIELD_PAINTED)paintField();   // 5분 틱마다 색도 같이 갱신
+  paintField();
 }
 
-function stateLine(){
-  const fc=(DATA&&DATA.forecast)||{};
-  const age=Board.ageMin(DATA&&DATA.generated);
-  const fr=Board.freshness(fc,DATA&&DATA.generated);   // 발행 시각만 보면 수집 끊김을 놓친다 (H10)
-  const r=Board.rank(fc,HOUR);
-  let txt,warn=false;
-  if(DATA&&DATA.__offline){txt="오프라인 — 이 기기에 저장된 마지막 정보";warn=true;}
-  else if(r.mode==="live"&&fr.reason==="collection")txt=`수집 끊김 · 마지막 수신 ${fr.srcAge==null?"기록 없음":fr.srcAge+"분 전"}`,warn=true;
-  else if(r.mode==="live"&&age!=null&&age<=15)txt=`실시간 · ${age}분 전 갱신`;
-  else if(r.mode==="live")txt=`${age==null?"":age+"분 전 갱신 · "}갱신이 늦다`,warn=true;
-  else {txt=r.modeNote;warn=true;}
-  $("state").textContent=txt;
-  $("dot").className="dotp"+(warn?" warn":"");
-}
-
-function render(){
-  const fc=(DATA&&DATA.forecast)||{};
-  const first=Board.rank(fc,"21");
-  if(!HOUR)HOUR=Board.defaultHour();
-  if(!first.hours.includes(HOUR))HOUR=first.hours.includes("21")?"21":first.hours[0];
-  $("tabs").innerHTML=first.hours.map(h=>`<button role="tab" aria-selected="${h===HOUR}" data-h="${h}">${h}시</button>`).join("");
-  $("tabs").querySelectorAll("button").forEach(b=>b.onclick=()=>{HOUR=b.dataset.h;render();});
-
-  const r=Board.rank(fc,HOUR);
-  $("title").textContent=`${HOUR}시에 나가면 어디가 덜 막히나`;
-  const row=(x,g,i,top)=>`<div class="ex${top?" top":""}" data-g="${g}">
-      <div class="rk">${i==null?"—":String(i+1).padStart(2,"0")}</div>
-      <div><div class="nm"><span class="t">${esc(x.name)}</span>${x.estimated?'<span class="est">처리량 추정</span>':""}</div>
-        <div class="ds">${esc(x.desc)}</div><div class="note">${esc(x.note)}</div></div>
-      <div class="tag">${g}</div></div>`;
-  const html=r.open.map((x,i)=>row(x,x.grade,i,i===0)).join("")
-    +r.closed.map(x=>row(x,"통제",null)).join("")
-    +r.missing.map(x=>row(x,"없음",null)).join("");
-  $("board").innerHTML=html||`<div class="ex"><div class="rk">—</div><div><div class="nm">예측 없음</div><div class="ds">수집 시작 전이다.</div></div><div class="tag">—</div></div>`;
-  $("ctrl").innerHTML=`<b>오늘의 통제</b> · 여의동로 15~24시 전면 · 여의나루역 20:40~21:40 임시(무정차) · 원효대교 전면(차량)`;
-
-  const snap=(fc.live_snapshot||{})["여의도한강공원"]||{};
-  const nowEl=$("now");
-  if(snap.congest){
-    const gm={"여유":"여유","보통":"주의","약간 붐빔":"경계","붐빔":"심각"}[snap.congest]||"주의";
-    nowEl.style.setProperty("--gc",`var(--g-${gm})`);
-    const pp=(snap.ppltn&&snap.ppltn[0]!=null)?` · ${Number(snap.ppltn[0]).toLocaleString()}~${Number(snap.ppltn[1]).toLocaleString()}명`:"";
-    nowEl.innerHTML=`<b>${esc(snap.congest)}</b><span>행사장 실시간 혼잡도${pp}</span>`;
-  }else nowEl.innerHTML=`<b>—</b><span>실시간 혼잡도를 아직 받지 못했다</span>`;
-  stateLine();
-  $("plans").innerHTML=Board.PLANS.map(p=>`<div class="plan"><h3><small>${esc(p.where)} · ${esc(p.share)}</small>${esc(p.title)}</h3><ol>${p.items.map(i=>`<li>${esc(i)}</li>`).join("")}</ol></div>`).join("");
-}
-
-// ── 길찾기 (지도·보행망은 누를 때만 받는다 — 축제일 통신 포화 대비) ──
-const STATIONS={yeouido:{name:"여의도역",lng:126.924194,lat:37.521754},yeouinaru:{name:"여의나루역",lng:126.932901,lat:37.527098},
-  assembly:{name:"국회의사당역",lng:126.917874,lat:37.528105},saetgang:{name:"샛강역",lng:126.928422,lat:37.517274},
-  singil:{name:"신길역",lng:126.916352,lat:37.517243},mapo:{name:"마포역",lng:126.945708,lat:37.539141}};
-$("dest").innerHTML=Object.entries(STATIONS).map(([k,v])=>`<option value="${k}">${esc(v.name)}</option>`).join("");
-let MAP=null,GRAPH=null,START=null,SM=null,DM=null;
-const distM=(a,b)=>{const la=(a[1]+b[1])*Math.PI/360;return Math.hypot((a[0]-b[0])*111320*Math.cos(la),(a[1]-b[1])*111320);};
-const tagv=v=>String(v==null?"":v).toLowerCase();
-const allowed=e=>!/(motorway|trunk|busway)/.test(tagv(e.h))&&!/(^|,)(no|private)(,|$)/.test(tagv(e.f))&&!/(^|,)(no|private)(,|$)/.test(tagv(e.a));
-
-function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>no(new Error("지도 라이브러리를 받지 못했다."));document.head.appendChild(s);});}
-function loadCss(href){return new Promise(ok=>{const l=document.createElement("link");l.rel="stylesheet";l.href=href;l.onload=ok;l.onerror=ok;document.head.appendChild(l);});}
-
-async function openMap(){
-  $("rstat").textContent="지도를 여는 중…";
-  await loadCss("https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css");
-  await loadScript("https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js");
-  $("map").classList.add("on");
-  MAP=new maplibregl.Map({container:"map",style:"https://tiles.openfreemap.org/styles/"+(theme()==="light"?"positron":"dark"),center:[126.934,37.529],zoom:13.2});
-  MAP.addControl(new maplibregl.NavigationControl({showCompass:false}),"top-right");
-  MAP.on("load",async()=>{
-    await paintField();                       // 혼잡장을 경로선보다 먼저 깔아야 선이 위로 온다
-    MAP.addSource("route",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
-    MAP.addLayer({id:"route",type:"line",source:"route",paint:{"line-color":"#F37321","line-width":5,"line-opacity":.95}});});
-  MAP.on("click",e=>{START=[e.lngLat.lng,e.lngLat.lat];if(SM)SM.remove();SM=new maplibregl.Marker({color:"#F37321"}).setLngLat(START).addTo(MAP);
-    $("run").textContent="경로 찾기";$("run").disabled=false;$("rstat").textContent="출발점을 정했다. 경로 찾기를 누르면 된다.";});
-  $("run").textContent="지도를 눌러 출발점을 찍으세요";$("run").disabled=true;
-  $("rstat").textContent="지금 서 있는 곳을 지도에서 눌러라.";
-}
-
-/* ── 지금 혼잡도를 지도에 깐다 ─────────────────────────────────────
-   운영 화면(index.html)이 쓰는 것과 같은 경로다: CCTV 등급 → 혼잡장 회귀
-   (docs/app/field.js — 방법은 그 파일과 보고서 §3.9 에 있다) → 격자 크기 PNG →
-   지도 image 소스. 상수도 같은 값이어야 한다.
-   방법론 용어를 이 파일에 쓰지 않는다 — 관람객 화면이라 tests/test_board.py 가 막는다.
-   여기서 다시 계산하면 같은 시각에 두 화면이 다른 색을 내게 된다. */
+// ── 혼잡장 — 운영 화면과 같은 경로 (CCTV 등급 → app/field.js → 격자 PNG). 상수도 같은 값. ──
 const F_KERNEL={varShort:.125,lenShort:150,varLong:.125,lenLong:1200};
 const F_SD_MAX=Math.sqrt(F_KERNEL.varShort+F_KERNEL.varLong);
 const F_PAD=.012,F_COLS=140,F_ROWS=110,F_FEATHER=.18;
-let CAMS=null,FIELD_PAINTED=false,FIELD=null,FGRID=null;
-
-const gcol=g=>getComputedStyle(document.documentElement).getPropertyValue("--g-"+g).trim();
-const hex2rgb=h=>{h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));};
 /* index.html apfPalette 와 같은 램프 — 등급 밴드 안에서는 색을 유지하고 경계에서만 넘어간다.
-   선형 보간하면 u=0.35 가 초록+골드 = 올리브가 되어 등급과 어긋난다. */
-function fRamp(){const V=hex2rgb(gcol("여유")),J=hex2rgb(gcol("주의")),G=hex2rgb(gcol("경계")),S=hex2rgb(gcol("심각"));
+   칩·숫자의 등급색(--g-*)은 흰 글자 대비 때문에 어둡게 조정했지만, 지도 색은 운영 화면과 같아야 한다. */
+const RAMP_HEX={V:"#2E7D5B",J:"#B8860B",G:"#C2622B",S:"#B3352B"};
+const hex2rgb=h=>{h=h.replace("#","");return [0,2,4].map(i=>parseInt(h.slice(i,i+2),16));};
+function fRamp(){const V=hex2rgb(RAMP_HEX.V),J=hex2rgb(RAMP_HEX.J),G=hex2rgb(RAMP_HEX.G),S=hex2rgb(RAMP_HEX.S);
   return [[0,V],[.50,V],[.63,J],[.78,G],[.92,S],[1,S]];}
 function fHex(ramp,u){u=Math.max(0,Math.min(1,u));
   for(let i=0;i<ramp.length-1;i++){const[a,va]=ramp[i],[b,vb]=ramp[i+1];
@@ -260,141 +242,278 @@ function fieldObs(){
   const cctv=(DATA&&DATA.cctv)||{};
   const vals=Object.entries(cctv).map(([id,v])=>Object.assign({id:String(id)},v));
   const byId=new Map(vals.map(v=>[String(v.cam_id||v.id),v])),byName=new Map(vals.map(v=>[v.name,v]));
-  const now=Date.now();
-  const obs=[];
+  const now=Date.now(),obs=[];
   (CAMS||[]).forEach(cam=>{
     const v=byId.get(String(cam.camId))||byName.get(cam.name)||null;
     if(!v||v.ok===false)return;
     let y=null,kind="cctv_uncalibrated";
     if(v.calibrated&&v.density!=null){y=Field.densityToUnit(v.density);kind="cctv_calibrated";}
     else y=Field.levelToUnit(v.level);
-    if(y==null)return;                                   // 「보정전」 등 등급이 없으면 정보가 없다
+    if(y==null)return;
     const t=v.ts?Date.parse(String(v.ts).replace(" ","T")):NaN;
     const ageMin=isFinite(t)?Math.max(0,(now-t)/60000):null;
-    obs.push({x:[cam.lng,cam.lat],y,
-      sigma:Field.obsNoise({kind,confidence:v.confidence,flags:v.flags,ageMin})});
+    obs.push({x:[cam.lng,cam.lat],y,sigma:Field.obsNoise({kind,confidence:v.confidence,flags:v.flags,ageMin})});
   });
   return obs;
 }
-
-async function paintField(){
+function buildField(){
+  FIELD=null;FGRID=null;NOBS=0;
   try{
-    if(!CAMS)CAMS=await(await fetch("data/cams.json",{cache:"no-store"})).json();
     if(!CAMS||!CAMS.length||typeof Field==="undefined")return;
-    const obs=fieldObs();
-    if(!obs.length){$("fkey").hidden=true;return;}
+    const obs=fieldObs();if(!obs.length)return;
     const lngs=CAMS.map(c=>c.lng),lats=CAMS.map(c=>c.lat);
-    const x0=Math.min(...lngs)-F_PAD,x1=Math.max(...lngs)+F_PAD;
-    const y0=Math.min(...lats)-F_PAD,y1=Math.max(...lats)+F_PAD;
+    const x0=Math.min(...lngs)-F_PAD,x1=Math.max(...lngs)+F_PAD,y0=Math.min(...lats)-F_PAD,y1=Math.max(...lats)+F_PAD;
     const g={x0,y0,dx:(x1-x0)/F_COLS,dy:(y1-y0)/F_ROWS,cols:F_COLS,rows:F_ROWS};
-    const fld=Field.buildField({observations:obs,grid:g,prior:null,fallbackPrior:.3,kernel:F_KERNEL});
-    FIELD=fld;FGRID=g;                                   // 경로 비용이 같은 장을 읽는다
-    const ramp=fRamp(),cv=document.createElement("canvas");cv.width=g.cols;cv.height=g.rows;
+    FIELD=Field.buildField({observations:obs,grid:g,prior:null,fallbackPrior:.3,kernel:F_KERNEL});
+    FGRID=g;FBOUNDS=[x0,y0,x1,y1];NOBS=obs.length;
+  }catch(e){FIELD=null;}
+}
+function fieldAt(p){
+  if(!FIELD||!FGRID)return null;
+  const ix=Math.floor((p[0]-FGRID.x0)/FGRID.dx),iy=Math.floor((p[1]-FGRID.y0)/FGRID.dy);
+  if(ix<0||iy<0||ix>=FGRID.cols||iy>=FGRID.rows)return null;
+  const k=iy*FGRID.cols+ix;return{u:Math.max(0,Math.min(1,FIELD.mean[k])),sd:FIELD.sd[k]};
+}
+function paintField(){
+  if(!MAPREADY||!MAP)return;
+  if(!FIELD){$("legend").hidden=true;return;}
+  try{
+    const g=FGRID,ramp=fRamp(),cv=document.createElement("canvas");cv.width=g.cols;cv.height=g.rows;
     const cx=cv.getContext("2d"),img=cx.createImageData(g.cols,g.rows),px=img.data;
+    const dim=DATA&&DATA.__offline?.55:1;
     // 가장자리에서 알파를 0 으로 — 사각형 경계선이 보이면 "여기까지가 데이터"라고 오해된다
     const fade=(i,len)=>{const t=Math.min(i+.5,len-.5-i)/(len*F_FEATHER);return t>=1?1:t<=0?0:t*t*(3-2*t);};
     for(let iy=0;iy<g.rows;iy++)for(let ix=0;ix<g.cols;ix++){
-      const c=iy*g.cols+ix,u=Math.max(0,Math.min(1,fld.mean[c]));
-      const conf=Math.max(0,1-fld.sd[c]/F_SD_MAX),cn=Math.min(1,conf/.15);
+      const c=iy*g.cols+ix,u=Math.max(0,Math.min(1,FIELD.mean[c]));
+      const conf=Math.max(0,1-FIELD.sd[c]/F_SD_MAX),cn=Math.min(1,conf/.15);
       const hot=Math.max(0,Math.min(1,(u-.3)/.7));
-      const col=fHex(ramp,u),o=(.45+.50*hot)*(.45+.55*cn);
-      const j=((g.rows-1-iy)*g.cols+ix)*4;                // 캔버스는 위가 북쪽, 격자는 아래가 남쪽
-      const a=fade(ix,g.cols)*fade(iy,g.rows);
-      px[j]=col[0]|0;px[j+1]=col[1]|0;px[j+2]=col[2]|0;px[j+3]=Math.round(255*Math.max(0,Math.min(1,o))*a);
+      const col=fHex(ramp,u),o=(.45+.50*hot)*(.45+.55*cn)*dim;
+      const j=((g.rows-1-iy)*g.cols+ix)*4;               // 캔버스는 위가 북쪽, 격자는 아래가 남쪽
+      px[j]=col[0]|0;px[j+1]=col[1]|0;px[j+2]=col[2]|0;
+      px[j+3]=Math.round(255*Math.max(0,Math.min(1,o))*fade(ix,g.cols)*fade(iy,g.rows));
     }
     cx.putImageData(img,0,0);
-    const coords=[[x0,y1],[x1,y1],[x1,y0],[x0,y0]];       // 좌상·우상·우하·좌하
-    const url=cv.toDataURL("image/png");
+    const [x0,y0,x1,y1]=FBOUNDS,coords=[[x0,y1],[x1,y1],[x1,y0],[x0,y0]],url=cv.toDataURL("image/png");
     const src=MAP.getSource("crowd");
-    if(src){src.updateImage({url,coordinates:coords});}
+    if(src)src.updateImage({url,coordinates:coords});
     else{
       MAP.addSource("crowd",{type:"image",url,coordinates:coords});
-      MAP.addLayer({id:"crowd",type:"raster",source:"crowd",
-        paint:{"raster-opacity":1,"raster-resampling":"linear","raster-fade-duration":0}});
+      MAP.addLayer({id:"crowd",type:"raster",source:"crowd",paint:{"raster-opacity":1,"raster-resampling":"linear","raster-fade-duration":0}},
+        MAP.getLayer("route")?"route":undefined);
       // 물 레이어를 위에 다시 올린다 — 안 그러면 혼잡도가 한강을 덮는다
       const w=(MAP.getStyle().layers||[]).find(L=>L.type==="fill"&&(/water/i.test(L.id)||/water/i.test(L["source-layer"]||"")));
-      if(w)MAP.addLayer(Object.assign({},w,{id:"crowd-water",paint:Object.assign({},w.paint||{},{"fill-opacity":1})}));
+      if(w)MAP.addLayer(Object.assign({},w,{id:"crowd-water",paint:Object.assign({},w.paint||{},{"fill-opacity":1})}),MAP.getLayer("route")?"route":undefined);
     }
-    const cal=Object.values((DATA&&DATA.cctv)||{}).filter(v=>v.calibrated).length;
-    $("fnote").textContent="CCTV "+obs.length+"대가 본 지금 혼잡도"
-      +(cal?"":" — 밀도 보정 전이라 등급만 읽는다")+". 옅은 곳은 근거가 얇다.";
-    $("fkey").hidden=false;FIELD_PAINTED=true;
-  }catch(e){$("fkey").hidden=true;}                        // 색이 없어도 길찾기는 그대로 돈다
+    $("legend").hidden=false;
+  }catch(e){$("legend").hidden=true;}
 }
 
-/** 간선 중점이 떨어지는 장 격자 칸. 장이 없거나 밖이면 -1. */
-function edgeCell(e){
-  if(!FIELD||!FGRID)return -1;
-  const c=(e.g&&e.g.length)?e.g[Math.floor(e.g.length/2)]:null;
-  const a=c||GRAPH_NODES[e.u],b=c?null:GRAPH_NODES[e.v];
-  const x=c?c[0]:(a&&b?(a[0]+b[0])/2:null),y=c?c[1]:(a&&b?(a[1]+b[1])/2:null);
-  if(x==null)return -1;
-  const ix=Math.floor((x-FGRID.x0)/FGRID.dx),iy=Math.floor((y-FGRID.y0)/FGRID.dy);
-  if(ix<0||iy<0||ix>=FGRID.cols||iy>=FGRID.rows)return -1;
-  return iy*FGRID.cols+ix;
+// ── 걷는 시간 — 경유점 사이를 8점씩 나눠 그 자리의 혼잡도로 속도를 정한다. 운영 화면과 같은 속도식(app/field.js).
+//    본 곳(카메라 근처)은 관측 밀도, 못 본 곳은 가로 기본 — 장이 없으면 σ 최대 = 확신도 0 = 가로 기본.
+function walk(key){
+  const pts=[ORIGIN].concat(WAY[key]||[]);let sec=0,m=0;
+  for(let i=1;i<pts.length;i++){
+    const a=pts[i-1],b=pts[i],L=distM(a,b)*DETOUR,n=8;m+=L;
+    for(let s=0;s<n;s++){const t=(s+.5)/n,p=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t],f=fieldAt(p);
+      sec+=f?Field.blendSeconds(L/n,f.u,f.sd,F_SD_MAX):Field.blendSeconds(L/n,0,F_SD_MAX,F_SD_MAX);}
+  }
+  return{min:Math.max(1,Math.round(sec/60)),km:m/1000};
 }
-/** 간선의 혼잡도 0~1 과 σ. 장이 없으면 σ=사전 폭 → 확신도 0 → 가로 기본 밀도 → 거리 기준과 같은 경로. */
-const edgeUnit=e=>{const k=edgeCell(e);return k<0?0:Math.max(0,Math.min(1,FIELD.mean[k]));};
-const edgeSd=e=>{const k=edgeCell(e);return k<0?F_SD_MAX:FIELD.sd[k];};
-/** 그 간선을 걷는 초 — 경로를 고르는 비용이자 화면에 보여주는 시간. 본 곳은 관측 밀도, 못 본 곳은 가로 기본. */
-const edgeSeconds=(m,e)=>Field.blendSeconds(m,edgeUnit(e),edgeSd(e),F_SD_MAX);
-let GRAPH_NODES=null;
+/** 1위 = 도보 + 대기 (2026-09-04 결정). 부하율 순위(Board.rank 기본)는 운영 화면에 남는다. */
+function rankByTime(r){
+  [].concat(r.open,r.closed,r.missing).forEach(x=>{const w=walk(x.key);x.min=w.min;x.km=w.km;});
+  r.open.sort((a,b)=>(a.min+a.waitMin)-(b.min+b.waitMin));
+  return r;
+}
+function hero(r){const all=[].concat(r.open,r.closed,r.missing);return(SEL&&all.find(x=>x.key===SEL))||r.open[0]||all[0]||null;}
+const gcolor=g=>`var(--g-${g})`;
+/** 순위 카드의 방면 한 줄 — 노선은 역명 괄호에 이미 있고, 고정 도보 추정(58분)은 지금 계산한 분과 부딪힌다. */
+const why=d=>String(d||"").replace(/^.*?호선\s*·\s*/,"").replace(/도보 약 \d+분\(추정\)\s*·?\s*/,"");
 
-async function graph(){
-  if(GRAPH)return GRAPH;
-  const g=await(await fetch("data/routing/walk_graph.json")).json();
-  const edges=(typeof RoutingExtra!=="undefined")?RoutingExtra.withExtraEdges(g.edges):g.edges;
-  const adj=new Map(),usable=new Set();
-  for(const e of edges){if(!allowed(e))continue;if(!adj.has(e.u))adj.set(e.u,[]);adj.get(e.u).push(e);usable.add(e.u);usable.add(e.v);}
-  GRAPH={nodes:g.nodes,adj,usable:[...usable]};GRAPH_NODES=g.nodes;return GRAPH;
+// ── 신선도 필 — 경고창 없이 점 하나·단어 하나 (H10: 발행 시각만 보면 수집 끊김을 놓친다)
+function freshUI(r){
+  const fc=(DATA&&DATA.forecast)||{},gen=DATA&&DATA.generated,fr=Board.freshness(fc,gen);
+  const hhmm=t=>{if(!t)return"";const d=new Date(String(t).replace(" ","T"));return isFinite(d)?d.toTimeString().slice(0,5):"";};
+  if(DATA&&DATA.__offline)return{cls:"off",word:"오프라인",time:hhmm(gen)?hhmm(gen)+" 데이터":"저장된 데이터"};
+  if(fr.reason==="collection")return{cls:"",word:"수집 끊김",time:fr.srcAge==null?"":fr.srcAge+"분 전"};
+  if(fr.reason==="pre")return{cls:"",word:"수집 전",time:"예측표"};
+  if(fr.reason==="publish")return{cls:"",word:fr.pubAge+"분 전",time:"갱신 늦음"};
+  if(r.mode!=="live")return{cls:"",word:"사전 예측",time:hhmm(gen)};
+  return{cls:"live",word:"실시간",time:hhmm(gen)};
 }
-function nearest(g,p){let b=null,bd=Infinity;for(const id of g.usable){const c=g.nodes[id];if(!c)continue;const d=distM(p,c);if(d<bd){bd=d;b=id;}}return b;}
-/* 비용은 거리가 아니라 **그 간선을 걷는 데 걸리는 시간**이다(초). 고르는 기준과 화면에 뜨는
-   값이 같은 계산(edgeSeconds)에서 나온다. 본 곳(카메라 근처)은 관측 밀도, 못 본 곳은 가로 기본이라
-   병목을 봤을 때만 그 병목을 피해 돈다. 휴리스틱은 자유보행 시간(허용적). */
-function astar(g,s,t){
-  const cost=e=>edgeSeconds(Math.max(0.1,Number(e.m)||0.1),e);
-  const dist=new Map([[s,0]]),came=new Map(),q=[[0,s]],goal=g.nodes[t];
-  while(q.length){q.sort((a,b)=>a[0]-b[0]);const[,u]=q.shift();if(u===t)break;
-    for(const e of g.adj.get(u)||[]){const nd=dist.get(u)+cost(e);
-      if(nd<(dist.has(e.v)?dist.get(e.v):Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e]);
-        q.push([nd+distM(g.nodes[e.v],goal)/Field.V_FREE,e.v]);}}}
-  if(!came.has(t)&&s!==t)return null;
-  const es=[];let u=t;while(u!==s){const v=came.get(u);if(!v)break;es.push(v[1]);u=v[0];}
-  es.reverse();
-  let meters=0;for(const e of es)meters+=Number(e.m)||0;
-  // 고르는 비용과 보여주는 시간이 같은 계산이다 — 둘이 갈리면 "더 돌게 하고 더 느리다"고 말하게 된다
-  return{edges:es,meters,seconds:dist.get(t)};
-}
-// 보행 속도는 운영 화면과 같은 밀도별 모델(§3.2)을 쓰지 않고, 관람객에게는 보수적 고정값으로 말한다.
-// 소요 시간은 경로 비용 그대로다(구간별 혼잡도 반영 — 본 곳은 관측 밀도, 못 본 곳은 가로 1.5명/m²).
-// 장이 없으면 예전 기준(67m/분 = 인파 속 보행)으로 보수적으로 말한다.
-const walkMin=out=>Math.max(1,Math.round(FIELD?out.seconds/60:out.meters/67));
-$("run").onclick=async()=>{
-  const b=$("run");
-  if(!MAP){b.disabled=true;try{await openMap();}catch(e){$("rstat").textContent=e.message;b.disabled=false;}return;}
-  if(!START){$("rstat").textContent="지도를 눌러 출발점을 먼저 찍어라.";return;}
-  b.disabled=true;$("rstat").textContent="걸어갈 길을 찾는 중…";
-  try{
-    const g=await graph(),s=STATIONS[$("dest").value];
-    const out=astar(g,nearest(g,START),nearest(g,[s.lng,s.lat]));
-    if(!out)throw new Error("연결된 보행 경로를 찾지 못했다.");
-    const coords=[];for(const e of out.edges){const u=g.nodes[e.u];let seg=(e.g||[u,g.nodes[e.v]]).slice();
-      if(seg.length>1&&distM(seg[0],u)>distM(seg[seg.length-1],u))seg.reverse();
-      for(const c of seg){const l=coords[coords.length-1];if(!l||l[0]!==c[0]||l[1]!==c[1])coords.push(c);}}
-    MAP.getSource("route").setData({type:"FeatureCollection",features:[{type:"Feature",geometry:{type:"LineString",coordinates:coords}}]});
-    if(DM)DM.remove();DM=new maplibregl.Marker({color:"#2E7D5B"}).setLngLat([s.lng,s.lat]).addTo(MAP);
-    const bb=new maplibregl.LngLatBounds();coords.forEach(c=>bb.extend(c));
-    MAP.fitBounds(bb,{padding:40,maxZoom:16});
-    const viaMapo=out.edges.some(e=>e.mapo_walk);
-    $("rstat").textContent=`${s.name}까지 ${(out.meters/1000).toFixed(2)}km · 걸어서 약 ${walkMin(out)}분(${FIELD?"지금 혼잡도 반영":"인파 속 보행 기준"})`
-      +(viaMapo?" · 마포대교 보행 구간은 길이 근사":"");
-  }catch(e){$("rstat").textContent=e.message||"경로를 찾지 못했다.";}
-  finally{b.disabled=false;}
-};
 
-load();
-setInterval(load,5*60*1000);
+// ── 화면 ──
+let CUR=null;
+function render(){
+  const fc=(DATA&&DATA.forecast)||{};
+  const avail=hoursOf(fc,Board.rank(fc,"21"));
+  if(!HOUR)HOUR=Board.defaultHour();
+  if(!avail.includes(HOUR))HOUR=avail.includes("21")?"21":avail[0];
+  const r=rankByTime(Board.rank(fc,HOUR)),h=hero(r);CUR={r,h};
+  const H=hoursOf(fc,r);
+  const nowH=new Date().getHours(),isNow=nowH>=19&&nowH<=23&&HOUR===String(nowH),hl=isNow?"지금":HOUR+"시";   // 축제 창 밖이면 "21시"라고 말한다
+  const f=freshUI(r);$("fresh").className="pill "+f.cls;$("fword").textContent=f.word;$("ftime").textContent=f.time;
+  $("origin").textContent=GEO==="ok"?"내 위치에서":"이벤트광장에서";
+  $("ranklab").textContent=hl+" 순위";
+  if(!h){$("hname").textContent="예측 없음";$("hmin").textContent="—";$("hkm").textContent="";$("gchip").textContent="";$("hwait").textContent="수집 시작 전";
+    $("chips").innerHTML="";$("rank").innerHTML="";$("eyebrow").textContent=hl;return;}
+  const closed=h.grade==null&&h.note&&r.closed.includes(h),missing=h.grade==null&&!closed;
+  const grade=closed?"통제":missing?"없음":h.grade;
+  $("eyebrow").textContent=hl+(r.open[0]&&h.key===r.open[0].key?" · 추천":"");
+  $("hname").textContent=h.name;
+  $("hero").style.setProperty("--gc",gcolor(grade));
+  $("hmin").textContent=closed?"—":h.min;
+  $("hkm").textContent=closed?"":h.km.toFixed(1)+" km";
+  $("gchip").textContent=grade;
+  $("hwait").textContent=closed?"~21:40 통제":h.waitMin>0?"대기 "+h.waitMin+"분":"";
+  const reason=closed||missing?h.note:(h.key==="mapo"?"마포대교 보행 구간은 길이 근사":"");
+  $("hreason").textContent=reason;$("hreason").hidden=!reason;
+  $("chartlab").textContent=h.sh+" 시간대별";
+  // 목적지 칩 — 한 탭이면 바뀐다
+  $("chips").innerHTML=[].concat(r.open,r.closed,r.missing).map(x=>{const on=x.key===h.key,cl=x.grade==null;
+    return`<button type="button" class="chip${on?" on":""}${cl&&!on?" dim":""}" data-k="${x.key}"><b>${esc(x.sh)}</b><small>${cl?(r.closed.includes(x)?"통제 ~21:40":"값 없음"):"걸어서 "+x.min+"분"}</small></button>`;}).join("");
+  $("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{SEL=b.dataset.k;render();});
+  // 순위 top3
+  $("rank").innerHTML=r.open.slice(0,3).map((x,i)=>`<div class="rk${x.key===h.key?" on":""}" data-k="${x.key}" style="--gc:${gcolor(x.grade)}">
+      <span class="no">${String(i+1).padStart(2,"0")}</span>
+      <div><div class="nm">${esc(x.sh)} <small>· ${x.min+x.waitMin}분</small></div><div class="why">${esc(why(x.desc))}${x.waitMin>0?" · 대기 "+x.waitMin+"분":""}</div></div>
+      <span class="g">${x.grade}</span></div>`).join("")
+    ||`<div class="rk"><span class="no">—</span><div><div class="nm">열린 출구 없음</div></div><span></span></div>`;
+  $("rank").querySelectorAll(".rk[data-k]").forEach(b=>b.onclick=()=>{SEL=b.dataset.k;render();});
+  chart(fc,h,H);
+  drawRoute();
+}
+/** 예측표에 있는 시각들 — Board.rank 의 hours 는 폴백 표 기준(20~22)이라 실시간 19~23 을 못 담는다. */
+function hoursOf(fc,r){
+  const ex=(fc&&fc.exits)||{},set=new Set();
+  Object.values(ex).forEach(row=>Object.keys(row||{}).forEach(k=>{if(/^\d+$/.test(k))set.add(String(k));}));
+  const hs=[...set].sort((a,b)=>+a-+b);
+  return hs.length?hs:r.hours;
+}
+
+// ── 시간대별 부하 차트 — 문지르면 시각이 바뀌고 히어로·순위·경로가 따라간다 ──
+const CW=350,CH=132,CTOP=1.4,CPAD=24;
+const cy=v=>104-Math.min(v,CTOP)/CTOP*88;
+function chart(fc,h,H){
+  const row=((fc.exits||{})[h.dk])||{},n=H.length,xs=i=>n>1?CPAD+i*(CW-2*CPAD)/(n-1):CW/2;   // 양끝 눈금 글자가 잘리지 않게 24 띄운다
+  const pts=H.map((hh,i)=>{const c=row[hh]||{};return{x:xs(i),v:c.load,lo:c.load_lo,hi:c.load_hi,closed:c.closed,h:hh};});
+  let line="",band="",back=[];
+  pts.forEach(p=>{if(p.v==null)return;line+=(line?" L":"M")+p.x+" "+cy(p.v);
+    if(p.lo!=null&&p.hi!=null){band+=(band?" L":"M")+p.x+" "+cy(p.hi);back.unshift(p.x+" "+cy(p.lo));}});
+  if(back.length)band+=" L"+back.join(" L")+" Z";
+  const ci=Math.max(0,H.indexOf(HOUR)),cp=pts[ci]||{x:xs(0)},cv=cp.v;
+  const ticks=pts.map(p=>`<text x="${p.x}" y="124" text-anchor="middle" font-size="12" font-weight="${p.h===HOUR?800:500}" fill="${p.h===HOUR?"#14110C":"#8F897D"}">${p.h}:00</text>`).join("");
+  $("svg").innerHTML=`<line x1="0" y1="104" x2="${CW}" y2="104" stroke="#E2DFD8" stroke-width="1"/>
+    <line x1="0" y1="${cy(1)}" x2="${CW}" y2="${cy(1)}" stroke="#E2DFD8" stroke-width="1" stroke-dasharray="3 4"/>
+    <text x="340" y="${cy(1)-5}" text-anchor="end" font-size="11" font-weight="700" fill="#8F897D">한계</text>
+    <path d="${band}" fill="rgba(20,17,12,.07)"/>
+    <path d="${line}" fill="none" stroke="#14110C" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <line x1="${cp.x}" y1="8" x2="${cp.x}" y2="104" stroke="#14110C" stroke-width="1"/>
+    <circle cx="${cp.x}" cy="${cv==null?104:cy(cv)}" r="6" fill="#FFFFFF" stroke="#14110C" stroke-width="2.5"/>${ticks}`;
+  const tip=$("tip");
+  tip.textContent=cp.closed?"통제":cv==null?"값 없음":"혼잡 "+cv.toFixed(2)+" · "+Board.grade(cv)+(cp.hi!=null?" ("+cp.lo.toFixed(2)+"–"+cp.hi.toFixed(2)+")":"");
+  tip.style.left=(cp.x/CW*100)+"%";
+  $("chart").dataset.hours=H.join(",");
+}
+let SCRUB=false;
+function scrubAt(e){
+  const el=$("chart"),H=(el.dataset.hours||"").split(",").filter(Boolean);if(!H.length)return;
+  const b=el.getBoundingClientRect(),x=e.clientX-b.left,i=Math.max(0,Math.min(H.length-1,Math.round((x-CPAD/CW*b.width)/((b.width*(CW-2*CPAD)/CW)/Math.max(1,H.length-1)))));
+  if(H[i]!==HOUR){HOUR=H[i];render();}
+}
+$("chart").addEventListener("pointerdown",e=>{SCRUB=true;$("chart").setPointerCapture(e.pointerId);scrubAt(e);});
+$("chart").addEventListener("pointermove",e=>{if(SCRUB)scrubAt(e);});
+$("chart").addEventListener("pointerup",()=>{SCRUB=false;});
+$("chart").addEventListener("pointercancel",()=>{SCRUB=false;});
+
+// ── 바텀시트 — 핸들 탭·스와이프 ──
+function setOpen(o){
+  OPEN=!!o;document.documentElement.classList.toggle("open",OPEN);$("more").hidden=!OPEN;
+  if(!OPEN)$("body").scrollTop=0;
+  setTimeout(()=>drawRoute(true),340);
+}
+let SY=null;
+$("handle").addEventListener("pointerdown",e=>{SY=e.clientY;});
+$("handle").addEventListener("pointerup",e=>{if(SY==null)return;const dy=e.clientY-SY;SY=null;
+  if(dy<-30)setOpen(true);else if(dy>30)setOpen(false);else setOpen(!OPEN);});
+$("handle").addEventListener("pointercancel",()=>{SY=null;});
+$("handle").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();setOpen(!OPEN);}});
+$("handle").tabIndex=0;
+
+// ── 위치 — 묻지 않는다. 권한 팝업은 브라우저 것이고, 거절이면 이벤트광장 기준으로 그냥 간다 ──
+function setGeo(state,pos){
+  GEO=state;if(pos)ORIGIN=pos;
+  const note=$("geonote"),txt=$("geotext"),btn=$("askgeo");
+  if(state==="ok"){note.hidden=true;}
+  else{note.hidden=false;
+    txt.innerHTML=state==="far"?"<b>여의도 밖이라 이벤트광장 기준</b> · 핀을 끌어 옮기세요":"<b>이벤트광장 기준</b> · 핀을 끌어 옮기세요";
+    btn.hidden=state==="far"||!navigator.geolocation;}
+  if(ME){ME.setDraggable(state!=="ok");ME.getElement().classList.toggle("drag",state!=="ok");ME.setLngLat(ORIGIN);}
+  if(DATA)render();
+}
+function askGeo(){
+  if(!navigator.geolocation){setGeo("denied");return;}
+  navigator.geolocation.getCurrentPosition(p=>{
+    const q=[p.coords.longitude,p.coords.latitude];
+    if(distM(q,EVENT)>FAR_M)setGeo("far");else setGeo("ok",q);
+  },()=>setGeo("denied"),{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
+}
+$("askgeo").onclick=askGeo;
+
+// ── 지도 — 풀블리드. 오프라인이면 타일 없는 빈 바탕에 혼잡장과 경로만. ──
+function sheetH(){return $("sheet").getBoundingClientRect().height;}
+function initMap(){
+  if(typeof maplibregl==="undefined"){return;}                 // 지도 라이브러리를 못 받아도 시트는 그대로 답한다
+  const offline=!!(DATA&&DATA.__offline);
+  $("hatch").hidden=!offline;
+  const style=offline?{version:8,sources:{},layers:[{id:"bg",type:"background",paint:{"background-color":"#E9E6DF"}}]}
+                     :"https://tiles.openfreemap.org/styles/positron";
+  MAP=new maplibregl.Map({container:"map",style,center:[126.929,37.529],zoom:13.4,attributionControl:false});
+  MAP.on("error",e=>{const m=String(e&&e.error&&e.error.message||"");if(!/tile|glyph|sprite|fetch|source/i.test(m))console.warn("map",m);});
+  MAP.on("load",()=>{
+    MAP.addSource("route",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
+    MAP.addLayer({id:"route",type:"line",source:"route",paint:{"line-color":"#1A1A1A","line-width":3},layout:{"line-cap":"round","line-join":"round"}});
+    Board.EXITS.forEach(e=>{const el=document.createElement("div");el.className="lbl";el.textContent=e.sh;LABELS[e.k]=el;
+      new maplibregl.Marker({element:el,anchor:"center"}).setLngLat([e.ll[1],e.ll[0]]).addTo(MAP);});
+    const me=document.createElement("div");me.className="me"+(GEO!=="ok"?" drag":"");
+    me.innerHTML='<img src="assets/ci_logo_s.png" alt="현재 위치">';
+    ME=new maplibregl.Marker({element:me,draggable:GEO!=="ok",anchor:"center"}).setLngLat(ORIGIN).addTo(MAP);
+    ME.on("dragend",()=>{const p=ME.getLngLat();ORIGIN=[p.lng,p.lat];render();});
+    MAPREADY=true;
+    paintField();
+    drawRoute(true);
+  });
+}
+function smooth(pts,n=12){
+  if(pts.length<3)return pts;
+  const P=[pts[0]].concat(pts,[pts[pts.length-1]]),out=[pts[0]];
+  for(let i=1;i<P.length-2;i++){const[p0,p1,p2,p3]=[P[i-1],P[i],P[i+1],P[i+2]];
+    for(let s=1;s<=n;s++){const t=s/n,t2=t*t,t3=t2*t;
+      out.push([0,1].map(k=>.5*((2*p1[k])+(-p0[k]+p2[k])*t+(2*p0[k]-5*p1[k]+4*p2[k]-p3[k])*t2+(-p0[k]+3*p1[k]-3*p2[k]+p3[k])*t3)));}}
+  return out;
+}
+function drawRoute(force){
+  if(!MAPREADY||!CUR||!CUR.h||!MAP.getSource("route"))return;
+  const h=CUR.h;
+  for(const k in LABELS)LABELS[k].classList.toggle("on",k===h.key);
+  const pts=[ORIGIN].concat(WAY[h.key]||[]);
+  MAP.getSource("route").setData({type:"FeatureCollection",features:[{type:"Feature",geometry:{type:"LineString",coordinates:smooth(pts)}}]});
+  if(OPEN)return;                                              // 펼친 시트 아래로 지도를 맞출 자리가 없다
+  const key=h.key+"|"+ORIGIN.join(",");
+  if(!force&&key===FITKEY)return;                              // 5분 갱신마다 지도를 다시 움직이지 않는다
+  FITKEY=key;
+  const bb=new maplibregl.LngLatBounds();pts.forEach(p=>bb.extend(p));
+  MAP.fitBounds(bb,{padding:{top:120,left:50,right:50,bottom:sheetH()+30},maxZoom:15.5,duration:FITTED?500:0});
+  FITTED=true;
+}
+
+// ── 시작 ──
+(async()=>{
+  await load();
+  initMap();
+  askGeo();
+  setInterval(load,5*60*1000);
+})();
 </script>
 </body>
 </html>
