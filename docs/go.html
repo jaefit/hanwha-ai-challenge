@@ -175,6 +175,7 @@ html.open{--sheet-h:calc(100% - var(--sheet-top))}
 
 <script src="app/board.js"></script>
 <script src="app/field.js"></script>
+<script src="app/routing_extra.js"></script>
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 /* 관람객 화면 v2 — 묻지 않는다.
@@ -189,9 +190,10 @@ const FAR_M=3000;                             // 여의도에서 이보다 멀�
 const distM=(a,b)=>Field.distanceM(a,b);
 let DATA=null,PRIOR=null,HOUR=null,SEL=null,OPEN=false,ORIGIN=EVENT.slice(),GEO="asking";
 let MAP=null,MAPREADY=false,CAMS=null,FIELD=null,FGRID=null,FBOUNDS=null,NOBS=0,LABELS={},ME=null,FITKEY="",FITTED=false;
+let GRAPH=null,GNODES=null,GLOADING=false,FIELD_VER=0;const RMEMO={key:"",by:{}};
 
-/* 역별 근사 경유점 (디자인 그대로) — 보행망 5.9MB 를 축제 통신에서 받지 않는다.
-   길이는 직선합 ×1.15. 정확한 보행망 경로는 운영 화면에 있다. */
+/* 역별 근사 경유점 (디자인 그대로) — 보행망(5.9MB, 전송 0.8MB)을 받기 전까지의 폴백.
+   길이는 직선합 ×1.15. 보행망이 오면 아래 routeGraph() 가 자리를 대신한다. */
 const WAY={naru:[[126.9327,37.5271]],
   yd9:[[126.9318,37.5268],[126.9290,37.5238],[126.9262,37.5206]],
   yd5:[[126.9318,37.5268],[126.9270,37.5240],[126.9238,37.5222]],
@@ -210,6 +212,78 @@ function path(key){
   return [ORIGIN].concat(W.slice(best));
 }
 // @pure path end
+
+/* ── 보행망 A* — 운영 화면(index.html routeAstar)과 같은 그래프·같은 비용. 선이 길을 따라가고, 본 곳이 붐비면 돌아간다.
+   보행망은 첫 화면 뒤에 받는다(축제 통신에서 첫 답을 늦추지 않기 위해). 받기 전·못 받으면 위 근사 경유점. ── */
+const DEST={gukhoe:[126.917874,37.528105],mapo:[126.945708,37.539141],yd9:[126.924194,37.521754],yd5:[126.924194,37.521754],
+  saet:[126.928422,37.517274],singil:[126.916352,37.517243],naru:[126.932901,37.527098]};
+const tagv=v=>String(v==null?"":v).toLowerCase();
+const allowed=e=>!/(motorway|trunk|busway)/.test(tagv(e.h))&&!/(^|,)(no|private)(,|$)/.test(tagv(e.f))&&!/(^|,)(no|private)(,|$)/.test(tagv(e.a));
+async function loadGraph(){
+  if(GRAPH||GLOADING)return;GLOADING=true;if(DATA)render();
+  try{
+    const g=await(await fetch("data/routing/walk_graph.json")).json();
+    const edges=(typeof RoutingExtra!=="undefined")?RoutingExtra.withExtraEdges(g.edges):g.edges;
+    const adj=new Map(),usable=new Set();
+    for(const e of edges){if(!allowed(e))continue;if(!adj.has(e.u))adj.set(e.u,[]);adj.get(e.u).push(e);usable.add(e.u);usable.add(e.v);}
+    GNODES=g.nodes;GRAPH={nodes:g.nodes,adj,usable:[...usable]};
+  }catch(e){GRAPH=null;}                                        // 못 받으면 근사로 계속 — 화면에 「근사」가 남는다
+  GLOADING=false;
+  if(DATA)render();
+}
+function nearest(g,p){let b=null,bd=Infinity;for(const id of g.usable){const c=g.nodes[id];if(!c)continue;const d=distM(p,c);if(d<bd){bd=d;b=id;}}return b;}
+/** 간선 중점이 떨어지는 장 격자 칸. 장이 없거나 밖이면 -1. */
+function edgeCell(e){
+  if(!FIELD||!FGRID)return -1;
+  const c=(e.g&&e.g.length)?e.g[Math.floor(e.g.length/2)]:null;
+  const a=c||GNODES[e.u],b=c?null:GNODES[e.v];
+  const x=c?c[0]:(a&&b?(a[0]+b[0])/2:null),y=c?c[1]:(a&&b?(a[1]+b[1])/2:null);
+  if(x==null)return -1;
+  const ix=Math.floor((x-FGRID.x0)/FGRID.dx),iy=Math.floor((y-FGRID.y0)/FGRID.dy);
+  if(ix<0||iy<0||ix>=FGRID.cols||iy>=FGRID.rows)return -1;
+  return iy*FGRID.cols+ix;
+}
+const edgeUnit=e=>{const k=edgeCell(e);return k<0?0:Math.max(0,Math.min(1,FIELD.mean[k]));};
+const edgeSd=e=>{const k=edgeCell(e);return k<0?F_SD_MAX:FIELD.sd[k];};
+/** 그 간선을 걷는 초 — 경로를 고르는 비용이자 화면에 보여주는 시간. 본 곳은 관측 밀도, 못 본 곳은 가로 기본. */
+const edgeSeconds=(m,e)=>Field.blendSeconds(m,edgeUnit(e),edgeSd(e),F_SD_MAX);
+function astar(g,s,t){
+  const cost=e=>edgeSeconds(Math.max(0.1,Number(e.m)||0.1),e);
+  const dist=new Map([[s,0]]),came=new Map(),q=[[0,s]],goal=g.nodes[t];
+  while(q.length){q.sort((a,b)=>a[0]-b[0]);const[,u]=q.shift();if(u===t)break;
+    for(const e of g.adj.get(u)||[]){const nd=dist.get(u)+cost(e);
+      if(nd<(dist.has(e.v)?dist.get(e.v):Infinity)){dist.set(e.v,nd);came.set(e.v,[u,e]);
+        q.push([nd+distM(g.nodes[e.v],goal)/Field.V_FREE,e.v]);}}}
+  if(!came.has(t)&&s!==t)return null;
+  const es=[];let u=t;while(u!==s){const v=came.get(u);if(!v)break;es.push(v[1]);u=v[0];}
+  es.reverse();
+  let meters=0;for(const e of es)meters+=Number(e.m)||0;
+  return{edges:es,meters,seconds:dist.get(t)};
+}
+/** 보행망 경로. 원점·역과 가장 가까운 노드 사이는 짧은 연결선(가로 기본 속도)으로 잇는다. */
+function routeGraph(key){
+  const d=DEST[key];if(!GRAPH||!d)return null;
+  const s=nearest(GRAPH,ORIGIN),t=nearest(GRAPH,d);if(s==null||t==null)return null;
+  const out=astar(GRAPH,s,t);if(!out)return null;
+  const g=GRAPH,coords=[ORIGIN];
+  for(const e of out.edges){const u=g.nodes[e.u];let seg=(e.g||[u,g.nodes[e.v]]).slice();
+    if(seg.length>1&&distM(seg[0],u)>distM(seg[seg.length-1],u))seg.reverse();
+    for(const c of seg){const l=coords[coords.length-1];if(!l||l[0]!==c[0]||l[1]!==c[1])coords.push(c);}}
+  coords.push(d);
+  const c1=distM(ORIGIN,g.nodes[s]),c2=distM(g.nodes[t],d);
+  const sec=out.seconds+Field.blendSeconds(c1,0,F_SD_MAX,F_SD_MAX)+Field.blendSeconds(c2,0,F_SD_MAX,F_SD_MAX);
+  return{min:Math.max(1,Math.round(sec/60)),km:(out.meters+c1+c2)/1000,coords,approx:false,viaMapo:out.edges.some(e=>e.mapo_walk)};
+}
+/** 한 역까지의 경로 — 보행망이 있으면 A*, 없으면 근사. 원점·장·보행망이 같으면 다시 계산하지 않는다. */
+function routeFor(key){
+  const mk=ORIGIN.join(",")+"|"+FIELD_VER+"|"+(GRAPH?1:0);
+  if(RMEMO.key!==mk){RMEMO.key=mk;RMEMO.by={};}
+  if(RMEMO.by[key])return RMEMO.by[key];
+  let out=null;
+  if(GRAPH){try{out=routeGraph(key);}catch(e){out=null;}}
+  if(!out)out=walkApprox(key);
+  return RMEMO.by[key]=out;
+}
 
 // ── 데이터 ──
 async function load(){
@@ -267,7 +341,7 @@ function fieldObs(){
   return obs;
 }
 function buildField(){
-  FIELD=null;FGRID=null;NOBS=0;
+  FIELD=null;FGRID=null;NOBS=0;FIELD_VER++;                    // 장이 바뀌면 경로 메모도 버린다
   try{
     if(!CAMS||!CAMS.length||typeof Field==="undefined")return;
     const obs=fieldObs();if(!obs.length)return;
@@ -318,20 +392,21 @@ function paintField(){
   }catch(e){$("legend").hidden=true;}
 }
 
-// ── 걷는 시간 — 경유점 사이를 8점씩 나눠 그 자리의 혼잡도로 속도를 정한다. 운영 화면과 같은 속도식(app/field.js).
+// ── 근사 경로의 걷는 시간 — 경유점 사이를 8점씩 나눠 그 자리의 혼잡도로 속도를 정한다. 운영 화면과 같은 속도식(app/field.js).
 //    본 곳(카메라 근처)은 관측 밀도, 못 본 곳은 가로 기본 — 장이 없으면 σ 최대 = 확신도 0 = 가로 기본.
-function walk(key){
+//    직선이라 느려질 뿐 돌아가지는 못한다 — 우회는 보행망 A*(routeGraph) 의 몫.
+function walkApprox(key){
   const pts=path(key);let sec=0,m=0;
   for(let i=1;i<pts.length;i++){
     const a=pts[i-1],b=pts[i],L=distM(a,b)*DETOUR,n=8;m+=L;
     for(let s=0;s<n;s++){const t=(s+.5)/n,p=[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t],f=fieldAt(p);
       sec+=f?Field.blendSeconds(L/n,f.u,f.sd,F_SD_MAX):Field.blendSeconds(L/n,0,F_SD_MAX,F_SD_MAX);}
   }
-  return{min:Math.max(1,Math.round(sec/60)),km:m/1000};
+  return{min:Math.max(1,Math.round(sec/60)),km:m/1000,coords:smooth(pts),approx:true,viaMapo:false};
 }
 /** 1위 = 도보 + 대기 (2026-09-04 결정). 부하율 순위(Board.rank 기본)는 운영 화면에 남는다. */
 function rankByTime(r){
-  [].concat(r.open,r.closed,r.missing).forEach(x=>{const w=walk(x.key);x.min=w.min;x.km=w.km;});
+  [].concat(r.open,r.closed,r.missing).forEach(x=>{const w=routeFor(x.key);x.min=w.min;x.km=w.km;x.approx=w.approx;x.viaMapo=w.viaMapo;});
   r.open.sort((a,b)=>(a.min+a.waitMin)-(b.min+b.waitMin));
   return r;
 }
@@ -373,10 +448,10 @@ function render(){
   $("hname").textContent=h.name;
   $("hero").style.setProperty("--gc",gcolor(grade));
   $("hmin").textContent=closed?"—":h.min;
-  $("hkm").textContent=closed?"":h.km.toFixed(1)+" km";
+  $("hkm").textContent=closed?"":h.km.toFixed(1)+" km"+(h.approx?" · 근사":"");
   $("gchip").textContent=grade;
   $("hwait").textContent=closed?"~21:40 통제":h.waitMin>0?"대기 "+h.waitMin+"분":"";
-  const reason=closed||missing?h.note:(h.key==="mapo"?"마포대교 보행 구간은 길이 근사":"");
+  const reason=closed||missing?h.note:h.viaMapo?"마포대교 보행 구간은 길이 근사":h.approx?(GLOADING?"길을 받는 중 — 지금 선은 방향만":"길을 못 받았다 — 선은 방향만, 시간은 혼잡 반영"):"";
   $("hreason").textContent=reason;$("hreason").hidden=!reason;
   $("chartlab").textContent=h.sh+" 시간대별";
   // 목적지 칩 — 한 탭이면 바뀐다
@@ -506,10 +581,10 @@ function drawRoute(force){
   if(!MAPREADY||!CUR||!CUR.h||!MAP.getSource("route"))return;
   const h=CUR.h;
   for(const k in LABELS)LABELS[k].classList.toggle("on",k===h.key);
-  const pts=path(h.key);
-  MAP.getSource("route").setData({type:"FeatureCollection",features:[{type:"Feature",geometry:{type:"LineString",coordinates:smooth(pts)}}]});
+  const pts=routeFor(h.key).coords;
+  MAP.getSource("route").setData({type:"FeatureCollection",features:[{type:"Feature",geometry:{type:"LineString",coordinates:pts}}]});
   if(OPEN)return;                                              // 펼친 시트 아래로 지도를 맞출 자리가 없다
-  const key=h.key+"|"+ORIGIN.join(",");
+  const key=h.key+"|"+ORIGIN.join(",")+"|"+(GRAPH?1:0);        // 보행망이 오면 선 모양이 바뀌니 한 번 다시 맞춘다
   if(!force&&key===FITKEY)return;                              // 5분 갱신마다 지도를 다시 움직이지 않는다
   FITKEY=key;
   const bb=new maplibregl.LngLatBounds();pts.forEach(p=>bb.extend(p));
@@ -522,6 +597,7 @@ function drawRoute(force){
   await load();
   initMap();
   askGeo();
+  loadGraph();                                                 // 첫 답은 근사로 이미 떠 있다 — 보행망은 뒤에서
   setInterval(load,5*60*1000);
 })();
 </script>

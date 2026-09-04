@@ -90,3 +90,14 @@ def test_route_from_moved_pin_does_not_walk_back_to_the_plaza():
     assert out["first"] != [126.9318, 37.5268], "여전히 광장 옆 첫 경유점으로 되돌아간다"
     assert out["total"] < out["viaAll"], "경유점을 버렸는데 더 길다"
     assert out["atStation"] == 2, "역 위에 있으면 원점→역 한 구간이어야 한다"
+
+
+def test_visitor_page_routes_on_walk_graph_with_approx_fallback(html):
+    """경로는 운영 화면과 같은 보행망 A* (2026-09-04 결정, 근사 경유점은 보행망을 받기 전 폴백).
+
+    선이 길을 따라가고 붐비는 곳을 돌아가려면 보행망이 필요하다 — 근사 직선은 시간만 혼잡 반영하고 우회를 못 한다.
+    """
+    for need in ("data/routing/walk_graph.json", "app/routing_extra.js", "withExtraEdges", "function astar(", "Field.V_FREE"):
+        assert need in html, f"go.html 에 {need} 가 없다 — 보행망 A* 가 빠졌다"
+    assert "// @pure path start" in html, "보행망을 받기 전 폴백(근사 경유점)이 없다"
+    assert "근사" in html, "보행망을 받기 전엔 화면에 근사라고 적어야 한다"

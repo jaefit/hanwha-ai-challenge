@@ -39,8 +39,7 @@ def test_visitor_page_exists_and_uses_shared_rules():
     go = ROOT / "docs" / "go.html"
     assert go.exists(), "docs/go.html 이 없다"
     html = go.read_text(encoding="utf-8")
-    # 2026-09-04 v2: 보행망 A* 는 운영 화면에만 남는다(관람객 화면은 역별 근사 경유점) — routing_extra 요구를 뺐다
-    for need in ("app/board.js", "app/field.js", "data/latest.json"):
+    for need in ("app/board.js", "app/field.js", "app/routing_extra.js", "data/latest.json"):
         assert need in html, f"go.html 이 {need} 를 쓰지 않는다"
 
 
