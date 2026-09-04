@@ -50,6 +50,7 @@ button{font:inherit;cursor:pointer}
   font-size:15px;line-height:1.35;box-shadow:0 8px 24px rgba(20,17,12,.18)}
 .note span{flex:1} .note b{font-weight:800}
 .note button{flex:none;height:36px;padding:0 12px;border:0;border-radius:999px;background:rgba(255,255,255,.14);color:#F5F4F1;font-size:14px;font-weight:700}
+.note .x{width:36px;padding:0;font-size:22px;line-height:1;font-weight:400;background:none;color:rgba(245,244,241,.7)}
 .legend{display:flex;align-items:center;gap:8px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.86);font-size:12px;font-weight:700;color:var(--ink-2);pointer-events:none}
 .legend span{display:flex;align-items:center;gap:4px}
 .legend i{width:10px;height:10px;border-radius:3px;display:block}
@@ -134,6 +135,7 @@ html.open{--sheet-h:calc(100% - var(--sheet-top))}
     <div class="note" id="geonote" hidden>
       <span id="geotext"><b>이벤트광장 기준</b> · 핀을 끌어 옮기세요</span>
       <button id="askgeo" type="button">위치 켜기</button>
+      <button id="geoclose" type="button" class="x" aria-label="안내 닫기">×</button>
     </div>
     <div class="legend" id="legend" hidden>
       <span><i style="background:#2E7D5B"></i>여유</span><span><i style="background:#B8860B"></i>주의</span>
@@ -529,10 +531,12 @@ $("handle").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.pr
 $("handle").tabIndex=0;
 
 // ── 위치 — 묻지 않는다. 권한 팝업은 브라우저 것이고, 거절이면 이벤트광장 기준으로 그냥 간다 ──
+let NOTE_CLOSED=false;                        // × 로 닫으면 다시 안 띄운다 — 핀은 그대로 끌 수 있다
+$("geoclose").onclick=()=>{NOTE_CLOSED=true;$("geonote").hidden=true;};
 function setGeo(state,pos){
   GEO=state;if(pos)ORIGIN=pos;
   const note=$("geonote"),txt=$("geotext"),btn=$("askgeo");
-  if(state==="ok"){note.hidden=true;}
+  if(state==="ok"||NOTE_CLOSED){note.hidden=true;}
   else{note.hidden=false;
     txt.innerHTML=state==="far"?"<b>여의도 밖이라 이벤트광장 기준</b> · 핀을 끌어 옮기세요":"<b>이벤트광장 기준</b> · 핀을 끌어 옮기세요";
     btn.hidden=state==="far"||!navigator.geolocation;}
