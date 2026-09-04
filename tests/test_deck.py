@@ -36,11 +36,16 @@ def test_deck_data_lives_outside_docs_data():
     assert DATA.is_dir(), "docs/deck 이 없다"
 
 
+CHART_FILES = {"exits": "exit_bars", "radial": "feeder_map", "feeder": "feeder_lag", "alpha": "alpha_grid",
+               "field": "field_grid", "route": "route_demo", "backtest": "backtest_bars",
+               "redteam": "redteam_counts", "live": "live_result"}
+
+
 def test_every_chart_has_its_data_file(html):
     keys = set(re.findall(r'data-chart="([a-z]+)"', html))
-    assert keys == {"feeder", "alpha", "backtest", "field", "route"}, keys
-    for name in ("feeder_lag", "alpha_grid", "backtest_bars", "field_grid", "route_demo"):
-        assert (DATA / f"{name}.json").exists(), f"{name}.json 이 없다"
+    assert keys <= set(CHART_FILES), keys - set(CHART_FILES)
+    for k in keys:
+        assert (DATA / f"{CHART_FILES[k]}.json").exists(), f"{CHART_FILES[k]}.json 이 없다"
 
 
 def test_route_numbers_in_copy_match_export(html):
@@ -173,3 +178,36 @@ def test_live_result_placeholder_exists():
     if d["filled"]:
         for k in ("grade_hit", "alpha_final", "ticks", "restarts"):
             assert k in d, k
+
+
+# ── v2 — 구조 ─────────────────────────────────────────────────────────
+def _sections(html):
+    return re.findall(r'<section class="slide[^"]*" id="(s\d+)">(.*?)</section>', html, re.S)
+
+
+def test_twelve_sections_each_with_heading_and_notes(html):
+    secs = _sections(html)
+    assert [s[0] for s in secs] == [f"s{i}" for i in range(1, 13)]
+    for sid, body in secs:
+        assert re.search(r"<h[12]\b", body), f"{sid}: 제목 없음"
+        assert '<aside class="notes">' in body, f"{sid}: 발표자 노트 없음"
+
+
+def test_light_theme_tokens_and_no_dark_leftovers(html):
+    for tok in ("--bg:#F5F4F1", "--sheet:#FFFFFF", "--ink:#14110C", "--rule:#E2DFD8", "--accent:#F36F21"):
+        assert tok in html, tok
+    for bad in ("#0b0d12", "Hahmlet", "fireworks-js"):
+        assert bad not in html, f"검정 덱 잔재: {bad}"
+
+
+def test_embeds_are_real_screens_without_geolocation_prompt(html):
+    go = re.search(r"<iframe[^>]*src=\"go\.html\"[^>]*>", html)
+    assert go, "go.html iframe 이 없다"
+    assert "allow=" not in go.group(0), "위치 권한을 주면 발표 중 팝업이 뜬다 — allow 속성 금지"
+    assert re.search(r"<iframe[^>]*src=\"index\.html\"", html), "index.html iframe 이 없다"
+    assert "deck/fallback_go.png" in html and "deck/fallback_ops.png" in html
+
+
+def test_code_strip_slots_match_export(html):
+    slots = re.findall(r'<pre class="strip[^"]*" data-strip="([a-z]+)"', html)
+    assert slots == ["demand", "alpha", "blend"]

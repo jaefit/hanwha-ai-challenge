@@ -10,431 +10,419 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hahmlet:wght@700;800&family=IBM+Plex+Mono:wght@400;600&family=Black+Han+Sans&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Black+Han+Sans&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <style>
 :root{
-  --bg:#0b0d12; --panel:#12151d; --ink:#f3efe9; --sub:#9aa0ac; --line:#262b36;
-  --accent:#f36f21; --accent2:#ffb36b;
-  --g1:#3fa86c; --g2:#d4a916; --g3:#e0762c; --g4:#e04a4a;
-  --c1:#e2661c; --c2:#4f95e8;   /* 차트 시리즈 2색 — dataviz 검증 통과 (CVD ΔE 26.9) */
-  --serif:"Hahmlet","Pretendard Variable",Pretendard,serif;
-  --mono:"IBM Plex Mono","Pretendard Variable",Pretendard,ui-monospace,monospace;
-  color-scheme:dark only;
+  --bg:#F5F4F1; --sheet:#FFFFFF; --ink:#14110C; --ink-2:#5B554B; --sub:#8F897D; --rule:#E2DFD8;
+  --accent:#F36F21; --live:#2A78D6; --offline:#D0342C;
+  --g1:#2E7D5B; --g2:#8A6400; --g3:#B0521C; --g4:#B3352B;   /* 등급 — go.html 과 같은 값, status 전용 */
+  --c1:#e2661c; --c2:#4f95e8;   /* 시리즈 2색 — 2026-09-04 dataviz 검증기 light/#FFFFFF PASS (CVD ΔE 26.9) */
+  --line:var(--rule); --panel:var(--sheet);   /* 옛 차트 코드가 쓰는 이름 */
+  --sans:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+  color-scheme:light only;
 }
 *{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:clamp(15px,1.6vw,19px)/1.7 "Pretendard Variable",Pretendard,-apple-system,sans-serif;overflow:hidden}
-a{color:var(--accent2);text-decoration:none}
+body{margin:0;background:var(--bg);color:var(--ink);font:clamp(15px,1.55vw,20px)/1.6 var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--rule)}
 
 /* ── 슬라이드 골격 ── */
-.slide{position:absolute;inset:0;padding:6vh 8vw;display:flex;flex-direction:column;justify-content:center;
-  opacity:0;visibility:hidden;transform:translateY(18px);transition:opacity .45s ease,transform .45s ease,visibility 0s .45s}
-.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .45s ease}
-.kicker{font:600 clamp(11px,1vw,13px) var(--mono);letter-spacing:.16em;color:var(--accent2);margin-bottom:2vh;text-transform:uppercase}
-h1{font-family:var(--serif);font-weight:800;font-size:clamp(34px,5.6vw,72px);line-height:1.22;letter-spacing:-.015em;margin:0 0 2.5vh}
-h2{font-family:var(--serif);font-weight:800;font-size:clamp(26px,3.6vw,46px);line-height:1.3;letter-spacing:-.01em;margin:0 0 3vh}
-h2 em{font-style:normal;color:var(--accent)}
-#s1 h1{font-family:"Black Han Sans",var(--serif);font-weight:400;letter-spacing:.005em;font-size:clamp(38px,6.2vw,80px);line-height:1.18}
-.sub{color:var(--sub)}
-.big{font:600 clamp(64px,13vw,168px)/1 var(--mono);letter-spacing:-.04em;color:var(--accent);margin:1vh 0 1.5vh}
+.slide{position:absolute;inset:0;padding:5vh 6vw 8vh;display:flex;flex-direction:column;justify-content:center;
+  opacity:0;visibility:hidden;transform:translateY(14px);transition:opacity .4s ease,transform .4s ease,visibility 0s .4s}
+.slide.active{opacity:1;visibility:visible;transform:none;transition:opacity .4s ease,transform .4s ease}
+.kicker{font:600 clamp(11px,.95vw,13px) var(--mono);letter-spacing:.14em;color:var(--sub);margin-bottom:1.6vh;text-transform:uppercase}
+.kicker::before{content:"";display:inline-block;width:18px;height:3px;background:var(--accent);margin-right:10px;vertical-align:middle;border-radius:2px}
+h1{font-weight:800;font-size:clamp(34px,5.2vw,68px);line-height:1.2;letter-spacing:-.02em;margin:0 0 2.4vh}
+h2{font-weight:800;font-size:clamp(26px,3.3vw,44px);line-height:1.28;letter-spacing:-.015em;margin:0 0 2.6vh}
+h2 em,h1 em{font-style:normal;text-decoration:underline;text-decoration-color:var(--accent);text-decoration-thickness:.12em;text-underline-offset:.12em}
+#s1 h1{font-family:"Black Han Sans",var(--sans);font-weight:400;letter-spacing:.005em;font-size:clamp(40px,6vw,82px);line-height:1.16}
+.sub{color:var(--ink-2)}
+.big{font:600 clamp(56px,10vw,132px)/1 var(--mono);letter-spacing:-.04em;color:var(--ink);margin:.4vh 0 1vh}
 .big small{font-size:.32em;color:var(--sub);font-weight:400;letter-spacing:0}
-.cols{display:flex;gap:3.2vw;flex-wrap:wrap}
-.cols>div{flex:1;min-width:240px}
-ul.pts{list-style:none;margin:0;padding:0;max-width:56ch}
-ul.pts li{padding:1.1vh 0 1.1vh 26px;position:relative}
-ul.pts li::before{content:"";position:absolute;left:2px;top:calc(1.1vh + .62em);width:9px;height:9px;background:var(--accent);transform:rotate(45deg)}
+.cols{display:flex;gap:2.6vw;flex-wrap:wrap;align-items:stretch}
+.cols>*{flex:1;min-width:240px}
+.cols.w2>:first-child{flex:1.15}
+ul.pts{list-style:none;margin:0;padding:0;max-width:60ch}
+ul.pts li{padding:.9vh 0 .9vh 24px;position:relative}
+ul.pts li::before{content:"";position:absolute;left:1px;top:calc(.9vh + .6em);width:9px;height:9px;background:var(--accent);border-radius:2px;transform:rotate(45deg)}
 ul.pts b{color:var(--ink)}
-.panel{background:var(--panel);border:1px solid var(--line);padding:2.4vh 1.8vw;margin:1.2vh 0}
-.formula{font-family:var(--serif);font-weight:800;font-size:clamp(22px,3vw,40px);text-align:center;padding:3.5vh 1vw}
-.formula em{font-style:normal;color:var(--accent)}
-table{border-collapse:collapse;width:100%;font-size:clamp(13px,1.25vw,16.5px)}
-th,td{border-bottom:1px solid var(--line);padding:1.2vh 1vw;text-align:left}
-th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);font-weight:750}
-td.num,th.num{text-align:right;font-family:var(--mono)}
-.grade{display:inline-block;padding:.05em .6em;font-size:.78em;font-weight:700;color:#0b0d12;border-radius:2px;white-space:nowrap}
-.g1{background:var(--g1)}.g2{background:var(--g2)}.g3{background:var(--g3)}.g4{background:var(--g4)}
-.gr{background:#39404e;color:#cdd3dd}
-.src{font-size:clamp(10.5px,.95vw,12.5px);color:var(--sub);margin-top:2.5vh}
+ol.steps{margin:0;padding-left:1.4em}
+ol.steps li{padding:.5vh 0}
+ol.steps b{color:var(--ink)}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:14px;padding:2.2vh 1.8vw;
+  box-shadow:0 1px 2px rgba(20,17,12,.04),0 10px 28px rgba(20,17,12,.06)}
+.card h3{margin:0 0 .8vh;font-size:clamp(15px,1.4vw,19px);font-weight:800}
+.card p{margin:.4vh 0 0;font-size:clamp(13px,1.15vw,16px);color:var(--ink-2);line-height:1.5}
+.card .q{font-size:clamp(20px,2.2vw,30px);font-weight:800;letter-spacing:-.01em;margin:.2vh 0 .8vh}
+.formula{font-weight:800;font-size:clamp(22px,2.8vw,38px);text-align:center;padding:2.2vh 1vw}
+.src{font-size:clamp(11px,.98vw,13.5px);color:var(--sub);margin-top:1.8vh;line-height:1.5}
 .mono{font-family:var(--mono)}
+.grade{display:inline-block;padding:.05em .6em;font-size:.78em;font-weight:700;color:#fff;border-radius:4px;white-space:nowrap}
+.g1{background:var(--g1)}.g2{background:var(--g2)}.g3{background:var(--g3)}.g4{background:var(--g4)}
+.tag{display:inline-block;font:600 clamp(9.5px,.88vw,11.5px) var(--mono);letter-spacing:.04em;padding:.2em .6em;border:1px solid var(--rule);color:var(--ink-2);border-radius:4px;background:var(--sheet)}
+.tag.warn{border-color:#E7C9A6;background:#FFF4E8;color:#8A4A12}
+.pill{display:inline-block;font:700 12px var(--sans);padding:.25em .7em;border-radius:999px;color:#fff;background:var(--live)}
+.pill.off{background:var(--offline)}
+table{border-collapse:collapse;width:100%;font-size:clamp(12.5px,1.15vw,16px)}
+th,td{border-bottom:1px solid var(--rule);padding:.9vh .8vw;text-align:left}
+th{border-top:2px solid var(--ink);font-weight:750}
+td.num,th.num{text-align:right;font-family:var(--mono)}
 
-/* ── 수학 슬라이드 차트 ── */
-.fig{margin:1.4vh 0 0;position:relative}
-.fig canvas{display:block;width:100%;height:min(42vh,400px)}
-.fig canvas[hidden]{display:none}
-.fig.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2vw}
-.fig.trio canvas{height:min(40vh,380px);background:var(--panel);border:1px solid var(--line)}   /* display:block 이 hidden 속성을 이긴다 — 폴백 캔버스가 자리를 먹었다 */
-.fig .fmap{width:100%;height:min(42vh,400px);background:var(--panel)}
-.fig .fmap .maplibregl-ctrl-attrib{font-size:9px}
-.lg{display:flex;gap:1.6vw;flex-wrap:wrap;align-items:center;font:600 clamp(10.5px,1vw,13px) var(--mono);color:var(--sub);margin-top:1vh}
-.lg i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px;border-radius:2px}
+/* ── 차트 ── */
+.fig{margin:.8vh 0 0;position:relative}
+.fig canvas{display:block;width:100%;height:min(40vh,380px)}
+.fig.mini canvas{height:min(22vh,200px)}
+.fig.duo{display:grid;grid-template-columns:1fr 1fr;gap:1vw}
+.fig.duo canvas{height:min(40vh,380px);background:var(--sheet);border:1px solid var(--rule);border-radius:10px}
+.fig .radial{width:100%;max-width:min(58vh,560px);margin:0 auto}
+.fig .radial svg{width:100%;height:auto;display:block}
+.lg{display:flex;gap:1.4vw;flex-wrap:wrap;align-items:center;font:600 clamp(10.5px,.95vw,13px) var(--mono);color:var(--ink-2);margin-top:.8vh}
+.lg i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px;border-radius:3px}
 .lg b{color:var(--ink);font-weight:600}
-.tag{display:inline-block;font:600 clamp(9.5px,.9vw,11.5px) var(--mono);letter-spacing:.06em;padding:.18em .6em;border:1px solid var(--line);color:var(--sub);border-radius:2px}
-.tag.warn{border-color:#7a5a2a;color:var(--accent2)}
 .katex{font-size:1.02em}
-.katex-display{margin:1.5vh 0;overflow-x:auto;overflow-y:hidden}
-.eqs{display:flex;gap:2.4vw;flex-wrap:wrap;margin:0}
-.eqs>div{flex:1 1 calc(50% - 2.4vw);min-width:390px}
-.eqs .katex{font-size:.97em}
-.eqs .katex-display{margin:1vh 0}
-.eqs h4{margin:0 0 .4vh;font:700 clamp(12px,1.15vw,15px) var(--serif);color:var(--accent2)}
-.eqs p{margin:.3vh 0 0;font-size:clamp(11.5px,1.05vw,14px);color:var(--sub);line-height:1.55}
+.katex-display{margin:1vh 0;overflow-x:auto;overflow-y:hidden}
 
-/* 미니 출구 보드 (4번 슬라이드) */
-.board{font-size:clamp(13px,1.3vw,17px)}
-.board .row{display:flex;align-items:center;gap:1.2vw;border-bottom:1px solid var(--line);padding:1.3vh .4vw}
-.board .row:last-child{border-bottom:0}
-.board .nm{flex:1;font-weight:700}
-.board .ld{font-family:var(--mono);color:var(--sub)}
+/* 코드 스트립 — 진짜 도는 코드라는 신호. 25초엔 못 읽으니 작게 */
+pre.strip{margin:1.2vh 0 0;padding:1.3vh 1.2vw;background:#1C1916;color:#EDE7DD;border-radius:10px;font:500 clamp(11px,.95vw,13.5px)/1.5 var(--mono);
+  overflow:hidden;white-space:pre;tab-size:4}
+pre.strip .ln{display:block;color:#A79F92;font-weight:600;margin-bottom:.5em}
 
-/* 3층 다이어그램 (9번) */
-.stack{display:flex;flex-direction:column;gap:1.6vh;max-width:760px}
-.stack .lay{border:1px solid var(--line);background:var(--panel);padding:1.8vh 1.6vw;display:flex;gap:1.6vw;align-items:baseline}
-.stack .lay b{font-family:var(--serif);white-space:nowrap;color:var(--accent2)}
-.stack .lay span{color:var(--sub);font-size:.92em}
-.stack .arr{text-align:center;color:var(--sub);font-size:.9em;margin:-.6vh 0}
+/* 실물 임베드 — 폰 프레임 · 운영 화면. 화면 크기에 맞춰 JS 가 scale 을 잡는다 */
+.embed{margin:0;position:relative;display:flex;align-items:center;justify-content:center;height:min(74vh,780px)}
+.embed .frame{position:relative;overflow:hidden;background:var(--sheet);border:1px solid var(--rule);
+  box-shadow:0 2px 6px rgba(20,17,12,.06),0 24px 60px rgba(20,17,12,.16)}
+.embed.phone .frame{border-radius:34px;border:6px solid #1C1916}
+.embed.ops .frame{border-radius:12px}
+.embed .screen{position:absolute;left:0;top:0;transform-origin:top left}
+.embed.phone .screen{width:390px;height:844px}
+.embed.ops .screen{width:1280px;height:800px}
+.embed iframe{border:0;width:100%;height:100%;display:block;background:var(--sheet)}
+.embed img.fb{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.embed .fbmsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--sub);font:600 14px var(--mono)}
+
+/* 3층 스택 (4장) */
+.stack{display:flex;flex-direction:column;gap:1.2vh}
+.stack .lay{border:1px solid var(--rule);background:var(--sheet);border-radius:12px;padding:1.5vh 1.4vw;display:flex;gap:1.4vw;align-items:baseline}
+.stack .lay b{white-space:nowrap;color:var(--ink);font-size:1.05em}
+.stack .lay span{color:var(--ink-2);font-size:.92em}
+.stack .arr{text-align:center;color:var(--sub);font-size:.88em;margin:-.4vh 0}
+
+/* 숫자 타일 (9·10장) */
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:1vw}
+.tile{background:var(--sheet);border:1px solid var(--rule);border-radius:12px;padding:1.6vh 1vw;text-align:center}
+.tile .n{font:600 clamp(30px,3.6vw,52px)/1 var(--mono);letter-spacing:-.03em}
+.tile .l{margin-top:.6vh;font-size:clamp(12px,1.05vw,15px);color:var(--ink-2)}
+.tile .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.wait{text-align:center;padding:5vh 2vw}
+.wait .big2{font-size:clamp(24px,3vw,40px);font-weight:800;margin:1.6vh 0 .6vh}
 
 /* 진입 스태거 */
-.rv{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.rv{opacity:0;transform:translateY(12px);transition:opacity .45s ease,transform .45s ease}
 .slide.active .rv{opacity:1;transform:none}
 
-/* ── 크롬(진행바·카운터·힌트) ── */
-.bar{position:fixed;left:0;bottom:0;height:3px;background:var(--accent);width:0;transition:width .3s ease;z-index:5}
-.cnt{position:fixed;right:16px;bottom:12px;font:600 12px var(--mono);color:var(--sub);z-index:5}
-.hint{position:fixed;left:16px;bottom:10px;font-size:11.5px;color:var(--sub);opacity:.7;z-index:5}
-.nav{position:fixed;top:0;bottom:0;width:12vw;z-index:4;cursor:pointer}
+/* ── 크롬(진행바·카운터·힌트·노트) ── */
+.bar{position:fixed;left:0;bottom:0;height:4px;background:var(--accent);width:0;transition:width .3s ease;z-index:5}
+.cnt{position:fixed;right:18px;bottom:12px;font:600 12px var(--mono);color:var(--sub);z-index:5}
+.hint{position:fixed;left:18px;bottom:10px;font-size:11.5px;color:var(--sub);opacity:.75;z-index:5}
+.nav{position:fixed;top:0;bottom:0;width:10vw;z-index:4;cursor:pointer}
 .nav.prev{left:0}.nav.next{right:0}
+aside.notes{display:none}
+#np{display:none;position:fixed;right:16px;top:16px;width:min(38vw,540px);background:#1C1916;color:#F5F1EA;padding:14px 18px;border-radius:12px;
+  font-size:15.5px;line-height:1.55;z-index:6;box-shadow:0 12px 40px rgba(0,0,0,.35)}
+#np .np-time{font:600 13px var(--mono);color:#FFB36B;margin-bottom:6px}
+body.notes #np{display:block}
 
-/* ── 타이틀 불꽃 쇼 ── */
-.fx{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.fx .trail{position:absolute;width:2.5px;height:2.5px;border-radius:50%;background:#ffd9a8;
-  box-shadow:0 0 6px 1px rgba(255,179,107,.8);animation:rise .6s cubic-bezier(.3,.7,.5,1) forwards}
-.fx .trail::after{content:"";position:absolute;left:.5px;top:2px;width:1.5px;height:46px;
-  background:linear-gradient(to bottom,rgba(255,217,168,.7),transparent);border-radius:2px}
-@keyframes rise{from{transform:translateY(44vh);opacity:1}88%{opacity:1}to{transform:translateY(0);opacity:0}}
-.fx .flash{position:absolute;width:8px;height:8px;border-radius:50%;transform:translate(-50%,-50%);
-  background:radial-gradient(circle,#fff 0%,#ffd9a8 35%,transparent 70%);animation:flash .5s ease-out forwards}
-@keyframes flash{from{opacity:1;scale:.6}to{opacity:0;scale:7}}
-.fx .ring{position:absolute;width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,179,107,.85);
-  transform:translate(-50%,-50%);animation:ring 1s cubic-bezier(.1,.7,.3,1) forwards}
-@keyframes ring{from{opacity:.9;scale:1}to{opacity:0;scale:22}}
-.fx .burst{position:absolute;width:0;height:0}
-.fx .burst i{position:absolute;left:-2px;top:-2px;width:4.5px;height:4.5px;border-radius:50%;background:var(--c,#ffb36b);
-  box-shadow:0 0 5px 1px var(--c,#ffb36b);opacity:0;
-  animation:spark var(--t,2.2s) cubic-bezier(.12,.65,.35,1) var(--d,0s) forwards}
-@keyframes spark{
-  0%{transform:translate(0,0) scale(1.15);opacity:0}
-  5%{opacity:1}
-  58%{transform:translate(var(--dx),var(--dy)) scale(.75);opacity:.95}
-  72%{opacity:.5}
-  80%{opacity:.9}
-  88%{opacity:.3}
-  100%{transform:translate(calc(var(--dx)*1.12),calc(var(--dy)*1.12 + 64px)) scale(.3);opacity:0}
-}
-@media (prefers-reduced-motion: reduce){
-  .slide,.rv{transition:none!important;transform:none!important}
-  .fx{display:none}
-}
+@media (prefers-reduced-motion: reduce){ .slide,.rv{transition:none!important;transform:none!important} }
 @media print{
-  body{overflow:visible;background:#fff;color:#111}
+  body{overflow:visible}
   .slide{position:static;opacity:1;visibility:visible;transform:none;min-height:96vh;page-break-after:always;padding:24px}
   .rv{opacity:1;transform:none}
-  .bar,.cnt,.hint,.nav,.fx{display:none!important}
-  :root{--ink:#111;--sub:#555;--panel:#f6f4f1;--line:#ccc;--bg:#fff;--accent-ink:#b34a0c}
-  a{color:#b34a0c}
+  .bar,.cnt,.hint,.nav,#np{display:none!important}
 }
 </style>
 </head>
 <body>
 
-<!-- 1 ─ 타이틀 -->
+<!-- 1 ─ 기: 훅 + 사건 -->
 <section class="slide" id="s1">
-  <div class="fx" id="fx"></div>
   <div class="kicker rv">한화 신입사원 AI 솔루션 챌린지 · 과제 03 고객 페인포인트 해결</div>
-  <h1 class="rv">불꽃이 끝나면,<br><span class="cu" data-v="100">100</span>만 명이 움직인다</h1>
-  <p class="sub rv" style="font-size:clamp(16px,1.8vw,22px);max-width:46ch">서울세계불꽃축제 귀가 출구 내비 — "지금 어디로 나가야 덜 막히나"를 3초 안에.</p>
-  <p class="src rv">박재형 · 행사일 2026-09-05(토) · <span class="mono">jaefit.github.io/hanwha-ai-challenge</span></p>
-</section>
-
-<!-- 2 ─ 문제 -->
-<section class="slide" id="s2">
-  <div class="kicker rv">문제 1 / 2 — 지도앱이 모르는 것</div>
-  <div class="big rv">≈ 0<small>명</small></div>
-  <h2 class="rv">축제일 저녁, 여의나루역 하차 인원<br><em>— 역이 닫혀 있었다</em></h2>
-  <ul class="pts">
-    <li class="rv">공원에서 가장 가까운 역 → 지도앱은 오늘도 여의나루로 안내한다</li>
-    <li class="rv">그런데 축제일 저녁엔 안전 통제로 <b>무정차</b> — 걸어가 봐야 닫혀 있다</li>
-    <li class="rv">추측 아님 — 서울교통공사 실측(OA-12921), 2024·2025 두 해 공통</li>
-  </ul>
-  <p class="src rv">2026년 공식 공지: 여의나루 임시 통제 20:40~21:40</p>
-</section>
-
-<!-- 3 ─ 규모 -->
-<section class="slide" id="s3">
-  <div class="kicker rv">문제 2 / 2 — 몰리는 규모</div>
-  <div class="big rv">× <span class="cu" data-v="12">12</span>~<span class="cu" data-v="17">17</span></div>
-  <h2 class="rv">통제를 피한 인파가 옆 역으로<br><em>여의도역 21시 승차, 평시 토요일 대비</em></h2>
-  <ul class="pts">
-    <li class="rv">축제일 저녁 7개 출구 초과 승차 합 <b>약 10.9만 명</b> (2년 평균)</li>
-    <li class="rv">관람객 최다 집단은 20·30대 여성(KT) — 어두운 공원, 통신 폭주 속 판단</li>
-    <li class="rv">서울시 API는 "지금 붐빔"이라는 <b>상태</b>까지만 — "어디로 가라"는 없다</li>
-  </ul>
-</section>
-
-<!-- 4 ─ 해법 -->
-<section class="slide" id="s4">
-  <div class="kicker rv">해법</div>
-  <h2 class="rv">상태가 아니라 <em>행동</em>을 알려준다</h2>
-  <div class="cols">
-    <div class="rv">
-      <ul class="pts">
-        <li>출구 7개(지하철 6 + 마포대교 도보)의 <b>시간대별 혼잡 예측</b></li>
-        <li>순위 · 등급 4단계 · 예상 대기 — 열면 3초 안에 답</li>
-        <li>서버 없는 정적 페이지: 링크 하나, 통신 폭주에도 <b>오프라인 폴백</b></li>
-        <li>라이브가 끊겨도 사전표로 자동 전환 — <b>서비스가 죽지 않는다</b></li>
+  <div class="cols w2">
+    <div>
+      <h1 class="rv">불꽃이 끝나면,<br><span class="cu" data-v="100">100</span>만 명이 움직인다</h1>
+      <p class="sub rv" style="font-size:clamp(16px,1.7vw,22px);max-width:44ch">서울세계불꽃축제 귀가 출구 내비 — "지금 어디로 나가야 덜 막히나"를 3초 안에.</p>
+      <p class="src rv">박재형 · 행사일 2026-09-05(토) · <span class="mono">jaefit.github.io/hanwha-ai-challenge</span></p>
+    </div>
+    <div class="card rv">
+      <div class="big">≈ 0<small>명</small></div>
+      <h3>축제일 저녁 여의나루역 하차 — 역이 닫혀 있었다</h3>
+      <ul class="pts" style="font-size:.92em">
+        <li>공원에서 제일 가까운 역이라 지도앱은 오늘도 여의나루로 안내한다</li>
+        <li>축제일 저녁엔 안전 통제로 <b>무정차</b> — 걸어가 봐야 닫혀 있다</li>
+        <li>서울교통공사 실측(OA-12921), 2024·2025 두 해 공통 · 2026 공지 20:40~21:40 통제</li>
       </ul>
     </div>
-    <div class="rv">
-      <div class="panel board">
-        <div style="font:600 11px var(--mono);color:var(--sub);letter-spacing:.1em;margin-bottom:1vh">21시 · 쇼 직후 (사전표)</div>
-        <div class="row"><span class="nm">신길 (1·5)</span><span class="ld">0.16</span><span class="grade g1">여유</span></div>
-        <div class="row"><span class="nm">마포대교 도보</span><span class="ld">0.24</span><span class="grade g1">여유</span></div>
-        <div class="row"><span class="nm">여의도 (5)</span><span class="ld">0.58</span><span class="grade g2">주의</span></div>
-        <div class="row"><span class="nm">샛강 (9)</span><span class="ld">0.66</span><span class="grade g2">주의</span></div>
-        <div class="row"><span class="nm">여의나루 (5)</span><span class="ld">—</span><span class="grade gr">통제 중</span></div>
-      </div>
-      <p class="src">라이브 데모: <span class="mono">jaefit.github.io/hanwha-ai-challenge</span> · 사전표 2026-09-03 갱신(부하율 분자에 평시 승차 반영)</p>
-    </div>
   </div>
+  <aside class="notes"></aside>
 </section>
 
-<!-- 5 ─ 모델 -->
-<section class="slide" id="s5">
-  <div class="kicker rv">설계 — 왜 ML이 아닌가</div>
-  <div class="panel formula rv">수요(출구, 시각) = <em>α</em> × <em>E<sub>st</sub></em> × <em>도착형태</em></div>
+<!-- 2 ─ 기: 무엇이 빠져 있나 -->
+<section class="slide" id="s2">
+  <div class="kicker rv">문제 — 무엇이 빠져 있나</div>
+  <h2 class="rv">지도앱도 서울시도 <em>상태</em>만 준다</h2>
   <div class="cols">
-    <div class="rv"><b>E<sub>st</sub> — 실측 뼈대</b><p class="sub">작년에 실제로 그 역으로 나간 인원(초과 승차). 비중까지 관측값.</p></div>
-    <div class="rv"><b>도착형태 — 물리</b><p class="sub">쇼 종료 앵커 + 거리÷보행속도(밀도 반영, Weidmann 공식) 지연.</p></div>
-    <div class="rv"><b>α — 당일 배율</b><p class="sub">오늘이 예년의 몇 배인지, 5분마다 관측으로 갱신(베이즈 격자).</p></div>
+    <div class="card rv"><h3>지도앱</h3><div class="q">"가장 가까운 역"</div><p>통제를 모른다. 축제일 저녁에도 여의나루로 안내한다 — 막힌 길로 가는 안내.</p></div>
+    <div class="card rv"><h3>서울시 실시간 도시데이터</h3><div class="q">"붐빔"</div><p>4단계 상태. 지금 붐빈다는 건 알지만 <b>어디로 가라</b>는 없다.</p></div>
+    <div class="card rv" style="border-color:var(--accent)"><h3>빠진 것</h3><div class="q">"어디로 나가라"</div><p>출구 7개 중 지금·30분 뒤 덜 막히는 곳. 이걸 만든다.</p></div>
   </div>
-  <p class="src rv">학습 표본이 축제일 단 2일 → ML은 외우기가 된다. 실측 뼈대 + 물리 구조 모델 채택 — 애틀랜타 MARTA 경기장 수요 예측 논문(arXiv:2106.05359)과 동일 접근.</p>
+  <p class="src rv">통제를 피한 인파가 옆 역으로 — 여의도역 21시 승차는 평시 토요일의 12~17배. 관람객 최다 집단은 20·30대 여성(KT), 어두운 공원과 통신 폭주 속에서 판단한다.</p>
+  <aside class="notes"></aside>
 </section>
 
-<!-- 5b ─ 수식 -->
-<section class="slide" id="s5b">
-  <div class="kicker rv">설계 — 네 줄로 끝나는 모델</div>
-  <h2 class="rv">식이 짧아야 <em>틀린 데를 찾는다</em></h2>
-  <div class="eqs">
-    <div class="rv">
-      <h4>① 수요 — 세 요소의 곱</h4>
-      \[ D_{s,h} \;=\; \alpha \cdot E_s \cdot f_s(h) \]
-      <p>실측 뼈대 <b>E<sub>s</sub></b>(작년 그 역 초과 승차) × 도착형태 <b>f</b>(쇼 종료 앵커 + 보행 지연) × 당일 배율 <b>α</b>.</p>
-    </div>
-    <div class="rv">
-      <h4>② 부하율 — 평시 승객도 같은 열차를 탄다</h4>
-      \[ \mathrm{load}_{s,h} = \frac{D_{s,h} + B_{s,h}}{C_s} \]
-      <p>분모 <b>C</b>는 축제일 시간당 최대 승차라 <b>평시 B</b>가 이미 들어 있다. 분자에서 빠뜨려 부하율을 낮게 읽던 것이 9/3 교차검증에서 잡힌 결함(H9)이다.</p>
-    </div>
-    <div class="rv">
-      <h4>③ 대기열 — 시간대를 넘어 쌓인다</h4>
-      \[ Q_{s,h} = \max\!\left(0,\; Q_{s,h-1} + D_{s,h} + B_{s,h} - C_s\right) \]
-      <p>대기 시간 = <span class="mono">Q ÷ C × 60</span>분. 통제 시간대엔 열차가 안 서므로 도착분이 다음 시간대로 이월된다. 여의나루 22시가 위험한 이유가 이 한 줄에서 나온다.</p>
-    </div>
-    <div class="rv">
-      <h4>④ α — 오늘이 예년의 몇 배인가</h4>
-      \[ p(\alpha \mid y) \propto \mathrm{LogN}(\alpha;0,0.25^2)\prod_i \mathcal{N}\!\left(y_i; A_i\alpha + B_i, \sigma_i^2\right) \]
-      <p>격자 61점(1/3~3)에 사전분포를 깔고 30분마다 관측으로 갱신. <b>학습이 아니라 갱신</b>이라 축제일 2일로도 성립한다.</p>
+<!-- 3 ─ 승: 관람객 화면 (실물) -->
+<section class="slide" id="s3">
+  <div class="kicker rv">해법 — 관람객 화면 (실제 배포본)</div>
+  <h2 class="rv">상태가 아니라 <em>행동</em> — 묻지 않는 귀가 내비</h2>
+  <div class="cols w2">
+    <figure class="embed phone rv">
+      <div class="frame"><div class="screen">
+        <iframe src="go.html" title="관람객 화면 go.html"></iframe>
+        <img class="fb" data-src="deck/fallback_go.png" alt="관람객 화면 캡처" hidden>
+        <div class="fbmsg" hidden>라이브 화면 — 통신 필요</div>
+      </div></div>
+    </figure>
+    <div>
+      <ul class="pts">
+        <li class="rv"><b>위치 자동</b> — 묻지 않는다. 권한이 없으면 이벤트광장 기준, 핀을 끌어 옮긴다</li>
+        <li class="rv"><b>1위 자동</b> — 도보 + 예상 대기가 가장 짧은 출구가 맨 위. 등급 4단계 · 대기 분</li>
+        <li class="rv"><b>시각 = 지금</b> — 차트를 문지르면 19~23시 예측으로 옮겨 간다</li>
+        <li class="rv">서버 없는 정적 페이지 — 링크 하나, 통신 폭주에도 <b>기기 저장 폴백</b></li>
+      </ul>
+      <p class="src rv">실제 배포본을 그대로 띄웠다 (<span class="mono">…/go.html</span>) · 위치는 이벤트광장 기준 가상 위치</p>
     </div>
   </div>
-  <p class="src rv">구현 <span class="mono">src/nowcast.py</span> — compute_exits() · assimilate(). 파라미터는 6개뿐이고 전부 출처가 있다.</p>
+  <aside class="notes"></aside>
 </section>
 
-<!-- 5c ─ α 사후분포 애니 -->
-<section class="slide" id="s5c">
-  <div class="kicker rv">당일 보정 — 관측이 들어올수록 좁아진다</div>
-  <h2 class="rv">확신이 아니라 <em>범위</em>를 갱신한다</h2>
-  <figure class="fig rv" data-chart="alpha"><canvas></canvas></figure>
-  <div class="lg rv">
-    <span><i style="background:#39404e"></i>사전분포 <b class="mono">α 1.00 [0.73~1.38]</b></span>
-    <span><i style="background:var(--c1)"></i>사후분포 <b class="mono" data-alpha-now>—</b></span>
-    <span class="tag warn">관측 y 는 α=1.15 가정 · 사전·격자·σ·A 는 코드의 실제 값</span>
-  </div>
-  <p class="src rv">30분 창마다 한 건씩. 밴드 폭 34.8% → 10.8%로 좁아지고 참값 1.15를 내내 담는다. 다만 좁아지는 속도가 너무 빠르다. 백테스트 오차 ±42%를 밴드에 넣을지가 지금 열려 있는 결정 C1이다.</p>
-</section>
-
-<!-- 6 ─ 검증 -->
-<section class="slide" id="s6">
-  <div class="kicker rv">검증 — 타임머신 시험</div>
-  <div class="big rv"><span class="cu" data-v="76">76</span>~<span class="cu" data-v="100">100</span><small>%</small></div>
-  <h2 class="rv">혼잡 등급 적중률 <em>(백테스트)</em></h2>
-  <div class="panel rv" style="max-width:760px">
-    <table>
-      <tr><th>모드</th><th class="num">2024</th><th class="num">2025</th><th>등급 적중</th></tr>
-      <tr><td>A · 그 해 데이터로 재현 (분배 검증)</td><td class="num">0.24</td><td class="num">0.21</td><td class="mono">82% / 100%</td></tr>
-      <tr><td><b>B · 다른 해로 예측 (2026 실전 조건)</b></td><td class="num"><b>0.42</b></td><td class="num"><b>0.44</b></td><td class="mono"><b>76% / 88%</b></td></tr>
-    </table>
-  </div>
-  <p class="src rv">오차 = |예측−실측|합 ÷ 실측합 · 남는 불확실성은 숨기지 않고 예측 밴드로 표시 · 논리 검증 pytest 22건 상시 통과 · 9/5 당일 실측으로 사후 오차표까지 (evaluate.py)</p>
-</section>
-
-<!-- 6b ─ 백테스트 산점 -->
-<section class="slide" id="s6b">
-  <div class="kicker rv">검증 — 한 해로 만들어 다른 해를 맞혔다</div>
-  <h2 class="rv">점이 대각선에 붙을수록 <em>맞힌 것</em></h2>
-  <figure class="fig rv" data-chart="backtest"><canvas></canvas></figure>
-  <div class="lg rv">
-    <span><i style="background:var(--c2)"></i>등급 적중</span>
-    <span><i style="background:var(--c1)"></i>등급 불일치</span>
-    <span><b class="mono" data-bt-hit>—</b> · 2025 교차연도 (B 모드)</span>
-  </div>
-  <p class="src rv">가로 = 모델 예측 승차, 세로 = 실제 승차(OA-12921). 역·시간대 하나가 점 하나다. 오차가 남아도 <b>등급</b>은 88% 맞는다 — 화면이 말하는 건 숫자가 아니라 등급이다.</p>
-</section>
-
-<!-- 7 ─ 반전 발견 -->
-<section class="slide" id="s7">
-  <div class="kicker rv">모델이 찾아낸, 직관과 다른 두 가지</div>
-  <h2 class="rv">지도앱은 절대 알려줄 수 없는 답</h2>
-  <div class="cols">
-    <div class="panel rv">
-      <div class="big" style="font-size:clamp(40px,6vw,76px)">샛강</div>
-      <p><b>쇼 직후(21시) 최악은 제일 큰 여의도역이 아니라 샛강역.</b><br><span class="sub">9호선인데 처리용량이 작다 — 부하 0.66으로 전 출구 1위.</span></p>
-    </div>
-    <div class="panel rv">
-      <div class="big" style="font-size:clamp(40px,6vw,76px)"><span class="cu" data-v="22">22</span>시</div>
-      <p><b>여의나루는 통제가 풀리는 22시가 가장 위험하다.</b><br><span class="sub">기다리던 인파가 한꺼번에 — 1.00 [0.65~1.41], 용량 한계. 통제 중 도착분을 해제 후로 이월하는 규칙이 찾아낸 결론. 실측 근거: 해제 직후 승차 2.3천('24)·5.8천('25).</span></p>
-    </div>
-  </div>
-</section>
-
-<!-- 7b ─ 혼잡장 -->
-<section class="slide" id="s7b">
-  <div class="kicker rv">공간 — 점 23개를 한 장의 면으로</div>
-  <h2 class="rv">모르는 곳을 <em>모른다고</em> 말한다</h2>
-  <figure class="fig rv" data-chart="field"><div class="fmap"></div><canvas hidden></canvas></figure>
-  <div class="lg rv">
-    <span><i style="background:var(--g1)"></i>여유</span><span><i style="background:var(--g2)"></i>주의</span>
-    <span><i style="background:var(--g3)"></i>경계</span><span><i style="background:var(--g4)"></i>심각</span>
-    <span><b class="mono" data-field-n>—</b></span>
-    <span class="tag warn">등급 배치는 예시 · 좌표·커널·σ·GP 식은 실제 값</span>
-  </div>
-  <p class="src rv">가우시안 과정 회귀(커널 150m·1200m 이중). 관측이 적은 곳은 배제하지 않고 <b>불확실성 σ</b>로 남긴다 — 흐릿할수록 근거가 얇은 곳이다. 구현 <span class="mono">docs/app/field.js</span> — DOM을 만지지 않는 순수 함수다. 테스트가 배포본을 node로 그대로 돌린다.</p>
-</section>
-
-<!-- 7c ─ 경로 -->
-<section class="slide" id="s7c">
-  <div class="kicker rv">경로 — 실제 보행망 위에서 찾는다</div>
-  <h2 class="rv">직선이 아니라 <em>걸을 수 있는 길</em></h2>
-  <figure class="fig trio rv" data-chart="route"><canvas data-mode="shortest"></canvas><canvas data-mode="avoiding"></canvas><canvas data-mode="both"></canvas></figure>
-  <div class="lg rv">
-    <span><i style="background:var(--c1)"></i>최단 <b class="mono">1,471m · 57분</b></span>
-    <span><i style="background:var(--c2)"></i>혼잡 회피 <b class="mono">1,677m · 22분</b></span>
-    <span><i style="background:rgba(224,74,74,.5)"></i>혼잡 봉우리(가정)</span>
-    <span>노드 <b class="mono">9,219</b> (OSM)</span>
-  </div>
-  <p class="src rv">이벤트광장→여의도역. 직선 1,120m인데 걸으면 <b>1,471m(1.31배)</b> — 모델의 우회계수 1.3과 거의 같다. 경로 비용은 거리가 아니라 <b>그 간선을 걷는 데 걸리는 시간</b>이다. 붐비면 느려지므로 <b>206m 더 걷고 35분 빨라지는</b> 길이 이긴다. 단, 반경 150m 봉우리는 <b>가정</b>이다 — 지금 CCTV 23대가 3km에 흩어져 있어 혼잡장이 이만큼 뾰족해지지 않고, 실제 관측으로는 경로가 바뀌지 않는다. 관측이 촘촘해지면 이렇게 돈다. 보행망은 OSM 노드 9,219 · 간선 26,042, 바탕색은 앞 장의 혼잡장이다.</p>
-</section>
-
-<!-- 8 ─ 피더 선행지표 -->
-<section class="slide" id="s8">
-  <div class="kicker rv">확장 — 붐비기 전에 안다</div>
-  <div class="big rv">r = <span class="cu" data-v="0.99" data-d="2">0.99</span></div>
-  <h2 class="rv">피더역 승차가 여의도 도착을 <em>1시간 선행</em></h2>
-  <ul class="pts">
-    <li class="rv">서울 전 역(253역) 초과 승차 역추적 → 관람객 출발지 지도. 2년 연속 재현 + KT 통신 데이터와 교차 검증</li>
-    <li class="rv">상위 12곳(홍대·고속터미널·화곡·성수…)을 당일 5분마다 라이브 감시 — <b>여의도가 붐비기 30~40분 전 조기 신호</b></li>
-    <li class="rv">단, 검증 전엔 실전 모델에 안 넣는다 — 9/5 관측 → 9/6 분 단위 검증 → 통과 시 "도착 30분 예측" 탑재</li>
-  </ul>
-</section>
-
-<!-- 8b ─ 피더 lag 애니 -->
-<section class="slide" id="s8b">
-  <div class="kicker rv">선행 — 한 시간 밀면 포개진다</div>
-  <h2 class="rv">붐비기 <em>전에</em> 아는 유일한 방법</h2>
-  <figure class="fig rv" data-chart="feeder"><canvas></canvas></figure>
-  <div class="lg rv">
-    <span><i style="background:var(--c1)"></i>피더 12역 승차</span>
-    <span><i style="background:var(--c2)"></i>여의도 하차 초과</span>
-    <span>상관계수 <b class="mono" data-feeder-r>—</b></span>
-  </div>
-  <p class="src rv">2025 축제일. 피더 곡선을 1시간 뒤로 밀면 r 0.72 → 0.98. 두 해 통합 0.988. 단, 피더 승차는 OD 총량 제약으로 귀속한 값이라 순수 관측이 아니다. 여의도 하차는 5호선 두 역만 센다. 5분 해상도 실측 검증은 9/5 당일 수집으로.</p>
-</section>
-
-<!-- 9 ─ 아키텍처 -->
-<section class="slide" id="s9">
-  <div class="kicker rv">아키텍처</div>
+<!-- 4 ─ 승: 운영 화면 + 3층 -->
+<section class="slide" id="s4">
+  <div class="kicker rv">운영 화면 — 그리고 그 아래 3층</div>
   <h2 class="rv">아래층이 죽어도 <em>위층이 산다</em></h2>
-  <div class="stack">
-    <div class="lay rv"><b>화면층</b><span>정적 웹페이지 — LIVE / 오래됨 / 사전표 자동 전환 + 기기 저장 오프라인 폴백</span></div>
-    <div class="arr rv">▲ 5분마다 발행 (끊겨도 아래가 받친다)</div>
-    <div class="lay rv"><b>당일층</b><span>도시데이터 API + CCTV 23대(HD 9) 수집 → α 보정·통제 이월·보행 지연 → 자동 발행</span></div>
-    <div class="arr rv">▲ 규모만 보정 (없어도 서비스 성립)</div>
-    <div class="lay rv"><b>사전층</b><span>공공 실측 7종 → 예측 엔진 + 백테스트 — 행사 전에 이미 완결</span></div>
+  <div class="cols w2">
+    <figure class="embed ops rv">
+      <div class="frame"><div class="screen">
+        <iframe src="index.html" title="운영 화면 index.html"></iframe>
+        <img class="fb" data-src="deck/fallback_ops.png" alt="운영 화면 캡처" hidden>
+        <div class="fbmsg" hidden>라이브 화면 — 통신 필요</div>
+      </div></div>
+    </figure>
+    <div class="stack">
+      <div class="lay rv"><b>화면층</b><span>정적 웹페이지 — LIVE / 오래됨 / 사전표 자동 전환 + 기기 저장 오프라인 폴백</span></div>
+      <div class="arr rv">▲ 5분마다 발행 (끊겨도 아래가 받친다)</div>
+      <div class="lay rv"><b>당일층</b><span>도시데이터 API 5분 + CCTV 23대 60초 → α 보정 · 통제 이월 · 보행 지연 → 자동 발행</span></div>
+      <div class="arr rv">▲ 규모만 보정 (없어도 서비스 성립)</div>
+      <div class="lay rv"><b>사전층</b><span>공공 실측 7종 → 예측 엔진 + 백테스트 — 행사 전에 완결</span></div>
+      <p class="src rv">다음 다섯 장이 층마다 "무엇을 · 어떻게 · 근거"다. 전 데이터 공개·합법 소스 · CCTV 는 프레임 미저장(집계만)</p>
+    </div>
   </div>
-  <p class="src rv">전 데이터 공개·합법 소스 · CCTV는 프레임 미저장(집계만) · 모든 수치에 출처·기준일</p>
+  <aside class="notes"></aside>
 </section>
 
-<!-- 10 ─ AI 활용 -->
-<section class="slide" id="s10">
-  <div class="kicker rv">AI 도구 활용 — Claude Code로 자동화한 것</div>
-  <h2 class="rv">판단은 사람이, <em>구현은 AI가</em></h2>
+<!-- 5 ─ 전: 사전층 ① 수요식 -->
+<section class="slide" id="s5">
+  <div class="kicker rv">사전층 ① — 왜 머신러닝이 아닌가</div>
+  <h2 class="rv">수요 = <em>α</em> × E<sub>st</sub> × 도착형태</h2>
+  <div class="card formula rv">\[ D_{s,h} \;=\; \alpha \cdot E_s \cdot f_s(h) \]</div>
+  <div class="cols" style="margin-top:1.4vh">
+    <div class="rv"><b>E<sub>st</sub> — 실측 뼈대</b><p class="sub" style="margin:.3vh 0 0;font-size:.9em">작년에 실제로 그 역으로 나간 인원(초과 승차). 비중까지 관측값.</p></div>
+    <div class="rv"><b>f — 도착형태(물리)</b><p class="sub" style="margin:.3vh 0 0;font-size:.9em">쇼 종료 앵커 + 거리÷보행속도(밀도 반영) 지연.</p></div>
+    <div class="rv"><b>α — 당일 배율</b><p class="sub" style="margin:.3vh 0 0;font-size:.9em">오늘이 예년의 몇 배인지, 5분마다 관측으로 갱신.</p></div>
+  </div>
+  <div class="cols" style="margin-top:1.2vh">
+    <figure class="fig mini rv" data-chart="exits"><canvas></canvas></figure>
+    <pre class="strip rv" data-strip="demand"></pre>
+  </div>
+  <p class="src rv">학습 표본이 축제일 단 2일 → ML 은 외우기가 된다. 실측 뼈대 + 물리 구조 모델 — 애틀랜타 MARTA 경기장 수요 예측(arXiv:2106.05359)과 같은 접근. 파라미터 6개, 전부 출처가 있다. 왼쪽 막대 = 출구 7개 실측 비중(2년 평균).</p>
+  <aside class="notes"></aside>
+</section>
+
+<!-- 6 ─ 전: 사전층 ② 피더 -->
+<section class="slide" id="s6">
+  <div class="kicker rv">사전층 ② — 사람들은 어디서 타고 오나</div>
+  <h2 class="rv">피더역 12곳이 여의도보다 <em>1시간 먼저</em> 움직인다</h2>
+  <div class="cols w2">
+    <figure class="fig rv" data-chart="radial"><div class="radial"></div></figure>
+    <div>
+      <figure class="fig mini rv" data-chart="feeder"><canvas></canvas></figure>
+      <div class="lg rv">
+        <span><i style="background:var(--c1)"></i>피더 12역 승차</span>
+        <span><i style="background:var(--c2)"></i>여의도 하차 초과</span>
+        <span>상관계수 <b class="mono" data-feeder-r>—</b></span>
+      </div>
+      <ol class="steps rv" style="margin-top:1.2vh;font-size:.92em">
+        <li><b>초과 승차</b> — 서울 253역, 축제일 승차 − 평시 토요일 중앙값</li>
+        <li><b>2년 필터</b> — 2024·2025 둘 다 튄 역만 인정</li>
+        <li><b>KT 상한</b> — 휴대전화 이동 데이터의 구(區) 총량을 넘지 않게 배분</li>
+        <li><b>교차 검증</b> — 배분 합이 여의도 도착과 규모·시간 모양이 맞는가</li>
+      </ol>
+    </div>
+  </div>
+  <p class="src rv">왼쪽 도식: 선 방향 = 실제 방위, 중심에서 거리 = 지하철 소요시간(추정, 링 10·20·30분), 원 크기 = 2년 귀속 인원. 오른쪽: 1시간 밀면 r 0.72 → 0.98 (2025) · 두 해 통합 0.988. 당일엔 12곳을 5분마다 감시 — 여의도가 붐비기 30~40분 전 조기 신호. 검증 전엔 예측에 안 넣는다.</p>
+  <aside class="notes"></aside>
+</section>
+
+<!-- 7 ─ 전: 당일층 -->
+<section class="slide" id="s7">
+  <div class="kicker rv">당일층 — 5분마다 오늘 규모를 다시 잰다</div>
+  <h2 class="rv">확신이 아니라 <em>범위</em>를 갱신한다</h2>
   <div class="cols">
-    <div class="rv"><ul class="pts">
-      <li><b>데이터 파이프라인</b> — 공공 데이터 7종 수집·정제·검증 스크립트</li>
-      <li><b>예측 엔진</b> — 구조 모델 + 베이즈 α 보정 + 이월 규칙 구현</li>
-      <li><b>수집기 2종</b> — 도시데이터 5분 / CCTV 60초, AI 군중 계수(DM-Count)</li>
-    </ul></div>
-    <div class="rv"><ul class="pts">
-      <li><b>검증 체계 3층</b> — 백테스트 · pytest 22건 · 당일 오차 채점기</li>
-      <li><b>산출물</b> — 대시보드 · 팀 보고서 · 이 덱, 전부 코드로 생성·검증</li>
-      <li><b>과정 기록</b> — 실패·정정 포함 전 과정이 커밋 로그에 (버린 결정 5건 문서화)</li>
-    </ul></div>
+    <div class="card rv">
+      <h3>① α — 베이즈 격자</h3>
+      <figure class="fig mini" data-chart="alpha"><canvas></canvas></figure>
+      <div class="lg" style="font-size:clamp(10px,.85vw,12px)">
+        <span><i style="background:var(--sub)"></i>사전 <b class="mono">1.00 [0.73~1.38]</b></span>
+        <span><i style="background:var(--c1)"></i>사후 <b class="mono" data-alpha-now>—</b></span>
+      </div>
+      <p><span class="tag warn">관측 y 는 α=1.15 가정 · 사전·격자·σ 는 코드 값</span></p>
+    </div>
+    <div class="card rv">
+      <h3>② CCTV 23대 → 보행속도</h3>
+      <p style="text-align:center;margin:1vh 0">\( v(\rho)=\max\!\big(0.15,\;1.34\,[1-e^{-1.913(1/\rho-1/5.4)}]\big) \)</p>
+      <table style="font-size:.85em">
+        <tr><th>등급</th><th class="num">명/m²</th><th class="num">m/분</th></tr>
+        <tr><td><span class="grade g1">여유</span></td><td class="num">1.5</td><td class="num">80</td></tr>
+        <tr><td><span class="grade g2">주의</span></td><td class="num">3.0</td><td class="num">42</td></tr>
+        <tr><td><span class="grade g3">경계</span></td><td class="num">4.0</td><td class="num">20</td></tr>
+        <tr><td><span class="grade g4">심각</span></td><td class="num">5.0</td><td class="num">9</td></tr>
+      </table>
+      <p>60초마다 프레임을 집계만 하고 버린다 · DM-Count 군중 계수 · Kladek 식(자유보행 1.34 m/s, 정체 5.4명/m²)</p>
+    </div>
+    <div class="card rv">
+      <h3>③ 워치독 · 발행</h3>
+      <ul class="pts" style="font-size:.9em">
+        <li>30초마다 프로세스 3개 생존 확인 → 죽으면 재기동(실측 17초)</li>
+        <li><span class="mono">api_last_ok</span> 표식이 10분 넘게 안 바뀌면 경고 — 오류 레코드로는 못 속인다</li>
+        <li>5분 발행 · 내용 같으면 커밋 안 함 · push 실패 시 rebase 재시도</li>
+        <li>화면엔 "수집 끊김 · 마지막 수신 N분 전"</li>
+      </ul>
+    </div>
   </div>
-  <p class="src rv">프롬프트·명령·실패·패치 기록: 저장소 문서 + 커밋 로그</p>
+  <pre class="strip rv" data-strip="alpha"></pre>
+  <p class="src rv">격자 61점(1/3~3) 로그 등간격, 사전 LogNormal(0, 0.25²). 학습이 아니라 갱신이라 축제일 2일로 성립한다. 밴드가 좁아지는 속도가 빠른 건 열린 결정(C1). 보행속도 표의 m/분은 위 식을 등급 대표 밀도에 넣은 값.</p>
+  <aside class="notes"></aside>
 </section>
 
-<!-- 11 ─ 일정 -->
+<!-- 8 ─ 전: 화면층 -->
+<section class="slide" id="s8">
+  <div class="kicker rv">화면층 — 혼잡장 위에서 길을 고른다</div>
+  <h2 class="rv">못 본 곳은 <em>모른다고</em>, 길은 걸을 수 있는 길로</h2>
+  <div class="cols">
+    <div>
+      <figure class="fig rv" data-chart="field"><canvas></canvas></figure>
+      <div class="lg rv">
+        <span><i style="background:var(--g1)"></i>여유</span><span><i style="background:var(--g2)"></i>주의</span>
+        <span><i style="background:var(--g3)"></i>경계</span><span><i style="background:var(--g4)"></i>심각</span>
+        <span><b class="mono" data-field-n>—</b></span>
+        <span class="tag warn">등급 배치는 예시 · 좌표·커널·σ·GP 식은 실제 값</span>
+      </div>
+    </div>
+    <div>
+      <figure class="fig duo rv" data-chart="route"><canvas data-mode="shortest"></canvas><canvas data-mode="avoiding"></canvas></figure>
+      <div class="lg rv">
+        <span><i style="background:var(--c1)"></i>최단 <b class="mono">1,471m · 57분</b></span>
+        <span><i style="background:var(--c2)"></i>혼잡 회피 <b class="mono">1,677m · 22분</b></span>
+        <span><i style="background:rgba(179,53,43,.45)"></i>혼잡 봉우리(가정)</span>
+        <span>노드 <b class="mono">9,219</b> · 간선 <b class="mono">26,042</b> (OSM)</span>
+      </div>
+    </div>
+  </div>
+  <pre class="strip rv" data-strip="blend"></pre>
+  <p class="src rv">가우시안 과정 회귀(커널 150m·1200m 이중). 관측 없는 곳은 배제가 아니라 <b>σ</b> 로 남긴다 — 흐릴수록 근거가 얇은 곳. 이벤트광장→여의도역 직선 1,120m, 걸으면 <b>1,471m(1.31배)</b> — 모델의 우회계수 1.3 과 같다. 경로 비용은 거리가 아니라 <b>그 간선을 걷는 시간</b>이라 206m 더 걷고 35분 빠른 길이 이긴다. 반경 150m 봉우리는 가정.</p>
+  <aside class="notes"></aside>
+</section>
+
+<!-- 9 ─ 전: 검증 -->
+<section class="slide" id="s9">
+  <div class="kicker rv">검증 — 맞혔는가, 그리고 깨지는가</div>
+  <h2 class="rv">타임머신으로 맞히고, <em>우리 것을 먼저 깼다</em></h2>
+  <div class="cols">
+    <div>
+      <figure class="fig rv" data-chart="backtest"><canvas></canvas></figure>
+      <div class="lg rv">
+        <span><i style="background:var(--c2)"></i>등급 적중</span>
+        <span><i style="background:var(--c1)"></i>등급 불일치</span>
+        <span><b class="mono" data-bt-hit>—</b> · 2025 교차연도 (B 모드)</span>
+      </div>
+    </div>
+    <div>
+      <figure class="fig rv" data-chart="redteam"><div class="rt tiles"></div></figure>
+      <p class="rv" style="margin-top:1.4vh">조치는 <b>실패하는 테스트부터</b> — pytest 96건 상시 통과 · 다른 모델(Codex) 교차검증 포함 · 결함 대장 <span class="mono">redteam-20260901.md</span></p>
+    </div>
+  </div>
+  <p class="src rv">한 해 데이터로 만든 모델이 다른 해를 맞히는가(B 모드) — 등급 적중 88%, 규모 오차 0.42/0.44. 오차가 남아도 화면이 말하는 단위는 등급이다. 오른쪽은 등급별 등재 건수 — 치명·높음은 전부 조치했고 보류·철회는 사유를 대장에 적었다.</p>
+  <aside class="notes"></aside>
+</section>
+
+<!-- 10 ─ 결: 9/5 실전 -->
+<section class="slide" id="s10">
+  <div class="kicker rv">결과 — 9월 5일 실전</div>
+  <h2 class="rv">실전으로 <em>채점받았다</em></h2>
+  <figure class="fig rv" data-chart="live"><div class="live"></div></figure>
+  <p class="src rv">우리 예측 vs 실측 등급 적중 · α 궤적 · 발행 틱 · 재기동 — <span class="mono">evaluate.py</span> 가 만든 숫자만 싣는다. 우천 연기면 전야제 리허설 데이터로 대체.</p>
+  <aside class="notes"></aside>
+</section>
+
+<!-- 11 ─ 결: AI 활용 + 확장 -->
 <section class="slide" id="s11">
-  <div class="kicker rv">남은 일정 — 실전이 검증이다</div>
-  <h2 class="rv">9월 5일, 실전으로 채점받는다</h2>
-  <div class="panel rv" style="max-width:760px">
-    <table>
-      <tr><td class="mono">9/4</td><td><b>전야제 리허설</b> — 코드 동결 후 18~22시 실전 가동</td></tr>
-      <tr><td class="mono">9/5</td><td><b>실전</b> — 12~24시 자동 수집·5분 발행, 쇼 종료 실시각 현장 반영</td></tr>
-      <tr><td class="mono">9/6~7</td><td><b>사후 검증</b> — 우리 예측 vs 서울시 12h 예측 vs 실측 오차표 · 피더 랙 검증</td></tr>
-      <tr><td class="mono">9/8</td><td><b>20:00 제출</b> — 웹페이지 + 오차표 + 영상 3분</td></tr>
-    </table>
+  <div class="kicker rv">AI 도구 활용 — 그리고 확장</div>
+  <h2 class="rv">판단은 사람이, <em>구현은 AI가</em></h2>
+  <div class="cols w2">
+    <div><ul class="pts">
+      <li class="rv"><b>데이터 파이프라인</b> — 공공 데이터 7종 수집·정제·검증</li>
+      <li class="rv"><b>예측 엔진</b> — 구조 모델 + 베이즈 α + 이월 규칙</li>
+      <li class="rv"><b>수집기 2종</b> — 도시데이터 5분 · CCTV 60초 (DM-Count)</li>
+      <li class="rv"><b>검증 3층</b> — 백테스트 · pytest · 당일 채점기</li>
+      <li class="rv"><b>산출물</b> — 대시보드 · 보고서 · 이 덱, 전부 코드로 생성·검증</li>
+      <li class="rv"><b>과정 기록</b> — 실패·정정 포함 커밋 로그, 버린 결정 문서화</li>
+    </ul></div>
+    <div class="card rv">
+      <h3>같은 뼈대로 다른 현장</h3>
+      <p>실측 뼈대 + 당일 보정 + 검증 — 이 구조는 행사와 무관하다.</p>
+      <p style="margin-top:1vh"><b>한화 적용안</b> — 오렌지세이프티(주최측 안전 관제)에 <b>관람객 귀가 레이어</b>를 얹는다. 행사 주최사가 관제와 관람객 안내를 한 데이터로 본다.</p>
+    </div>
   </div>
-  <p class="src rv">우천 연기 시에도 성립 — 사전표 + 리허설 데이터로 오차표 대체</p>
+  <p class="src rv">프롬프트·명령·실패·패치 기록: 저장소 문서 + 커밋 로그 (Claude Code)</p>
+  <aside class="notes"></aside>
 </section>
 
-<!-- 12 ─ 클로징 -->
+<!-- 12 ─ 결: 클로징 -->
 <section class="slide" id="s12">
   <div class="kicker rv">클로징</div>
-  <h1 class="rv" style="font-size:clamp(30px,4.6vw,60px)">예측은 <em style="font-style:normal;color:var(--accent)">검증까지</em>가 제품이다</h1>
-  <ul class="pts">
-    <li class="rv">실측을 뼈대로, 불확실성은 밴드로, 당일 실전으로 채점 — 끝까지 숫자로 말한다</li>
-    <li class="rv"><b>한화에서 이렇게 커진다</b> — 오렌지세이프티(주최측 안전 관제)에 "관람객 귀가 레이어"를 얹는다. 행사 주최사가 관제와 관람객 안내를 한 데이터로 본다</li>
-  </ul>
+  <h1 class="rv" style="font-size:clamp(32px,4.8vw,64px)">예측은 <em>검증까지</em>가 제품이다</h1>
+  <p class="sub rv" style="font-size:clamp(16px,1.7vw,22px);max-width:52ch">실측을 뼈대로, 불확실성은 밴드로, 당일 실전으로 채점 — 끝까지 숫자로 말한다.</p>
   <p class="src rv" style="font-size:clamp(13px,1.2vw,16px)">
     대시보드 <span class="mono">jaefit.github.io/hanwha-ai-challenge</span> ·
     팀 보고서 <span class="mono">…/report.html</span> ·
     저장소 <span class="mono">github.com/jaefit/hanwha-ai-challenge</span>
   </p>
+  <aside class="notes"></aside>
 </section>
 
 <div class="bar" id="bar"></div>
 <div class="cnt" id="cnt"></div>
-<div class="hint">← → 또는 화면 좌/우 클릭</div>
+<div class="hint">← → 이동 · n 노트 · t 시계 리셋</div>
 <div class="nav prev" aria-hidden="true"></div>
 <div class="nav next" aria-hidden="true"></div>
+<div id="np"><div class="np-time">00:00</div><div class="np-text"></div></div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
-<script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.10.8/dist/index.umd.js"></script>
 <script>
 (function () {
 "use strict";
 var slides = [].slice.call(document.querySelectorAll(".slide"));
+var ACT = ["기", "기", "승", "승", "전", "전", "전", "전", "전", "결", "결", "결"];
 var bar = document.getElementById("bar"), cnt = document.getElementById("cnt");
 var cur = -1;
 
@@ -443,30 +431,31 @@ function go(i) {
   if (i === cur) return;
   cur = i;
   slides.forEach(function (s, k) { s.classList.toggle("active", k === i); });
-  // 진입 스태거
   [].slice.call(slides[i].querySelectorAll(".rv")).forEach(function (el, k) {
-    el.style.transitionDelay = (0.12 + k * 0.09) + "s";
+    el.style.transitionDelay = (0.1 + k * 0.07) + "s";
   });
   countUp(slides[i]);
   playChart(slides[i]);
+  fitEmbeds();
+  renderNotes();
   bar.style.width = ((i + 1) / slides.length * 100) + "%";
-  cnt.textContent = (i + 1) + " / " + slides.length;
+  cnt.textContent = (i + 1) + " / " + slides.length + " · " + ACT[i];
   if (history.replaceState) history.replaceState(null, "", "#" + (i + 1));
 }
 function step(d) { go(cur + d); }
 
-/* 슬라이드 진입 시 큰 숫자 카운트업 (매 진입마다 재생) */
+/* 큰 숫자 카운트업 — 진입마다 재생 */
 var CU_REDUCE = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 function countUp(slide) {
-  if (CU_REDUCE) return;
   [].slice.call(slide.querySelectorAll(".cu")).forEach(function (el) {
     var v = parseFloat(el.getAttribute("data-v"));
     var d = +(el.getAttribute("data-d") || 0);
+    if (CU_REDUCE) { el.textContent = v.toFixed(d); return; }
     if (el.__raf) cancelAnimationFrame(el.__raf);
     var t0 = null;
     function tickcu(ts) {
       if (t0 === null) t0 = ts;
-      var p = Math.min(1, (ts - t0) / 2100);
+      var p = Math.min(1, (ts - t0) / 1800);
       p = 1 - Math.pow(1 - p, 3);
       el.textContent = (v * p).toFixed(d);
       el.__raf = p < 1 ? requestAnimationFrame(tickcu) : null;
@@ -474,18 +463,25 @@ function countUp(slide) {
     el.__raf = requestAnimationFrame(tickcu);
   });
 }
-window.addEventListener("beforeprint", function () {
-  [].slice.call(document.querySelectorAll(".cu")).forEach(function (el) {
-    if (el.__raf) cancelAnimationFrame(el.__raf);
-    el.textContent = parseFloat(el.getAttribute("data-v")).toFixed(+(el.getAttribute("data-d") || 0));
-  });
-});
+
+/* 발표자 노트 — n 으로 토글, t 로 시계 리셋 */
+var T0 = Date.now();
+function renderNotes() {
+  var a = slides[cur].querySelector("aside.notes");
+  document.querySelector("#np .np-text").textContent = a ? a.textContent.trim() : "";
+}
+setInterval(function () {
+  var t = Math.floor((Date.now() - T0) / 1000);
+  document.querySelector("#np .np-time").textContent = ("0" + Math.floor(t / 60)).slice(-2) + ":" + ("0" + (t % 60)).slice(-2) + "  /  05:00";
+}, 1000);
 
 document.addEventListener("keydown", function (e) {
   if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); step(1); }
   else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); step(-1); }
   else if (e.key === "Home") go(0);
   else if (e.key === "End") go(slides.length - 1);
+  else if (e.key === "n") document.body.classList.toggle("notes");
+  else if (e.key === "t") T0 = Date.now();
 });
 document.querySelector(".nav.prev").addEventListener("click", function () { step(-1); });
 document.querySelector(".nav.next").addEventListener("click", function () { step(1); });
@@ -503,99 +499,65 @@ window.addEventListener("hashchange", function () {
 window.addEventListener("beforeprint", function () {
   slides.forEach(function (s) {
     [].slice.call(s.querySelectorAll(".rv")).forEach(function (el) { el.style.transitionDelay = "0s"; });
+    [].slice.call(s.querySelectorAll(".cu")).forEach(function (el) {
+      if (el.__raf) cancelAnimationFrame(el.__raf);
+      el.textContent = parseFloat(el.getAttribute("data-v")).toFixed(+(el.getAttribute("data-d") || 0));
+    });
   });
 });
 
-/* ── 타이틀 불꽃: fireworks-js 캔버스, CDN 실패 시 CSS 엔진 폴백 ── */
-(function fireworksShow() {
-  var host = document.getElementById("fx");
-  if (!host || (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
-  var Cls = window.Fireworks && window.Fireworks.default;
-  if (typeof Cls !== "function") { cssFireworks(host); return; }
-  var fw = new Cls(host, {
-    autoresize: true,
-    opacity: 0.6,
-    acceleration: 1.03,
-    friction: 0.96,
-    gravity: 1.6,
-    particles: 70,
-    traceLength: 3,
-    traceSpeed: 6,
-    explosion: 6,
-    intensity: 24,
-    flickering: 45,
-    hue: { min: 12, max: 48 },
-    delay: { min: 30, max: 75 },
-    rocketsPoint: { min: 15, max: 85 },
-    brightness: { min: 55, max: 85 },
-    decay: { min: 0.012, max: 0.025 },
-    lineWidth: { explosion: { min: 1, max: 3 }, trace: { min: 1, max: 2 } },
-    mouse: { click: false, move: false, max: 0 }
+/* ── 실물 임베드: 화면 크기에 맞춰 scale · 오프라인/지연이면 폴백 캡처 ── */
+function fitEmbeds() {
+  [].slice.call(document.querySelectorAll(".embed")).forEach(function (fig) {
+    var frame = fig.querySelector(".frame"), screen = fig.querySelector(".screen");
+    var W = fig.classList.contains("phone") ? 390 : 1280, H = fig.classList.contains("phone") ? 844 : 800;
+    var r = fig.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    var border = fig.classList.contains("phone") ? 12 : 2;
+    var s = Math.min((r.width - border) / W, (r.height - border) / H);
+    screen.style.transform = "scale(" + s + ")";
+    frame.style.width = (W * s + border) + "px";
+    frame.style.height = (H * s + border) + "px";
   });
-  var s1 = host.closest(".slide"), running = false;
-  function sync() {
-    var on = s1.classList.contains("active") && !document.hidden;
-    if (on && !running) { fw.start(); running = true; }
-    else if (!on && running) { fw.stop(); running = false; }
-  }
-  new MutationObserver(sync).observe(s1, { attributes: true, attributeFilter: ["class"] });
-  document.addEventListener("visibilitychange", sync);
-  window.addEventListener("beforeprint", function () { if (running) { fw.stop(); running = false; } });
-  sync();
-})();
-
-/* CSS 폴백 엔진 — 자작 불꽃 (CDN 차단·오프라인 발표장 대비) */
-function cssFireworks(host) {
-  var COLORS = ["#ffb36b", "#f36f21", "#ffd9a8", "#ffe9c9", "#ffd166", "#e9e5de"];
-  function el(cls) { var e = document.createElement("div"); e.className = cls; return e; }
-  function burst(x, y, big) {
-    var n = big ? 34 : 22, R = big ? 170 : 110;
-    var fl = el("flash"), rg = el("ring"), g = el("burst");
-    [fl, rg, g].forEach(function (e) { e.style.left = x + "%"; e.style.top = y + "%"; });
-    var base = COLORS[Math.floor(Math.random() * COLORS.length)];
-    for (var k = 0; k < n; k++) {
-      var a = (k / n) * 6.2832 + Math.random() * 0.25;
-      var r = R * (0.55 + Math.random() * 0.5);
-      var i = document.createElement("i");
-      i.style.setProperty("--dx", (Math.cos(a) * r).toFixed(0) + "px");
-      i.style.setProperty("--dy", (Math.sin(a) * r * 0.9).toFixed(0) + "px");
-      i.style.setProperty("--t", (1.7 + Math.random() * 0.9).toFixed(2) + "s");
-      i.style.setProperty("--d", (Math.random() * 0.12).toFixed(2) + "s");
-      i.style.setProperty("--c", Math.random() < 0.72 ? base : COLORS[Math.floor(Math.random() * COLORS.length)]);
-      g.appendChild(i);
-    }
-    host.appendChild(fl); host.appendChild(rg); host.appendChild(g);
-    setTimeout(function () {
-      [fl, rg, g].forEach(function (e) { if (e.parentNode) host.removeChild(e); });
-    }, 3200);
-  }
-  function launch() {
-    var x = 14 + Math.random() * 72, y = 10 + Math.random() * 38, big = Math.random() < 0.4;
-    var tr = el("trail");
-    tr.style.left = x + "%"; tr.style.top = y + "%";
-    host.appendChild(tr);
-    setTimeout(function () { if (tr.parentNode) host.removeChild(tr); burst(x, y, big); }, 580);
-  }
-  function tick() {
-    var s1 = host.closest(".slide");
-    if (document.hidden || !s1 || !s1.classList.contains("active")) { setTimeout(tick, 900); return; }
-    launch();
-    if (Math.random() < 0.3) setTimeout(launch, 220 + Math.random() * 250);
-    setTimeout(tick, 650 + Math.random() * 900);
-  }
-  setTimeout(tick, 300);
 }
+function watchEmbed(fig) {
+  var ifr = fig.querySelector("iframe"), img = fig.querySelector("img.fb"), msg = fig.querySelector(".fbmsg"), ok = false;
+  function fallback() {
+    if (ok) return;
+    ifr.hidden = true;
+    img.onerror = function () { img.hidden = true; msg.hidden = false; };
+    img.onload = function () { img.hidden = false; };
+    img.src = img.getAttribute("data-src");
+  }
+  if (!navigator.onLine) { fallback(); return; }
+  ifr.addEventListener("load", function () { ok = true; });
+  setTimeout(function () { if (!ok) fallback(); }, 8000);   // 발표장 통신이 느리면 8초 뒤 캡처로
+}
+[].slice.call(document.querySelectorAll(".embed")).forEach(watchEmbed);
 
-/* ── 수학 슬라이드 차트 ──────────────────────────────────────────────
-   전부 docs/deck/*.json 에서 읽는다. 그 파일은 tools/deck_data.py 와
-   tools/deck_field_route.mjs 가 data/derived/* 와 실제 모델 함수에서 뽑는다.
-   여기서 숫자를 다시 계산하지 않는다 — 계산하면 화면과 근거가 갈린다. */
+/* ── 코드 스트립 — docs/deck/code_strips.json (소스에서 잘라 온 것) ── */
+function loadStrips() {
+  var pres = [].slice.call(document.querySelectorAll("pre[data-strip]"));
+  if (!pres.length) return;
+  var esc = function (t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };
+  fetch("deck/code_strips.json").then(function (r) { return r.json(); }).then(function (list) {
+    var by = {}; list.forEach(function (s) { by[s.id] = s; });
+    pres.forEach(function (pre) {
+      var s = by[pre.getAttribute("data-strip")]; if (!s) return;
+      pre.innerHTML = '<span class="ln">' + esc(s.file + ":" + s.start) + "   " + esc(s.caption) + "</span>" + s.lines.map(esc).join("\n");
+    });
+  }).catch(function () { pres.forEach(function (p) { p.hidden = true; }); });
+}
+loadStrips();
+
+/* ── 차트 공통 ── 전부 docs/deck/*.json 에서 읽는다. 여기서 숫자를 다시 계산하지 않는다. */
 var CHART_CACHE = {}, CHART_REDUCE = CU_REDUCE;
 function chartData(name) {
   if (!CHART_CACHE[name]) CHART_CACHE[name] = fetch("deck/" + name + ".json").then(function (r) { return r.json(); });
   return CHART_CACHE[name];
 }
 function cssVar(k) { return getComputedStyle(document.documentElement).getPropertyValue(k).trim(); }
+function hex(s) { s = s.replace("#", ""); return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16)]; }
 function fitCanvas(cv) {
   var r = cv.getBoundingClientRect(), d = window.devicePixelRatio || 1;
   cv.width = Math.max(1, Math.round(r.width * d));
@@ -605,7 +567,6 @@ function fitCanvas(cv) {
   x.clearRect(0, 0, r.width, r.height);
   return { ctx: x, w: r.width, h: r.height };
 }
-/* 진입할 때마다 0→1 로 한 번 재생. 모션 최소화 설정이면 마지막 상태로 바로 간다. */
 function animate(cv, ms, draw) {
   if (cv.__raf) cancelAnimationFrame(cv.__raf);
   if (CHART_REDUCE) { draw(1); return; }
@@ -619,442 +580,31 @@ function animate(cv, ms, draw) {
   cv.__raf = requestAnimationFrame(tick);
 }
 function axes(c, w, h, pad) {
-  c.strokeStyle = cssVar("--line"); c.lineWidth = 1;
+  c.strokeStyle = cssVar("--rule"); c.lineWidth = 1;
   c.beginPath(); c.moveTo(pad.l, pad.t); c.lineTo(pad.l, h - pad.b); c.lineTo(w - pad.r, h - pad.b); c.stroke();
 }
-function label(c, txt, x, y, col, align, size) {
+function label(c, txt, x, y, col, align, size, font) {
   c.fillStyle = col; c.textAlign = align || "left"; c.textBaseline = "middle";
-  c.font = (size || 11) + "px 'IBM Plex Mono', ui-monospace, monospace";
+  c.font = (size || 11) + "px " + (font === "sans" ? "'Pretendard Variable', Pretendard, sans-serif" : "'IBM Plex Mono', ui-monospace, monospace");
   c.fillText(txt, x, y);
 }
 
-/* ① 피더 선행 — X 곡선을 1시간 밀면 Y 에 포개진다 */
-function drawFeeder(cv, d, slide) {
-  var y2025 = d.years["2025"], hours = d.hours;
-  var xs = hours.map(function (h) { return y2025.x[h] || 0; });
-  var ys = hours.map(function (h) { return y2025.y[h] || 0; });
-  var max = Math.max.apply(null, xs.concat(ys)) * 1.08;
-  var out = fitCanvas(cv), c = out.ctx, w = out.w, h = out.h;
-  var pad = { l: 44, r: 14, t: 14, b: 26 };
-  var px = function (i) { return pad.l + (w - pad.l - pad.r) * i / (hours.length - 1); };
-  var py = function (v) { return h - pad.b - (h - pad.t - pad.b) * v / max; };
-  var rEl = slide.querySelector("[data-feeder-r]");
-  animate(cv, 2600, function (p) {
-    var out2 = fitCanvas(cv); c = out2.ctx; w = out2.w; h = out2.h;
-    axes(c, w, h, pad);
-    hours.forEach(function (hh, i) { if (hh % 2 === 0) label(c, hh + "시", px(i), h - pad.b + 12, cssVar("--sub"), "center", 10.5); });
-    c.save(); c.beginPath(); c.rect(pad.l, pad.t - 4, w - pad.l - pad.r, h - pad.t - pad.b + 4); c.clip();
-    label(c, Math.round(max / 1000) + "천", pad.l - 6, pad.t + 4, cssVar("--sub"), "right", 10.5);
-    function line(vals, col, shift) {
-      c.strokeStyle = col; c.lineWidth = 2; c.beginPath();
-      vals.forEach(function (v, i) { var X = px(i) + shift, Y = py(v); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
-      c.stroke();
-      vals.forEach(function (v, i) { c.fillStyle = col; c.beginPath(); c.arc(px(i) + shift, py(v), 3.2, 0, 6.284); c.fill(); });
-    }
-    line(ys, cssVar("--c2"), 0);
-    line(xs, cssVar("--c1"), (px(1) - px(0)) * p);   // 1시간 = 격자 한 칸
-    c.restore();
-    var r = y2025.r_lag0 + (y2025.r_lag1 - y2025.r_lag0) * p;
-    if (rEl) rEl.textContent = "r " + r.toFixed(3);
-    label(c, p < 0.5 ? "피더 곡선" : "1시간 밀었다", px(1) + (px(1) - px(0)) * p, py(xs[1]) - 14, cssVar("--c1"), "left", 11.5);
-  });
-}
+var CHARTS = {};
+/* charts:functions */
 
-/* ② α 격자 사후분포 — 관측이 한 건씩 들어오며 종이 좁아진다 */
-function drawAlpha(cv, d, slide) {
-  var grid = d.grid, frames = d.frames, prior = d.prior_weights;
-  var maxW = 0;
-  frames.forEach(function (f) { f.weights.forEach(function (v) { if (v > maxW) maxW = v; }); });
-  var nowEl = slide.querySelector("[data-alpha-now]");
-  var lg = Math.log(grid[0]), rg = Math.log(grid[grid.length - 1]);
-  animate(cv, 3000, function (p) {
-    var out = fitCanvas(cv), c = out.ctx, w = out.w, h = out.h;
-    var pad = { l: 30, r: 14, t: 16, b: 26 };
-    var px = function (a) { return pad.l + (w - pad.l - pad.r) * (Math.log(a) - lg) / (rg - lg); };
-    var py = function (v) { return h - pad.b - (h - pad.t - pad.b) * v / maxW; };
-    axes(c, w, h, pad);
-    [0.5, 0.75, 1, 1.5, 2].forEach(function (a) { label(c, String(a), px(a), h - pad.b + 12, cssVar("--sub"), "center", 10.5); });
-    function curve(ws, col, fill) {
-      c.beginPath();
-      ws.forEach(function (v, i) { var X = px(grid[i]), Y = py(v); i ? c.lineTo(X, Y) : c.moveTo(X, Y); });
-      if (fill) { c.lineTo(px(grid[grid.length - 1]), h - pad.b); c.lineTo(px(grid[0]), h - pad.b); c.closePath(); c.fillStyle = fill; c.fill(); }
-      c.strokeStyle = col; c.lineWidth = 2; c.stroke();
-    }
-    curve(prior, "#39404e", null);
-    var fi = Math.min(frames.length - 1, Math.floor(p * (frames.length - 0.001)));
-    var f = frames[fi];
-    curve(f.weights, cssVar("--c1"), "rgba(226,102,28,.16)");
-    // p10~p90 밴드와 중앙값
-    c.fillStyle = "rgba(226,102,28,.10)";
-    c.fillRect(px(f.alpha[0]), pad.t, px(f.alpha[2]) - px(f.alpha[0]), h - pad.t - pad.b);
-    c.strokeStyle = cssVar("--accent"); c.lineWidth = 1.5;
-    c.beginPath(); c.moveTo(px(f.alpha[1]), pad.t); c.lineTo(px(f.alpha[1]), h - pad.b); c.stroke();
-    label(c, "관측 " + f.n + "건 · " + f.label, w - pad.r, pad.t + 6, cssVar("--sub"), "right", 11.5);
-    if (nowEl) nowEl.textContent = "α " + f.alpha[1].toFixed(3) + " [" + f.alpha[0].toFixed(2) + "~" + f.alpha[2].toFixed(2) + "]";
-  });
-}
-
-/* ③ 백테스트 — 예측 대 실측 산점, 대각선에 붙을수록 맞힌 것 */
-function drawBacktest(cv, d, slide) {
-  var rows = d.modes.B_cross_year.years["2025"].rows.filter(function (r) { return !r.closed; });
-  var hit = d.modes.B_cross_year.years["2025"];
-  var max = 0;
-  rows.forEach(function (r) { max = Math.max(max, r.pred, r.obs); });
-  max *= 1.06;
-  var hitEl = slide.querySelector("[data-bt-hit]");
-  animate(cv, 2400, function (p) {
-    var out = fitCanvas(cv), c = out.ctx, w = out.w, h = out.h;
-    var pad = { l: 46, r: 14, t: 14, b: 28 };
-    var px = function (v) { return pad.l + (w - pad.l - pad.r) * v / max; };
-    var py = function (v) { return h - pad.b - (h - pad.t - pad.b) * v / max; };
-    axes(c, w, h, pad);
-    c.strokeStyle = cssVar("--line"); c.setLineDash([4, 4]); c.lineWidth = 1.5;
-    c.beginPath(); c.moveTo(px(0), py(0)); c.lineTo(px(max), py(max)); c.stroke(); c.setLineDash([]);
-    label(c, "완벽 = 대각선", px(max) - 6, py(max) + 14, cssVar("--sub"), "right", 10.5);
-    label(c, "예측 승차 →", w - pad.r, pad.t + 4, cssVar("--sub"), "right", 10.5);
-    label(c, "↑ 실측 승차", pad.l + 6, pad.t + 4, cssVar("--sub"), "left", 10.5);
-    [0.25, 0.5, 0.75].forEach(function (t) {             // 규모를 읽을 눈금 (천 단위) — 끝값은 축 이름과 겹친다
-      var v = max * t, tx = Math.round(v / 1000) + "천";
-      label(c, tx, px(v), h - pad.b + 14, cssVar("--sub"), "center", 10);
-      label(c, tx, pad.l - 6, py(v), cssVar("--sub"), "right", 10);
-    });
-    var shown = Math.floor(p * rows.length);
-    rows.slice(0, shown).forEach(function (r) {
-      var ok = r.pred_grade === r.obs_grade;
-      c.fillStyle = ok ? cssVar("--c2") : cssVar("--c1");
-      c.beginPath(); c.arc(px(r.pred), py(r.obs), 5, 0, 6.284); c.fill();
-      c.strokeStyle = cssVar("--bg"); c.lineWidth = 2; c.stroke();   // 겹칠 때 서로 떨어져 보이게
-    });
-    if (hitEl) hitEl.textContent = "등급 적중 " + Math.round(hit.grade_hit_rate * 100 * p) + "%";
-  });
-}
-
-/* ④ 혼잡장 — 관측이 하나씩, 면이 생기고 불확실성이 줄어든다.
-   운영 화면(index.html apfField)과 같은 방식으로 그린다: 격자 크기 PNG 를 만들어
-   지도에 image 소스로 얹고 GPU bilinear 에 맡긴다. 색·불투명도 공식도 그대로 옮겼다 —
-   덱과 실제 화면이 다르게 보이면 "이게 우리 화면이다" 라고 말할 수 없다. */
-var APF_SD_MAX = Math.sqrt(0.125 + 0.125);   // index.html:539 · 커널 varShort+varLong
-var APF_FEATHER = 0.18;                      // index.html:537 · 사각형 경계선을 숨긴다
-var FIELD_STOPS = [[0, "--g1"], [0.6, "--g2"], [0.8, "--g3"], [1, "--g4"]];
-/* index.html apfPalette 의 램프. 등급 밴드 안에서는 색을 유지하고 경계에서만 넘어간다 —
-   선형 보간하면 u=0.35 가 초록+골드 = 올리브가 되어 등급과 어긋난다. */
-function apfRamp() {
-  var V = hex(cssVar("--g1")), J = hex(cssVar("--g2")), G = hex(cssVar("--g3")), S = hex(cssVar("--g4"));
-  return [[0, V], [0.50, V], [0.63, J], [0.78, G], [0.92, S], [1, S]];
-}
-function rampHex(ramp, u) {
-  u = Math.max(0, Math.min(1, u));
-  for (var i = 0; i < ramp.length - 1; i++) {
-    var a = ramp[i], b = ramp[i + 1];
-    if (u >= a[0] && u <= b[0]) {
-      var t = b[0] > a[0] ? (u - a[0]) / (b[0] - a[0]) : 0;
-      return [a[1][0] + (b[1][0] - a[1][0]) * t, a[1][1] + (b[1][1] - a[1][1]) * t, a[1][2] + (b[1][2] - a[1][2]) * t];
-    }
-  }
-  return ramp[ramp.length - 1][1];
-}
-/* 프레임 하나를 격자 크기 PNG 로. index.html:630-641 과 같은 식이다. */
-function fieldPng(d, f) {
-  var g = d.grid, ramp = apfRamp();
-  var cv = document.createElement("canvas");
-  cv.width = g.cols; cv.height = g.rows;
-  var cx = cv.getContext("2d"), img = cx.createImageData(g.cols, g.rows), px = img.data;
-  var edgeFade = function (i, len) {
-    var t = Math.min(i + 0.5, len - 0.5 - i) / (len * APF_FEATHER);
-    return t >= 1 ? 1 : t <= 0 ? 0 : t * t * (3 - 2 * t);
-  };
-  for (var iy = 0; iy < g.rows; iy++) {
-    for (var ix = 0; ix < g.cols; ix++) {
-      var c = iy * g.cols + ix;
-      var u = Math.max(0, Math.min(1, f.mean[c] / d.scale));
-      var conf = Math.max(0, 1 - (f.sd[c] / d.scale) / APF_SD_MAX), cn = Math.min(1, conf / 0.15);
-      var hot = Math.max(0, Math.min(1, (u - 0.3) / 0.7));
-      var col = rampHex(ramp, u), o = (0.45 + 0.50 * hot) * (0.45 + 0.55 * cn);
-      var j = ((g.rows - 1 - iy) * g.cols + ix) * 4;   // 캔버스는 위가 북쪽, 격자는 아래가 남쪽
-      var fade = edgeFade(ix, g.cols) * edgeFade(iy, g.rows);
-      px[j] = col[0] | 0; px[j + 1] = col[1] | 0; px[j + 2] = col[2] | 0;
-      px[j + 3] = Math.round(255 * Math.max(0, Math.min(1, o)) * fade);
-    }
-  }
-  cx.putImageData(img, 0, 0);
-  return cv.toDataURL("image/png");
-}
-/* 등급 경계(0.6/0.8/1.0)를 그대로 칠한다 — 연속 보간하면 중간 올리브색으로 뭉개지고,
-   무엇보다 제품이 말하는 단위(등급)와 그림이 어긋난다. field.js unitToGrade 와 같은 경계. */
-function fieldColor(u) {
-  var k = u >= 1 ? "--g4" : u >= 0.8 ? "--g3" : u >= 0.6 ? "--g2" : "--g1";
-  return hex(cssVar(k));
-}
-function hex(s) { s = s.replace("#", ""); return [parseInt(s.slice(0, 2), 16), parseInt(s.slice(2, 4), 16), parseInt(s.slice(4, 6), 16)]; }
-/* 지도 라이브러리는 이 슬라이드에 처음 들어올 때만 받는다 (덱 첫 로드를 무겁게 하지 않는다) */
-var MLIB = null;
-function maplibre() {
-  if (MLIB) return MLIB;
-  MLIB = new Promise(function (ok, no) {
-    var l = document.createElement("link");
-    l.rel = "stylesheet"; l.href = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css";
-    document.head.appendChild(l);
-    var sc = document.createElement("script");
-    sc.src = "https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js";
-    sc.onload = function () { window.maplibregl ? ok(window.maplibregl) : no(new Error("maplibregl 없음")); };
-    sc.onerror = function () { no(new Error("지도 라이브러리를 받지 못했다")); };
-    document.head.appendChild(sc);
-  });
-  return MLIB;
-}
-
-/* 지도 위 혼잡장 — 관람객·운영자가 실제로 보는 화면과 같은 그림.
-   타일이나 라이브러리가 안 오면 캔버스 렌더로 물러난다(발표 중 빈 슬라이드보다 낫다). */
-function drawFieldMap(fig, d, slide) {
-  var host = fig.querySelector(".fmap"), nEl = slide.querySelector("[data-field-n]");
-  if (fig.__map) { try { fig.__map.remove(); } catch (e) {} fig.__map = null; }
-  return maplibre().then(function (mgl) {
-    var g = d.grid;
-    var coords = [[g.x0, g.y1], [g.x1, g.y1], [g.x1, g.y0], [g.x0, g.y0]];   // 좌상·우상·우하·좌하
-    var map = new mgl.Map({
-      container: host, style: "https://tiles.openfreemap.org/styles/dark",
-      center: [(g.x0 + g.x1) / 2, (g.y0 + g.y1) / 2], zoom: 12.6,
-      interactive: false, attributionControl: { compact: true },
-    });
-    fig.__map = map;
-    host.__fi = -1;            // 재생마다 첫 프레임부터 다시 그린다
-    return new Promise(function (done, fail) {
-      // 발표 중 통신이 느리면 load 가 영영 안 온다. 6초 안에 안 뜨면 캔버스로 물러난다.
-      var gaveUp = false;
-      var timer = setTimeout(function () { gaveUp = true; fail(new Error("지도 타임아웃")); }, 6000);
-      map.on("error", function (e) { clearTimeout(timer); fail(e && e.error ? e.error : new Error("지도 오류")); });
-      map.on("load", function () {
-        clearTimeout(timer);
-        if (gaveUp) return;
-        map.fitBounds([[g.x0, g.y0], [g.x1, g.y1]], { padding: 18, animate: false });
-        // 물 레이어를 장 위에 다시 올린다 — 안 그러면 혼잡장이 한강을 덮는다 (index.html 과 같은 처리)
-        var water = (map.getStyle().layers || []).find(function (L) {
-          return L.type === "fill" && (/water/i.test(L.id) || /water/i.test(L["source-layer"] || ""));
-        });
-        map.addSource("apf-field", { type: "image", url: fieldPng(d, d.frames[0]), coordinates: coords });
-        map.addLayer({ id: "apf-field", type: "raster", source: "apf-field",
-                       paint: { "raster-opacity": 1, "raster-resampling": "linear", "raster-fade-duration": 0 } });
-        if (water) map.addLayer(Object.assign({}, water, { id: "apf-water-mask",
-                     paint: Object.assign({}, water.paint || {}, { "fill-opacity": 1 }) }));
-        var marks = [];
-        animate(host, 3200, function (p) {
-          var fi = Math.min(d.frames.length - 1, Math.floor(p * (d.frames.length - 0.001)));
-          var f = d.frames[fi];
-          if (host.__fi !== fi) {
-            host.__fi = fi;
-            var src = map.getSource("apf-field");
-            if (src) src.updateImage({ url: fieldPng(d, f), coordinates: coords });
-            marks.forEach(function (m) { m.remove(); });
-            marks = d.observations.slice(0, f.n).map(function (o) {
-              var el = document.createElement("div");
-              el.style.cssText = "width:9px;height:9px;border-radius:50%;background:" + cssVar("--ink")
-                + ";box-shadow:0 0 0 2px " + cssVar("--bg");
-              return new mgl.Marker({ element: el }).setLngLat(o.x).addTo(map);
-            });
-            var sdAvg = 0; for (var i = 0; i < f.sd.length; i++) sdAvg += f.sd[i];
-            sdAvg = sdAvg / f.sd.length / d.scale;
-            if (nEl) nEl.textContent = "관측 " + f.n + "대 · 평균 σ " + sdAvg.toFixed(2);
-          }
-        });
-        done(map);
-      });
-    });
-  });
-}
-
-function drawField(cv, d, slide) {
-  var fig = cv.parentNode;
-  drawFieldMap(fig, d, slide).catch(function () {
-    // 타일·라이브러리 실패 → 바탕 없이 격자만 그린다
-    var host = fig.querySelector(".fmap");
-    if (host) host.hidden = true;
-    cv.hidden = false;
-    drawFieldCanvas(cv, d, slide);
-  });
-}
-
-function drawFieldCanvas(cv, d, slide) {
-  var g = d.grid, nEl = slide.querySelector("[data-field-n]");
-  var off = document.createElement("canvas");
-  off.width = g.cols; off.height = g.rows;
-  var octx = off.getContext("2d");
-  animate(cv, 3200, function (p) {
-    var out = fitCanvas(cv), c = out.ctx, w = out.w, h = out.h;
-    var fi = Math.min(d.frames.length - 1, Math.floor(p * (d.frames.length - 0.001)));
-    var f = d.frames[fi];
-    var img = octx.createImageData(g.cols, g.rows);
-    for (var iy = 0; iy < g.rows; iy++) {
-      for (var ix = 0; ix < g.cols; ix++) {
-        var k = iy * g.cols + ix, u = f.mean[k] / d.scale, sd = f.sd[k] / d.scale;
-        var col = fieldColor(u);
-        // 위→아래 뒤집기: 격자는 위도가 커질수록 인덱스가 크고, 캔버스는 아래로 간다
-        var o = ((g.rows - 1 - iy) * g.cols + ix) * 4;
-        img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2];
-        // 불확실할수록 투명 = "모른다". sd 는 0.24~0.50 구간이라 그 폭에 맞춰 편다
-        var fade = Math.max(0, Math.min(0.55, (sd - 0.24) / 0.26 * 0.55));
-        img.data[o + 3] = Math.round(255 * (1 - fade));
-      }
-    }
-    octx.putImageData(img, 0, 0);
-    c.imageSmoothingEnabled = true;
-    var sc = Math.min(w / g.cols, h / g.rows), dw = g.cols * sc, dh = g.rows * sc;
-    var ox = (w - dw) / 2, oy = (h - dh) / 2;
-    c.drawImage(off, ox, oy, dw, dh);
-    d.observations.slice(0, f.n).forEach(function (o) {
-      var X = ox + dw * (o.x[0] - g.x0) / (g.x1 - g.x0), Y = oy + dh * (1 - (o.x[1] - g.y0) / (g.y1 - g.y0));
-      c.fillStyle = cssVar("--ink"); c.beginPath(); c.arc(X, Y, 3.4, 0, 6.284); c.fill();
-      c.strokeStyle = cssVar("--bg"); c.lineWidth = 1.6; c.stroke();
-    });
-    ["여의도한강공원", "63빌딩", "마포대교"].forEach(function (nm) {
-      var o = null;
-      d.observations.some(function (q) { if (q.name.indexOf(nm) >= 0) { o = q; return true; } return false; });
-      if (!o) return;
-      var X = ox + dw * (o.x[0] - g.x0) / (g.x1 - g.x0), Y = oy + dh * (1 - (o.x[1] - g.y0) / (g.y1 - g.y0));
-      c.fillStyle = "rgba(11,13,18,.72)";
-      var tw = nm.length * 7.4 + 10;
-      c.fillRect(X + 7, Y - 8, tw, 16);
-      label(c, nm, X + 12, Y, cssVar("--ink"), "left", 11);
-    });
-    var sdAvg = 0; for (var i = 0; i < f.sd.length; i++) sdAvg += f.sd[i];
-    sdAvg = sdAvg / f.sd.length / d.scale;
-    if (nEl) nEl.textContent = "관측 " + f.n + "대 · 평균 σ " + sdAvg.toFixed(2);
-  });
-}
-
-/* ⑤ A* — 혼잡장 위에서 탐색이 번지고 경로가 뽑힌다.
-   바탕은 11번 슬라이드와 같은 장이다(등급 배치는 예시). 두 장을 잇는 게 요점 —
-   "혼잡장을 만든다" 다음이 "그 장 위에서 길을 고른다" 이다. */
-function drawRoute(cv, d, slide) {
-  chartData("field_grid").then(function (fd) { drawRouteOn(cv, d, fd); })
-    .catch(function () { drawRouteOn(cv, d, null); });
-}
-function drawRouteOn(cv, d, fd) {
-  var fig = cv.parentNode, cvs = [].slice.call(fig.querySelectorAll("canvas"));
-  var b = d.bbox, fcv = null;
-  if (fd) {                                  // 장을 격자 크기 캔버스에 한 번만 그려 둔다 (세 패널이 공유)
-    var fg = fd.grid, last = fd.frames[fd.frames.length - 1], ramp = apfRamp();
-    fcv = document.createElement("canvas");
-    fcv.width = fg.cols; fcv.height = fg.rows;
-    var fx = fcv.getContext("2d"), fim = fx.createImageData(fg.cols, fg.rows), fp = fim.data;
-    for (var iy = 0; iy < fg.rows; iy++) {
-      for (var ix = 0; ix < fg.cols; ix++) {
-        var k = iy * fg.cols + ix;
-        var u = Math.max(0, Math.min(1, last.mean[k] / fd.scale));
-        var conf = Math.max(0, 1 - (last.sd[k] / fd.scale) / APF_SD_MAX), cn = Math.min(1, conf / 0.15);
-        var hot = Math.max(0, Math.min(1, (u - 0.3) / 0.7));
-        var col = rampHex(ramp, u), o = (0.45 + 0.50 * hot) * (0.45 + 0.55 * cn);
-        var j = ((fg.rows - 1 - iy) * fg.cols + ix) * 4;
-        fp[j] = col[0] | 0; fp[j + 1] = col[1] | 0; fp[j + 2] = col[2] | 0;
-        fp[j + 3] = Math.round(255 * Math.max(0, Math.min(1, o)) * 0.62);
-      }
-    }
-    fx.putImageData(fim, 0, 0);
-  }
-  var S = d.routes.shortest, A = d.routes.avoiding, M = d.minutes || {};
-  var fmt = function (m) { return m.toLocaleString("en-US"); };
-  var TITLE = { shortest: "① 최단 — 봉우리를 통과", avoiding: "② 혼잡 회피 — 돌아간다", both: "③ 겹쳐 보기" };
-  var STAT = {
-    shortest: fmt(S.meters) + "m · " + M.shortest + "분",
-    avoiding: A ? fmt(A.meters) + "m · " + M.avoiding + "분" : "",
-    both: A ? "+" + fmt(A.meters - S.meters) + "m 더 걷고 " + (M.shortest - M.avoiding) + "분 빠르다" : "",
-  };
-  // 세 패널을 왼쪽부터 차례로 그린다 — 패널 i 는 p∈[i/3,(i+1)/3] 에서 자기 경로를 늘린다
-  animate(cvs[0], 3600, function (p) {
-    cvs.forEach(function (canvas, idx) {
-      var mode = canvas.getAttribute("data-mode") || "both";
-      var out = fitCanvas(canvas), c = out.ctx, w = out.w, h = out.h;
-      var kx = Math.cos((b[1] + b[3]) / 2 * Math.PI / 180);
-      var sx = (b[2] - b[0]) * kx, sy = b[3] - b[1];
-      var sc = Math.min((w - 16) / sx, (h - 44) / sy);      // 위 44px 은 패널 제목 자리
-      var ox = (w - sx * sc) / 2, oy = 44 + (h - 44 - sy * sc) / 2;
-      var X = function (lng) { return ox + (lng - b[0]) * kx * sc; };
-      var Y = function (lat) { return oy + (b[3] - lat) * sc; };
-      if (fcv) {
-        var fg2 = fd.grid;
-        var fsx = (b[0] - fg2.x0) / (fg2.x1 - fg2.x0) * fg2.cols, fsx1 = (b[2] - fg2.x0) / (fg2.x1 - fg2.x0) * fg2.cols;
-        var fsy = (1 - (b[3] - fg2.y0) / (fg2.y1 - fg2.y0)) * fg2.rows, fsy1 = (1 - (b[1] - fg2.y0) / (fg2.y1 - fg2.y0)) * fg2.rows;
-        c.imageSmoothingEnabled = true;
-        c.drawImage(fcv, fsx, fsy, Math.max(1, fsx1 - fsx), Math.max(1, fsy1 - fsy), X(b[0]), Y(b[3]), X(b[2]) - X(b[0]), Y(b[1]) - Y(b[3]));
-      }
-      c.strokeStyle = cssVar("--line"); c.lineWidth = 1;
-      c.beginPath();
-      d.background_edges.forEach(function (e) { c.moveTo(X(e[0]), Y(e[1])); c.lineTo(X(e[2]), Y(e[3])); });
-      c.stroke();
-      var ph = Math.max(0, Math.min(1, p * 3 - idx));      // 이 패널의 진행도
-      if (idx === 0 && d.visited) {                          // 탐색이 번지는 건 ① 에서만
-        var vs = Math.floor(Math.min(1, ph / 0.55) * d.visited.length);
-        c.fillStyle = "#39404e";
-        d.visited.slice(0, vs).forEach(function (q) { c.beginPath(); c.arc(X(q[0]), Y(q[1]), 2.4, 0, 6.284); c.fill(); });
-      }
-      if (d.hotspot) {                                       // 왜 돌아가는지 — 세 패널 모두
-        var hr = d.hotspot.radius_m / 111320 * sc, hc = d.hotspot.center;
-        c.beginPath(); c.arc(X(hc[0]), Y(hc[1]), Math.max(6, hr), 0, 6.284);
-        c.fillStyle = "rgba(224,74,74,.30)"; c.fill();
-        c.strokeStyle = cssVar("--g4"); c.lineWidth = 1.5; c.setLineDash([3, 3]); c.stroke(); c.setLineDash([]);
-      }
-      c.lineJoin = "round"; c.lineCap = "round";
-      var rp = idx === 0 ? Math.max(0, (ph - 0.45) / 0.55) : ph;
-      // 선은 인덱스가 아니라 **걷는 시간**에 비례해 자란다. 두 사람이 동시에 출발한 것처럼 —
-      // 봉우리 안에서는 기어가고, 회피 경로는 먼저 도착한다. ③ 은 둘을 같은 시계로 그린다.
-      var total = function (r) { return r && r.times && r.times.length ? r.times[r.times.length - 1] : 0; };
-      var clock = mode === "both" ? Math.max(total(S), total(A)) : (mode === "avoiding" ? total(A) : total(S));
-      var tau = rp * clock;
-      var path = function (r, col, wd, dash) {
-        var co = r.coords, tm = r.times || [];
-        var i = 0;
-        while (i + 1 < co.length && tm[i + 1] <= tau) i++;
-        var done = i >= co.length - 1 || tau >= total(r);
-        c.beginPath();
-        for (var k = 0; k <= i; k++) k ? c.lineTo(X(co[k][0]), Y(co[k][1])) : c.moveTo(X(co[k][0]), Y(co[k][1]));
-        if (!done && tm.length) {                          // 다음 점까지 부분 진행 — 선이 뚝뚝 끊기지 않게
-          var f = (tau - tm[i]) / Math.max(1e-6, tm[i + 1] - tm[i]);
-          c.lineTo(X(co[i][0] + (co[i + 1][0] - co[i][0]) * f), Y(co[i][1] + (co[i + 1][1] - co[i][1]) * f));
-        }
-        c.setLineDash(dash || []);
-        c.strokeStyle = "rgba(11,13,18,.85)"; c.lineWidth = wd + 3.3; c.stroke();
-        c.strokeStyle = col; c.lineWidth = wd; c.stroke();
-        c.setLineDash([]);
-        if (done && tau > 0) {                              // 도착 — 목적지에 그 색 고리
-          var e = co[co.length - 1];
-          c.beginPath(); c.arc(X(e[0]), Y(e[1]), 9, 0, 6.284);
-          c.strokeStyle = col; c.lineWidth = 2; c.stroke();
-        }
-      };
-      if (mode === "shortest") path(S, cssVar("--c1"), 3.2, null);
-      else if (mode === "avoiding" && A) path(A, cssVar("--c2"), 2.6, [7, 5]);
-      else { if (A) path(A, cssVar("--c2"), 2.6, [7, 5]); path(S, cssVar("--c1"), 3.2, null); }
-      if (mode === "both" && tau > 0 && tau < clock) {      // 지금 몇 분째인지
-        label(c, Math.round(tau / 60) + "분 경과", w - 10, 31, cssVar("--sub"), "right", 11);
-      }
-      [[d.origin, "출발", cssVar("--accent")], [d.dest, d.dest_name, cssVar("--c2")]].forEach(function (m) {
-        var mx = X(m[0][0]), my = Y(m[0][1]);
-        c.fillStyle = m[2]; c.beginPath(); c.arc(mx, my, 5, 0, 6.284); c.fill();
-        c.strokeStyle = cssVar("--bg"); c.lineWidth = 2; c.stroke();
-        var right = mx > w / 2;                              // 가장자리에서 잘리지 않게 안쪽으로
-        label(c, m[1], right ? mx - 9 : mx + 9, my, cssVar("--ink"), right ? "right" : "left", 11);
-      });
-      label(c, TITLE[mode], 10, 14, cssVar("--ink"), "left", 12);
-      label(c, STAT[mode], 10, 31, mode === "both" ? cssVar("--accent2") : cssVar("--sub"), "left", 11);
-    });
-  });
-}
-
-var CHARTS = { feeder: ["feeder_lag", drawFeeder], alpha: ["alpha_grid", drawAlpha],
-               backtest: ["backtest_bars", drawBacktest], field: ["field_grid", drawField],
-               route: ["route_demo", drawRoute] };
 function playChart(slide) {
-  var fig = slide.querySelector("[data-chart]");
-  if (!fig) return;
-  var spec = CHARTS[fig.getAttribute("data-chart")];
-  if (!spec) return;
-  var cv = fig.querySelector("canvas");
-  chartData(spec[0]).then(function (d) { spec[1](cv, d, slide); })
-    .catch(function () { fig.innerHTML = '<p class="src">그래프 데이터를 받지 못했다.</p>'; });
+  [].slice.call(slide.querySelectorAll("[data-chart]")).forEach(function (fig) {
+    var spec = CHARTS[fig.getAttribute("data-chart")];
+    if (!spec) return;
+    var cv = fig.querySelector("canvas");
+    chartData(spec[0]).then(function (d) { spec[1](cv, d, slide, fig); })
+      .catch(function () { fig.innerHTML = '<p class="src">그래프 데이터를 받지 못했다.</p>'; });
+  });
 }
 var rzT = null;
 window.addEventListener("resize", function () {
   clearTimeout(rzT);
-  rzT = setTimeout(function () { if (cur >= 0) playChart(slides[cur]); }, 180);
+  rzT = setTimeout(function () { fitEmbeds(); if (cur >= 0) playChart(slides[cur]); }, 180);
 });
 
 var n0 = parseInt(location.hash.slice(1), 10);
