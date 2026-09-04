@@ -43,8 +43,9 @@ button{font:inherit;cursor:pointer}
 .pill em{font-style:normal;font-weight:500;color:var(--sub)}
 
 /* 지도 위, 시트 바로 위 — 위치 안내 · 범례 */
-.over{position:absolute;left:12px;right:12px;bottom:calc(var(--sheet-h) + 12px);display:flex;flex-direction:column;align-items:flex-start;gap:10px;
-  transition:opacity .25s,bottom var(--ease-sheet)}
+/* 시트와 같은 폭(최대 520)으로 맞춘다 — 넓은 화면에서 안내·범례만 끝까지 늘어나지 않게 */
+.over{position:absolute;left:0;right:0;max-width:520px;margin:0 auto;padding:0 12px;bottom:calc(var(--sheet-h) + 12px);
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;transition:opacity .25s,bottom var(--ease-sheet)}
 .note{align-self:stretch;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;border-radius:14px;background:rgba(20,17,12,.88);color:#F5F4F1;
   font-size:15px;line-height:1.35;box-shadow:0 8px 24px rgba(20,17,12,.18)}
 .note span{flex:1} .note b{font-weight:800}
