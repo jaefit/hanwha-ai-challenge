@@ -1,19 +1,19 @@
 {
- "generated": "2026-09-04T22:00:46",
+ "generated": "2026-09-04T22:05:48",
  "forecast": {
-  "ts": "2026-09-04T22:00:46",
+  "ts": "2026-09-04T22:05:48",
   "date": "20260904",
-  "alpha": 0.395,
-  "alpha_reason": "관측 10건(하차 4·승차 6) → α p50 0.395 [0.346–0.455]",
+  "alpha": 0.384,
+  "alpha_reason": "관측 11건(하차 4·승차 7) → α p50 0.384 [0.342–0.441]",
   "prior": false,
   "data_freshness": {
    "citydata": {
-    "last_ok": "2026-09-04T21:58:46",
+    "last_ok": "2026-09-04T22:03:46",
     "age_min": 2,
     "stale": false
    },
    "subway": {
-    "last_ok": "2026-09-04T21:58:46",
+    "last_ok": "2026-09-04T22:03:46",
     "age_min": 2,
     "stale": false
    }
@@ -24,12 +24,12 @@
    "grid_n": 61,
    "n_obs": {
     "alighting": 4,
-    "boarding": 6
+    "boarding": 7
    },
    "alpha": [
-    0.346,
-    0.395,
-    0.455
+    0.342,
+    0.384,
+    0.441
    ],
    "edge_hit": false,
    "coverage_c": 1.3,
@@ -39,11 +39,11 @@
    "window_note": "30분 창 = 각 30분 구간 마지막 수집 레코드 직전 30분 (최대 5분 어긋남)"
   },
   "outflow_forecast": {
-   "19": 5803,
-   "20": 18948,
-   "21": 34146,
-   "22": 17888,
-   "23": 4527
+   "19": 5642,
+   "20": 18420,
+   "21": 33195,
+   "22": 17390,
+   "23": 4401
   },
   "outflow_baseline": {
    "19": 21980,
@@ -108,9 +108,9 @@
   "exits": {
    "여의도(5)": {
     "19": {
-     "demand": 754,
+     "demand": 733,
      "baseline": 1234,
-     "demand_total": 1988,
+     "demand_total": 1967,
      "capacity": 17788,
      "load": 0.11,
      "backlog": 0,
@@ -121,9 +121,9 @@
      "load_hi": 0.13
     },
     "20": {
-     "demand": 1554,
+     "demand": 1510,
      "baseline": 1490,
-     "demand_total": 3044,
+     "demand_total": 3000,
      "capacity": 17788,
      "load": 0.17,
      "backlog": 0,
@@ -134,9 +134,9 @@
      "load_hi": 0.2
     },
     "21": {
-     "demand": 3683,
+     "demand": 3581,
      "baseline": 1009,
-     "demand_total": 4692,
+     "demand_total": 4590,
      "capacity": 17788,
      "load": 0.26,
      "backlog": 0,
@@ -147,9 +147,9 @@
      "load_hi": 0.3
     },
     "22": {
-     "demand": 4450,
+     "demand": 4326,
      "baseline": 577,
-     "demand_total": 5027,
+     "demand_total": 4903,
      "capacity": 17788,
      "load": 0.28,
      "backlog": 0,
@@ -160,31 +160,31 @@
      "load_hi": 0.32
     },
     "23": {
-     "demand": 2088,
+     "demand": 2030,
      "baseline": 165,
-     "demand_total": 2253,
+     "demand_total": 2195,
      "capacity": 17788,
-     "load": 0.13,
+     "load": 0.12,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": false,
      "load_lo": 0.11,
-     "load_hi": 0.15
+     "load_hi": 0.14
     }
    },
    "여의나루(5)": {
     "19": {
-     "demand": 272,
+     "demand": 265,
      "baseline": 1002,
-     "demand_total": 1274,
+     "demand_total": 1267,
      "capacity": 9577,
      "load": 0.13,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": false,
-     "load_lo": 0.11,
+     "load_lo": 0.12,
      "load_hi": 0.15
     },
     "20": {
@@ -210,22 +210,22 @@
      "estimated_capacity": false
     },
     "22": {
-     "demand": 3428,
+     "demand": 3332,
      "baseline": 913,
-     "demand_total": 4341,
+     "demand_total": 4245,
      "capacity": 9577,
-     "load": 0.45,
+     "load": 0.44,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": false,
      "load_lo": 0.39,
-     "load_hi": 0.52
+     "load_hi": 0.51
     },
     "23": {
-     "demand": 527,
+     "demand": 513,
      "baseline": 312,
-     "demand_total": 839,
+     "demand_total": 825,
      "capacity": 9577,
      "load": 0.09,
      "backlog": 0,
@@ -238,9 +238,9 @@
    },
    "신길(1·5)": {
     "19": {
-     "demand": 70,
+     "demand": 68,
      "baseline": 140,
-     "demand_total": 210,
+     "demand_total": 208,
      "capacity": 5546,
      "load": 0.04,
      "backlog": 0,
@@ -251,9 +251,9 @@
      "load_hi": 0.05
     },
     "20": {
-     "demand": 106,
+     "demand": 103,
      "baseline": 123,
-     "demand_total": 229,
+     "demand_total": 226,
      "capacity": 5546,
      "load": 0.04,
      "backlog": 0,
@@ -264,9 +264,9 @@
      "load_hi": 0.05
     },
     "21": {
-     "demand": 302,
+     "demand": 294,
      "baseline": 128,
-     "demand_total": 430,
+     "demand_total": 422,
      "capacity": 5546,
      "load": 0.08,
      "backlog": 0,
@@ -277,9 +277,9 @@
      "load_hi": 0.09
     },
     "22": {
-     "demand": 537,
+     "demand": 522,
      "baseline": 118,
-     "demand_total": 655,
+     "demand_total": 640,
      "capacity": 5546,
      "load": 0.12,
      "backlog": 0,
@@ -290,9 +290,9 @@
      "load_hi": 0.14
     },
     "23": {
-     "demand": 345,
+     "demand": 336,
      "baseline": 61,
-     "demand_total": 406,
+     "demand_total": 397,
      "capacity": 5546,
      "load": 0.07,
      "backlog": 0,
@@ -305,9 +305,9 @@
    },
    "여의도(9)": {
     "19": {
-     "demand": 432,
+     "demand": 420,
      "baseline": 1431,
-     "demand_total": 1863,
+     "demand_total": 1851,
      "capacity": 13208,
      "load": 0.14,
      "backlog": 0,
@@ -318,9 +318,9 @@
      "load_hi": 0.16
     },
     "20": {
-     "demand": 905,
+     "demand": 880,
      "baseline": 1727,
-     "demand_total": 2632,
+     "demand_total": 2607,
      "capacity": 13208,
      "load": 0.2,
      "backlog": 0,
@@ -331,22 +331,22 @@
      "load_hi": 0.23
     },
     "21": {
-     "demand": 2124,
+     "demand": 2065,
      "baseline": 1169,
-     "demand_total": 3293,
+     "demand_total": 3234,
      "capacity": 13208,
-     "load": 0.25,
+     "load": 0.24,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": true,
-     "load_lo": 0.22,
-     "load_hi": 0.29
+     "load_lo": 0.21,
+     "load_hi": 0.28
     },
     "22": {
-     "demand": 2520,
+     "demand": 2450,
      "baseline": 669,
-     "demand_total": 3189,
+     "demand_total": 3119,
      "capacity": 13208,
      "load": 0.24,
      "backlog": 0,
@@ -357,9 +357,9 @@
      "load_hi": 0.28
     },
     "23": {
-     "demand": 1175,
+     "demand": 1142,
      "baseline": 191,
-     "demand_total": 1366,
+     "demand_total": 1333,
      "capacity": 13208,
      "load": 0.1,
      "backlog": 0,
@@ -367,14 +367,14 @@
      "closed": false,
      "estimated_capacity": true,
      "load_lo": 0.09,
-     "load_hi": 0.12
+     "load_hi": 0.11
     }
    },
    "샛강(9)": {
     "19": {
-     "demand": 436,
+     "demand": 424,
      "baseline": 314,
-     "demand_total": 750,
+     "demand_total": 738,
      "capacity": 8455,
      "load": 0.09,
      "backlog": 0,
@@ -385,9 +385,9 @@
      "load_hi": 0.1
     },
     "20": {
-     "demand": 846,
+     "demand": 823,
      "baseline": 379,
-     "demand_total": 1225,
+     "demand_total": 1202,
      "capacity": 8455,
      "load": 0.14,
      "backlog": 0,
@@ -398,50 +398,50 @@
      "load_hi": 0.16
     },
     "21": {
-     "demand": 2088,
+     "demand": 2030,
      "baseline": 257,
-     "demand_total": 2345,
+     "demand_total": 2287,
      "capacity": 8455,
-     "load": 0.28,
+     "load": 0.27,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": true,
-     "load_lo": 0.25,
-     "load_hi": 0.32
+     "load_lo": 0.24,
+     "load_hi": 0.31
     },
     "22": {
-     "demand": 2698,
+     "demand": 2623,
      "baseline": 147,
-     "demand_total": 2845,
+     "demand_total": 2770,
      "capacity": 8455,
-     "load": 0.34,
+     "load": 0.33,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": true,
-     "load_lo": 0.3,
-     "load_hi": 0.39
+     "load_lo": 0.29,
+     "load_hi": 0.38
     },
     "23": {
-     "demand": 1296,
+     "demand": 1260,
      "baseline": 42,
-     "demand_total": 1338,
+     "demand_total": 1302,
      "capacity": 8455,
-     "load": 0.16,
+     "load": 0.15,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": true,
-     "load_lo": 0.14,
-     "load_hi": 0.18
+     "load_lo": 0.13,
+     "load_hi": 0.17
     }
    },
    "국회의사당(9)": {
     "19": {
-     "demand": 268,
+     "demand": 261,
      "baseline": 620,
-     "demand_total": 888,
+     "demand_total": 881,
      "capacity": 7373,
      "load": 0.12,
      "backlog": 0,
@@ -452,9 +452,9 @@
      "load_hi": 0.14
     },
     "20": {
-     "demand": 481,
+     "demand": 467,
      "baseline": 748,
-     "demand_total": 1229,
+     "demand_total": 1215,
      "capacity": 7373,
      "load": 0.17,
      "backlog": 0,
@@ -465,50 +465,50 @@
      "load_hi": 0.2
     },
     "21": {
-     "demand": 1245,
+     "demand": 1210,
      "baseline": 507,
-     "demand_total": 1752,
+     "demand_total": 1717,
      "capacity": 7373,
-     "load": 0.24,
+     "load": 0.23,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": true,
-     "load_lo": 0.21,
-     "load_hi": 0.28
+     "load_lo": 0.2,
+     "load_hi": 0.26
     },
     "22": {
-     "demand": 1773,
+     "demand": 1724,
      "baseline": 290,
-     "demand_total": 2063,
+     "demand_total": 2014,
      "capacity": 7373,
-     "load": 0.28,
+     "load": 0.27,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": true,
-     "load_lo": 0.25,
-     "load_hi": 0.32
+     "load_lo": 0.24,
+     "load_hi": 0.31
     },
     "23": {
-     "demand": 920,
+     "demand": 894,
      "baseline": 83,
-     "demand_total": 1003,
+     "demand_total": 977,
      "capacity": 7373,
-     "load": 0.14,
+     "load": 0.13,
      "backlog": 0,
      "wait_min": 0,
      "closed": false,
      "estimated_capacity": true,
      "load_lo": 0.12,
-     "load_hi": 0.16
+     "load_hi": 0.15
     }
    },
    "마포역 도보(마포대교)": {
     "19": {
-     "demand": 316,
+     "demand": 307,
      "baseline": 0,
-     "demand_total": 316,
+     "demand_total": 307,
      "capacity": 15000,
      "load": 0.02,
      "backlog": 0,
@@ -519,9 +519,9 @@
      "load_hi": 0.02
     },
     "20": {
-     "demand": 511,
+     "demand": 497,
      "baseline": 0,
-     "demand_total": 511,
+     "demand_total": 497,
      "capacity": 15000,
      "load": 0.03,
      "backlog": 0,
@@ -532,9 +532,9 @@
      "load_hi": 0.03
     },
     "21": {
-     "demand": 1415,
+     "demand": 1376,
      "baseline": 0,
-     "demand_total": 1415,
+     "demand_total": 1376,
      "capacity": 15000,
      "load": 0.09,
      "backlog": 0,
@@ -545,9 +545,9 @@
      "load_hi": 0.1
     },
     "22": {
-     "demand": 2249,
+     "demand": 2187,
      "baseline": 0,
-     "demand_total": 2249,
+     "demand_total": 2187,
      "capacity": 15000,
      "load": 0.15,
      "backlog": 0,
@@ -558,9 +558,9 @@
      "load_hi": 0.17
     },
     "23": {
-     "demand": 1249,
+     "demand": 1214,
      "baseline": 0,
-     "demand_total": 1249,
+     "demand_total": 1214,
      "capacity": 15000,
      "load": 0.08,
      "backlog": 0,
@@ -655,12 +655,12 @@
     ],
     [
      "국회의사당(9)",
-     0.24,
+     0.23,
      0
     ],
     [
      "여의도(9)",
-     0.25,
+     0.24,
      0
     ],
     [
@@ -670,7 +670,7 @@
     ],
     [
      "샛강(9)",
-     0.28,
+     0.27,
      0
     ]
    ],
@@ -691,23 +691,23 @@
      0
     ],
     [
+     "국회의사당(9)",
+     0.27,
+     0
+    ],
+    [
      "여의도(5)",
      0.28,
      0
     ],
     [
-     "국회의사당(9)",
-     0.28,
-     0
-    ],
-    [
      "샛강(9)",
-     0.34,
+     0.33,
      0
     ],
     [
      "여의나루(5)",
-     0.45,
+     0.44,
      0
     ]
    ],
@@ -734,17 +734,17 @@
     ],
     [
      "여의도(5)",
-     0.13,
+     0.12,
      0
     ],
     [
      "국회의사당(9)",
-     0.14,
+     0.13,
      0
     ],
     [
      "샛강(9)",
-     0.16,
+     0.15,
      0
     ]
    ]
@@ -756,13 +756,13 @@
   },
   "demand_basis": "observed_station_excess (exit_shares.json) × α",
   "station_totals": {
-   "여의도(5)": 12529,
-   "여의나루(5)": 4227,
-   "신길(1·5)": 1360,
-   "여의도(9)": 7156,
-   "샛강(9)": 7364,
-   "국회의사당(9)": 4687,
-   "마포역 도보(마포대교)": 5740
+   "여의도(5)": 12180,
+   "여의나루(5)": 4110,
+   "신길(1·5)": 1322,
+   "여의도(9)": 6957,
+   "샛강(9)": 7159,
+   "국회의사당(9)": 4557,
+   "마포역 도보(마포대교)": 5580
   },
   "exit_share_mean": {
    "여의도(5)": 0.2911,
@@ -797,56 +797,17 @@
   ],
   "alerts_live": [
    {
-    "ACDNT_OCCR_DT": "2026-09-04 09:00",
-    "EXP_CLR_DT": "2026-09-04 22:00",
-    "ACDNT_TYPE": "집회및행사",
-    "ACDNT_ENG_TYPE": "Rally/Event",
-    "ACDNT_DTYPE": "행사",
-    "ACDNT_ENG_DTYPE": "Event",
-    "ACDNT_INFO": "[통제] 여의동로 원효대교남단 에서 용산구영등포구 방향 2차로 행사 [2026 서울세계불꽃축제]장소; 원효대교 남단→북단/통제: 하위1개차로 통제 ",
-    "ACDNT_ENG_INFO": "[Restrictions] The event will be held on two lanes from the southern end of Wonhyo Bridge in Yeouidong-ro toward Yongsan-gu and Yeongdeungpo-gu. [2026 Seoul International Fireworks Festival] Location: Southern end of Wonhyo Bridge → northern end / Restriction: one lane under control",
-    "ACDNT_X": 126.9389194215388,
-    "ACDNT_Y": 37.523460378720486,
-    "ACDNT_TIME": "2026-09-04 21:01"
-   },
-   {
-    "ACDNT_OCCR_DT": "2026-09-04 09:00",
-    "EXP_CLR_DT": "2026-09-04 22:00",
-    "ACDNT_TYPE": "집회및행사",
-    "ACDNT_ENG_TYPE": "Rally/Event",
-    "ACDNT_DTYPE": "행사",
-    "ACDNT_ENG_DTYPE": "Event",
-    "ACDNT_INFO": "[통제] 여의동로 원효대교남단 에서 용산구영등포구 방향 2차로 행사 [2026 서울세계불꽃축제]장소; 원효대교 남단→북단/통제: 하위1개차로 통제 ",
-    "ACDNT_ENG_INFO": "[Restrictions] The event will be held on two lanes from the southern end of Wonhyo Bridge in Yeouidong-ro toward Yongsan-gu and Yeongdeungpo-gu. [2026 Seoul International Fireworks Festival] Location: Southern end of Wonhyo Bridge → northern end / Restriction: one lane under control",
-    "ACDNT_X": 126.9389194215388,
-    "ACDNT_Y": 37.523460378720486,
-    "ACDNT_TIME": "2026-09-04 21:01"
-   },
-   {
-    "ACDNT_OCCR_DT": "2026-09-04 20:56",
-    "EXP_CLR_DT": "2026-09-04 23:00",
+    "ACDNT_OCCR_DT": "2026-09-04 21:58",
+    "EXP_CLR_DT": "2026-09-04 23:30",
     "ACDNT_TYPE": "공사",
     "ACDNT_ENG_TYPE": "Construction",
     "ACDNT_DTYPE": "시설물보수",
     "ACDNT_ENG_DTYPE": "Facility Maintenance",
-    "ACDNT_INFO": " 여의대방로 (여의교 → 한양아파트앞) 3차로 시설물보수",
-    "ACDNT_ENG_INFO": "Yeouidoebangro (in front of Yeoui Bridge → Hanyang Apartments) Third-lane facility repairs",
-    "ACDNT_X": 126.92972504223542,
-    "ACDNT_Y": 37.51777231852027,
-    "ACDNT_TIME": "2026-09-04 21:01"
-   },
-   {
-    "ACDNT_OCCR_DT": "2026-09-04 19:55",
-    "EXP_CLR_DT": "2026-09-04 23:00",
-    "ACDNT_TYPE": "집회및행사",
-    "ACDNT_ENG_TYPE": "Rally/Event",
-    "ACDNT_DTYPE": "행사",
-    "ACDNT_ENG_DTYPE": "Event",
-    "ACDNT_INFO": " 양녕로 (한강대교북단교차로 → 한강대교남단교차로)한강대교 북단 부근 하위차로 행사준비관련 차량으로 부분차단 ",
-    "ACDNT_ENG_INFO": "Yangning Road (Han River Bridge North End Intersection → Han River Bridge South End Intersection) - Partial closure of the lower lane near the north end of the Han River Bridge due to vehicle preparations",
-    "ACDNT_X": 126.9609636569047,
-    "ACDNT_Y": 37.52133231132308,
-    "ACDNT_TIME": "2026-09-04 21:01"
+    "ACDNT_INFO": " 성산로 (성산대교북단 → 성산대교남단) 1차로 시설물보수",
+    "ACDNT_ENG_INFO": "Sungsanro (north end of Seongsan Bridge → south end of Seongsan Bridge) First phase: facility repairs",
+    "ACDNT_X": 126.89354216139661,
+    "ACDNT_Y": 37.556142663013254,
+    "ACDNT_TIME": "2026-09-04 22:01"
    },
    {
     "DST_SE_NM": "기타",
@@ -883,6 +844,24 @@
     "EMRG_STEP_NM": "안전안내",
     "MSG_CN": "서울세계불꽃축제 개최로 ▲원효대교 9.5.(토) 09:00-9.6.(일) 03:00 ▲여의동로 9.5.(토) 15:00-24:00 전면통제. 차량 우회 및 대중교통 이용바랍니다. [서울특별시]",
     "CRT_DT": "2026-09-04 19:39:56"
+   },
+   {
+    "DST_SE_NM": "기타",
+    "EMRG_STEP_NM": "안전안내",
+    "MSG_CN": "서울세계불꽃축제 개최로 ▲원효대교 9.5.(토) 09:00-9.6.(일) 03:00 ▲여의동로 9.5.(토) 15:00-24:00 전면통제. 차량 우회 및 대중교통 이용바랍니다. [서울특별시]",
+    "CRT_DT": "2026-09-04 19:39:56"
+   },
+   {
+    "DST_SE_NM": "기타",
+    "EMRG_STEP_NM": "안전안내",
+    "MSG_CN": "서울세계불꽃축제 개최로 ▲원효대교 9.5.(토) 09:00-9.6.(일) 03:00 ▲여의동로 9.5.(토) 15:00-24:00 전면통제. 차량 우회 및 대중교통 이용바랍니다. [서울특별시]",
+    "CRT_DT": "2026-09-04 19:39:56"
+   },
+   {
+    "DST_SE_NM": "기타",
+    "EMRG_STEP_NM": "안전안내",
+    "MSG_CN": "서울세계불꽃축제 개최로 ▲원효대교 9.5.(토) 09:00-9.6.(일) 03:00 ▲여의동로 9.5.(토) 15:00-24:00 전면통제. 차량 우회 및 대중교통 이용바랍니다. [서울특별시]",
+    "CRT_DT": "2026-09-04 19:39:56"
    }
   ],
   "live_snapshot": {
@@ -892,15 +871,15 @@
      5000,
      5500
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "원활",
     "role": "core",
     "fcst": [
      {
       "t": "2026-09-04 23:00",
       "lvl": "보통",
-      "min": 3500,
-      "max": 4000
+      "min": 3000,
+      "max": 3500
      },
      {
       "t": "2026-09-05 00:00",
@@ -913,10 +892,10 @@
    "여의도": {
     "congest": "여유",
     "ppltn": [
-     70000,
-     72000
+     68000,
+     70000
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "서행",
     "role": "core",
     "fcst": [
@@ -929,8 +908,8 @@
      {
       "t": "2026-09-05 00:00",
       "lvl": "여유",
-      "min": 46000,
-      "max": 48000
+      "min": 44000,
+      "max": 46000
      }
     ]
    },
@@ -940,7 +919,7 @@
      700,
      800
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "원활",
     "role": "core",
     "fcst": [
@@ -1252,7 +1231,7 @@
      500,
      600
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "원활",
     "role": "watch",
     "fcst": [
@@ -1273,10 +1252,10 @@
    "이촌한강공원": {
     "congest": "약간 붐빔",
     "ppltn": [
-     4500,
-     5000
+     5000,
+     5500
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "원활",
     "role": "watch",
     "fcst": [
@@ -1300,7 +1279,7 @@
      6500,
      7000
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "원활",
     "role": "watch",
     "fcst": [
@@ -1312,9 +1291,9 @@
      },
      {
       "t": "2026-09-05 00:00",
-      "lvl": "약간 붐빔",
-      "min": 3500,
-      "max": 4000
+      "lvl": "보통",
+      "min": 3000,
+      "max": 3500
      }
     ]
    },
@@ -1324,7 +1303,7 @@
      2000,
      2500
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "원활",
     "role": "watch",
     "fcst": [
@@ -1348,19 +1327,19 @@
      900,
      1000
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "원활",
     "role": "watch",
     "fcst": [
      {
       "t": "2026-09-04 23:00",
       "lvl": "약간 붐빔",
-      "min": 900,
-      "max": 1000
+      "min": 800,
+      "max": 900
      },
      {
       "t": "2026-09-05 00:00",
-      "lvl": "보통",
+      "lvl": "여유",
       "min": 600,
       "max": 700
      }
@@ -1372,21 +1351,21 @@
      12000,
      14000
     ],
-    "ts": "2026-09-04 21:30",
+    "ts": "2026-09-04 21:35",
     "road": "서행",
     "role": "watch",
     "fcst": [
      {
       "t": "2026-09-04 23:00",
       "lvl": "여유",
-      "min": 9500,
-      "max": 10000
+      "min": 9000,
+      "max": 9500
      },
      {
       "t": "2026-09-05 00:00",
       "lvl": "여유",
-      "min": 6000,
-      "max": 6500
+      "min": 5500,
+      "max": 6000
      }
     ]
    }
@@ -1395,8 +1374,8 @@
    {
     "t": "2026-09-04 23:00",
     "lvl": "보통",
-    "min": 3500,
-    "max": 4000
+    "min": 3000,
+    "max": 3500
    },
    {
     "t": "2026-09-05 00:00",
@@ -1477,12 +1456,12 @@
  },
  "cctv": {
   "331": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "63빌딩",
    "level": "보정전",
    "count": 0.2,
-   "occupancy": 0.4417,
-   "flow": 0.034,
+   "occupancy": 0.3462,
+   "flow": 0.037,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1492,12 +1471,12 @@
    ]
   },
   "361": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "국회",
    "level": "여유",
-   "count": 0.7,
-   "occupancy": 0.0734,
-   "flow": 0.788,
+   "count": 1.4,
+   "occupancy": 0.0869,
+   "flow": 0.703,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1505,12 +1484,12 @@
    "flags": []
   },
   "729": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "국회도서관",
    "level": "여유",
-   "count": 0.8,
-   "occupancy": 0.0839,
-   "flow": 0.271,
+   "count": 0.7,
+   "occupancy": 0.0813,
+   "flow": 0.201,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1518,12 +1497,12 @@
    "flags": []
   },
   "24": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "노량진 수산시장 앞",
    "level": "주의",
-   "count": 4.1,
-   "occupancy": 0.2137,
-   "flow": 0.884,
+   "count": 8.1,
+   "occupancy": 0.1724,
+   "flow": 0.606,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1531,12 +1510,12 @@
    "flags": []
   },
   "318": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "노량진삼거리",
    "level": "여유",
-   "count": 22.6,
-   "occupancy": 0.0844,
-   "flow": 0.386,
+   "count": 17.8,
+   "occupancy": 0.0598,
+   "flow": 0.352,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1544,12 +1523,12 @@
    "flags": []
   },
   "14": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "마포~원효중간",
    "level": "주의",
-   "count": 5.3,
-   "occupancy": 0.1507,
-   "flow": 3.538,
+   "count": 8.2,
+   "occupancy": 0.2116,
+   "flow": 3.321,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1557,12 +1536,12 @@
    "flags": []
   },
   "192": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "마포대교남단",
    "level": "여유",
    "count": 0.0,
-   "occupancy": 0.0578,
-   "flow": 0.541,
+   "occupancy": 0.0382,
+   "flow": 0.3,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1570,12 +1549,12 @@
    "flags": []
   },
   "39": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "마포대교북단",
    "level": "주의",
-   "count": 0.0,
-   "occupancy": 0.2254,
-   "flow": 0.044,
+   "count": 0.4,
+   "occupancy": 0.2728,
+   "flow": 0.72,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1583,12 +1562,12 @@
    "flags": []
   },
   "17": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "서강대교북단",
    "level": "여유",
-   "count": 12.2,
-   "occupancy": 0.0915,
-   "flow": 0.33,
+   "count": 16.4,
+   "occupancy": 0.0894,
+   "flow": 0.229,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1596,12 +1575,12 @@
    "flags": []
   },
   "268": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "서울교남단",
    "level": "여유",
-   "count": 12.3,
-   "occupancy": 0.0828,
-   "flow": 0.444,
+   "count": 6.5,
+   "occupancy": 0.0709,
+   "flow": 0.408,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1609,12 +1588,12 @@
    "flags": []
   },
   "1012": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "신길역(노들길)",
    "level": "여유",
-   "count": 14.0,
-   "occupancy": 0.1185,
-   "flow": 0.743,
+   "count": 11.5,
+   "occupancy": 0.1074,
+   "flow": 0.401,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1622,12 +1601,12 @@
    "flags": []
   },
   "26": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "양화~서강중간",
    "level": "주의",
-   "count": 15.0,
-   "occupancy": 0.1528,
-   "flow": 1.115,
+   "count": 26.1,
+   "occupancy": 0.1857,
+   "flow": 1.978,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1635,12 +1614,12 @@
    "flags": []
   },
   "4": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "여의2교남단",
    "level": "여유",
-   "count": 5.6,
-   "occupancy": 0.0847,
-   "flow": 0.34,
+   "count": 4.9,
+   "occupancy": 0.0934,
+   "flow": 0.239,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1648,12 +1627,12 @@
    "flags": []
   },
   "310": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "여의공원",
    "level": "여유",
    "count": 0.0,
-   "occupancy": 0.035,
-   "flow": 0.018,
+   "occupancy": 0.0275,
+   "flow": 0.032,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1661,12 +1640,12 @@
    "flags": []
   },
   "1043": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "여의교",
    "level": "여유",
-   "count": 20.0,
-   "occupancy": 0.1175,
-   "flow": 0.715,
+   "count": 40.8,
+   "occupancy": 0.1165,
+   "flow": 0.447,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1674,12 +1653,12 @@
    "flags": []
   },
   "342": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "여의교남단",
-   "level": "여유",
-   "count": 4.6,
-   "occupancy": 0.1428,
-   "flow": 0.636,
+   "level": "주의",
+   "count": 5.6,
+   "occupancy": 0.1659,
+   "flow": 0.642,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1687,12 +1666,12 @@
    "flags": []
   },
   "241": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "여의교북단",
    "level": "여유",
-   "count": 37.9,
-   "occupancy": 0.1125,
-   "flow": 1.209,
+   "count": 33.9,
+   "occupancy": 0.1146,
+   "flow": 0.123,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1700,12 +1679,12 @@
    "flags": []
   },
   "894": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "여의도공원",
    "level": "주의",
-   "count": 16.9,
-   "occupancy": 0.1695,
-   "flow": 1.644,
+   "count": 8.1,
+   "occupancy": 0.1673,
+   "flow": 1.516,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1713,12 +1692,12 @@
    "flags": []
   },
   "700": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "여의도국민은행",
    "level": "여유",
-   "count": 25.0,
-   "occupancy": 0.059,
-   "flow": 0.355,
+   "count": 12.6,
+   "occupancy": 0.0375,
+   "flow": 0.076,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1726,12 +1705,12 @@
    "flags": []
   },
   "355": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "여의하류IC",
    "level": "여유",
-   "count": 33.9,
-   "occupancy": 0.0631,
-   "flow": 0.729,
+   "count": 43.4,
+   "occupancy": 0.0698,
+   "flow": 0.818,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1739,12 +1718,12 @@
    "flags": []
   },
   "344": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "영등포역",
    "level": "여유",
-   "count": 18.0,
-   "occupancy": 0.0582,
-   "flow": 0.105,
+   "count": 11.0,
+   "occupancy": 0.052,
+   "flow": 0.084,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1752,12 +1731,12 @@
    "flags": []
   },
   "714": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "영등포전화국",
    "level": "여유",
-   "count": 9.7,
-   "occupancy": 0.1451,
-   "flow": 0.677,
+   "count": 8.8,
+   "occupancy": 0.1491,
+   "flow": 0.258,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1765,12 +1744,12 @@
    "flags": []
   },
   "725": {
-   "ts": "2026-09-04T21:59:48",
+   "ts": "2026-09-04T22:04:48",
    "name": "원효대교남단",
-   "level": "주의",
+   "level": "여유",
    "count": 0.0,
-   "occupancy": 0.2002,
-   "flow": 0.011,
+   "occupancy": 0.1425,
+   "flow": 0.01,
    "ok": true,
    "density": null,
    "calibrated": false,
