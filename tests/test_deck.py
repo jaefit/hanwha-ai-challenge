@@ -108,3 +108,68 @@ def test_deck_uses_katex_and_no_dead_tile_url(html):
     assert "katex@0.16.11" in html, "KaTeX 가 없다"
     assert "renderMathInElement" in html, "KaTeX auto-render 호출이 없다"
     assert not re.search(r"tiles\.openfreemap\.org/styles/[a-z]+/\{z\}", html)
+
+
+# ── v2 (2026-09-04) — 내보내기 5종 ────────────────────────────────────
+def test_exit_bars_are_seven_exits_summing_to_one():
+    d = _json("exit_bars")
+    assert len(d["exits"]) == 7
+    assert abs(sum(e["share"] for e in d["exits"]) - 1.0) < 0.01
+    shares = [e["share"] for e in d["exits"]]
+    assert shares == sorted(shares, reverse=True), "비중 내림차순이어야 막대 순서가 읽힌다"
+    src = json.loads((DER / "exit_shares.json").read_text(encoding="utf-8"))
+    for e in d["exits"]:
+        assert e["share"] == src["share_mean"][e["name"]]
+        assert e["E"] == src["E_mean"][e["name"]]
+
+
+def test_feeder_map_has_twelve_stations_with_bearing():
+    d = _json("feeder_map")
+    src = json.loads((DER / "feeder_leadlag.json").read_text(encoding="utf-8"))
+    assert len(d["feeders"]) == 12
+    assert {f["name"] for f in d["feeders"]} == set(src["top_feeders"])
+    persons = [f["persons"] for f in d["feeders"]]
+    assert persons == sorted(persons, reverse=True)
+    for f in d["feeders"]:
+        assert 0 <= f["bearing_deg"] < 360, f
+        assert f["travel_min"] > 0 and f["persons"] > 0, f
+        assert f["persons"] == src["top_feeders"][f["name"]]["attributed_2yr"]
+    assert d["rings_min"] == [10, 20, 30]
+    assert d["center"]["name"] == "여의도"
+
+
+def _ledger_ids():
+    """결함 대장에서 ID 를 세는 규칙 — 표 첫 칸(`| C2 …` · `| **M4** …`) 또는 `### M4.` 제목. `### 철회 — H8` 은 철회."""
+    txt = (ROOT / "redteam-20260901.md").read_text(encoding="utf-8")
+    listed = set(re.findall(r"^\| *\**([CHML]\d+)\b", txt, re.M)) | set(re.findall(r"^### ([CHML]\d+)\.", txt, re.M))
+    retracted = set(re.findall(r"^### 철회 — ([CHML]\d+)", txt, re.M))
+    return listed - retracted, retracted
+
+
+def test_redteam_counts_match_ledger():
+    d = _json("redteam_counts")
+    listed, retracted = _ledger_ids()
+    assert d["total"] == len(listed)
+    assert sum(d["by_grade"].values()) == d["total"]
+    assert set(d["retracted"]) == retracted
+    for g, key in (("C", "치명"), ("H", "높음"), ("M", "중간"), ("L", "낮음")):
+        assert d["by_grade"][key] == len([i for i in listed if i[0] == g]), key
+
+
+def test_code_strips_match_source():
+    """덱의 코드 스트립은 손으로 베낀 게 아니라 소스에서 잘라 온 것이어야 한다."""
+    strips = _json("code_strips")
+    assert [s["id"] for s in strips] == ["demand", "alpha", "blend"]
+    for s in strips:
+        lines = (ROOT / s["file"]).read_text(encoding="utf-8").splitlines()
+        seg = lines[s["start"] - 1: s["start"] - 1 + len(s["lines"])]
+        assert seg == s["lines"], f"{s['id']}: {s['file']}:{s['start']} 가 소스와 다르다 — tools/deck_data.py 재실행"
+        assert 3 <= len(s["lines"]) <= 8
+
+
+def test_live_result_placeholder_exists():
+    d = _json("live_result")
+    assert isinstance(d["filled"], bool)
+    if d["filled"]:
+        for k in ("grade_hit", "alpha_final", "ticks", "restarts"):
+            assert k in d, k

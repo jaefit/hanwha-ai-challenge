@@ -8,7 +8,7 @@
 
 실행: .venv/bin/python tools/deck_data.py
 """
-import json, math, pathlib, sys
+import json, math, pathlib, re, sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
@@ -122,9 +122,112 @@ def alpha():
     }
 
 
+# ── ④ 출구 7개 실측 비중 (사전층 ①) ──────────────────────────────────
+def exit_bars():
+    """E_st — 작년에 실제로 그 출구로 나간 인원의 비중. 2년 평균, 초과 승차 기준(exit_shares.py)."""
+    d = _load("exit_shares")
+    rows = [{"name": k, "share": v, "E": d["E_mean"][k]}
+            for k, v in sorted(d["share_mean"].items(), key=lambda kv: -kv[1])]
+    return {"exits": rows, "total": d["total_mean"], "festival_days": d["festival_days"],
+            "source": "data/derived/exit_shares.json share_mean·E_mean (2년 평균 초과 승차)"}
+
+
+# ── ⑤ 피더 12곳 방사형 (사전층 ②) ────────────────────────────────────
+def _bearing(lat1, lng1, lat2, lng2):
+    """(lat1,lng1) 에서 본 (lat2,lng2) 의 방위각 — 북 0°, 시계 방향."""
+    dl = math.radians(lng2 - lng1)
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    x = math.sin(dl) * math.cos(p2)
+    y = math.cos(p1) * math.sin(p2) - math.sin(p1) * math.cos(p2) * math.cos(dl)
+    return (math.degrees(math.atan2(x, y)) + 360) % 360
+
+
+def _coord(stations, name):
+    """역 좌표. all_coords 가 '낙성대'·'잠실' 처럼 짧은 이름을 갖고, stations 는 '낙성대(강감찬)' 식이라 all_coords 먼저."""
+    ac = stations["all_coords"].get(name)
+    if ac:
+        return ac[0]["lat"], ac[0]["lng"]
+    st = stations["stations"].get(name)
+    if st:
+        return st["lat"], st["lng"]
+    raise KeyError(f"stations.json 에 {name} 좌표가 없다")
+
+
+def feeder_map():
+    """보고서 그림 1 과 같은 도식 — 방위는 실제, 중심 거리는 지하철 소요시간(추정), 원 크기는 2년 귀속 인원."""
+    d = _load("feeder_leadlag")
+    st = _load("stations")
+    clat, clng = _coord(st, "여의도")
+    rows = []
+    for name, v in d["top_feeders"].items():
+        lat, lng = _coord(st, name)
+        rows.append({"name": name, "lines": v["lines"], "gu": v["gu"],
+                     "persons": v["attributed_2yr"], "share": v["share_of_attributed"],
+                     "travel_min": v["travel_min_est"], "bearing_deg": round(_bearing(clat, clng, lat, lng), 1),
+                     "r_lag0": v["pearson_lag0_pooled"], "r_lag1": v["pearson_lag1_pooled"], "phase": v["phase"]})
+    rows.sort(key=lambda r: -r["persons"])
+    return {"center": {"name": "여의도", "lat": clat, "lng": clng}, "rings_min": [10, 20, 30],
+            "feeders": rows, "travel_min_basis": d.get("travel_min_basis", ""),
+            "source": "data/derived/feeder_leadlag.json top_feeders · stations.json 좌표"}
+
+
+# ── ⑥ 결함 대장 건수 (검증) ──────────────────────────────────────────
+GRADE_KO = {"C": "치명", "H": "높음", "M": "중간", "L": "낮음"}
+
+
+def redteam_counts():
+    """redteam-20260901.md 에 등재된 결함 ID 를 센다 — 표 첫 칸 또는 `### ID.` 제목. `### 철회 — ID` 는 따로."""
+    txt = (ROOT / "redteam-20260901.md").read_text(encoding="utf-8")
+    listed = set(re.findall(r"^\| *\**([CHML]\d+)\b", txt, re.M)) | set(re.findall(r"^### ([CHML]\d+)\.", txt, re.M))
+    retracted = set(re.findall(r"^### 철회 — ([CHML]\d+)", txt, re.M))
+    listed -= retracted
+    by = {g: sorted((i for i in listed if i[0] == g), key=lambda s: int(s[1:])) for g in "CHML"}
+    return {"by_grade": {GRADE_KO[g]: len(by[g]) for g in "CHML"},
+            "ids": {GRADE_KO[g]: by[g] for g in "CHML"},
+            "total": len(listed), "retracted": sorted(retracted),
+            "source": "redteam-20260901.md",
+            "rule": "표 첫 칸 `| ID` 또는 `### ID.` 제목의 고유 ID. `### 철회 — ID` 는 철회로 분리"}
+
+
+# ── ⑦ 코드 스트립 — 소스에서 앵커를 찾아 N줄 ─────────────────────────
+STRIPS = [
+    ("demand", "src/backtrack.py", "def exit_forecast(", 6, "사전층 — 유출 곡선을 쇼 종료만큼 밀고 출구에 배분한다"),
+    ("alpha", "src/nowcast.py", "def assimilate(", 8, "당일층 — 격자 사후분포 w(α) ∝ 사전 × Π N(y; A·α+B, σ)"),
+    ("blend", "docs/app/field.js", "function blendSeconds(", 3, "화면층 — 간선을 걷는 시간 = 거리 ÷ 속도(확신도 혼합 밀도)"),
+]
+
+
+def code_strips():
+    """손으로 베끼지 않는다. 앵커(함수 시그니처)를 찾아 그 줄부터 N줄. 줄 번호는 지금 계산한다."""
+    out = []
+    for sid, rel, anchor, n, cap in STRIPS:
+        lines = (ROOT / rel).read_text(encoding="utf-8").splitlines()
+        idx = next(i for i, l in enumerate(lines) if anchor in l)
+        out.append({"id": sid, "file": rel, "start": idx + 1, "lines": lines[idx: idx + n], "caption": cap})
+    return out
+
+
+# ── ⑧ 9/5 실전 결과 자리 ─────────────────────────────────────────────
+def live_result():
+    """채워진 파일은 덮어쓰지 않는다. 비어 있으면 자리만.
+
+    채울 때 형태(9/6, evaluate.py 결과로): {"filled": true, "date": "2026-09-05",
+    "grade_hit": "88% (15/17)", "alpha_final": "1.08 [0.95~1.21]", "ticks": 144, "restarts": 0, "note": "…"}
+    """
+    p = OUT / "live_result.json"
+    if p.exists():
+        cur = json.loads(p.read_text(encoding="utf-8"))
+        if cur.get("filled"):
+            return cur
+    return {"filled": False, "date": "2026-09-05",
+            "note": "9/6 evaluate.py 결과로 채운다. 12~24시 자동 수집 · 5분 발행 · 쇼 종료 실시각 현장 기입"}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    for name, fn in (("feeder_lag", feeder), ("backtest_bars", backtest), ("alpha_grid", alpha)):
+    for name, fn in (("feeder_lag", feeder), ("backtest_bars", backtest), ("alpha_grid", alpha),
+                     ("exit_bars", exit_bars), ("feeder_map", feeder_map), ("redteam_counts", redteam_counts),
+                     ("code_strips", code_strips), ("live_result", live_result)):
         p = OUT / f"{name}.json"
         p.write_text(json.dumps(fn(), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"{p.relative_to(ROOT)}  {p.stat().st_size / 1024:.1f}KB")
