@@ -1,14 +1,14 @@
 {
- "generated": "2026-09-05T03:07:57",
+ "generated": "2026-09-05T03:12:59",
  "forecast": {
-  "ts": "2026-09-05T03:07:57",
+  "ts": "2026-09-05T03:12:59",
   "date": "20260905",
   "alpha": 1.0,
   "alpha_reason": "관측 없음 → 사전분포 α=1 [0.73–1.38]",
   "prior": true,
   "data_freshness": {
    "citydata": {
-    "last_ok": "2026-09-05T03:03:46",
+    "last_ok": "2026-09-05T03:08:46",
     "age_min": 4,
     "stale": false
    },
@@ -803,7 +803,7 @@
      1000,
      1500
     ],
-    "ts": "2026-09-05 02:35",
+    "ts": "2026-09-05 02:40",
     "road": "원활",
     "role": "core",
     "fcst": [
@@ -827,7 +827,7 @@
      32000,
      34000
     ],
-    "ts": "2026-09-05 02:35",
+    "ts": "2026-09-05 02:40",
     "road": "원활",
     "role": "core",
     "fcst": [
@@ -851,15 +851,15 @@
      300,
      400
     ],
-    "ts": "2026-09-05 02:35",
+    "ts": "2026-09-05 02:40",
     "road": "원활",
     "role": "core",
     "fcst": [
      {
       "t": "2026-09-05 04:00",
       "lvl": "여유",
-      "min": 200,
-      "max": 300
+      "min": 300,
+      "max": 400
      },
      {
       "t": "2026-09-05 05:00",
@@ -928,14 +928,14 @@
    {
     "t": "2026-09-05 13:00",
     "lvl": "약간 붐빔",
-    "min": 3500,
-    "max": 4000
+    "min": 4000,
+    "max": 4500
    },
    {
     "t": "2026-09-05 14:00",
     "lvl": "약간 붐빔",
-    "min": 4000,
-    "max": 4500
+    "min": 4500,
+    "max": 5000
    },
    {
     "t": "2026-09-05 15:00",
@@ -956,12 +956,12 @@
  },
  "cctv": {
   "331": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "63빌딩",
-   "level": "보정전",
+   "level": "여유",
    "count": 0.0,
-   "occupancy": null,
-   "flow": 0.021,
+   "occupancy": 0.0146,
+   "flow": 0.014,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -969,12 +969,12 @@
    "flags": []
   },
   "361": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "국회",
-   "level": "보정전",
-   "count": 0.4,
-   "occupancy": null,
-   "flow": 1.493,
+   "level": "여유",
+   "count": 0.0,
+   "occupancy": 0.0117,
+   "flow": 0.097,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -982,12 +982,12 @@
    "flags": []
   },
   "729": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "국회도서관",
-   "level": "보정전",
+   "level": "여유",
    "count": 0.0,
-   "occupancy": null,
-   "flow": 0.069,
+   "occupancy": 0.0077,
+   "flow": 0.075,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -995,12 +995,12 @@
    "flags": []
   },
   "24": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "노량진 수산시장 앞",
    "level": "여유",
-   "count": 3.1,
-   "occupancy": 0.0608,
-   "flow": 1.65,
+   "count": 5.0,
+   "occupancy": 0.057,
+   "flow": 0.228,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1008,12 +1008,12 @@
    "flags": []
   },
   "318": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "노량진삼거리",
-   "level": "보정전",
-   "count": 21.0,
-   "occupancy": null,
-   "flow": 0.086,
+   "level": "여유",
+   "count": 17.2,
+   "occupancy": 0.0293,
+   "flow": 0.079,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1021,12 +1021,12 @@
    "flags": []
   },
   "14": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "마포~원효중간",
    "level": "여유",
-   "count": 1.8,
-   "occupancy": 0.13,
-   "flow": 1.621,
+   "count": 5.5,
+   "occupancy": 0.1297,
+   "flow": 3.234,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1034,11 +1034,11 @@
    "flags": []
   },
   "192": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "마포대교남단",
-   "level": "보정전",
+   "level": "여유",
    "count": 0.0,
-   "occupancy": null,
+   "occupancy": 0.0006,
    "flow": 0.016,
    "ok": true,
    "density": null,
@@ -1047,12 +1047,12 @@
    "flags": []
   },
   "39": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "마포대교북단",
    "level": "여유",
-   "count": 0.0,
-   "occupancy": 0.0266,
-   "flow": 0.047,
+   "count": 0.6,
+   "occupancy": 0.1097,
+   "flow": 0.42,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1060,12 +1060,12 @@
    "flags": []
   },
   "17": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "서강대교북단",
    "level": "여유",
-   "count": 35.5,
-   "occupancy": 0.0235,
-   "flow": 0.41,
+   "count": 36.1,
+   "occupancy": 0.0228,
+   "flow": 0.261,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1073,12 +1073,12 @@
    "flags": []
   },
   "268": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "서울교남단",
    "level": "여유",
-   "count": 0.1,
-   "occupancy": 0.0243,
-   "flow": 0.294,
+   "count": 1.8,
+   "occupancy": 0.0123,
+   "flow": 0.108,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1086,12 +1086,12 @@
    "flags": []
   },
   "1012": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "신길역(노들길)",
    "level": "여유",
-   "count": 13.4,
-   "occupancy": 0.0276,
-   "flow": 0.589,
+   "count": 9.6,
+   "occupancy": 0.0649,
+   "flow": 1.334,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1099,12 +1099,12 @@
    "flags": []
   },
   "26": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "양화~서강중간",
    "level": "여유",
-   "count": 0.9,
-   "occupancy": 0.1323,
-   "flow": 0.147,
+   "count": 2.3,
+   "occupancy": 0.1111,
+   "flow": 2.363,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1112,12 +1112,12 @@
    "flags": []
   },
   "4": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "여의2교남단",
    "level": "여유",
-   "count": 6.9,
-   "occupancy": 0.0246,
-   "flow": 0.128,
+   "count": 6.4,
+   "occupancy": 0.0196,
+   "flow": 0.082,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1125,12 +1125,12 @@
    "flags": []
   },
   "310": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "여의공원",
-   "level": "보정전",
+   "level": "여유",
    "count": 0.0,
-   "occupancy": null,
-   "flow": 0.016,
+   "occupancy": 0.0338,
+   "flow": 0.017,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1138,12 +1138,12 @@
    "flags": []
   },
   "1043": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "여의교",
    "level": "여유",
-   "count": 8.7,
-   "occupancy": 0.0604,
-   "flow": 0.302,
+   "count": 10.9,
+   "occupancy": 0.0619,
+   "flow": 0.217,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1151,12 +1151,12 @@
    "flags": []
   },
   "342": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "여의교남단",
    "level": "여유",
-   "count": 3.6,
-   "occupancy": 0.0568,
-   "flow": 0.302,
+   "count": 3.5,
+   "occupancy": 0.0299,
+   "flow": 0.041,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1164,12 +1164,12 @@
    "flags": []
   },
   "241": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "여의교북단",
-   "level": "보정전",
-   "count": 4.2,
-   "occupancy": null,
-   "flow": 0.611,
+   "level": "여유",
+   "count": 3.8,
+   "occupancy": 0.0714,
+   "flow": 0.484,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1177,12 +1177,12 @@
    "flags": []
   },
   "894": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "여의도공원",
    "level": "여유",
-   "count": 5.7,
-   "occupancy": 0.0256,
-   "flow": 0.061,
+   "count": 1.8,
+   "occupancy": 0.0298,
+   "flow": 0.068,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1190,12 +1190,12 @@
    "flags": []
   },
   "700": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "여의도국민은행",
-   "level": "보정전",
-   "count": 20.2,
-   "occupancy": null,
-   "flow": 0.138,
+   "level": "여유",
+   "count": 12.2,
+   "occupancy": 0.0439,
+   "flow": 0.061,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1203,12 +1203,12 @@
    "flags": []
   },
   "355": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "여의하류IC",
    "level": "여유",
-   "count": 18.9,
-   "occupancy": 0.0212,
-   "flow": 0.333,
+   "count": 24.3,
+   "occupancy": 0.0196,
+   "flow": 0.074,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1216,12 +1216,12 @@
    "flags": []
   },
   "344": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "영등포역",
    "level": "여유",
-   "count": 6.1,
-   "occupancy": 0.0112,
-   "flow": 0.077,
+   "count": 9.0,
+   "occupancy": 0.0142,
+   "flow": 0.057,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1229,12 +1229,12 @@
    "flags": []
   },
   "714": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "영등포전화국",
    "level": "여유",
-   "count": 3.1,
-   "occupancy": 0.0251,
-   "flow": 0.136,
+   "count": 7.0,
+   "occupancy": 0.0286,
+   "flow": 0.078,
    "ok": true,
    "density": null,
    "calibrated": false,
@@ -1242,12 +1242,12 @@
    "flags": []
   },
   "725": {
-   "ts": "2026-09-05T03:07:11",
+   "ts": "2026-09-05T03:12:11",
    "name": "원효대교남단",
-   "level": "보정전",
+   "level": "여유",
    "count": 0.0,
-   "occupancy": null,
-   "flow": 0.012,
+   "occupancy": 0.0384,
+   "flow": 0.011,
    "ok": true,
    "density": null,
    "calibrated": false,
