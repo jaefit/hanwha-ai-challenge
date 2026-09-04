@@ -452,7 +452,8 @@ function render(){
   $("hkm").textContent=closed?"":h.km.toFixed(1)+" km"+(h.approx?" · 근사":"");
   $("gchip").textContent=grade;
   $("hwait").textContent=closed?"~21:40 통제":h.waitMin>0?"대기 "+h.waitMin+"분":"";
-  const reason=closed||missing?h.note:h.approx?(GLOADING?"길을 받는 중 — 지금 선은 방향만":"길을 못 받았다 — 선은 방향만, 시간은 혼잡 반영"):"";
+  // 통제 역은 칩 「통제」 + 「~21:40 통제」 로 충분하다 — closedNote 문구는 여기선 쓰지 않는다 (운영 화면은 그대로)
+  const reason=missing?h.note:h.approx?(GLOADING?"길을 받는 중 — 지금 선은 방향만":"길을 못 받았다 — 선은 방향만, 시간은 혼잡 반영"):"";
   $("hreason").textContent=reason;$("hreason").hidden=!reason;
   $("chartlab").textContent=h.sh+" 시간대별";
   // 목적지 칩 — 한 탭이면 바뀐다
