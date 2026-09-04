@@ -919,6 +919,75 @@ CHARTS.alpha = ["alpha_grid", drawAlpha];
 CHARTS.field = ["field_grid", drawFieldCanvas];
 CHARTS.route = ["route_demo", drawRoute];
 
+/* ③ 백테스트 — 예측 대 실측 산점, 대각선에 붙을수록 맞힌 것 */
+function drawBacktest(cv, d, slide) {
+  var rows = d.modes.B_cross_year.years["2025"].rows.filter(function (r) { return !r.closed; });
+  var hit = d.modes.B_cross_year.years["2025"];
+  var max = 0;
+  rows.forEach(function (r) { max = Math.max(max, r.pred, r.obs); });
+  max *= 1.06;
+  var hitEl = slide.querySelector("[data-bt-hit]");
+  animate(cv, 2400, function (p) {
+    var out = fitCanvas(cv), c = out.ctx, w = out.w, h = out.h;
+    var pad = { l: 46, r: 14, t: 14, b: 28 };
+    var px = function (v) { return pad.l + (w - pad.l - pad.r) * v / max; };
+    var py = function (v) { return h - pad.b - (h - pad.t - pad.b) * v / max; };
+    axes(c, w, h, pad);
+    c.strokeStyle = cssVar("--line"); c.setLineDash([4, 4]); c.lineWidth = 1.5;
+    c.beginPath(); c.moveTo(px(0), py(0)); c.lineTo(px(max), py(max)); c.stroke(); c.setLineDash([]);
+    label(c, "완벽 = 대각선", px(max) - 6, py(max) + 14, cssVar("--sub"), "right", 10.5);
+    label(c, "예측 승차 →", w - pad.r, pad.t + 4, cssVar("--sub"), "right", 10.5);
+    label(c, "↑ 실측 승차", pad.l + 6, pad.t + 4, cssVar("--sub"), "left", 10.5);
+    [0.25, 0.5, 0.75].forEach(function (t) {             // 규모를 읽을 눈금 (천 단위) — 끝값은 축 이름과 겹친다
+      var v = max * t, tx = Math.round(v / 1000) + "천";
+      label(c, tx, px(v), h - pad.b + 14, cssVar("--sub"), "center", 10);
+      label(c, tx, pad.l - 6, py(v), cssVar("--sub"), "right", 10);
+    });
+    var shown = Math.floor(p * rows.length);
+    rows.slice(0, shown).forEach(function (r) {
+      var ok = r.pred_grade === r.obs_grade;
+      c.fillStyle = ok ? cssVar("--c2") : cssVar("--c1");
+      c.beginPath(); c.arc(px(r.pred), py(r.obs), 5, 0, 6.284); c.fill();
+      c.strokeStyle = cssVar("--sheet"); c.lineWidth = 2; c.stroke();   // 겹칠 때 서로 떨어져 보이게
+    });
+    if (hitEl) hitEl.textContent = "등급 적중 " + Math.round(hit.grade_hit_rate * 100 * p) + "%";
+  });
+}
+CHARTS.backtest = ["backtest_bars", drawBacktest];
+
+/* ⑦ 결함 대장 — 등급별 등재 건수 타일 (redteam_counts.json, 대장 ID 를 센 값) */
+function drawRedteam(cv, d, slide, fig) {
+  var host = fig.querySelector(".rt"); host.innerHTML = "";
+  var order = [["치명", "g4"], ["높음", "g3"], ["중간", "g2"], ["낮음", "g1"]];
+  order.forEach(function (o) {
+    var t = document.createElement("div"); t.className = "tile";
+    t.innerHTML = '<div class="n"><span class="cu" data-v="' + d.by_grade[o[0]] + '">0</span></div>'
+      + '<div class="l"><i class="dot ' + o[1] + '"></i>' + o[0] + '</div>';
+    host.appendChild(t);
+  });
+  var s = document.createElement("p"); s.className = "src"; s.style.gridColumn = "1 / -1"; s.style.marginTop = "0";
+  s.textContent = "등재 " + d.total + "건 · 철회 " + d.retracted.length + "건(" + d.retracted.join(", ") + ") · 5회차까지, 다른 모델 교차검증 포함";
+  host.appendChild(s);
+  countUp(slide);
+}
+CHARTS.redteam = ["redteam_counts", drawRedteam];
+
+/* ⑧ 9/5 실전 결과 — 비어 있으면 자리, 채워지면 타일 (live_result.json) */
+function drawLive(cv, d, slide, fig) {
+  var host = fig.querySelector(".live"); host.innerHTML = "";
+  if (!d.filled) {
+    host.innerHTML = '<div class="card wait"><span class="pill off">결과 대기</span>'
+      + '<div class="big2">9/5 실전 결과 — 9/6 채움</div>'
+      + '<p class="sub">' + (d.note || "") + '</p></div>';
+    return;
+  }
+  var tiles = [["등급 적중", d.grade_hit], ["α 최종", d.alpha_final], ["발행 틱", d.ticks], ["재기동", d.restarts]];
+  host.innerHTML = '<div class="tiles">' + tiles.map(function (t) {
+    return '<div class="tile"><div class="n" style="font-size:clamp(22px,2.6vw,38px)">' + t[1] + '</div><div class="l">' + t[0] + '</div></div>';
+  }).join("") + '</div>' + (d.note ? '<p class="src">' + d.note + '</p>' : "");
+}
+CHARTS.live = ["live_result", drawLive];
+
 /* charts:functions */
 
 function playChart(slide) {

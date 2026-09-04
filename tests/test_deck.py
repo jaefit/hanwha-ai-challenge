@@ -44,6 +44,7 @@ CHART_FILES = {"exits": "exit_bars", "radial": "feeder_map", "feeder": "feeder_l
 def test_every_chart_has_its_data_file(html):
     keys = set(re.findall(r'data-chart="([a-z]+)"', html))
     assert keys <= set(CHART_FILES), keys - set(CHART_FILES)
+    assert keys == set(CHART_FILES), f"차트 9종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
     for k in keys:
         assert (DATA / f"{CHART_FILES[k]}.json").exists(), f"{CHART_FILES[k]}.json 이 없다"
 
