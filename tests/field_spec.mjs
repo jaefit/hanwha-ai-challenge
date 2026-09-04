@@ -253,19 +253,22 @@ t('walkSpeed: nowcast.kladek 과 같은 값 (Weidmann 1993, v0 1.34 · ρmax 5.4
   const ref = r => Math.max(0.15, 1.34 * (1 - Math.exp(-1.913 * (1 / r - 1 / 5.4))));
   for (const r of [0.5, 1.5, 3.0, 4.0]) near(F.walkSpeed(r), ref(r), 1e-12, `밀도 ${r}`);
 });
-t('unitToDensity: 등급 대표값(여유1.5·주의3.0·경계4.0·심각5.0)을 지난다', () => {
-  near(F.unitToDensity(0.3), 1.5, 1e-12, '여유');
+t('unitToDensity: 등급 대표값(여유0.5·주의3.0·경계4.0·심각5.0)을 지난다', () => {
+  // 2026-09-05 정정: 여유 1.5 는 이미 붐비는 인도(2.9km/h)라 한산한 시각에도 여의도역 1.5km 가 32분으로 읽혔다.
+  // 여유 = 0.5명/m²(4.7km/h). 주의 이상은 그대로 — 붐비면 느려지는 성질은 유지한다.
+  near(F.unitToDensity(0.3), 0.5, 1e-12, '여유');
   near(F.unitToDensity(0.7), 3.0, 1e-12, '주의');
   near(F.unitToDensity(0.9), 4.0, 1e-12, '경계');
   near(F.unitToDensity(1.0), F.DENSITY_SEVERE, 1e-12, '심각');
-  ok(F.unitToDensity(0) < 1.5, '완전히 빈 곳이 여유보다 덜해야 한다');
+  ok(F.unitToDensity(0) < 0.5, '완전히 빈 곳이 여유보다 덜해야 한다');
+  ok(F.walkSpeed(F.unitToDensity(0.3)) * 3.6 > 4.5, '여유는 4.5km/h 넘게 걷는다');
   let prev = -1;                       // 단조 증가여야 경로 비용이 뒤집히지 않는다
   for (let u = 0; u <= 1.0001; u += 0.05) { const d = F.unitToDensity(u); ok(d > prev, `u ${u.toFixed(2)}`); prev = d; }
 });
 t('walkSeconds: 거리 ÷ 속도. 혼잡할수록 오래 걸린다', () => {
   const free = F.walkSeconds(1000, 0), busy = F.walkSeconds(1000, 0.7), jam = F.walkSeconds(1000, 1);
-  // u=0 도 자유보행은 아니다 — 장의 바닥은 0.5명/m² 로 잡는다. 축제 밤에 80m/분은 없다.
-  near(free, 1000 / F.walkSpeed(0.5), 1e-9, '장 바닥(0.5명/m²)');
+  // 장의 바닥(u=0, 완전히 빈 곳)은 unitToDensity(0) — 2026-09-05 부터 0.3명/m²(자유보행). 붐빔은 등급이 말한다.
+  near(free, 1000 / F.walkSpeed(F.unitToDensity(0)), 1e-9, '장 바닥');
   ok(free < 1000 / 1.0, '그래도 가장 빠른 축이어야 한다');
   ok(busy > free * 2, `주의(3명/m²)면 두 배 넘게 걸려야 한다 — ${busy} vs ${free}`);
   ok(jam > busy, '심각이 주의보다 오래 걸려야 한다');
@@ -275,7 +278,7 @@ t('walkSeconds: 같은 밀도면 거리에 비례한다', () => {
 });
 
 /* ── 확신도 혼합 밀도 (경로 비용 = 표시 시간, 한 함수) ───────────────
-   본 곳은 관측 밀도, 못 본 곳은 가로 기본 1.5명/m². 장의 σ 에서 확신도 cn 을 얻어 섞는다.
+   본 곳은 관측 밀도, 못 본 곳은 가로 기본(STREET_RHO — 2026-09-05 부터 0.8명/m², 4.2km/h). 장의 σ 에서 확신도 cn 을 얻어 섞는다.
    2026-09-04: 라우터가 장 전체를 믿고 표시가 300m 만 믿어 "더 돌게 하고 더 느리다고 말하는"
    모순이 났다. 사전 0.3 + σ 0.3 수축이 카메라 없는 곳까지 2.25명/m² 로 읽어 우회를 눌렀다. */
 t('confidence: σ 가 사전 폭이면 0, 0 이면 1, 단조 감소', () => {
@@ -294,6 +297,7 @@ t('blendDensity: cn=1 이면 관측 밀도, cn=0 이면 가로 기본, 사이는
   const sdMax = Math.sqrt(0.25);
   near(F.blendDensity(0.9, 0, sdMax), F.unitToDensity(0.9), 1e-12, '확신');
   near(F.blendDensity(0.9, sdMax, sdMax), F.STREET_RHO, 1e-12, '무지');
+  ok(F.STREET_RHO <= 0.8 && F.walkSpeed(F.STREET_RHO) * 3.6 > 4.0, '못 본 길은 4km/h 넘게 걷는다 (2026-09-05)');
   const mid = F.blendDensity(0.9, sdMax * (1 - 0.075), sdMax);          // cn = 0.5
   near(mid, 0.5 * F.unitToDensity(0.9) + 0.5 * F.STREET_RHO, 1e-9, '반반');
 });
