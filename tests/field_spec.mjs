@@ -276,7 +276,13 @@ t('walkSeconds: 거리 ÷ 속도. 혼잡할수록 오래 걸린다', () => {
   near(free, 1000 / F.walkSpeed(F.unitToDensity(0)), 1e-9, '장 바닥');
   ok(free < 1000 / 1.0, '그래도 가장 빠른 축이어야 한다');
   ok(busy > free * 2, `주의(3명/m²)면 두 배 넘게 걸려야 한다 — ${busy} vs ${free}`);
-  ok(jam > busy, '심각이 주의보다 오래 걸려야 한다');
+  ok(jam >= busy, '심각이 주의보다 느리거나 같아야 한다 (바닥에 같이 닿을 수 있다)');
+  // 2026-09-05 22:15 결정: 걷는 시간엔 속도 바닥 0.6 m/s(2.2 km/h). Weidmann 은 3.5명/m² 에서 0.8 km/h 까지 떨어져
+  // 서울시 「붐빔」 배경 관측이 깔린 광장에서 여의도역 1.4km 가 72분으로 읽혔다. 실제 축제 인파는 밀려도 2 km/h 안팎으로 흐른다.
+  near(F.V_WALK_FLOOR, 0.6, 1e-12, '바닥 0.6 m/s');
+  near(jam, 1000 / F.V_WALK_FLOOR, 1e-9, '심각도 바닥 속도로 걷는다');
+  near(F.walkSeconds(1000, 0.8), 1000 / F.V_WALK_FLOOR, 1e-9, '경계(u 0.8)도 바닥');
+  ok(F.walkSpeed(5) < F.V_WALK_FLOOR, 'walkSpeed 자체(nowcast 와 동일식)는 바닥 없이 그대로');
 });
 t('walkSeconds: 같은 밀도면 거리에 비례한다', () => {
   near(F.walkSeconds(2000, 0.5), 2 * F.walkSeconds(1000, 0.5), 1e-9);
@@ -316,6 +322,7 @@ t('blendSeconds: 거리 ÷ 속도(혼합 밀도). σ=0 이면 walkSeconds 와 �
   near(F.blendSeconds(1000, 0.7, 0, sdMax), F.walkSeconds(1000, 0.7), 1e-9, '확신 = 옛 값');
   near(F.blendSeconds(1000, 0.9, sdMax, sdMax), 1000 / F.walkSpeed(F.STREET_RHO), 1e-9, '무지 = 가로 속도');
   ok(F.blendSeconds(1000, 0.9, 0, sdMax) > F.blendSeconds(1000, 0.9, sdMax, sdMax), '본 곳의 심각이 못 본 곳보다 느려야');
+  near(F.blendSeconds(1000, 1, 0, sdMax), 1000 / F.V_WALK_FLOOR, 1e-9, '혼합 경로도 같은 바닥');
 });
 
 process.stdout.write(JSON.stringify(results));

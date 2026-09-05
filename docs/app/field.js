@@ -97,8 +97,14 @@
   /** 그 혼잡도에서 이 거리를 걷는 데 걸리는 초. 경로 비용이자 화면에 뜨는 시간이다.
    *  거리 × 벌점(1.25) 로 고르던 것을 여기로 바꾼다 — 벌점은 출처가 없었고,
    *  최소화 대상이 사람이 신경 쓰는 값(시간)도 아니었다. */
+  // 걷는 시간에만 쓰는 속도 바닥(m/s). Weidmann 식은 3.5명/m² 에서 0.8 km/h, 5 에서 0.5 km/h 까지 떨어져
+  // 서울시 「붐빔」 배경 관측이 깔린 광장 일대에서 여의도역 1.4km 가 72분으로 읽혔다(2026-09-05 22:10).
+  // 실제 축제 인파는 밀려도 2 km/h 안팎으로 흐른다 → 0.6 m/s(2.2 km/h). walkSpeed 자체는 nowcast.kladek 과 같은 식으로 둔다.
+  var V_WALK_FLOOR = 0.6;
+  function paceSpeed(rho) { return Math.max(V_WALK_FLOOR, walkSpeed(rho)); }
+
   function walkSeconds(meters, unit) {
-    return Math.max(0, meters || 0) / walkSpeed(unitToDensity(unit));
+    return Math.max(0, meters || 0) / paceSpeed(unitToDensity(unit));
   }
 
   /** 장의 σ → 확신도 0~1. σ 가 사전 폭(sdMax)이면 0. index.html 의 cn 과 같은 정규화. */
@@ -119,7 +125,7 @@
 
   /** 그 간선을 걷는 데 걸리는 초 — 경로 비용이자 표시 시간. */
   function blendSeconds(meters, unit, sd, sdMax) {
-    return Math.max(0, meters || 0) / walkSpeed(blendDensity(unit, sd, sdMax));
+    return Math.max(0, meters || 0) / paceSpeed(blendDensity(unit, sd, sdMax));
   }
 
   function densityToUnit(rho) {
@@ -309,6 +315,7 @@
     blendSeconds: blendSeconds,
     STREET_RHO: STREET_RHO,
     POI_LAG_MIN: POI_LAG_MIN,
+    V_WALK_FLOOR: V_WALK_FLOOR,
     V_FREE: V_FREE,
     V_MIN: V_MIN,
     densityToUnit: densityToUnit,
