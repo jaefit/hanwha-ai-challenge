@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ko" data-theme="dark">
+<html lang="ko" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -377,8 +377,8 @@ let DATA=null,hour=null,CAMS=[],fallback=false,offline=false,PRIOR=null;
 
 // ── 테마 (4a light / 4b dark) ──
 const theme=()=>document.documentElement.getAttribute("data-theme")||"dark";
-function setTheme(t,save){document.documentElement.setAttribute("data-theme",t);$("theme").textContent=t==="dark"?"라이트":"다크";if(save){try{localStorage.setItem("navi-theme",t)}catch(e){}}}
-try{const t=localStorage.getItem("navi-theme");if(t)setTheme(t);else setTheme("dark");}catch(e){setTheme("dark")}
+function setTheme(t,save){document.documentElement.setAttribute("data-theme",t);$("theme").textContent=t==="dark"?"라이트":"다크";if(save){try{localStorage.setItem("navi-theme-v2",t)}catch(e){}}}
+try{const t=localStorage.getItem("navi-theme-v2");if(t)setTheme(t);else setTheme("light");}catch(e){setTheme("light")}   // 2026-09-05 기본 라이트 — 관람객 화면과 같은 팔레트. 키를 바꿔 옛 다크 저장값이 덮지 않게
 $("theme").onclick=()=>{setTheme(theme()==="dark"?"light":"dark",true);safeMap();safeApfMap();if(DATA)render();};
 
 // ── 보드 ──
