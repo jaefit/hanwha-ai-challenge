@@ -65,10 +65,13 @@ def test_closure_moves_yeouinaru_demand_to_yeouido5():
     dirs = {"북동": 1.0}   # 여의나루 0.7 / 여의도(5) 0.3
     lags = {st: {0: 1.0} for st in N.CAP}
     ex = N.compute_exits(total, dirs, 1.0, lags, hours=(19, 20, 21, 22))
+    # 2026-09-05 19:10 hotfix: 당일 실측 조기 무정차 → 19시도 통제(CLOSED = 19·20·21). 22시는 개방.
     assert ex["여의나루(5)"][20]["closed"] and ex["여의나루(5)"][20]["demand"] == 0
-    assert ex["여의나루(5)"][19]["demand"] > 0
+    assert ex["여의나루(5)"][19]["closed"] and ex["여의나루(5)"][19]["demand"] == 0
+    assert ex["여의나루(5)"][22]["demand"] == pytest.approx(7000, rel=0.001)   # 개방 시간대는 0.7 그대로
     assert ex["여의도(5)"][20]["demand"] == pytest.approx(10000, rel=0.001)   # 0.3 + 0.7 이관
-    assert ex["여의도(5)"][19]["demand"] == pytest.approx(3000, rel=0.001)
+    assert ex["여의도(5)"][19]["demand"] == pytest.approx(10000, rel=0.001)   # 19시도 이관
+    assert ex["여의도(5)"][22]["demand"] == pytest.approx(3000, rel=0.001)
 
 
 def test_load_is_demand_over_capacity_and_wait_nonnegative():
@@ -109,10 +112,10 @@ def test_observed_mode_conserves_station_totals_and_reassigns_closure():
     ex = N.compute_exits(total, None, None, lags, hours=(19, 20, 21, 22, 23), station_totals=E)
     got = {st: sum(v["demand"] for v in ex[st].values()) for st in ex}
     for st in N.CAP: assert got[st] == pytest.approx(1000, abs=3), st    # 역별 E 보존 (평가창 19~23시 안에서 분배, 재배정 없음)
-    assert ex["여의나루(5)"][20]["demand"] == 0 and ex["여의나루(5)"][21]["demand"] == 0   # 통제 시간대 0
-    # 통제 중 도착분은 해제 후 첫 개방 시간대로 이월 (2026-08-30 결정: 21:40 해제 직후 승차 → 22시). 평평한 곡선이면 19:22:23 = 1:3:1
-    assert ex["여의나루(5)"][22]["demand"] == pytest.approx(600, abs=2)
-    assert ex["여의나루(5)"][19]["demand"] == pytest.approx(200, abs=2) and ex["여의나루(5)"][23]["demand"] == pytest.approx(200, abs=2)
+    assert ex["여의나루(5)"][19]["demand"] == 0 and ex["여의나루(5)"][20]["demand"] == 0 and ex["여의나루(5)"][21]["demand"] == 0   # 통제 시간대 0 (19시는 9/5 hotfix)
+    # 통제 중 도착분은 해제 후 첫 개방 시간대로 이월 (2026-08-30 결정: 21:40 해제 직후 승차 → 22시). 평평한 곡선이면 22:23 = 4:1
+    assert ex["여의나루(5)"][22]["demand"] == pytest.approx(800, abs=2)
+    assert ex["여의나루(5)"][23]["demand"] == pytest.approx(200, abs=2)
     assert ex["여의도(5)"][20]["demand"] == pytest.approx(200, abs=2)   # 개방 역은 이월 없음 (19~23 균등)
 
 

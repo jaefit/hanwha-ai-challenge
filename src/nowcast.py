@@ -82,7 +82,9 @@ ESTIMATED = {"신길(1·5)", "여의도(9)", "샛강(9)", "국회의사당(9)", 
 # 2026은 20:00~21:10(영국 20:00, 미국 20:20, 한국 ~20:40) → 종료가 +40분 늦다. 유출 곡선을 그만큼 뒤로 민다.
 SHOW_END_BASE, SHOW_END_2026 = (20, 30), (21, 10)
 SHIFT_MIN = (SHOW_END_2026[0] * 60 + SHOW_END_2026[1]) - (SHOW_END_BASE[0] * 60 + SHOW_END_BASE[1])
-CLOSED = {("여의나루(5)", 20), ("여의나루(5)", 21)}   # 2026 공식 공지(hanwhafireworks.com/notice/6): 여의나루역 임시 통제 20:40~21:40. 2024·2025 실적은 19~20시대 하차 ≈0
+# 2026 공식 공지(hanwhafireworks.com/notice/6): 여의나루역 임시 통제 20:40~21:40. 2024·2025 실적은 19~20시대 하차 ≈0.
+# 2026-09-05 19:10 hotfix: 당일 실측 — 30분 하차가 18:10 8,300 → 18:35 1,100, 승차 30 으로 붕괴 = 조기 무정차(현장 확인). 19시 추가.
+CLOSED = {("여의나루(5)", 19), ("여의나루(5)", 20), ("여의나루(5)", 21)}
 
 
 # ── 쇼 종료 실제 시각(offset) — 우선순위: --show-end HH:MM > data/live/show_end.txt > 계획 21:10 (benchmark §4-5) ──
@@ -448,7 +450,7 @@ def main():
         "direction_share": dirs, "subway_share": sub_share, "direction_basis": dir_basis,
         "exits": exits, "ranking_by_hour": ranking, "capacity_basis": CAP_BASIS,
         "demand_basis": demand_basis, "station_totals": {st: round(v) for st, v in (station_totals or {}).items()}, "exit_share_mean": (EXIT_SHARES or {}).get("share_mean"),
-        "closures": [{"exit": "여의나루(5)", "hours": [20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40 (현장 공지). 2024·2025 실적: 19~20시대 하차 ≈0"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
+        "closures": [{"exit": "여의나루(5)", "hours": [19, 20, 21], "basis": "2026 공식 공지: 임시 통제 20:40~21:40. 당일 실측(9/5 18:10~) 조기 무정차 → 19시 추가 (2026-09-05 19:10 hotfix)"}, {"road": "여의동로", "hours": [15, 24], "basis": "2026 공식 공지: 마포대교 남단~63빌딩 전면 통제"}, {"road": "원효대교", "basis": "2026 공식 공지: 설치·행사·철수 일정별 전면 통제"}],
         "alerts_live": alerts[:10],
         # role = core(여의도 3구역) · watch(강 건너 관람 명당) · feeder(유입 출발지). fcst 2칸 = 서울시 1·2시간 뒤 예보 → UI 추세 화살표
         "live_snapshot": {k: {"congest": v.get("congest"), "ppltn": [v.get("ppltn_min"), v.get("ppltn_max")], "ts": v.get("ppltn_time"), "road": v.get("road_idx"),
