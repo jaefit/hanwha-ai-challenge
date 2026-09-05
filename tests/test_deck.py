@@ -221,3 +221,10 @@ def test_speaker_notes_fit_five_minutes(html):
     for i, n in enumerate(notes, 1):
         t = re.sub(r"\s+", " ", n).strip()
         assert 60 <= len(t) <= 170, f"s{i} 노트 {len(t)}자 — 60~170자로"
+
+
+def test_product_name_and_tagline_on_deck(html):
+    """제품명은 2026-09-05 결정 — 「불꽃배웅」 · 「눈부신 밤의 끝, 집으로 가는 길까지.」. 덱 제목·1장·12장에 있어야 한다."""
+    assert "<title>불꽃배웅 — 피치 덱</title>" in html
+    assert html.count("불꽃배웅") >= 3, "이름이 1장·3장·12장에 있어야 한다"
+    assert "눈부신 밤의 끝, 집으로 가는 길까지." in html
