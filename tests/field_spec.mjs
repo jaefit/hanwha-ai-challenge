@@ -78,6 +78,11 @@ t('중복 투입은 σ 를 √n 배 해 정보량을 1건으로 유지한다', (
   const one = F.obsNoise({ kind: 'poi' });
   const five = F.obsNoise({ kind: 'poi', dup: 5 });
   near(five / one, Math.sqrt(5), 1e-9, 'dup=5');
+  // 2026-09-05: 서울시 도시데이터는 발행 자체가 28분 늦다(9/4 17:08~9/5 16:38 실측, 28.8분 일정). 그건 낡음이 아니라 시차다.
+  // 전엔 이 28분을 나이로 깎아 σ 가 1.1 까지 불어 「붐빔」이 장에서 사실상 무시됐다.
+  near(F.obsNoise({ kind: 'poi', ageMin: F.POI_LAG_MIN }), one, 1e-9, '시차만큼의 나이는 페널티 0');
+  near(F.obsNoise({ kind: 'poi', ageMin: F.POI_LAG_MIN + 15 }), one * Math.sqrt(2), 1e-9, '시차 뒤 15분이면 √2');
+  near(F.obsNoise({ kind: 'cctv_uncalibrated', ageMin: 15 }), 0.30 * Math.sqrt(2), 1e-9, 'CCTV 는 시차 보정 없음');
 });
 
 // ── GP 사후 ──

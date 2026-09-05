@@ -48,6 +48,9 @@
   var LOW_CONFIDENCE_MULT = 2.5;   // 배제가 아니라 확대 — 오탐이 사후를 못 끌게
   var FLAG_MULT = 1.3;             // 플래그(저조도·배경차분 실패·밀도 포화) 하나당
   var AGE_HALF_MIN = 15;           // 이 분만큼 지나면 σ 가 √2 배. 2시간이면 8배 ≈ 사전으로 회귀
+  // 서울시 도시데이터(poi)는 발행 자체가 늦다 — ppltn_time 이 수신보다 28.8분 뒤, 9/4 17:08~9/5 16:38 전 틱에서 일정(실측).
+  // 그건 낡음이 아니라 시차라 나이에서 뺀다. 전엔 이 28분을 깎아 σ 가 1.1 로 불어 「붐빔」이 장에서 사실상 무시됐다(2026-09-05 정정).
+  var POI_LAG_MIN = 28;
 
   function matern32(r, len) {
     if (!(len > 0)) return r === 0 ? 1 : 0;
@@ -147,6 +150,7 @@
     var nf = (o.flags && o.flags.length) || 0;
     if (nf) s *= Math.pow(FLAG_MULT, nf);
     var age = o.ageMin;
+    if (o.kind === "poi" && age != null && isFinite(age)) age = Math.max(0, age - POI_LAG_MIN);
     if (age != null && isFinite(age) && age > 0) s *= Math.sqrt(1 + Math.pow(age / AGE_HALF_MIN, 2));
     // 같은 관측을 n 개 지점에 복제해 넣을 때(구역 등급 → 관람구역 5곳) 정보량을 1건으로 유지
     if (o.dup && o.dup > 1) s *= Math.sqrt(o.dup);
@@ -304,6 +308,7 @@
     blendDensity: blendDensity,
     blendSeconds: blendSeconds,
     STREET_RHO: STREET_RHO,
+    POI_LAG_MIN: POI_LAG_MIN,
     V_FREE: V_FREE,
     V_MIN: V_MIN,
     densityToUnit: densityToUnit,

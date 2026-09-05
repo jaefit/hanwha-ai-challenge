@@ -129,3 +129,15 @@ def test_yeouido_line5_and_line9_have_their_own_destinations(html):
     for k, (lng, lat) in master.items():
         dl = (dest[k][0] - lng) * 88_000, (dest[k][1] - lat) * 111_000
         assert (dl[0] ** 2 + dl[1] ** 2) ** .5 < 30, f"{k} 도착점이 역사마스터 좌표에서 {int((dl[0]**2+dl[1]**2)**.5)}m 벗어난다"
+
+
+def test_visitor_field_includes_park_grade_like_operator_page(html):
+    """두 화면의 혼잡장이 같은 관측으로 만들어져야 같은 색이 난다(2026-09-05 사용자 발견 — 관람객 화면엔 서울시 공원 등급 층이 없었다).
+    운영 화면(index.html apfRows)처럼 여의도한강공원 등급을 관람구역 5곳에 배경 관측으로 넣는다."""
+    for need in ('"여의도한강공원"', "Field.gradeToUnit(", 'kind:"poi"', "dup:ZONES.length"):
+        assert need in html, f"관람객 화면 혼잡장에 서울시 공원 등급 층이 없다: {need}"
+    idx = (ROOT / "docs" / "index.html").read_text(encoding="utf-8")
+    zones = re.search(r"const ZONES=\[(.*?)\];", html, re.S)
+    assert zones, "go.html 에 ZONES 가 없다"
+    for lng, lat in re.findall(r"(126\.\d{4}),(37\.\d{4})", zones.group(1)):
+        assert f"{lng},{lat}" in idx, f"관람구역 {lng},{lat} 가 운영 화면 ZONES 와 다르다"

@@ -196,6 +196,8 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const EVENT=[126.9320,37.5292];               // 이벤트광장 — 위치 못 받으면 여기서 출발
 const FAR_M=3000;                             // 여의도에서 이보다 멀면 "여기 없다"고 보고 이벤트광장 기준
+// 관람구역 5곳 — nowcast.ZONES · index.html ZONES 와 같은 좌표(마포대교 남단·이벤트광장·원효대교 방향·63빌딩 앞·여의도공원)
+const ZONES=[[126.9345,37.5310],[126.9330,37.5290],[126.9412,37.5257],[126.9385,37.5205],[126.9245,37.5268]];
 const distM=(a,b)=>Field.distanceM(a,b);
 let DATA=null,PRIOR=null,HOUR=null,SEL=null,OPEN=false,ORIGIN=EVENT.slice(),GEO="asking";
 let MAP=null,MAPREADY=false,CAMS=null,FIELD=null,FGRID=null,FBOUNDS=null,NOBS=0,LABELS={},ME=null,FITKEY="",FITTED=false;
@@ -349,6 +351,15 @@ function fieldObs(){
     const ageMin=isFinite(t)?Math.max(0,(now-t)/60000):null;
     obs.push({x:[cam.lng,cam.lat],y,sigma:Field.obsNoise({kind,confidence:v.confidence,flags:v.flags,ageMin})});
   });
+  // 서울시 여의도한강공원 등급 → 관람구역 5곳에 배경 관측 — 운영 화면(index.html apfRows)과 같은 코드(2026-09-05, 두 화면 같은 장).
+  // 카메라는 도로·다리를 보고 이 값은 잔디·둔치를 말한다. 같은 값을 5곳에 넣으니 σ 를 √5 배 해 정보량 1건. 카메라 자리는 카메라가 이긴다.
+  const park=(((DATA||{}).forecast||{}).live_snapshot||{})["여의도한강공원"],pu=park?Field.gradeToUnit(park.congest):null;
+  if(pu!=null){
+    const t=park.ts?Date.parse(String(park.ts).replace(" ","T")):NaN;
+    const ageMin=isFinite(t)?Math.max(0,(now-t)/60000):null;
+    const sg=Field.obsNoise({kind:"poi",ageMin,dup:ZONES.length});
+    ZONES.forEach(z=>obs.push({x:z,y:pu,sigma:sg}));
+  }
   return obs;
 }
 function buildField(){
