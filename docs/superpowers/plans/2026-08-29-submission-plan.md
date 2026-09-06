@@ -223,6 +223,19 @@ Claude Design 「Pitch Deck v2」(토스풍 · 1920×1080 무대)를 `docs/deck.
 - [x] **Step 3: 재생 로더** — `replay.js` 공유, `?at=` 이면 재생 파일·시계 고정·localStorage/폴백/자동갱신 끔, 배너+칩 6개+◀▶. 가드: 두 페이지 `NOW()` 밖 `Date.now()` 잔류 0
 - [x] **Step 4: pytest 전부 통과 → push. 실기기에서 `?at=20260905T2206` 두 화면 확인(지도는 헤드리스로 못 본다)**
 
+### Task 13: 덱 재편 — 재료 → 구현 → 과정 → 결과 (9/6 오후, 사용자 승인)
+
+비전공 심사자 대상 구현 서사로 재편. 14장(Ⅰ 문제 2 · Ⅱ 재료 2 · Ⅲ 구현 5 · Ⅳ 과정 2 · Ⅴ 결과 3). **코드 라인은 덱에서 전부 제거**(수식은 유지 — 사용자 결정). 제출 편집기 9항목과 같은 순서.
+
+**Files:**
+- Replace: `docs/deck.html`(14장) · Modify: `docs/app/deck_charts.js`(sources 표 · process 타임라인 · routereal 행렬) · `tools/deck_data.py`(sources · process) · `tests/test_deck.py`
+- Create: `tools/route_real.mjs` → `docs/deck/route_real.json` (9/5 실측 장 최단거리 vs 최단시간)
+
+- [x] **Step 1: 스파이크** — 실측 장에서 경로가 바뀌는가 → 36건 중 11건 바뀜(대장 7회차 M14 추기). 8b 의 결론이 됐다
+- [x] **Step 2: 데이터** — `sources.json`(8행) · `process.json`(git·tests·대장에서 셈) · `route_real.json`
+- [x] **Step 3: 덱 14장** — 코드 스트립 0 · 킥커 Ⅰ~Ⅴ · 임베드는 8a(운영)·8b(관람객) · 12장 재생 패널 하나
+- [x] **Step 4: 테스트·헤드리스·push** — 122 통과 · 3·4·9·10·13장 헤드리스 렌더 확인
+
 ### Task 11: 제출 (9/8)
 
 - [ ] **Step 1: 오전 최종 점검** — Pages 링크 열림, 상태 4종 중 현재 상태 문구 정상, `pytest` 통과, 스펙 §4 체크리스트 전부 ✓

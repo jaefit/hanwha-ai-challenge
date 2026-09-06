@@ -313,11 +313,73 @@ def replay_frames():
             "note": "선택만 했다 — 부하·α·유출은 그 시각 화면이 실제로 그린 값. 관측 승차는 핫스팟 합이라 규모가 달라 형태만 본다"}
 
 
+# ── ⑩ 재료 — 공개 데이터 지도 (덱 3장) ─────────────────────────────
+# 문구는 topic-fireworks.md §3 표·보고서 §2 의 서술을 옮겼다. 개수(카메라·노드·간선)는 파일에서 센다.
+def sources():
+    cams = json.loads((ROOT / "docs" / "data" / "cams.json").read_text(encoding="utf-8"))
+    g = json.loads((ROOT / "docs" / "data" / "routing" / "walk_graph.json").read_text(encoding="utf-8"))
+    rows = [
+        {"name": "서울교통공사 역별 시간대별 승하차", "id": "OA-12921 · 교통카드 OA-12914", "gives": "2024·2025 축제일 출구 7개 승하차, 평시 토요일 중앙값", "cadence": "연간 CSV", "layer": "사전층", "use": "출구 비중 E_st · 백테스트 · 여의나루 하차 ≈0", "limit": "9호선은 카드 일별만(시간대 없음) → 저녁 비율 0.93~0.97 가정"},
+        {"name": "서울 실시간 도시데이터", "id": "citydata · POI 여의도한강공원·여의도·여의서로", "gives": "구역 인구·혼잡 4단계 · 여의나루 30분 승하차 · 도로·사고통제 · 12h 예측", "cadence": "5분", "layer": "당일층", "use": "α 관측 O1·O2 · 혼잡장 배경 · 통제 알림", "limit": "발행 시차 28.8분(9/5 실측) · 12h 예측 MAPE 0.56"},
+        {"name": "실시간 지하철 도착", "id": "swopenAPI · 4역", "gives": "여의나루·여의도·샛강·국회의사당 열차 도착", "cadence": "틱마다(키 6개 회전)", "layer": "당일층", "use": "무정차 실측 확인(9/5 18:10~22:05)", "limit": "일 1,000건/키"},
+        {"name": "TOPIS 교통 CCTV", "id": f"공개 HLS {len(cams)}대", "gives": "다리·진입로 보행 흐름(인원·점유·흐름 집계)", "cadence": "60초", "layer": "당일층", "use": "밀도 등급 → 보행속도 · 혼잡장 관측", "limit": "ROI 미검증(전부 「보정전」) · 프레임 미저장"},
+        {"name": "KT 수도권 생활이동 OD", "id": "OA-22300 · OA-22657", "gives": "출발동×도착동×시각×목적·수단 인원(추정)", "cadence": "일별(1개월 지연)", "layer": "사전층", "use": "유출 곡선 형태 · 방향 비중 · 피더 상한", "limit": "cnt 는 추정치 → 비율·형태로만"},
+        {"name": "OSM 보행망", "id": f"노드 {len(g['nodes']):,} · 간선 {len(g['edges']):,}", "gives": "여의도·마포 보행 가능 간선(차도·사유지 제외)", "cadence": "정적", "layer": "화면층", "use": "A* 경로 · 간선 걷는 시간", "limit": "마포대교 보완 간선 길이는 하한 근사"},
+        {"name": "통제 공지", "id": "서울시 보도자료 · 경찰", "gives": "여의동로 전면통제 · 여의나루 무정차 20:40~21:40 · 원효대교", "cadence": "행사 전 1회", "layer": "사전층 → 당일 이월", "use": "closures 규칙", "limit": "실측은 조기(18:10) — 당일 19시 추가 hotfix"},
+        {"name": "서울시 12시간 예측", "id": "citydata FCST", "gives": "구역 인구 12h 선행 예측", "cadence": "5분", "layer": "검증", "use": "기준선 비교(우리 α 갱신의 필요성)", "limit": "9/5 저녁 피크 9배 과소"},
+    ]
+    return {"rows": rows, "all_public": True, "note": "전부 공개·합법 소스. 키는 .env 에만. 문구 출처 topic-fireworks.md §3 · report.html §2", "generated": "2026-09-06"}
+
+
+# ── ⑪ 과정 — Claude Code 로 만든 흐름 (덱 9장) ────────────────────────
+# 숫자는 전부 git·tests·대장에서 센다. 이정표 문구만 손으로 적고, 그 날짜에 커밋이 있는지 확인한다.
+MILESTONES = [
+    ("2026-08-29", "주제 확정 · 공공 데이터 7종 수집"),
+    ("2026-08-31", "예측 엔진 · 백테스트 · 대시보드 v1"),
+    ("2026-09-01", "레드팀 1회차 · 혼잡장 · 피치덱"),
+    ("2026-09-02", "드라이런 · 워치독 고장 주입"),
+    ("2026-09-03", "Codex 교차검증 · 테스트런"),
+    ("2026-09-04", "전야제 리허설 · 관람객 화면 v2"),
+    ("2026-09-05", "본번 32h 무중단 · hotfix 4"),
+    ("2026-09-06", "실전 채점 · 덱 v2 · 재생"),
+]
+
+
+def process():
+    import subprocess, re as _re
+    log = subprocess.run(["git", "log", "--format=%ad%x09%s", "--date=format:%Y-%m-%d", "--since=2026-08-28"],
+                         cwd=ROOT, capture_output=True, text=True).stdout.splitlines()
+    daily, publish = {}, 0
+    for line in log:
+        d, _, subj = line.partition("\t")
+        if subj.startswith("data: latest"):
+            publish += 1
+            continue
+        daily[d] = daily.get(d, 0) + 1
+    days = sorted(daily)
+    for d, _ in MILESTONES:
+        assert d in daily, f"이정표 {d} 에 커밋이 없다"
+    tests = sum(len(_re.findall(r"^def test_", p.read_text(encoding="utf-8"), _re.M)) for p in (ROOT / "tests").glob("test_*.py"))
+    rt = json.loads((OUT / "redteam_counts.json").read_text(encoding="utf-8"))
+    ledger = (ROOT / "redteam-20260901.md").read_text(encoding="utf-8")
+    rounds = len(set(_re.findall(r"^## .*?(\d)회차", ledger, _re.M))) + 1     # 1회차는 본문(제목 없음) · 3회차는 "## 7. 3회차"
+    sec = ledger.split("### 당일 hotfix")[1].split("###")[0] if "### 당일 hotfix" in ledger else ""
+    hotfix = len([l for l in sec.splitlines() if l.startswith("| ") and not l.startswith("| 시각") and not l.startswith("| :--")])
+    return {"days": [{"date": d, "commits": daily[d], "milestone": dict(MILESTONES).get(d)} for d in days],
+            "commits_total": sum(daily.values()), "publish_commits": publish,
+            "span": {"first": days[0], "last": days[-1], "n_days": len(days)},
+            "tests": {"first": 26, "now": tests, "basis": "tests/test_*.py 의 def test_ 수 · 26 은 2026-09-01 대장 기준"},
+            "redteam": {"rounds": rounds, "total": rt["total"], "by_grade": rt["by_grade"]},
+            "hotfix_day": hotfix,
+            "tools": ["Claude Code (설계·구현·검증·문서)", "Codex CLI (교차검증 1회)", "Claude Design (화면·덱 디자인)"],
+            "note": "커밋은 5분 발행 자동 커밋(data: latest) 제외. 숫자는 git log · tests · 결함 대장에서 뽑는다", "generated": "2026-09-06"}
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, fn in (("feeder_lag", feeder), ("backtest_bars", backtest), ("alpha_grid", alpha),
                      ("exit_bars", exit_bars), ("feeder_map", feeder_map), ("redteam_counts", redteam_counts),
-                     ("code_strips", code_strips), ("live_result", live_result), ("replay_frames", replay_frames)):
+                     ("code_strips", code_strips), ("live_result", live_result), ("replay_frames", replay_frames), ("sources", sources), ("process", process)):
         p = OUT / f"{name}.json"
         p.write_text(json.dumps(fn(), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"{p.relative_to(ROOT)}  {p.stat().st_size / 1024:.1f}KB")

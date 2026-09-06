@@ -36,15 +36,16 @@ def test_deck_data_lives_outside_docs_data():
     assert DATA.is_dir(), "docs/deck 이 없다"
 
 
-CHART_FILES = {"exits": "exit_bars", "radial": "feeder_map", "feeder": "feeder_lag", "alpha": "alpha_grid",
+CHART_FILES = {"exits": "exit_bars", "feeder": "feeder_lag", "alpha": "alpha_grid",   # 방사형(feeder_map)은 보고서 그림 1 로 — 덱에서 뺐다(9/6)
                "field": "field_grid", "route": "route_demo", "backtest": "backtest_bars",
-               "redteam": "redteam_counts", "live": "live_result", "replay": "replay_frames"}
+               "redteam": "redteam_counts", "live": "live_result", "replay": "replay_frames",
+               "sources": "sources", "process": "process", "routereal": "route_real"}
 
 
 def test_every_chart_has_its_data_file(html):
     keys = set(re.findall(r'data-chart="([a-z]+)"', html))
     assert keys <= set(CHART_FILES), keys - set(CHART_FILES)
-    assert keys == set(CHART_FILES), f"차트 10종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
+    assert keys == set(CHART_FILES), f"차트 12종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
     for k in keys:
         assert (DATA / f"{CHART_FILES[k]}.json").exists(), f"{CHART_FILES[k]}.json 이 없다"
 
@@ -226,11 +227,61 @@ def test_replay_frames_are_verbatim_snapshots(html):
 
 
 def test_pytest_count_in_copy_is_current(html):
-    """9장의 'pytest N건' — 테스트를 더할 때마다 손으로 고쳐야 하는 숫자라 여기서 잡는다."""
-    m = re.search(r"pytest (\d+)건", html)
-    assert m, "9장에 pytest 건수가 없다"
+    """검증 장의 '회귀 테스트 N건' — 테스트를 더할 때마다 손으로 고쳐야 하는 숫자라 여기서 잡는다."""
+    m = re.search(r"(?:pytest|회귀 테스트) (\d+)건", html)
+    assert m, "검증 장에 테스트 건수가 없다"
     n = sum(len(re.findall(r"^def test_", p.read_text(encoding="utf-8"), re.M)) for p in (ROOT / "tests").glob("test_*.py"))
     assert int(m.group(1)) == n, f"본문 pytest {m.group(1)}건 vs 실제 {n}건 — 덱 9장 숫자를 고쳐라"
+
+
+def test_acts_are_numbered_on_kickers(html):
+    """정리감의 근거 — 킥커에 막 번호. Ⅰ 문제 · Ⅱ 재료 · Ⅲ 구현 · Ⅳ 과정 · Ⅴ 결과."""
+    acts = re.findall(r'<span class="act">([ⅠⅡⅢⅣⅤ]) ([^<]+)</span>', html)
+    assert [a for a, _ in acts] == list("ⅠⅡⅡⅢⅢⅢⅢⅢⅣⅣⅤⅤⅤ"), [a for a, _ in acts]
+    assert dict(acts) == {"Ⅰ": "문제", "Ⅱ": "재료", "Ⅲ": "구현", "Ⅳ": "과정", "Ⅴ": "결과"}
+
+
+def test_sources_table_has_eight_public_rows():
+    d = _json("sources")
+    assert len(d["rows"]) == 8 and d["all_public"] is True
+    for r in d["rows"]:
+        assert all(r.get(k) for k in ("name", "id", "gives", "cadence", "layer", "use", "limit")), r["name"]
+    cams = json.loads((ROOT / "docs" / "data" / "cams.json").read_text(encoding="utf-8"))
+    assert f"{len(cams)}대" in d["rows"][3]["id"], "CCTV 대수는 cams.json 에서"
+
+
+def test_process_numbers_come_from_git_tests_and_ledger():
+    """9장 과정 — 손 숫자 금지. 커밋·테스트·대장 건수를 여기서 다시 세어 대조한다."""
+    import shutil, subprocess
+    d = _json("process")
+    if not shutil.which("git"):
+        pytest.skip("git 없음")
+    log = subprocess.run(["git", "log", "--format=%s", "--since=2026-08-28"], cwd=ROOT, capture_output=True, text=True).stdout.splitlines()
+    non_pub = [l for l in log if not l.startswith("data: latest")]
+    assert abs(d["commits_total"] - len(non_pub)) <= 3, f"커밋 {d['commits_total']} vs git {len(non_pub)} — tools/deck_data.py 재실행"
+    n = sum(len(re.findall(r"^def test_", p.read_text(encoding="utf-8"), re.M)) for p in (ROOT / "tests").glob("test_*.py"))
+    assert d["tests"]["now"] == n, "테스트 수가 낡았다 — tools/deck_data.py 재실행"
+    rt = _json("redteam_counts")
+    assert d["redteam"]["total"] == rt["total"] and d["redteam"]["rounds"] == 7
+    assert d["hotfix_day"] == 4
+    for x in d["days"]:
+        assert x["commits"] > 0
+
+
+def test_route_real_is_measured_not_scenario():
+    """8b 오른쪽 표 — 9/5 실측 장. 시각 6 × 목적지 6, changed 와 extra_m·saved_sec 가 서로 맞는가."""
+    d = _json("route_real")
+    assert len(d["frames"]) == 6
+    for f in d["frames"]:
+        assert len(f["routes"]) == 6 and f["field"]["cctv_uncalibrated"] >= 15
+        for r in f["routes"]:
+            assert "error" not in r, r
+            if r["changed"]:
+                assert r["extra_m"] > 0 and r["saved_sec"] > 0, r
+            else:
+                assert r["extra_m"] == 0 and r["saved_sec"] == 0, r
+    assert any(r["changed"] for f in d["frames"] for r in f["routes"]), "실측에서 하나도 안 바뀌면 8b 문구를 바꿔야 한다"
+    assert "봉우리 가정" in DECK.read_text(encoding="utf-8"), "시나리오 패널에 가정 라벨"
 
 
 # ── v2 — 구조 ─────────────────────────────────────────────────────────
@@ -238,10 +289,10 @@ def _sections(html):
     return re.findall(r'<section [^>]*class="slide[^"]*" id="(s\d+)">(.*?)</section>', html, re.S)
 
 
-N_SLIDES = 13   # 2026-09-06 v2 이식 + s11 「그 시각, 화면은 이랬다」 추가
+N_SLIDES = 14   # 2026-09-06 재편(Task 13): Ⅰ 문제 2 · Ⅱ 재료 2 · Ⅲ 구현 5 · Ⅳ 과정 2 · Ⅴ 결과 3
 
 
-def test_thirteen_sections_each_with_heading_and_notes(html):
+def test_fourteen_sections_each_with_heading_and_notes(html):
     secs = _sections(html)
     assert [s[0] for s in secs] == [f"s{i}" for i in range(1, N_SLIDES + 1)]
     for sid, body in secs:
@@ -282,9 +333,11 @@ def test_embeds_are_real_screens_replayed_without_geolocation_prompt(html):
     assert "deck/fallback_go.png" in html and "deck/fallback_ops.png" in html
 
 
-def test_code_strip_slots_match_export(html):
-    slots = re.findall(r'<pre class="strip[^"]*" data-strip="([a-z]+)"', html)
-    assert slots == ["demand", "alpha", "blend"]
+def test_no_code_lines_on_deck(html):
+    """2026-09-06 사용자 결정 — 비전공 심사자 대상이라 실제 코드 라인은 덱에서 뺀다(수식은 유지). code_strips.json 은 보고서용으로 남는다."""
+    assert 'data-strip=' not in html, "덱에 코드 스트립이 남아 있다"
+    assert 'loadStrips' not in html, "코드 스트립 로더 호출이 남아 있다"
+    assert html.count("katex") >= 2, "수식(KaTeX)은 남긴다"
 
 
 def test_speaker_notes_fit_five_minutes(html):

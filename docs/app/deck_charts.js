@@ -551,6 +551,95 @@ function drawReplay(cv, d, slide) {
 }
 CHARTS.replay = ["replay_frames", drawReplay];
 
+/* ⑩ 재료 — 공개 데이터 8종 표 (sources.json). 행 수·문구 전부 JSON 에서 */
+function drawSources(cv, d, slide, fig) {
+  var host = fig.querySelector(".srcs"); host.innerHTML = "";
+  var th = function (t, w) { return '<th style="text-align:left;padding:10px 12px;border-bottom:2px solid #191F28;font-size:20px;font-weight:700;color:#4E5968;white-space:nowrap' + (w ? ';width:' + w : '') + '">' + esc(t) + '</th>'; };
+  var td = function (t, style) { return '<td style="padding:11px 12px;border-bottom:1px solid #E5E8EB;font-size:20px;line-height:1.35;color:#191F28;vertical-align:top;' + (style || '') + '">' + t + '</td>'; };
+  var layerChip = function (l) {
+    var dark = l.indexOf("사전") === 0, live = l.indexOf("당일") === 0;
+    return '<span style="display:inline-block;padding:3px 10px;border-radius:8px;font-size:18px;font-weight:700;white-space:nowrap;color:' + (dark ? '#fff' : '#191F28') + ';background:' + (dark ? '#191F28' : live ? '#FFE1CC' : '#F2F4F6') + '">' + esc(l) + '</span>';
+  };
+  host.innerHTML = '<table style="border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums"><thead><tr>'
+    + th("소스", "22%") + th("무엇을 주나") + th("주기", "10%") + th("층", "9%") + th("어디에 쓰나", "20%") + th("한계", "20%") + '</tr></thead><tbody>'
+    + d.rows.map(function (r) {
+      return '<tr>' + td('<b>' + esc(r.name) + '</b><div style="font-size:16px;color:#8B95A1;margin-top:2px;font-family:var(--mono)">' + esc(r.id) + '</div>')
+        + td(esc(r.gives)) + td(esc(r.cadence), 'white-space:nowrap') + td(layerChip(r.layer)) + td(esc(r.use)) + td('<span style="color:#4E5968">' + esc(r.limit) + '</span>') + '</tr>';
+    }).join("") + '</tbody></table>';
+}
+CHARTS.sources = ["sources", drawSources];
+
+/* ⑪ 과정 — 일별 커밋 막대 + 이정표 (process.json). 숫자 타일은 같은 JSON 에서 */
+function drawProcess(cv, d, slide, fig) {
+  var tiles = slide.querySelector(".ptiles");
+  if (tiles) {
+    var T = [[String(d.commits_total), "커밋 (제출용)", "+ 자동 발행 " + d.publish_commits],
+             [d.tests.first + "→" + d.tests.now, "회귀 테스트", "변경마다 전부 통과"],
+             [d.redteam.rounds + "회차 · " + d.redteam.total + "건", "우리 것을 먼저 깼다", "치명 " + d.redteam.by_grade["치명"] + " · 높음 " + d.redteam.by_grade["높음"] + " 전부 조치"],
+             [String(d.hotfix_day), "당일 hotfix", "테스트 통과 후에만 push"]];
+    tiles.innerHTML = T.map(function (t) {
+      return '<div style="background:#F2F4F6;border-radius:24px;padding:26px 24px;display:flex;flex-direction:column;gap:8px"><div style="font-size:52px;font-weight:800;letter-spacing:-.04em;line-height:1;color:#191F28;font-variant-numeric:tabular-nums">' + esc(t[0]) + '</div><div style="font-size:22px;font-weight:700;color:#191F28">' + esc(t[1]) + '</div><div style="font-size:18px;color:#8B95A1;line-height:1.35">' + esc(t[2]) + '</div></div>';
+    }).join("");
+  }
+  var days = d.days, max = Math.max.apply(null, days.map(function (x) { return x.commits; }));
+  animate(cv, 2000, function (p) {
+    var out = fitCanvas(cv), c = out.ctx, w = out.w, h = out.h;
+    var pad = { l: 24, r: 24, t: 110, b: 44 }, gw = (w - pad.l - pad.r) / days.length, bw = gw * 0.56;
+    var py = function (v) { return h - pad.b - (h - pad.t - pad.b) * v / max; };
+    c.strokeStyle = cssVar("--rule"); c.lineWidth = 1; c.beginPath(); c.moveTo(pad.l, h - pad.b); c.lineTo(w - pad.r, h - pad.b); c.stroke();
+    days.forEach(function (x, i) {
+      var cx = pad.l + gw * i + gw / 2, v = x.commits * p, y = py(v);
+      c.fillStyle = x.milestone ? cssVar("--c1") : "#C5CAD1"; roundRect(c, cx - bw / 2, y, bw, h - pad.b - y, 8); c.fill();
+      label(c, Math.round(v) + "", cx, y - 14, cssVar("--ink"), "center", 11);
+      label(c, x.date.slice(5).replace("-", "/"), cx, h - pad.b + 16, cssVar("--sub"), "center", 10.5);
+      if (x.milestone && p > 0.85) {
+        var parts = x.milestone.split(" · ");
+        parts.forEach(function (t, k) { label(c, t, cx, pad.t - 84 + k * 26, cssVar("--ink-2"), "center", 9.5, "sans"); });
+        c.strokeStyle = cssVar("--rule"); c.setLineDash([2, 4]); c.beginPath(); c.moveTo(cx, pad.t - 84 + parts.length * 26 - 8); c.lineTo(cx, y - 26); c.stroke(); c.setLineDash([]);
+      }
+    });
+  });
+}
+CHARTS.process = ["process", drawProcess];
+
+/* ⑫ 실측 장 — 최단시간 경로가 최단거리와 달랐던 순간 (route_real.json). 행 = 발행 시각, 열 = 목적지. 계산 없음, 표시만 */
+function drawRouteReal(cv, d, slide, fig) {
+  var frames = d.frames, names = frames[0].routes.map(function (r) { return r.name.replace("역", ""); });
+  var changed = 0, total = 0, best = null, yeoMin = [];
+  frames.forEach(function (f) { f.routes.forEach(function (r) { total++; if (r.changed) { changed++; if (!best || r.saved_sec > best.saved_sec) best = Object.assign({ at: f.hhmm }, r); } if (r.name === "여의도역") yeoMin.push(r.shortest.min); }); });
+  var sum = slide.querySelector("[data-real-summary]");
+  if (sum) sum.innerHTML = "9/5 실측 장 " + frames.length + "시각 × 목적지 " + names.length + "곳 = " + total + "건 중 <b style=\"color:#191F28\">" + changed + "건</b>에서 가장 빨리 닿는 길 ≠ 가장 짧은 길"
+    + (best ? " · 최대 <b style=\"color:#191F28\">" + esc(best.name) + " " + best.at + "</b> — " + best.extra_m + "m 더 걷고 <b style=\"color:#F36F21\">" + Math.round(best.saved_sec / 60) + "분</b> 빠름" : "")
+    + " · 이벤트광장→여의도역 걷는 시간 " + Math.min.apply(null, yeoMin) + "~" + Math.max.apply(null, yeoMin) + "분 (고정속도라면 " + frames[0].routes[0].fixed_speed_min + "분)";
+  var maxSave = Math.max(1, best ? best.saved_sec / 60 : 1);
+  animate(cv, 1800, function (p) {
+    var out = fitCanvas(cv), c = out.ctx, w = out.w, h = out.h;
+    var pad = { l: 96, r: 12, t: 64, b: 8 }, cw = (w - pad.l - pad.r) / names.length, rh = (h - pad.t - pad.b) / frames.length;
+    label(c, "가장 빨리 닿는 길이 가장 짧은 길과 달랐나 — 9/5 실측 장", 12, 22, cssVar("--ink"), "left", 12, "sans");
+    names.forEach(function (n, j) { label(c, n, pad.l + cw * j + cw / 2, pad.t - 14, cssVar("--ink-2"), "center", 10.5, "sans"); });
+    frames.forEach(function (f, i) {
+      var y = pad.t + rh * i;
+      label(c, f.hhmm, pad.l - 10, y + rh / 2, cssVar("--ink-2"), "right", 11);
+      f.routes.forEach(function (r, j) {
+        var x = pad.l + cw * j + 3, bw = cw - 6, bh = rh - 6;
+        var k = Math.min(1, ((i * names.length + j) + 1) / total / Math.max(0.001, p));
+        if (k > 1) return;
+        if (r.changed) {
+          var t = Math.min(1, (r.saved_sec / 60) / maxSave), col = hex(cssVar("--c1"));
+          c.fillStyle = "rgba(" + col[0] + "," + col[1] + "," + col[2] + "," + (0.25 + 0.7 * t).toFixed(2) + ")";
+          roundRect(c, x, y + 3, bw, bh, 8); c.fill();
+          label(c, "−" + Math.round(r.saved_sec / 60) + "분", x + bw / 2, y + rh / 2 - 9, t > 0.45 ? "#fff" : cssVar("--ink"), "center", 11.5);
+          label(c, "+" + r.extra_m + "m", x + bw / 2, y + rh / 2 + 11, t > 0.45 ? "rgba(255,255,255,.85)" : cssVar("--ink-2"), "center", 9.5);
+        } else {
+          c.fillStyle = "#F2F4F6"; roundRect(c, x, y + 3, bw, bh, 8); c.fill();
+          label(c, "같은 길", x + bw / 2, y + rh / 2, cssVar("--sub"), "center", 10, "sans");
+        }
+      });
+    });
+  });
+}
+CHARTS.routereal = ["route_real", drawRouteReal];
+
 export function playChart(slide) {
   [].slice.call(slide.querySelectorAll("[data-chart]")).forEach(function (fig) {
     var spec = CHARTS[fig.getAttribute("data-chart")];
