@@ -373,20 +373,25 @@ document.addEventListener("keydown", (e) => {
   else if (e.key === "t") T0 = Date.now();
 });
 
-/* 실물 임베드 — 오프라인이거나 8초 넘게 안 뜨면 캡처(deck/fallback_*.png)로 */
+/* 실물 임베드 — 오프라인이거나 8초 넘게 안 뜨면 캡처(deck/fallback_*.png)로.
+   2026-09-06 수정: 실기기(Pages 첫 로드)에서 MapLibre·폰트가 두 임베드에 동시에 실려 8초를 넘기자 폴백이 발동했고,
+   캡처 파일이 없어 "라이브 화면 — 통신 필요"만 남았다. 이제 ① 캡처가 실제로 로드됐을 때만 iframe 을 감추고
+   ② 캡처가 없으면 iframe 을 그대로 두고 기다린다(늦게라도 뜬다) ③ 안내문은 오프라인일 때만
+   ④ 모듈이 늦게 붙어 load 를 놓친 경우는 contentDocument 로 확인한다. */
 document.querySelectorAll(".embed").forEach((fig) => {
   const ifr = fig.querySelector("iframe"), img = fig.querySelector("img.fb"), msg = fig.querySelector(".fbmsg");
   let ok = false;
+  const loaded = () => { try { const doc = ifr.contentDocument; return !!doc && doc.readyState === "complete" && ifr.contentWindow.location.href !== "about:blank"; } catch (e) { return false; } };
+  ifr.addEventListener("load", () => { ok = true; img.hidden = true; ifr.hidden = false; msg.hidden = true; });
+  if (loaded()) ok = true;
   const fallback = () => {
-    if (ok) return;
-    ifr.hidden = true;
-    img.onerror = () => { img.hidden = true; msg.hidden = false; };
-    img.onload = () => { img.hidden = false; };
+    if (ok || loaded()) return;
+    img.onload = () => { if (ok) return; ifr.hidden = true; img.hidden = false; };
+    img.onerror = () => { if (!navigator.onLine && !ok) { ifr.hidden = true; msg.hidden = false; } };
     img.src = img.getAttribute("data-src");
   };
   if (!navigator.onLine) { fallback(); return; }
-  ifr.addEventListener("load", () => { ok = true; });
-  setTimeout(() => { if (!ok) fallback(); }, 8000);
+  setTimeout(fallback, 8000);
 });
 </script>
 </body>
