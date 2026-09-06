@@ -102,7 +102,7 @@ body.notes #np{display:flex}
   <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center;">
     <figure class="embed" data-rv style="--i:2;margin:0;display:flex;justify-content:center;align-items:center;">
       <div style="position:relative;width:369px;height:800px;border-radius:52px;overflow:hidden;background:#fff;border:9px solid #111;box-sizing:content-box;">
-        <iframe src="go.html" title="관람객 화면 go.html" style="border:0;width:393px;height:852px;transform:scale(.9389);transform-origin:top left;display:block;background:#fff;"></iframe>
+        <iframe src="go.html?at=20260905T2206" title="관람객 화면 go.html (9/5 22:06 재생)" style="border:0;width:393px;height:852px;transform:scale(.9389);transform-origin:top left;display:block;background:#fff;"></iframe>
         <img class="fb" data-src="deck/fallback_go.png" alt="관람객 화면 캡처" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" hidden>
         <div class="fbmsg" hidden>라이브 화면 — 통신 필요</div>
       </div>
@@ -114,10 +114,10 @@ body.notes #np{display:flex}
         <li data-rv style="flex:none;--i:5;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">시각 = 지금</b> — 차트를 문지르면 19~23시 예측으로 옮겨 간다</span></li>
         <li data-rv style="flex:none;--i:6;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span>서버 없는 정적 페이지 — 링크 하나, 통신 폭주에도 <b style="color:#191F28;">기기 저장 폴백</b></span></li>
       </ul>
-      <p data-rv style="--i:7;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;">실제 배포본을 그대로 띄웠다 (<span style="font-family:var(--mono);">…/go.html</span>) · 위치는 이벤트광장 기준 가상 위치</p>
+      <p data-rv style="--i:7;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;">실제 배포본 그대로 — <b style="color:#4E5968;">9/5 22:06 발행분 재생</b> (<span style="font-family:var(--mono);">…/go.html?at=20260905T2206</span>) · 위치는 이벤트광장 기준</p>
     </div>
   </div>
-  <aside class="notes">실제 배포된 관람객 화면입니다. 묻지 않습니다. 위치는 자동, 지금 시각 기준으로 도보와 대기가 가장 짧은 출구가 맨 위에 옵니다. 서버가 없는 정적 페이지라 통신이 폭주해도 기기에 저장된 마지막 화면으로 버팁니다.</aside>
+  <aside class="notes">실제 배포된 관람객 화면입니다. 묻지 않습니다. 위치는 자동, 지금 시각 기준으로 도보와 대기가 가장 짧은 출구가 맨 위에 옵니다. 서버가 없는 정적 페이지라 통신이 폭주해도 기기에 저장된 마지막 화면으로 버팁니다. 지금 보이는 건 9월 5일 22시 6분 발행분 그대로입니다.</aside>
 </section>
 
 <!-- 4 ─ 운영 화면 · 3층 -->
@@ -127,7 +127,7 @@ body.notes #np{display:flex}
   <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:56px;align-items:center;">
     <figure class="embed" data-rv style="--i:2;margin:0;display:flex;justify-content:center;">
       <div style="position:relative;width:960px;height:600px;border-radius:20px;overflow:hidden;background:#F2F4F6;border:9px solid #111;box-sizing:content-box;">
-        <iframe src="index.html" title="운영 화면 index.html" style="border:0;width:1280px;height:800px;transform:scale(.75);transform-origin:top left;display:block;"></iframe>
+        <iframe src="index.html?at=20260905T2206" title="운영 화면 index.html (9/5 22:06 재생)" style="border:0;width:1280px;height:800px;transform:scale(.75);transform-origin:top left;display:block;"></iframe>
         <img class="fb" data-src="deck/fallback_ops.png" alt="운영 화면 캡처" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" hidden>
         <div class="fbmsg" hidden>라이브 화면 — 통신 필요</div>
       </div>
@@ -138,7 +138,7 @@ body.notes #np{display:flex}
       <div data-rv style="--i:5;background:#F2F4F6;border-radius:22px;padding:26px 32px;display:flex;gap:24px;align-items:baseline;"><b style="flex:none;font-size:var(--type-body);font-weight:800;">당일층</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">도시데이터 API 5분 + CCTV 23대 60초 → α 보정 · 통제 이월 · 보행 지연 → 자동 발행</span></div>
       <div data-rv style="--i:6;text-align:center;font-size:var(--type-small);color:#8B95A1;">▲ 규모만 보정 (없어도 서비스 성립)</div>
       <div data-rv style="--i:7;background:#191F28;color:#fff;border-radius:22px;padding:26px 32px;display:flex;gap:24px;align-items:baseline;"><b style="flex:none;font-size:var(--type-body);font-weight:800;">사전층</b><span style="font-size:var(--type-small);color:#B0B8C1;line-height:1.45;">공공 실측 7종 → 예측 엔진 + 백테스트 — 행사 전에 완결</span></div>
-      <p data-rv style="--i:8;margin:12px 0 0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;">다음 다섯 장이 층마다 "무엇을 · 어떻게 · 근거"다. 전 데이터 공개·합법 소스 · CCTV 는 프레임 미저장(집계만)</p>
+      <p data-rv style="--i:8;margin:12px 0 0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;">왼쪽은 9/5 22:06 발행분 재생. 다음 다섯 장이 층마다 "무엇을 · 어떻게 · 근거"다. 전 데이터 공개·합법 소스 · CCTV 는 프레임 미저장(집계만)</p>
     </div>
   </div>
   <aside class="notes">운영 화면과 그 아래 구조입니다. 사전층이 행사 전에 예측표를 완성하고, 당일층이 오늘 규모만 보정하고, 화면층이 보여줍니다. 아래층이 죽어도 위층이 삽니다. 이제 층마다 무엇을 어떻게 만들었는지 다섯 장으로 보겠습니다.</aside>

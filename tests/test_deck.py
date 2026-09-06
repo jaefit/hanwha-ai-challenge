@@ -267,11 +267,18 @@ def test_stage_component_and_chart_module(html):
         assert "position:" not in sec and "inset:" not in sec, "deck-stage 가 슬라이드를 직접 배치한다 — section 에 position/inset 금지"
 
 
-def test_embeds_are_real_screens_without_geolocation_prompt(html):
-    go = re.search(r"<iframe[^>]*src=\"go\.html\"[^>]*>", html)
-    assert go, "go.html iframe 이 없다"
+def test_embeds_are_real_screens_replayed_without_geolocation_prompt(html):
+    """3·4장 임베드는 실제 배포본을 9/5 22:06 발행분 재생(`?at=`)으로 띄운다 (2026-09-06 사용자 결정 — 라이브는 행사 뒤 사전표만 보인다).
+    재생 시각은 재생 칩 목록에 있어야 한다 — 없으면 빈 화면이 뜬다."""
+    go = re.search(r"<iframe[^>]*src=\"go\.html\?at=(\d{8}T\d{4})\"[^>]*>", html)
+    assert go, "go.html?at= iframe 이 없다"
     assert "allow=" not in go.group(0), "위치 권한을 주면 발표 중 팝업이 뜬다 — allow 속성 금지"
-    assert re.search(r"<iframe[^>]*src=\"index\.html\"", html), "index.html iframe 이 없다"
+    ops = re.search(r"<iframe[^>]*src=\"index\.html\?at=(\d{8}T\d{4})\"", html)
+    assert ops, "index.html?at= iframe 이 없다"
+    idx = ROOT / "docs" / "data" / "replay" / "20260905" / "index.json"
+    if idx.exists():
+        chips = {"20260905T" + c["at"] for c in json.loads(idx.read_text(encoding="utf-8"))["chips"]}
+        assert go.group(1) in chips and ops.group(1) in chips, "임베드 재생 시각이 칩 목록에 없다"
     assert "deck/fallback_go.png" in html and "deck/fallback_ops.png" in html
 
 

@@ -39,6 +39,8 @@
   /** 재생 배너 — 화면 위에 얹는다. 스타일은 여기서 인라인으로 (두 화면이 같은 모습, CSS 손대지 않음). */
   function mount(page, r) {
     if (!r || typeof document === "undefined") return null;
+    // 덱 임베드(iframe) 안에서는 배너를 그리지 않는다 — 화면의 신선도 표시가 이미 "재생"이라 말하고, 폰 프레임에서 칩 줄이 화면을 먹는다
+    if (typeof window !== "undefined" && window.self !== window.top) return null;
     var bar = document.createElement("div");
     bar.id = "replay-bar";
     bar.setAttribute("style", "position:fixed;left:0;right:0;top:0;z-index:9000;display:flex;align-items:center;gap:10px;flex-wrap:wrap;"
