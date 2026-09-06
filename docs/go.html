@@ -185,6 +185,7 @@ html.open{--sheet-h:calc(100% - var(--sheet-top))}
 <script src="app/board.js"></script>
 <script src="app/field.js"></script>
 <script src="app/routing_extra.js"></script>
+<script src="app/replay.js"></script>
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script>
 /* 관람객 화면 v2 — 묻지 않는다.
@@ -199,6 +200,8 @@ const FAR_M=3000;                             // 여의도에서 이보다 멀�
 // 관람구역 5곳 — nowcast.ZONES · index.html ZONES 와 같은 좌표(마포대교 남단·이벤트광장·원효대교 방향·63빌딩 앞·여의도공원)
 const ZONES=[[126.9345,37.5310],[126.9330,37.5290],[126.9412,37.5257],[126.9385,37.5205],[126.9245,37.5268]];
 const distM=(a,b)=>Field.distanceM(a,b);
+// 재생(?at=YYYYMMDDTHHMM): 그 시각 발행분을 그대로 그린다. 시계는 전부 NOW() 로 — 실제 시계가 섞이면 12h 폴백이 사전표를 덮는다 (Task 12)
+const REPLAY=Replay.parse(location.search);const NOW=()=>REPLAY?REPLAY.now:Date.now();
 let DATA=null,PRIOR=null,HOUR=null,SEL=null,OPEN=false,ORIGIN=EVENT.slice(),GEO="asking";
 let MAP=null,MAPREADY=false,CAMS=null,FIELD=null,FGRID=null,FBOUNDS=null,NOBS=0,LABELS={},ME=null,FITKEY="",FITTED=false;
 let GRAPH=null,GNODES=null,GLOADING=false,FIELD_VER=0;const RMEMO={key:"",by:{}};
@@ -301,17 +304,17 @@ function routeFor(key){
 // ── 데이터 ──
 async function load(){
   let fresh=null;
-  try{const r=await fetch("data/latest.json?"+Date.now(),{cache:"no-store"});
-      if(r.ok){fresh=await r.json();try{localStorage.setItem("go-latest",JSON.stringify(fresh))}catch(e){}}}catch(e){}
+  try{const r=await fetch(REPLAY?Replay.file(REPLAY):"data/latest.json?"+Date.now(),{cache:"no-store"});
+      if(r.ok){fresh=await r.json();if(!REPLAY)try{localStorage.setItem("go-latest",JSON.stringify(fresh))}catch(e){}}}catch(e){}
   if(fresh)DATA=fresh;
-  else if(!DATA){try{const c=localStorage.getItem("go-latest");if(c){DATA=JSON.parse(c);DATA.__offline=true;}}catch(e){}}
+  else if(!DATA&&!REPLAY){try{const c=localStorage.getItem("go-latest");if(c){DATA=JSON.parse(c);DATA.__offline=true;}}catch(e){}}
   else DATA.__offline=true;                  // 갱신 실패 — 들고 있던 것으로 계속
   if(!PRIOR){try{const r=await fetch("data/exit_forecast_2026.json",{cache:"no-store"});if(r.ok)PRIOR=await r.json();}catch(e){}}
   if(!CAMS){try{CAMS=await(await fetch("data/cams.json",{cache:"no-store"})).json();}catch(e){}}
   if(!DATA)DATA={};
   // 12시간 넘게 오래된 실시간은 사전 예측표로 물러난다 (index.html 과 같은 기준)
   const fc=DATA.forecast||{};
-  if((!fc.exits||!Object.keys(fc.exits).length||Board.isStale(DATA.generated))&&PRIOR){
+  if((!fc.exits||!Object.keys(fc.exits).length||Board.isStale(DATA.generated,NOW()))&&PRIOR){
     DATA=Object.assign({},DATA,{forecast:Object.assign({},PRIOR,{prior:true})});
   }
   buildField();
@@ -339,7 +342,7 @@ function fieldObs(){
   const cctv=(DATA&&DATA.cctv)||{};
   const vals=Object.entries(cctv).map(([id,v])=>Object.assign({id:String(id)},v));
   const byId=new Map(vals.map(v=>[String(v.cam_id||v.id),v])),byName=new Map(vals.map(v=>[v.name,v]));
-  const now=Date.now(),obs=[];
+  const now=NOW(),obs=[];
   (CAMS||[]).forEach(cam=>{
     const v=byId.get(String(cam.camId))||byName.get(cam.name)||null;
     if(!v||v.ok===false)return;
@@ -439,8 +442,9 @@ const why=d=>String(d||"").replace(/^.*?호선\s*·\s*/,"").replace(/도보 약 
 
 // ── 신선도 필 — 경고창 없이 점 하나·단어 하나 (H10: 발행 시각만 보면 수집 끊김을 놓친다)
 function freshUI(r){
-  const fc=(DATA&&DATA.forecast)||{},gen=DATA&&DATA.generated,fr=Board.freshness(fc,gen);
+  const fc=(DATA&&DATA.forecast)||{},gen=DATA&&DATA.generated,fr=Board.freshness(fc,gen,NOW());
   const hhmm=t=>{if(!t)return"";const d=new Date(String(t).replace(" ","T"));return isFinite(d)?d.toTimeString().slice(0,5):"";};
+  if(REPLAY)return{cls:"",word:"재생",time:hhmm(gen)+" 발행분"};
   if(DATA&&DATA.__offline)return{cls:"off",word:"오프라인",time:hhmm(gen)?hhmm(gen)+" 데이터":"저장된 데이터"};
   if(fr.reason==="collection")return{cls:"",word:"수집 끊김",time:fr.srcAge==null?"":fr.srcAge+"분 전"};
   if(fr.reason==="pre")return{cls:"",word:"수집 전",time:"예측표"};
@@ -454,11 +458,11 @@ let CUR=null;
 function render(){
   const fc=(DATA&&DATA.forecast)||{};
   const avail=hoursOf(fc,Board.rank(fc,"21"));
-  if(!HOUR)HOUR=Board.defaultHour();
+  if(!HOUR)HOUR=Board.defaultHour(NOW());
   if(!avail.includes(HOUR))HOUR=avail.includes("21")?"21":avail[0];
   const r=rankByTime(Board.rank(fc,HOUR)),h=hero(r);CUR={r,h};
   const H=hoursOf(fc,r);
-  const nowH=new Date().getHours(),isNow=nowH>=19&&nowH<=23&&HOUR===String(nowH),hl=isNow?"지금":HOUR+"시";   // 축제 창 밖이면 "21시"라고 말한다
+  const nowH=new Date(NOW()).getHours(),isNow=!REPLAY&&nowH>=19&&nowH<=23&&HOUR===String(nowH),hl=isNow?"지금":HOUR+"시";   // 재생 중엔 "지금"이 아니라 그 시각   // 축제 창 밖이면 "21시"라고 말한다
   const f=freshUI(r);$("fresh").className="pill "+f.cls;$("fword").textContent=f.word;$("ftime").textContent=f.time;
   $("origin").textContent=same(ORIGIN,GPS)?"내 위치에서":same(ORIGIN,EVENT)?"이벤트광장에서":"옮긴 핀에서";
   $("ranklab").textContent=hl+" 순위";
@@ -628,9 +632,10 @@ function drawRoute(force){
 (async()=>{
   await load();
   initMap();
-  askGeo();
+  if(REPLAY)setGeo("denied");else askGeo();                    // 재생 중엔 발표자의 실제 위치를 잡지 않는다 — 이벤트광장 기준
   loadGraph();                                                 // 첫 답은 근사로 이미 떠 있다 — 보행망은 뒤에서
-  setInterval(load,5*60*1000);
+  if(!REPLAY)setInterval(load,5*60*1000);
+  if(REPLAY)Replay.mount("go.html",REPLAY);
 })();
 </script>
 </body>

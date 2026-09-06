@@ -208,6 +208,21 @@
 - [ ] **Step 3: 영상 3분 스크립트** — 0:00 문제(실적 표) · 0:40 데이터·모델 · 1:30 페이지 시연(20→21→22시, 무정차 행) · 2:20 9/5 실측 vs 예측 · 2:50 한화 적용. 녹화·MP4 ≤20MB
 - [ ] **Step 4: 추가자료 5개 목록·용량 확인. Release 자산 업로드(OD zip)**
 
+### Task 12: 덱 v2 이식 + 실전 결과 + 발행 스냅샷 재생 (9/6 추가, 사용자 승인)
+
+Claude Design 「Pitch Deck v2」(토스풍 · 1920×1080 무대)를 `docs/deck.html` 로 이식하고, 9/5 결과 장을 채우고, 발행 스냅샷을 그 시각 그대로 다시 보여준다. 설계 근거는 devlog 2026-09-06.
+
+**Files:**
+- Replace: `docs/deck.html`(13장) · Create: `docs/app/deck-stage.js`(vendored) · `docs/app/deck_charts.js` · `docs/assets/fireworks_yeouido_2007.jpg`
+- Modify: `tools/deck_data.py`(live_result 채움 · replay_frames) · `tests/test_deck.py`
+- Create: `tools/replay_build.py` · `docs/app/replay.js` · `docs/data/replay/20260905/*.json` · `tests/test_replay.py` · `tests/replay_spec.mjs`
+- Modify: `docs/index.html` · `docs/go.html`(`?at=` 재생 · `NOW()` 시계 고정)
+
+- [x] **Step 1: 덱 이식** — 12장 재스타일 + s10 실전 결과(evaluate.py 산출만) + s11 「그 시각, 화면은 이랬다」 + 「불꽃배웅」 복원 + route_demo 재생성(÷1.4 → 45/21분) + pytest 건수 자동 대조
+- [x] **Step 2: 재생 데이터** — 스냅샷 6개(20:05·21:01·21:31·21:36·22:06·23:02)를 `latest.json` 모양으로 재조립(CCTV 는 그 분 마지막 레코드). 창작 0
+- [x] **Step 3: 재생 로더** — `replay.js` 공유, `?at=` 이면 재생 파일·시계 고정·localStorage/폴백/자동갱신 끔, 배너+칩 6개+◀▶. 가드: 두 페이지 `NOW()` 밖 `Date.now()` 잔류 0
+- [x] **Step 4: pytest 전부 통과 → push. 실기기에서 `?at=20260905T2206` 두 화면 확인(지도는 헤드리스로 못 본다)**
+
 ### Task 11: 제출 (9/8)
 
 - [ ] **Step 1: 오전 최종 점검** — Pages 링크 열림, 상태 4종 중 현재 상태 문구 정상, `pytest` 통과, 스펙 §4 체크리스트 전부 ✓

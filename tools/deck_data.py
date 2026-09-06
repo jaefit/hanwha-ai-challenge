@@ -207,27 +207,117 @@ def code_strips():
     return out
 
 
-# ── ⑧ 9/5 실전 결과 자리 ─────────────────────────────────────────────
-def live_result():
-    """채워진 파일은 덮어쓰지 않는다. 비어 있으면 자리만.
+# ── ⑧ 9/5 실전 결과 (evaluate.py 결과 + 발행 스냅샷) ─────────────────
+LIVE = ROOT / "data" / "live"
+HIST = LIVE / "forecast_history" / "20260905"
+EVAL = DER / "eval_20260905.json"
 
-    채울 때 형태(9/6, evaluate.py 결과로): {"filled": true, "date": "2026-09-05",
-    "grade_hit": "88% (15/17)", "alpha_final": "1.08 [0.95~1.21]", "ticks": 144, "restarts": 0, "note": "…"}
-    """
-    p = OUT / "live_result.json"
+
+def _keep_if_missing(name, need):
+    """원천(맥에만 있는 data/live)이 없으면 이미 내보낸 파일을 그대로 둔다 — 회사 PC 에서 돌려도 덱이 비지 않게."""
+    p = OUT / f"{name}.json"
+    if all(x.exists() for x in need):
+        return None
     if p.exists():
-        cur = json.loads(p.read_text(encoding="utf-8"))
-        if cur.get("filled"):
-            return cur
-    return {"filled": False, "date": "2026-09-05",
-            "note": "9/6 evaluate.py 결과로 채운다. 12~24시 자동 수집 · 5분 발행 · 쇼 종료 실시각 현장 기입"}
+        return json.loads(p.read_text(encoding="utf-8"))
+    return {"filled": False, "note": "원천 없음 — 맥에서 tools/deck_data.py 를 다시 돌린다"}
+
+
+def live_result():
+    """9/5 실전 채점. 숫자는 evaluate.py 산출(eval_20260905.json)과 수집 원장에서만 가져온다.
+
+    형태 비교 주의: subway_shape 의 실측은 핫스팟 30분 승차 합이라 **규모가 다르다**(커버리지 상이).
+    그래서 23시 꼬리는 절대값이 아니라 "피크 대비 비율"로 적는다 — evaluate.py 의 note 가 그렇게 못 박았다.
+    """
+    kept = _keep_if_missing("live_result", [EVAL])
+    if kept is not None:
+        return kept
+    ev = json.loads(EVAL.read_text(encoding="utf-8"))
+    snaps = ev["our_snapshots"]
+    alphas = [s["alpha"][1] for s in snaps]
+    a_last, a_max = snaps[-1]["alpha"], max(alphas)
+    sh = ev["subway_shape"]
+    obs, pred = sh["obs_by_hour"], sh["pred_by_hour"]
+    obs_pk, pred_pk = obs[str(sh["peak_obs"])], pred[str(sh["peak_pred"])]
+    tail_obs = obs["23"] / obs_pk
+    tail_pred = pred["23"] / pred_pk
+    cctv_n = sum(1 for _ in (LIVE / "cctv_20260905.jsonl").open(encoding="utf-8")) if (LIVE / "cctv_20260905.jsonl").exists() else None
+    show_end = (LIVE / "show_end.txt").read_text(encoding="utf-8").strip() if (LIVE / "show_end.txt").exists() else "21:27"
+    tiles = [
+        {"v": str(len(snaps)), "label": "발행 스냅샷", "sub": "5분 간격 · 12:00~24:00 자동"},
+        {"v": f"{ev['n_records']:,}", "label": "API 수집 레코드", "sub": (f"CCTV 판독 {cctv_n:,}" if cctv_n else "CCTV 23대 60초")},
+        {"v": f"{a_last[1]:.2f}", "label": "α 최종 [p10~p90]", "sub": f"{a_last[0]:.2f}~{a_last[2]:.2f} · 사전 1.00 · 최고 {a_max:.2f}"},
+        {"v": f"{sh['peak_obs']}시", "label": "유출 피크 시각 일치", "sub": f"예측 {sh['peak_pred']}시 · 형태 상관 r {sh['pearson']:.2f}"},
+    ]
+    cards = [
+        {"kind": "hit", "kicker": "쇼 종료 실시각 기입", "title": f"{show_end} 종료 (계획 21:10, +{int(show_end[:2]) * 60 + int(show_end[3:]) - 21 * 60 - 10}분)",
+         "body": "현장 기입 한 줄로 유출 곡선 전체가 밀렸다 — 21:36 발행분부터 21시 유출 예측 76.6천 → 88.3천."},
+        {"kind": "hit", "kicker": "서울시 12시간 예측 대비", "title": f"MAPE {ev['seoul_12h']['mape']:.2f} · 22시 5.75천 vs 실측 53천",
+         "body": "같은 도시데이터의 12h 선행 예측은 저녁 피크를 9배 과소평가했다. 우리 α 는 5분마다 관측으로 갱신된다."},
+        {"kind": "miss", "kicker": "놓친 것", "title": f"23시 꼬리 — 실측은 피크의 {round(tail_obs * 100)}%, 예측은 {round(tail_pred * 100)}%",
+         "body": "유출 곡선이 너무 빨리 꺼진다. 여의나루 조기 무정차(18:10~22:05)와 겹쳐 22시 뒤 승차가 길게 이어졌다. 결함 대장 등재."},
+    ]
+    return {"filled": True, "date": "2026-09-05",
+            "grade_hit": f"피크 {sh['peak_obs']}시 일치 · r {sh['pearson']:.2f}", "alpha_final": f"{a_last[1]:.2f} [{a_last[0]:.2f}~{a_last[2]:.2f}]",
+            "ticks": len(snaps), "restarts": 1,
+            "restarts_basis": "16:44 INTERVAL=60 전환 1회(계획) · 크래시 0 · 슬립 공백 0 (devlog 2026-09-05)",
+            "tail_ratio": {"obs": round(tail_obs, 3), "pred": round(tail_pred, 3), "peak_hour": sh["peak_obs"],
+                           "basis": "subway_shape: 실측=핫스팟 30분 승차 합 — 규모 자유, 피크 대비 비율만 비교"},
+            "tiles": tiles, "cards": cards,
+            "note": "evaluate.py --date 20260905 산출 · 규모가 다른 계열은 비율만 비교 · 재기동 1회는 계획된 간격 전환"}
+
+
+# ── ⑨ 발행 스냅샷 재생 (그 시각, 화면은 이랬다) ─────────────────────────
+REPLAY_AT = [("2005", "쇼 직전 · 공원 피크"), ("2101", "쇼 중 · 여의나루 통제"), ("2131", "쇼 종료 기입 전"),
+             ("2136", "쇼 종료 21:27 기입 직후"), ("2206", "우리 화면 최고 부하 · 여의나루 재개통"), ("2302", "꼬리")]
+EXIT_ORDER = ["여의나루(5)", "여의도(5)", "여의도(9)", "샛강(9)", "국회의사당(9)", "신길(1·5)", "마포역 도보(마포대교)"]
+
+
+def replay_frames():
+    """덱 s11 — 발행 스냅샷 6개를 화면이 그렸던 값 그대로 얇게 뽑는다. 계산 없음, 선택만."""
+    need = [HIST / f"{at}.json" for at, _ in REPLAY_AT]
+    kept = _keep_if_missing("replay_frames", need)
+    if kept is not None:
+        return kept if "frames" in kept else {"frames": [], "note": kept.get("note")}
+    frames = []
+    for at, lab in REPLAY_AT:
+        d = json.loads((HIST / f"{at}.json").read_text(encoding="utf-8"))
+        hour = at[:2]
+        closed_hours = {c["exit"]: set(c["hours"]) for c in d.get("closures", []) if "exit" in c}
+        loads = []
+        for name in EXIT_ORDER:
+            row = (d.get("exits") or {}).get(name, {}).get(hour) or {}
+            ch = closed_hours.get(name, set())
+            if row.get("closed") or int(hour) in ch:
+                loads.append({"name": name, "load": None, "note": "통제(무정차)"})
+            else:
+                note = "재개통 직후" if (int(hour) - 1) in ch else ""
+                loads.append({"name": name, "load": row.get("load"), "wait_min": row.get("wait_min"), "note": note})
+        park = (d.get("live_snapshot") or {}).get("여의도한강공원") or {}
+        n_obs = d.get("assimilation", {}).get("n_obs", {})
+        frames.append({
+            "at": at, "hhmm": f"{at[:2]}:{at[2:]}", "label": lab, "hour": hour, "ts": d.get("ts"),
+            "alpha": d.get("alpha"), "alpha_band": d.get("assimilation", {}).get("alpha"),
+            "n_obs": sum(v for v in n_obs.values() if isinstance(v, (int, float))),
+            "show_shift_min": d.get("show_shift_min"), "show_end": d.get("show_end_actual") or d.get("show_end_2026"),
+            "show_end_source": d.get("show_end_source"),
+            "park": (f"{park.get('congest')} {park['ppltn'][0] // 1000}~{park['ppltn'][1] // 1000}천 ({park.get('ts', '')[11:16]} 값)" if park.get("ppltn") else "—"),
+            "outflow": d.get("outflow_forecast"), "loads": loads,
+        })
+    ev = json.loads(EVAL.read_text(encoding="utf-8"))["subway_shape"] if EVAL.exists() else {}
+    return {"date": "2026-09-05", "frames": frames, "before_after": ["2131", "2136"], "peak": "2206",
+            "observed_boarding_by_hour": {k: v for k, v in ev.get("obs_by_hour", {}).items() if k in ("19", "20", "21", "22", "23")},
+            "predicted_boarding_by_hour": ev.get("pred_by_hour"),
+            "replay_url": {"ops": "index.html?at=20260905T{at}", "visitor": "go.html?at=20260905T{at}"},
+            "source": "data/live/forecast_history/20260905/{at}.json (발행분 그대로) · eval_20260905.json subway_shape",
+            "note": "선택만 했다 — 부하·α·유출은 그 시각 화면이 실제로 그린 값. 관측 승차는 핫스팟 합이라 규모가 달라 형태만 본다"}
 
 
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for name, fn in (("feeder_lag", feeder), ("backtest_bars", backtest), ("alpha_grid", alpha),
                      ("exit_bars", exit_bars), ("feeder_map", feeder_map), ("redteam_counts", redteam_counts),
-                     ("code_strips", code_strips), ("live_result", live_result)):
+                     ("code_strips", code_strips), ("live_result", live_result), ("replay_frames", replay_frames)):
         p = OUT / f"{name}.json"
         p.write_text(json.dumps(fn(), ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
         print(f"{p.relative_to(ROOT)}  {p.stat().st_size / 1024:.1f}KB")

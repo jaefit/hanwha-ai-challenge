@@ -342,6 +342,7 @@ footer a{color:var(--ink-2)}
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="app/field.js"></script>
 <script src="app/routing_extra.js"></script>
+<script src="app/replay.js"></script>
 <script>
 // ── 출구 사전 (디자인 4안 EXITS · dk = latest.json exits 키) ──
 const EXITS=[
@@ -373,6 +374,8 @@ const $=id=>document.getElementById(id);
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const gc=lv=>css("--g-"+lv)||"#6B7280";
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+// 재생(?at=YYYYMMDDTHHMM): 그 시각 발행분을 그대로 그린다. 시계는 전부 NOW() 로 — 실제 시계가 섞이면 12h 폴백이 사전표를 덮는다 (Task 12)
+const REPLAY=Replay.parse(location.search);const NOW=()=>REPLAY?REPLAY.now:Date.now();
 let DATA=null,hour=null,CAMS=[],fallback=false,offline=false,PRIOR=null;
 
 // ── 테마 (4a light / 4b dark) ──
@@ -389,7 +392,7 @@ $("theme").onclick=()=>{setTheme(theme()==="dark"?"light":"dark",true);safeMap()
 const CLOSED_NOTE={"20":"공지 기준 20:40부터 통제 · 예년엔 조기 무정차 — 현장 확인",
                    "21":"21:40 해제 예정 · 그전까지는 여의도역으로",
                    default:"무정차 통과 · 여의도역으로"};
-function pick(){const h=new Date().getHours();return(h>=19&&h<=23)?String(h):"21";}
+function pick(){const h=new Date(NOW()).getHours();return(h>=19&&h<=23)?String(h):"21";}
 function exitsView(){
   const fc=(DATA&&DATA.forecast)||{};const ex=fc.exits||{};
   if(Object.keys(ex).length){fallback=false;return{ex,hours:Object.keys(fc.outflow_forecast||{}).length?Object.keys(fc.outflow_forecast):Object.keys(Object.values(ex)[0]||{})};}
@@ -554,7 +557,7 @@ const apfLevel=u=>Field.unitToGrade(u)||"여유";
 function apfDistanceM(a,b){const lat=(a[1]+b[1])*Math.PI/360,dy=(a[1]-b[1])*111320,dx=(a[0]-b[0])*111320*Math.cos(lat);return Math.hypot(dx,dy);}
 function apfRows(cctv,snap){
   // 관측을 버리지 않는다. 신뢰도는 σ 로만 표현한다 (배제 = 정보 0, 큰 σ = 약한 정보).
-  const now=Date.now();
+  const now=NOW();
   const vals=Object.entries(cctv||{}).map(([id,v])=>({id:String(id),...v}));
   const byId=new Map(vals.map(v=>[String(v.cam_id||v.id),v])),byName=new Map(vals.map(v=>[v.name,v]));
   const ageOf=t=>{const d=t?Date.parse(String(t).replace(" ","T")):NaN;return isFinite(d)?Math.max(0,(now-d)/60000):null;};
@@ -779,22 +782,22 @@ async function load(){
   try{CAMS=await(await fetch("data/cams.json",{cache:"no-store"})).json();}catch(e){}
   if(!PRIOR){try{PRIOR=await(await fetch("data/exit_forecast_2026.json",{cache:"no-store"})).json();}catch(e){}}
   let d=null,cctvLatest=null;offline=false;
-  try{const r=await fetch("data/latest.json?"+Date.now(),{cache:"no-store"});if(r.ok){d=await r.json();try{localStorage.setItem("navi-latest",JSON.stringify(d))}catch(e){}}}catch(e){}
-  try{const r=await fetch("data/cctv_latest.json?"+Date.now(),{cache:"no-store"});if(r.ok)cctvLatest=await r.json();}catch(e){}
-  if(!d){try{d=JSON.parse(localStorage.getItem("navi-latest"));offline=!!d;}catch(e){}}
+  try{const r=await fetch(REPLAY?Replay.file(REPLAY):"data/latest.json?"+Date.now(),{cache:"no-store"});if(r.ok){d=await r.json();if(!REPLAY)try{localStorage.setItem("navi-latest",JSON.stringify(d))}catch(e){}}}catch(e){}
+  if(!REPLAY)try{const r=await fetch("data/cctv_latest.json?"+Date.now(),{cache:"no-store"});if(r.ok)cctvLatest=await r.json();}catch(e){}
+  if(!d&&!REPLAY){try{d=JSON.parse(localStorage.getItem("navi-latest"));offline=!!d;}catch(e){}}
   if(!d)d={forecast:{},cctv:{}};
   const newestCctv=c=>Math.max(0,...Object.values(c||{}).map(v=>Date.parse(v.ts)||0));
   if(cctvLatest&&newestCctv(cctvLatest.cctv)>newestCctv(d.cctv))d.cctv=cctvLatest.cctv;
-  const staleLive=d.generated&&(Date.now()-new Date(d.generated))>12*3600e3;
+  const staleLive=d.generated&&(NOW()-new Date(d.generated))>12*3600e3;
   if((!d.forecast||!Object.keys(d.forecast.exits||{}).length||staleLive)&&PRIOR){d.forecast={...PRIOR,prior:true};if(staleLive)d.generated=null;}   // 라이브 전(또는 12h 넘게 오래됨): 역추적 사전 예측표
-  DATA=d;const g=d.generated?new Date(d.generated):null;const age=g?Math.round((Date.now()-g)/60000):null;
+  DATA=d;const g=d.generated?new Date(d.generated):null;const age=g?Math.round((NOW()-g)/60000):null;
   const hm=g?g.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit",hour12:false}):"";
   const a=d.forecast&&d.forecast.alpha!=null?` · α ${Number(d.forecast.alpha).toFixed(1)}`:"";
   // 수집이 끊겨도 발행은 계속돼 "3분 전 · 실시간"으로 보였다 (결함 H10, 2026-09-03). 원천(성공 레코드) 나이를 같이 본다.
   // COLLECT_STALE_MIN = 15 는 nowcast.SOURCE_MAX_AGE_MIN · board.js 와 같은 값이어야 한다 (tests/test_board.py 가 대조).
   const COLLECT_STALE_MIN=15;
   const srcAges=Object.values((d.forecast||{}).data_freshness||{}).filter(v=>v&&v.last_ok!=null)
-    .map(v=>Math.round((Date.now()-Date.parse(String(v.last_ok).replace(" ","T")))/60000)).filter(v=>isFinite(v));
+    .map(v=>Math.round((NOW()-Date.parse(String(v.last_ok).replace(" ","T")))/60000)).filter(v=>isFinite(v));
   const srcAge=srcAges.length?Math.max(...srcAges):null;
   const degraded=((d.forecast||{}).degraded_sources||[]);
   const collectionDead=degraded.length>0||(srcAge!=null&&srcAge>COLLECT_STALE_MIN);
@@ -804,11 +807,12 @@ async function load(){
   else if(collectionDead)txt=`수집 끊김 · 마지막 수신 ${srcAge==null?"기록 없음":(srcAge<120?srcAge+"분":Math.round(srcAge/60)+"시간")+" 전"}${degraded.length?" ("+degraded.join("·")+")":""}${a}`;
   else if(age<=15){txt=`${hm} 기준 · ${age}분 전${a}`;live=true;}
   else txt=`${hm} 기준 · ${age<120?age+"분":Math.round(age/60)+"시간"} 전 · 오래됨${a}`;
+  if(REPLAY){txt=`재생 ${REPLAY.label} · ${hm} 발행분${a}`;live=false;}
   $("freshness").textContent=txt;$("dot").className="dot"+(live?"":" off");
   $("src-ts").textContent=g?`최근 갱신 ${g.toLocaleString("ko-KR",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"})}`:"실시간 갱신 전";
   render();
 }
-plans();load();safeMap();safeApfMap();setInterval(load,5*60*1000);
+plans();load();safeMap();safeApfMap();if(!REPLAY)setInterval(load,5*60*1000);if(REPLAY)Replay.mount("index.html",REPLAY);
 let rz=null;addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(DATA)chart(DATA.forecast||{});},150);});
 </script>
 </body>

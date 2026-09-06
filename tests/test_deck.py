@@ -38,13 +38,13 @@ def test_deck_data_lives_outside_docs_data():
 
 CHART_FILES = {"exits": "exit_bars", "radial": "feeder_map", "feeder": "feeder_lag", "alpha": "alpha_grid",
                "field": "field_grid", "route": "route_demo", "backtest": "backtest_bars",
-               "redteam": "redteam_counts", "live": "live_result"}
+               "redteam": "redteam_counts", "live": "live_result", "replay": "replay_frames"}
 
 
 def test_every_chart_has_its_data_file(html):
     keys = set(re.findall(r'data-chart="([a-z]+)"', html))
     assert keys <= set(CHART_FILES), keys - set(CHART_FILES)
-    assert keys == set(CHART_FILES), f"차트 9종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
+    assert keys == set(CHART_FILES), f"차트 10종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
     for k in keys:
         assert (DATA / f"{CHART_FILES[k]}.json").exists(), f"{CHART_FILES[k]}.json 이 없다"
 
@@ -59,6 +59,10 @@ def test_route_numbers_in_copy_match_export(html):
     assert f"{ratio:.2f}배" in html, f"본문 우회비가 {ratio:.2f}배 와 다르다"
     n, e = d["graph_size"]["nodes"], d["graph_size"]["edges"]
     assert f"{n:,}" in html and f"{e:,}" in html
+    m = d["minutes"]
+    assert f"{short:,}m · {m['shortest']}분" in html, f"최단 보행시간 {m['shortest']}분 이 본문과 다르다 (÷1.4 hotfix 뒤 재생성했나)"
+    assert f"{d['routes']['avoiding']['meters']:,}m · {m['avoiding']}분" in html
+    assert f"{m['shortest'] - m['avoiding']}분 빠른" in html
 
 
 def test_route_export_reproduces_measured_distance():
@@ -181,24 +185,86 @@ def test_live_result_placeholder_exists():
             assert k in d, k
 
 
+def test_live_result_numbers_come_from_evaluate():
+    """채워진 결과는 evaluate.py 산출(eval_20260905.json)에서만 — 손으로 적은 숫자가 끼면 발표에서 방어할 수 없다."""
+    d = _json("live_result")
+    if not d["filled"]:
+        pytest.skip("아직 안 채움")
+    src = DER / "eval_20260905.json"
+    if not src.exists():
+        pytest.skip("eval_20260905.json 없음")
+    ev = json.loads(src.read_text(encoding="utf-8"))
+    assert d["ticks"] == len(ev["our_snapshots"])
+    assert len(d["tiles"]) == 4 and len(d["cards"]) == 3
+    assert d["tiles"][0]["v"] == str(len(ev["our_snapshots"]))
+    assert d["tiles"][1]["v"] == f"{ev['n_records']:,}"
+    sh = ev["subway_shape"]
+    assert d["tail_ratio"]["obs"] == round(sh["obs_by_hour"]["23"] / sh["obs_by_hour"][str(sh["peak_obs"])], 3)
+    assert d["tail_ratio"]["pred"] == round(sh["pred_by_hour"]["23"] / sh["pred_by_hour"][str(sh["peak_pred"])], 3)
+    assert any(k["kind"] == "miss" for k in d["cards"]), "놓친 것을 적지 않은 결과 장은 채점이 아니다"
+
+
+def test_replay_frames_are_verbatim_snapshots(html):
+    """s11 은 발행 스냅샷을 그대로 재생한다 — 재계산 금지. 맥에 원천이 있으면 값까지 대조한다."""
+    d = _json("replay_frames")
+    assert len(d["frames"]) == 6, "재생 시각 6개"
+    ats = [f["at"] for f in d["frames"]]
+    assert set(d["before_after"]) <= set(ats) and d["peak"] in ats
+    for f in d["frames"]:
+        assert len(f["loads"]) == 7, f"{f['at']}: 출구 7개"
+        assert set(f["outflow"]) == {"19", "20", "21", "22", "23"}
+    assert f'href="index.html?at=20260905T{d["peak"]}"' in html and f'href="go.html?at=20260905T{d["peak"]}"' in html
+    hist = ROOT / "data" / "live" / "forecast_history" / "20260905"
+    if not hist.exists():
+        pytest.skip("발행 스냅샷 원천은 맥에만 있다")
+    for f in d["frames"]:
+        snap = json.loads((hist / f"{f['at']}.json").read_text(encoding="utf-8"))
+        assert f["alpha"] == snap["alpha"] and f["outflow"] == snap["outflow_forecast"]
+        for row in f["loads"]:
+            if row["load"] is not None:
+                assert row["load"] == snap["exits"][row["name"]][f["hour"]]["load"], (f["at"], row["name"])
+
+
+def test_pytest_count_in_copy_is_current(html):
+    """9장의 'pytest N건' — 테스트를 더할 때마다 손으로 고쳐야 하는 숫자라 여기서 잡는다."""
+    m = re.search(r"pytest (\d+)건", html)
+    assert m, "9장에 pytest 건수가 없다"
+    n = sum(len(re.findall(r"^def test_", p.read_text(encoding="utf-8"), re.M)) for p in (ROOT / "tests").glob("test_*.py"))
+    assert int(m.group(1)) == n, f"본문 pytest {m.group(1)}건 vs 실제 {n}건 — 덱 9장 숫자를 고쳐라"
+
+
 # ── v2 — 구조 ─────────────────────────────────────────────────────────
 def _sections(html):
-    return re.findall(r'<section class="slide[^"]*" id="(s\d+)">(.*?)</section>', html, re.S)
+    return re.findall(r'<section [^>]*class="slide[^"]*" id="(s\d+)">(.*?)</section>', html, re.S)
 
 
-def test_twelve_sections_each_with_heading_and_notes(html):
+N_SLIDES = 13   # 2026-09-06 v2 이식 + s11 「그 시각, 화면은 이랬다」 추가
+
+
+def test_thirteen_sections_each_with_heading_and_notes(html):
     secs = _sections(html)
-    assert [s[0] for s in secs] == [f"s{i}" for i in range(1, 13)]
+    assert [s[0] for s in secs] == [f"s{i}" for i in range(1, N_SLIDES + 1)]
     for sid, body in secs:
         assert re.search(r"<h[12]\b", body), f"{sid}: 제목 없음"
         assert '<aside class="notes">' in body, f"{sid}: 발표자 노트 없음"
 
 
 def test_light_theme_tokens_and_no_dark_leftovers(html):
-    for tok in ("--bg:#F5F4F1", "--sheet:#FFFFFF", "--ink:#14110C", "--rule:#E2DFD8", "--accent:#F36F21"):
+    """2026-09-06 Claude Design 「Pitch Deck v2」(토스풍) 토큰. 이전 판(검정 덱 · 종이색 덱) 잔재가 남으면 두 디자인이 섞인다."""
+    for tok in ("--bg:#FFFFFF", "--card:#F2F4F6", "--ink:#191F28", "--rule:#E5E8EB", "--accent:#F36F21", "--dark:#17171C"):
         assert tok in html, tok
-    for bad in ("#0b0d12", "Hahmlet", "fireworks-js"):
-        assert bad not in html, f"검정 덱 잔재: {bad}"
+    for bad in ("#0b0d12", "Hahmlet", "fireworks-js", "#F5F4F1", "Black Han Sans", "#14110C"):
+        assert bad not in html, f"이전 덱 잔재: {bad}"
+
+
+def test_stage_component_and_chart_module(html):
+    """1920×1080 고정 무대(deck-stage) + 차트 모듈. 무대가 없으면 인라인 px 디자인이 뷰포트에 맞지 않는다."""
+    assert '<deck-stage width="1920" height="1080">' in html
+    assert 'src="app/deck-stage.js"' in html and (ROOT / "docs" / "app" / "deck-stage.js").exists()
+    assert 'from "./app/deck_charts.js"' in html and (ROOT / "docs" / "app" / "deck_charts.js").exists()
+    assert "deck-stage:not(:defined){visibility:hidden}" in html, "정의 전 첫 슬라이드가 원본 크기로 번쩍인다"
+    for sec in re.findall(r"<section [^>]*>", html):
+        assert "position:" not in sec and "inset:" not in sec, "deck-stage 가 슬라이드를 직접 배치한다 — section 에 position/inset 금지"
 
 
 def test_embeds_are_real_screens_without_geolocation_prompt(html):
@@ -217,7 +283,7 @@ def test_code_strip_slots_match_export(html):
 def test_speaker_notes_fit_five_minutes(html):
     """장당 25초 — 한국어 발화 ≈ 분당 300자. 60~140자면 20~30초. 빈 노트는 발표 중 화면이 침묵한다."""
     notes = re.findall(r'<aside class="notes">(.*?)</aside>', html, re.S)
-    assert len(notes) == 12
+    assert len(notes) == N_SLIDES
     for i, n in enumerate(notes, 1):
         t = re.sub(r"\s+", " ", n).strip()
         assert 60 <= len(t) <= 170, f"s{i} 노트 {len(t)}자 — 60~170자로"
