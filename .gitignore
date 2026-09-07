@@ -39,3 +39,11 @@ logs/
 routing/cache/
 data/pedestrian/
 data/live/api_last_ok
+
+# 소개 영상 (video/) — 대본·빌드 스크립트만 추적, 음성·영상 산출물은 제외
+video/out/
+video/work/
+video/samples/
+video/**/*.mp3
+video/**/*.mp4
+video/**/*.wav
