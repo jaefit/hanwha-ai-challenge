@@ -176,7 +176,7 @@
 - Create: `submission/midterm_5pages.md` (9/4 오전 피드백용)
 - Read: `logs/*.log`
 
-- [ ] **Step 1: 9/2 저녁 `./run_all.sh` 30분 드라이런** — api·cctv·nowcast·publish 로그 4개 에러 0, Pages `latest.json` 갱신 시각 확인. 문제는 hotfix 후 재실행
+- [x] **Step 1: 9/2 저녁 `./run_all.sh` 30분 드라이런** — api·cctv·nowcast·publish 로그 4개 에러 0, Pages `latest.json` 갱신 시각 확인. 문제는 hotfix 후 재실행 → (9/2 18:33~19:15 실행, 대장 3회차 §7)
       **주의: 9/1 에 새로 넣은 워치독·키 점검이 실제 수집기와 함께 도는 첫 실행이다** (그전 검증은 스텁 스모크뿐). 볼 것 — `logs/watchdog.log` 에 재기동 줄이 없어야 정상 · `data/live/publish_fail_streak` 파일이 생기면 push 가 연속 실패 중 · 크래시 루프면 "재시도 간격을 300초로" 경고가 뜬다. FEEDERS=default 포함
 - [ ] **Step 2: 중간 정리 5장** — 문제·데이터·모델·결과(사전표 화면)·검증 계획. 스펙 §2 표에서 항목 2·4·6·8·9 발췌
 - [ ] **Step 3: 커밋·push. 9/4 오전 피드백 메모는 `submission/feedback_0904.md`**
@@ -186,26 +186,26 @@
 **Files:**
 - Create: `submission/runbook.md` (9/4·9/5 공용)
 
-- [ ] **Step 1: 런북 작성** — 시간표(17:30 전원·뚜껑·`./run_all.sh`, 18:00 첫 publish 확인, 20:00 show_end 기입 담당, 22:00 종료), 실패 대안(맥 재시작 → `run_all.sh` 재실행, API 오류 → 페이지 localStorage 유지, Pages 지연 → 로컬 서버 시연), 확인 명령 목록
-- [ ] **Step 2: 실행** — 로그 4개, `cctv_summary.py` 야간 요약, α 로그 스크린샷
-- [ ] **Step 3: 판정** — 스펙 §4 "9/4 전야제" 항목 체크. hotfix는 `pytest` 통과 후만
+- [x] **Step 1: 런북 작성** — 시간표(17:30 전원·뚜껑·`./run_all.sh`, 18:00 첫 publish 확인, 20:00 show_end 기입 담당, 22:00 종료), 실패 대안(맥 재시작 → `run_all.sh` 재실행, API 오류 → 페이지 localStorage 유지, Pages 지연 → 로컬 서버 시연), 확인 명령 목록 → (`runbook_20260904.md`, 9/4 17:10)
+- [x] **Step 2: 실행** — 로그 4개, `cctv_summary.py` 야간 요약, α 로그 스크린샷 → (9/4 17:08 시작, 끄지 않고 9/6 01:01 까지 32시간)
+- [x] **Step 3: 판정** — 스펙 §4 "9/4 전야제" 항목 체크. hotfix는 `pytest` 통과 후만 → (합격선 판정 불가로 기록 — 여의나루 조기 무정차로 기준 신호 없음)
 
 ### Task 9: 9/5 실전 (12:00~24:00)
 
-- [ ] **Step 1: 11:30 준비** — 전원·뚜껑·네트워크·`git pull`·`pytest`·`./run_all.sh`
-- [ ] **Step 2: 매시 확인** — Pages 기준 시각 ≤15분, 오류 로그, 도시데이터 α 값. 20:00~21:40 통제 실물 확인해 `closures` 규칙과 다르면 메모
-- [ ] **Step 3 (오차 예산 5순위, 비용 0 — 가장 큰 타이밍 레버): 쇼 종료 실제 시각 기입** — 마지막 불꽃 직후 `echo HH:MM > data/live/show_end.txt`. 담당 1명 지정, 20:55부터 알람. 다음 nowcast 틱(≤5분)에 `show_end_source: file` 확인
-- [ ] **Step 4: 24:00 종료·백업** — `data/live/*_20260905.jsonl` 커밋·push
+- [x] **Step 1: 11:30 준비** — 전원·뚜껑·네트워크·`git pull`·`pytest`·`./run_all.sh` → (9/5)
+- [x] **Step 2: 매시 확인** — Pages 기준 시각 ≤15분, 오류 로그, 도시데이터 α 값. 20:00~21:40 통제 실물 확인해 `closures` 규칙과 다르면 메모 → (9/5, hotfix 4건: 19시 통제·poi 시차·사다리·÷1.4)
+- [x] **Step 3 (오차 예산 5순위, 비용 0 — 가장 큰 타이밍 레버): 쇼 종료 실제 시각 기입** — 마지막 불꽃 직후 `echo HH:MM > data/live/show_end.txt`. 담당 1명 지정, 20:55부터 알람. 다음 nowcast 틱(≤5분)에 `show_end_source: file` 확인 → (21:27 기입, 계획 21:10)
+- [x] **Step 4: 24:00 종료·백업** — `data/live/*_20260905.jsonl` 커밋·push → (9/6 01:01 종료. 백업은 사용자 결정으로 안 함, 재생 스냅샷 6개만 레포)
 
 ### Task 10: 오차표·영상·편집기 초안 (9/6~7)
 
 **Files:**
 - Create: `submission/editor_draft.md`(9항목), `submission/video_script.md`, `docs/eval.md`
 
-- [ ] **Step 1: `evaluate.py --date 20260905`** → 표. 우천 시 `--fallback rehearsal`
+- [x] **Step 1: `evaluate.py --date 20260905`** → 표. 우천 시 `--fallback rehearsal` → (9/6, `data/derived/eval_20260905.json`)
 - [ ] (8/31 추가) 생활인구(OA-14991 여의도동 시간대) 3자 대조 절 — KT 기반이라 반독립임을 표기. 기획서에 London exit-only 어휘·행안부 인파시스템 보완관계 문단 (§benchmark §7)
 - [ ] **Step 2: 편집기 9항목 초안** — 스펙 §2 표 순서대로. 항목 5·6은 `benchmark-crowd-systems.md` §6·커밋 로그에서 발췌
-- [ ] **Step 3: 영상 3분 스크립트** — 0:00 문제(실적 표) · 0:40 데이터·모델 · 1:30 페이지 시연(20→21→22시, 무정차 행) · 2:20 9/5 실측 vs 예측 · 2:50 한화 적용. 녹화·MP4 ≤20MB
+- [x] **Step 3: 영상 3분 스크립트** — 0:00 문제(실적 표) · 0:40 데이터·모델 · 1:30 페이지 시연(20→21→22시, 무정차 행) · 2:20 9/5 실측 vs 예측 · 2:50 한화 적용. 녹화·MP4 ≤20MB → (9/7 대본 12블록·녹화 3:30·TTS Hyunsu·자막 — `video/`. 20MB 목표는 30.6MB 로 미달, `--size-mb` 옵션 있음)
 - [ ] **Step 4: 추가자료 5개 목록·용량 확인. Release 자산 업로드(OD zip)**
 
 ### Task 12: 덱 v2 이식 + 실전 결과 + 발행 스냅샷 재생 (9/6 추가, 사용자 승인)
@@ -235,6 +235,17 @@ Claude Design 「Pitch Deck v2」(토스풍 · 1920×1080 무대)를 `docs/deck.
 - [x] **Step 2: 데이터** — `sources.json`(8행) · `process.json`(git·tests·대장에서 셈) · `route_real.json`
 - [x] **Step 3: 덱 14장** — 코드 스트립 0 · 킥커 Ⅰ~Ⅴ · 임베드는 8a(운영)·8b(관람객) · 12장 재생 패널 하나
 - [x] **Step 4: 테스트·헤드리스·push** — 122 통과 · 3·4·9·10·13장 헤드리스 렌더 확인
+
+### Task 14: 소개 영상 TTS·자막 파이프라인 (9/7, 사용자 결정)
+
+녹화본(3:30, 210초에서 의도적으로 끊음) 위에 소리와 자막만 얹는다. **프레임·길이·속도는 손대지 않는다.**
+
+- [x] **Step 1: 대본** — `video/script_v1.md`(장면표·스냅샷 URL) → 읽은 판 `script_v2_read.md` 12블록 1,172자
+- [x] **Step 2: 전사·정렬** — mlx-whisper 단어 시각 → 대본 블록 12개 시작·끝(유사도 0.949)
+- [x] **Step 3: TTS** — edge-tts `ko-KR-HyunsuMultilingualNeural`. 자연 속도 4:04 라 +19% (묶음 1–6 · 7–12), 12블록 전부 209.5초 안, atempo 없음
+- [x] **Step 4: 자막** — 단어 시각 → 문장 큐 51개 → Pillow PNG(Pretendard SemiBold 38px, 한 줄, 프레임 아래 띠) → overlay. sidecar `.srt`
+- [x] **Step 5: 렌더·검증** — 210.0초 · 원본 대비 PSNR 48~54dB · loudnorm −16 LUFS · 30.6MB. `video/out/`(레포 밖)
+- [ ] 폴백 캡처 2장(`docs/deck/fallback_go.png`·`fallback_ops.png`) — 아직 없음. 통신 없는 발표장이면 덱 8·9장 임베드가 빈다
 
 ### Task 11: 제출 (9/8)
 

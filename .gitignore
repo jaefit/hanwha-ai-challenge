@@ -47,3 +47,12 @@ video/samples/
 video/**/*.mp3
 video/**/*.mp4
 video/**/*.wav
+
+# 당일 수집·발행 런타임 파일 (맥 로컬에만, 2026-09-06 사용자 결정으로 백업 안 함)
+data/live/forecast_latest.json
+data/live/api_*.jsonl
+data/live/cctv_*.jsonl
+!data/live/api_20260829.jsonl
+!data/live/cctv_20260829.jsonl
+data/live/forecast_history/
+data/live/show_end.txt
