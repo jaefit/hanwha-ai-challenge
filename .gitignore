@@ -56,3 +56,6 @@ data/live/cctv_*.jsonl
 !data/live/cctv_20260829.jsonl
 data/live/forecast_history/
 data/live/show_end.txt
+
+# 제출용 단일 파일 산출물 (tools/build_standalone.py 로 재생성)
+submission/*.html
