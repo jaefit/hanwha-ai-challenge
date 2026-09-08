@@ -113,32 +113,20 @@ AI 프로젝트는 모델 정확도만 높이는 것보다 데이터 출처, 갱
 
 ## 프로젝트 상세 기록
 
-### 발표에서 더 보여주고 싶은 내용
+세 칸(발표 내용·화면·자료·팀의 한 문장)은 쓰지 않고, 첨부한 단일 파일 보고서를 참고하라는 안내 한 블록만 넣는다. HTML DESIGN 블록에 붙일 것(인라인 스타일만).
 
-```
-· 문제의 순간: 불꽃이 끝난 직후 관람객이 여의나루역으로 몰리지만 역은 무정차 통과하고, 여의도역에는 평시의 12~17배 승차 수요가 집중됩니다. 2026년 9월 5일에는 공지보다 두 시간 반 이른 18:10부터 무정차였습니다.
-· 데이터의 근거: 2024·2025년 축제일 KT 생활이동과 역별 승하차를 비교하면 20시 유출이 약 10만 명, 21시 유출이 약 5.9~6.0만 명으로 반복됩니다. 2024년으로 2025년을 예측했을 때 20시 오차는 −1.0%, 21시 오차는 −2.9%였습니다.
-· 모델의 핵심: 사전층(작년 실측) → 당일층(오늘 배율) → 화면층의 3층 구조입니다. 아래층이 멈춰도 위층이 동작합니다. 길은 거리가 아니라 걷는 시간으로 선택합니다.
-· 실전 결과: 9/5 12시간 동안 287회 발행, 유출 피크 시각 22시 일치, 서울시 12시간 예측은 피크를 9배 과소 추정, 놓친 것은 23시 꼬리(실측 92% 대 예측 41%).
-· 안전·프라이버시: CCTV 영상은 저장하지 않고 60초 간격 프레임에서 밀도·점유율·이동량 집계값만 사용합니다. 얼굴 식별이 불가능한 통계 목적의 처리이며, 카메라가 담지 못하는 이촌·노들섬 등 범위 밖 지역도 명시합니다.
-```
-
-### 화면·자료
-
-```
-· 관람객 화면: https://jaefit.github.io/hanwha-ai-challenge/go.html
-· 운영 대시보드: https://jaefit.github.io/hanwha-ai-challenge/
-· 9/5 실전 재생(운영·관람객): https://jaefit.github.io/hanwha-ai-challenge/index.html?at=20260905T2206 · https://jaefit.github.io/hanwha-ai-challenge/go.html?at=20260905T2206
-· 최종 보고서: https://jaefit.github.io/hanwha-ai-challenge/report.html (쉬운 버전 report_easy.html)
-· 피치 덱 14장: https://jaefit.github.io/hanwha-ai-challenge/deck.html
-· 주요 화면: 출구·CCTV 지도 / 시간대별 유출 예측 / 구역별 실시간 혼잡 / 지점별 밀집 등급 / 시간×출구 부하율 격자 / 혼잡장 / 오프라인 귀가 플랜
-· 저장소와 제작 기록: https://github.com/jaefit/hanwha-ai-challenge
+```html
+<div style="font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;max-width:760px;margin:0 auto;padding:22px 24px;border:1px solid #e6e6e2;border-radius:14px;background:#fafaf8;color:#1e1e1e;line-height:1.7">
+  <div style="font-size:12px;letter-spacing:.14em;color:#c2622b;font-weight:700;margin-bottom:8px">최종 보고서 안내</div>
+  <p style="margin:0 0 10px;font-size:15.5px">상세 내용은 추가 자료로 첨부한 <b>최종 보고서(report_standalone.html)</b>를 참고해 주십시오. 외부 연결 없이 열리는 단일 파일이며, 문제 정의부터 모델·검증·9월 5일 실전 결과까지 담았습니다.</p>
+  <p style="margin:0;font-size:14px;color:#555">같은 내용의 온라인판: <a href="https://jaefit.github.io/hanwha-ai-challenge/report.html" style="color:#1e1e1e">jaefit.github.io/hanwha-ai-challenge/report.html</a></p>
+</div>
 ```
 
-### 팀의 한 문장
+텍스트 칸이면:
 
 ```
-불꽃배웅 — 눈부신 밤의 끝, 집으로 가는 길까지. 붐빔을 보여주는 데서 멈추지 않고 관람객이 가장 빨리 닿는 출구와 길을 바로 선택하도록 돕는 귀가 내비를 만들었고, 축제 당일 실전에서 채점까지 받았습니다.
+상세 내용은 추가 자료로 첨부한 최종 보고서(report_standalone.html)를 참고해 주십시오. 외부 연결 없이 열리는 단일 파일이며, 문제 정의부터 모델·검증·9월 5일 실전 결과까지 담았습니다. 온라인판: https://jaefit.github.io/hanwha-ai-challenge/report.html
 ```
 
 ---
