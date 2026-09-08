@@ -113,20 +113,23 @@ AI 프로젝트는 모델 정확도만 높이는 것보다 데이터 출처, 갱
 
 ## 프로젝트 상세 기록
 
-세 칸(발표 내용·화면·자료·팀의 한 문장)은 쓰지 않고, 첨부한 단일 파일 보고서를 참고하라는 안내 한 블록만 넣는다. HTML DESIGN 블록에 붙일 것(인라인 스타일만).
+세 칸(발표 내용·화면·자료·팀의 한 문장)은 쓰지 않고, 온라인 최종 보고서를 참고하라는 안내 한 블록만 넣는다. 단일 파일 보고서(1.95MB)는 첨부 한도를 넘어 올리지 못했으므로 파일을 가리키지 않는다. HTML DESIGN 블록에 붙일 것(인라인 스타일만).
 
 ```html
 <div style="font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;max-width:760px;margin:0 auto;padding:22px 24px;border:1px solid #e6e6e2;border-radius:14px;background:#fafaf8;color:#1e1e1e;line-height:1.7">
   <div style="font-size:12px;letter-spacing:.14em;color:#c2622b;font-weight:700;margin-bottom:8px">최종 보고서 안내</div>
-  <p style="margin:0 0 10px;font-size:15.5px">상세 내용은 추가 자료로 첨부한 <b>최종 보고서(report_standalone.html)</b>를 참고해 주십시오. 외부 연결 없이 열리는 단일 파일이며, 문제 정의부터 모델·검증·9월 5일 실전 결과까지 담았습니다.</p>
-  <p style="margin:0;font-size:14px;color:#555">같은 내용의 온라인판: <a href="https://jaefit.github.io/hanwha-ai-challenge/report.html" style="color:#1e1e1e">jaefit.github.io/hanwha-ai-challenge/report.html</a></p>
+  <p style="margin:0 0 10px;font-size:15.5px">상세 내용은 분량이 길어 이 칸에 담지 못했고, 단일 파일 보고서도 첨부 한도를 넘어 올리지 못했습니다. 아래 온라인 최종 보고서를 참고해 주십시오. 문제 정의부터 모델·검증·9월 5일 실전 결과까지 담았습니다.</p>
+  <p style="margin:0 0 6px;font-size:15px"><b>최종 보고서</b> — <a href="https://jaefit.github.io/hanwha-ai-challenge/report.html" style="color:#1e1e1e">jaefit.github.io/hanwha-ai-challenge/report.html</a></p>
+  <p style="margin:0;font-size:14px;color:#555">쉬운 버전 — <a href="https://jaefit.github.io/hanwha-ai-challenge/report_easy.html" style="color:#1e1e1e">report_easy.html</a></p>
 </div>
 ```
 
 텍스트 칸이면:
 
 ```
-상세 내용은 추가 자료로 첨부한 최종 보고서(report_standalone.html)를 참고해 주십시오. 외부 연결 없이 열리는 단일 파일이며, 문제 정의부터 모델·검증·9월 5일 실전 결과까지 담았습니다. 온라인판: https://jaefit.github.io/hanwha-ai-challenge/report.html
+상세 내용은 분량이 길어 이 칸에 담지 못했고, 단일 파일 보고서도 첨부 한도를 넘어 올리지 못했습니다. 온라인 최종 보고서를 참고해 주십시오. 문제 정의부터 모델·검증·9월 5일 실전 결과까지 담았습니다.
+최종 보고서: https://jaefit.github.io/hanwha-ai-challenge/report.html
+쉬운 버전: https://jaefit.github.io/hanwha-ai-challenge/report_easy.html
 ```
 
 ---
@@ -137,7 +140,7 @@ AI 프로젝트는 모델 정확도만 높이는 것보다 데이터 출처, 갱
 | :-- | :-- | :-- |
 | 과제 소개 영상 | `fireworks_intro_v1.mp4` (3:30, 31MB) | 초안에 남아 있는 `hanwha_ai_challenge_intro_video.mp4`(7.4MB)는 제거 |
 | 웹페이지 주소 | `https://jaefit.github.io/hanwha-ai-challenge/` | 초안은 GitHub 저장소 주소였음 — 결과물 주소는 Pages, 저장소는 추가 링크로 |
-| 추가 자료 | `submission/report_standalone.html` (1.95MB, 외부 의존 없는 보고서) | 선택 |
+| 추가 자료 | 없음 — 단일 파일 보고서(1.95MB)는 첨부 한도 초과로 올리지 못함 | 온라인 보고서 링크로 대체 |
 | 추가 참고 링크 | 아래 7줄 | 한 줄에 하나, `설명 | URL` |
 
 ```
