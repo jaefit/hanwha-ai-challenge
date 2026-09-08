@@ -119,8 +119,8 @@ AI 프로젝트는 모델 정확도만 높이는 것보다 데이터 출처, 갱
 <div style="font-family:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;max-width:760px;margin:0 auto;padding:22px 24px;border:1px solid #e6e6e2;border-radius:14px;background:#fafaf8;color:#1e1e1e;line-height:1.7">
   <div style="font-size:12px;letter-spacing:.14em;color:#c2622b;font-weight:700;margin-bottom:8px">최종 보고서 안내</div>
   <p style="margin:0 0 10px;font-size:15.5px">상세 내용은 분량이 길어 이 칸에 담지 못했고, 단일 파일 보고서도 첨부 한도를 넘어 올리지 못했습니다. 아래 온라인 최종 보고서를 참고해 주십시오. 문제 정의부터 모델·검증·9월 5일 실전 결과까지 담았습니다.</p>
-  <p style="margin:0 0 6px;font-size:15px"><b>최종 보고서</b> — <a href="https://jaefit.github.io/hanwha-ai-challenge/report.html" style="color:#1e1e1e">jaefit.github.io/hanwha-ai-challenge/report.html</a></p>
-  <p style="margin:0;font-size:14px;color:#555">쉬운 버전 — <a href="https://jaefit.github.io/hanwha-ai-challenge/report_easy.html" style="color:#1e1e1e">report_easy.html</a></p>
+  <p style="margin:0 0 6px;font-size:15px"><b>최종 보고서</b> — <a href="https://jaefit.github.io/hanwha-ai-challenge/report.html" style="color:#1e1e1e">https://jaefit.github.io/hanwha-ai-challenge/report.html</a></p>
+  <p style="margin:0;font-size:14px;color:#555">쉬운 버전 — <a href="https://jaefit.github.io/hanwha-ai-challenge/report_easy.html" style="color:#1e1e1e">https://jaefit.github.io/hanwha-ai-challenge/report_easy.html</a></p>
 </div>
 ```
 
