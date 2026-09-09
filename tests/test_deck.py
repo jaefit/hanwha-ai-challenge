@@ -343,6 +343,16 @@ def test_fullscreen_hides_thumbnail_rail(html):
     assert 'setAttribute("no-rail"' in html and 'removeAttribute("no-rail")' in html, "no-rail 토글이 없다"
 
 
+def test_radial_has_feeder_particle_flow():
+    """보고서 그림 1 의 파티클 재생(피더역 → 여의도 인파 유입)을 덱 5장 방사형에도 — 사용자 요청 2026-09-09.
+    규칙 동일: 유입 속도 = feeder_lag 시간대 승차 × 역별 비중. 모션 축소면 안 돌고, 슬라이드를 떠나면 멈춘다."""
+    js = (ROOT / "docs" / "app" / "deck_charts.js").read_text(encoding="utf-8")
+    body = js[js.index("function radialParticles"):js.index('CHARTS.radial = ["feeder_map", drawRadial];')]
+    assert 'chartData("feeder_lag")' in js[js.index("function drawRadial"):js.index("function radialParticles")]
+    assert "CHART_REDUCE" in body and 'hasAttribute("data-deck-active")' in body
+    assert "y25.x[h]" in body and "s.share" in body, "유입 속도가 실측 시간대 × 역별 비중이어야 한다"
+
+
 def test_speaker_notes_fit_five_minutes(html):
     """장당 25초 — 한국어 발화 ≈ 분당 300자. 60~140자면 20~30초. 빈 노트는 발표 중 화면이 침묵한다."""
     notes = re.findall(r'<aside class="notes">(.*?)</aside>', html, re.S)

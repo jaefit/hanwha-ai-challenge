@@ -98,10 +98,12 @@ function drawRadial(cv, d, slide, fig) {
     items.push([el("circle", { cx: C, cy: C, r: R(m), fill: "none", stroke: "#B0B8C1", "stroke-width": 1.8, "stroke-dasharray": "6 6" }), i * 110]);
     items.push([el("text", { x: C + 8, y: C - R(m) - 8, fill: "#6B7684", "font-size": 15, "font-family": "IBM Plex Mono, monospace" }, m + "분"), i * 110 + 60]);
   });
-  var maxP = d.feeders[0].persons;
+  var maxP = d.feeders[0].persons, totP = 0, stations = [];
+  d.feeders.forEach(function (f) { totP += f.persons; });
   d.feeders.forEach(function (f, i) {
     var a = f.bearing_deg * Math.PI / 180, r = R(f.travel_min);
     var x = C + r * Math.sin(a), y = C - r * Math.cos(a);
+    stations.push({ x: x, y: y, share: f.persons / totP, dur: 0.9 + f.travel_min / 35 * 1.5 });
     items.push([el("line", { x1: C, y1: C, x2: x, y2: y, stroke: cssVar("--c1"), "stroke-width": 1.4, "stroke-opacity": .45 }), 380 + i * 60]);
     items.push([el("circle", { cx: x, cy: y, r: 5 + Math.sqrt(f.persons / maxP) * 10, fill: cssVar("--c1"), "fill-opacity": .9, stroke: cssVar("--sheet"), "stroke-width": 2 }), 440 + i * 60]);
     // 서쪽 밀집(273~293°) 라벨은 왼쪽 여백에 정렬해 한 줄 목록처럼, 나머지는 점 옆
@@ -130,6 +132,55 @@ function drawRadial(cv, d, slide, fig) {
     if (!CHART_REDUCE) it[0].style.transition = "opacity .35s ease " + (it[1] / 1000) + "s";
   });
   if (!CHART_REDUCE) requestAnimationFrame(function () { requestAnimationFrame(function () { items.forEach(function (it) { it[0].style.opacity = 1; }); }); });
+  chartData("feeder_lag").then(function (lag) { radialParticles(svg, host, slide, stations, lag, C, el); }).catch(function () {});
+}
+/* ②+ 피더 파티클 — 보고서 그림 1 의 재생과 같은 규칙: 점 = 여의도로 향하는 인파, 유입 속도 = 그 시각 피더 승차 강도
+   (feeder_lag 2025 실측 형태) × 역별 인원 비중, 이동 시간 ∝ 소요시간. 덱에선 버튼 없이 12→20시를 약 16초에 돌고 반복,
+   슬라이드를 떠나거나 그림이 새로 그려지면 멈춘다(사용자 결정 2026-09-09). 모션 축소 설정이면 안 돈다. */
+function radialParticles(svg, host, slide, stations, lag, C, el) {
+  if (CHART_REDUCE || !stations.length) return;
+  if (host.__raf) cancelAnimationFrame(host.__raf);
+  var NS = "http://www.w3.org/2000/svg";
+  var y25 = lag.years["2025"], hours = lag.hours, xs = hours.map(function (h) { return y25.x[h] || 0; });
+  var xmax = Math.max.apply(null, xs) || 1;
+  function rate(h) {                       // 시각 h 의 피더 승차 강도 0..1 — 실측 시간대 값 선형 보간
+    var hh = Math.floor(h), i = hours.indexOf(hh);
+    if (i < 0 || i >= xs.length) return 0;
+    var a = xs[i], b = (i + 1 < xs.length) ? xs[i + 1] : 0;
+    return (a + (b - a) * (h - hh)) / xmax;
+  }
+  var clock = el("text", { x: C, y: C + 58, fill: cssVar("--sub"), "font-size": 17, "font-family": "IBM Plex Mono, monospace", "text-anchor": "middle" }, "12시");
+  var layer = document.createElementNS(NS, "g"); svg.appendChild(layer);
+  var parts = [], t = 12, last = null;
+  function frame(ts) {
+    host.__raf = null;
+    if (!svg.isConnected || !slide.hasAttribute("data-deck-active") || document.hidden) { last = null; host.__raf = requestAnimationFrame(frame); return; }
+    var dt = last === null ? 0.016 : Math.min(0.05, (ts - last) / 1000);
+    last = ts;
+    t += dt * 0.5; if (t >= 20) { t = 12; }
+    clock.textContent = Math.floor(t) + "시";
+    var r = rate(t);
+    stations.forEach(function (s) {
+      if (Math.random() < 14 * r * s.share * dt) {
+        var c = document.createElementNS(NS, "circle");
+        c.setAttribute("r", 3.2); c.setAttribute("fill", cssVar("--c1"));
+        layer.appendChild(c);
+        parts.push({ el: c, s: s, a: 0, ph: Math.random() * 6.28 });
+      }
+    });
+    for (var i = parts.length - 1; i >= 0; i--) {
+      var p = parts[i]; p.a += dt / p.s.dur;
+      if (p.a >= 1) { layer.removeChild(p.el); parts.splice(i, 1); continue; }
+      var k = p.a, x = p.s.x + (C - p.s.x) * k, y = p.s.y + (C - p.s.y) * k;
+      var dx = C - p.s.y, dy = -(C - p.s.x), L = Math.sqrt(dx * dx + dy * dy) || 1;
+      var w = Math.sin(k * 9 + p.ph) * 4 * (1 - k);
+      p.el.setAttribute("cx", (x + dx / L * w).toFixed(1));
+      p.el.setAttribute("cy", (y + dy / L * w).toFixed(1));
+      p.el.setAttribute("opacity", (0.8 * (1 - k * k)).toFixed(2));
+    }
+    host.__raf = requestAnimationFrame(frame);
+  }
+  host.__raf = requestAnimationFrame(frame);
 }
 CHARTS.radial = ["feeder_map", drawRadial];
 
