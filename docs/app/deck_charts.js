@@ -367,10 +367,11 @@ function drawRouteOn(cv, d, fd) {
         var u = Math.max(0, Math.min(1, last.mean[k] / fd.scale));
         var conf = Math.max(0, 1 - (last.sd[k] / fd.scale) / APF_SD_MAX), cn = Math.min(1, conf / 0.15);
         var hot = Math.max(0, Math.min(1, (u - 0.3) / 0.7));
-        var col = rampHex(ramp, u), o = (0.45 + 0.50 * hot) * (0.45 + 0.55 * cn);
+        // 라이트 바탕(#F2F4F6)에선 다크 판(0.62)보다 진하게 — 같은 값이면 파스텔로 씻긴다 (2026-09-09)
+        var col = rampHex(ramp, u), o = (0.60 + 0.40 * hot) * (0.55 + 0.45 * cn);
         var j = ((fg.rows - 1 - iy) * fg.cols + ix) * 4;
         fp[j] = col[0] | 0; fp[j + 1] = col[1] | 0; fp[j + 2] = col[2] | 0;
-        fp[j + 3] = Math.round(255 * Math.max(0, Math.min(1, o)) * 0.62);
+        fp[j + 3] = Math.round(255 * Math.max(0, Math.min(1, o)) * 0.88);
       }
     }
     fx.putImageData(fim, 0, 0);
