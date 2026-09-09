@@ -328,6 +328,14 @@ def test_next_steps_come_from_report_and_lag_from_sources(html):
     assert any(f"발행 시차 {lag.group(1)}분" in r["limit"] for r in _json("sources")["rows"]), "발행 시차 값이 sources.json 과 다르다"
 
 
+def test_embed_fallback_message_respects_hidden(html):
+    """2026-09-09 실기기 결함 — `.embed .fbmsg{display:flex}` 가 UA 의 `[hidden]{display:none}` 을 이겨
+    "라이브 화면 — 통신 필요" 가 iframe 위를 항상 덮었다(9/6 '문구만 남았다' 의 진짜 원인). 저자 CSS 가 hidden 을 존중해야 한다."""
+    assert '<div class="fbmsg" hidden>' in html
+    assert re.search(r"\.fbmsg\[hidden\]\{display:none", html) or re.search(r"\.fbmsg:not\(\[hidden\]\)\{", html), \
+        "fbmsg 의 display 규칙이 [hidden] 을 덮어쓴다 — .fbmsg[hidden]{display:none} 이 필요하다"
+
+
 def test_speaker_notes_fit_five_minutes(html):
     """장당 25초 — 한국어 발화 ≈ 분당 300자. 60~140자면 20~30초. 빈 노트는 발표 중 화면이 침묵한다."""
     notes = re.findall(r'<aside class="notes">(.*?)</aside>', html, re.S)
