@@ -379,11 +379,11 @@ function drawRouteOn(cv, d, fd) {
   }
   var S = d.routes.shortest, A = d.routes.avoiding, M = d.minutes || {};
   var fmt = function (m) { return m.toLocaleString("en-US"); };
-  var TITLE = { shortest: "① 최단 — 봉우리를 통과", avoiding: "② 혼잡 회피 — 돌아간다", both: "③ 겹쳐 보기" };
+  var TITLE = { shortest: "① 최단거리 경로", avoiding: "② 혼잡 회피 경로", both: "③ 두 경로 비교" };
   var STAT = {
     shortest: fmt(S.meters) + "m · " + M.shortest + "분",
     avoiding: A ? fmt(A.meters) + "m · " + M.avoiding + "분" : "",
-    both: A ? "+" + fmt(A.meters - S.meters) + "m 더 걷고 " + (M.shortest - M.avoiding) + "분 빠르다" : "",
+    both: A ? "+" + fmt(A.meters - S.meters) + "m · " + (M.shortest - M.avoiding) + "분 단축" : "",
   };
   // 패널 하나를 진행도 ph(0..1)로 그린다. 자동 모드는 왼쪽부터 차례로, 수동 모드는 버튼마다 따로.
   function drawPanel(canvas, idx, ph) {
