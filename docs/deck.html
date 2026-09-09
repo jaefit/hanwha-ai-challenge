@@ -35,7 +35,7 @@ a{color:var(--ink)}a:hover{color:var(--accent)}
 deck-stage:not(:defined){visibility:hidden}
 deck-stage{display:block;width:100vw;height:100vh}
 .slide{overflow:hidden;word-break:keep-all;overflow-wrap:anywhere}   /* 한국어를 어절 단위로 꺾는다 — "늦/음" 방지 (9/9) */
-aside.notes{display:none}
+aside.notes,aside.demo{display:none}
 .katex{font-size:1.15em}
 .katex-display{margin:0}
 .btn{display:inline-flex;align-items:center;gap:12px;padding:16px 28px;border-radius:999px;background:#191F28;color:#fff;font-size:24px;font-weight:700;text-decoration:none;line-height:1}
@@ -254,6 +254,10 @@ body.role-cur #np,body.role-next #np{display:none !important}
     </figure>
   </div>
   <p data-rv style="--i:5;margin:0;font-size:28px;color:#4E5968;line-height:1.5;">여의나루역 운행 재개 직후의 저장된 발행 데이터를 재생합니다.</p>
+  <aside class="demo">[전환] 실제 화면으로 보여드리겠습니다. 9월 5일 밤 10시 6분, 여의나루역이 다시 열린 직후 발행분입니다.
+[운영자 화면 열기] "22시에 나가면 어디가 덜 막히나" — 출구 7곳 부하율 순, 신길 0.26 여유 → 여의나루 0.93 경계. 지도 동그라미=출구, 마름모=카메라. 오늘의 통제. (스크롤) 유출 예측 α 0.89 · 21시 약 8만 7천 명. 카메라 23대는 영상 없이 등급만.
+[관람객 화면 열기] 질문 없이 바로 답. 22시 추천 여의나루 걸어서 38분·경계 — 재개통 직후라 붐비지만 도보+대기 합이 가장 짧음. 옆 국회 52분, 여의도(5) 62분. (아래) 순위 3곳·시간대별 그래프, 좌우로 밀면 1시간 뒤.
+[마무리] 운영자는 전체를, 관람객은 자기 경로를. 둘 다 같은 22:06 데이터.</aside>
   <aside class="notes">두 화면을 팝업으로 띄워 사용 흐름을 보여드리겠습니다. 운영자 화면에서 전체 혼잡과 통제를 확인한 뒤, 관람객 화면에서 출구와 예상 이동시간을 선택합니다. 두 화면은 같은 9월 5일 22시 6분 데이터를 사용합니다.</aside>
 </section>
 
@@ -320,7 +324,8 @@ function broadcast() {
   if (!CH) return;
   CH.postMessage({ index: stage.index, total: SLIDES.length,
     labels: SLIDES.map((s) => s.getAttribute("data-label")),
-    notes: SLIDES.map((s) => { const a = s.querySelector("aside.notes"); return a ? a.textContent.trim() : ""; }) });
+    notes: SLIDES.map((s) => { const a = s.querySelector("aside.notes"); return a ? a.textContent.trim() : ""; }),
+    demos: SLIDES.map((s) => { const a = s.querySelector("aside.demo"); return a ? a.textContent.trim() : ""; }) });
 }
 if (CH) CH.onmessage = (e) => {
   const d = e.data || {};

@@ -28,6 +28,8 @@ main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-templ
 #notes .lbl{font-size:14px;color:var(--sub);margin-bottom:10px;font-weight:600}
 #notes .nx{margin-top:22px;padding-top:16px;border-top:1px solid #262B36;font-size:18px;color:var(--sub);line-height:1.5}
 #notes .nx b{color:var(--ink);font-weight:600}
+#notes .demo{margin-top:22px;padding:18px 22px;border-radius:12px;background:#22160E;border:1px solid #4A2A10;font-size:22px;line-height:1.55;color:#FFD9BF;white-space:pre-line}
+#notes .demo .lbl{color:var(--accent)}
 @media (max-width:1100px){main{grid-template-columns:1fr}#next{grid-column:1;grid-row:2}#notes{grid-row:3}}
 </style>
 </head>
@@ -41,7 +43,7 @@ main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-templ
 <main>
   <div class="frame" id="cur"><iframe src="deck.html?_snthumb=1&role=cur#1" title="현재 슬라이드"></iframe><span class="lab">지금</span></div>
   <div class="frame" id="next"><iframe src="deck.html?_snthumb=1&role=next#2" title="다음 슬라이드"></iframe><span class="lab">다음</span></div>
-  <div id="notes"><div class="lbl">발표자 노트</div><div id="ntext">본창(deck.html)에서 슬라이드를 넘기면 여기가 따라옵니다.</div><div class="nx" id="nnext"></div></div>
+  <div id="notes"><div class="lbl">발표자 노트</div><div id="ntext">본창(deck.html)에서 슬라이드를 넘기면 여기가 따라옵니다.</div><div class="demo" id="ndemo" hidden><div class="lbl">시연 대본</div><div id="ndemotext"></div></div><div class="nx" id="nnext"></div></div>
 </main>
 <script>
 (function () {
@@ -58,6 +60,9 @@ main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);grid-templ
     document.getElementById("idx").textContent = (i + 1) + " / " + n;
     document.getElementById("label").textContent = state.labels[i] || "";
     document.getElementById("ntext").textContent = state.notes[i] || "";
+    var dm = (state.demos || [])[i] || "";
+    document.getElementById("ndemo").hidden = !dm;
+    document.getElementById("ndemotext").textContent = dm;
     var nx = document.getElementById("nnext");
     nx.innerHTML = i + 1 < n ? "<b>다음 · " + esc(state.labels[i + 1] || "") + "</b> — " + esc(state.notes[i + 1] || "") : "<b>마지막 장</b>";
   }
