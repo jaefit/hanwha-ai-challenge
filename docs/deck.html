@@ -13,10 +13,10 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 <style>
-/* 2026-09-06 · Claude Design 「Pitch Deck v2」(토스풍) 이식 — 1920×1080 고정 무대(deck-stage) 위에 인라인 스타일로 그린다.
-   2026-09-09 · 디자인 원안 12장으로 되돌림(사용자 결정). 9/6 오후의 14장 재편판은 07f6411 에 있다.
-   디자인에 없는 것 셋만 더했다 — 제품명 「불꽃배웅」(1·3·12장), 10장 9/5 실전 결과, 3·4장 임베드의 22:06 발행분 재생(?at=).
-   토큰은 공유 조각(버튼·노트·스트립)과 tests/test_deck.py 대조용. 슬라이드 본문은 디자인 원본대로 값을 직접 적었다. */
+/* 2026-09-09 · Claude Design 「Pitch Deck v3」 이식 — 파이프라인 순서 11장 (스펙 docs/superpowers/specs/2026-09-09-deck-v3-design.md).
+   1920×1080 고정 무대(deck-stage) 위에 인라인 스타일로 그린다. 앞 판: v2 원안 12장 7fd2a95 · 14장 재편 07f6411.
+   디자인과 다른 곳: 임베드·버튼은 상대 경로 + 캡처 폴백, 3장 발행 시차 28.8분(9/5 실측, sources.json), 10장 노트 테스트 건수는 실제 수.
+   토큰은 공유 조각(버튼·노트·임베드)과 tests/test_deck.py 대조용. 슬라이드 본문은 디자인 원본대로 값을 직접 적었다. */
 :root{
   --bg:#FFFFFF; --card:#F2F4F6; --ink:#191F28; --ink-2:#4E5968; --sub:#8B95A1; --rule:#E5E8EB;
   --accent:#F36F21; --dark:#17171C; --live:#3182F6; --offline:#D0342C;
@@ -38,8 +38,6 @@ deck-stage{display:block;width:100vw;height:100vh}
 aside.notes{display:none}
 .katex{font-size:1.15em}
 .katex-display{margin:0}
-.strip{margin:0;padding:22px 32px;background:#F2F4F6;color:#191F28;border-radius:20px;font:500 20px/1.55 var(--mono);overflow:hidden;position:relative;
-  -webkit-mask-image:linear-gradient(90deg,#000 88%,transparent 100%);mask-image:linear-gradient(90deg,#000 88%,transparent 100%);white-space:pre;tab-size:4}
 .btn{display:inline-flex;align-items:center;gap:12px;padding:16px 28px;border-radius:999px;background:#191F28;color:#fff;font-size:24px;font-weight:700;text-decoration:none;line-height:1}
 .btn:hover{background:#F36F21;color:#fff}
 .btn.ghost{background:#F2F4F6;color:#191F28}
@@ -61,7 +59,7 @@ body.notes #np{display:flex}
 <deck-stage width="1920" height="1080">
 
 <!-- 1 ─ 훅 -->
-<section data-label="01 훅" style="background:#17171C;color:#fff;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s1">
+<section data-label="01 훅" style="background:#17171C;color:#fff;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);overflow:hidden;" class="slide" id="s1">
   <img src="assets/fireworks_yeouido_2007.jpg" alt="" style="position:absolute;right:0;top:0;width:1200px;height:1080px;object-fit:cover;object-position:right center;opacity:.55;-webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 50%);mask-image:linear-gradient(90deg,transparent 0%,#000 50%);">
   <div data-rv style="--i:0;position:relative;display:flex;align-items:center;gap:20px;font-size:var(--type-small);color:#B0B8C1;font-weight:500;"><img src="assets/ci_logo_s.png" alt="Hanwha" style="height:36px;width:auto;"><span>한화 신입사원 AI 솔루션 챌린지 · 과제 03 고객 페인포인트 해결</span></div>
   <div style="position:relative;display:grid;grid-template-columns:1.15fr 1fr;gap:80px;align-items:center;">
@@ -81,247 +79,194 @@ body.notes #np{display:flex}
       </ul>
     </div>
   </div>
-  <aside class="notes">불꽃이 끝나는 순간 백만 명이 한꺼번에 움직입니다. 그런데 공원에서 제일 가까운 여의나루역은 그 시간에 닫혀 있습니다. 두 해 실측에서 하차가 0에 가깝습니다. 지도앱은 오늘도 그 역으로 안내합니다. 이름은 불꽃배웅 — 눈부신 밤의 끝에서 집까지 배웅합니다.</aside>
+  <aside class="notes">불꽃이 끝나는 순간 백만 명이 한꺼번에 움직입니다. 공원에서 제일 가까운 여의나루역은 그 시간에 닫혀 있고, 지도앱은 오늘도 그 역으로 안내합니다. 이름은 불꽃배웅 — 눈부신 밤의 끝에서 집까지 배웅합니다.</aside>
 </section>
 
-<!-- 2 ─ 문제 -->
-<section data-label="02 문제" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s2">
+<!-- 2 ─ 문제 정의 -->
+<section data-label="02 문제 정의" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s2">
   <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">문제 — 무엇이 빠져 있나</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>지도앱도 서울시도 </span><span style="color:#F36F21;">상태</span><span>만 준다</span></h2>
+  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>지도앱도 서울시도 </span><span style="color:#F36F21;">상태</span><span>만 준다 — "어디로 나가라"가 없다</span></h2>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
-    <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:340px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">지도앱</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">"가장 가까운 역"</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">통제를 모른다. 축제일 저녁에도 여의나루로 안내한다 — 막힌 길로 가는 안내.</p></div>
-    <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:340px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">서울시 실시간 도시데이터</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">"붐빔"</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">4단계 상태. 지금 붐빈다는 건 알지만 <b style="color:#191F28;">어디로 가라</b>는 없다.</p></div>
-    <div data-rv style="--i:4;background:#F36F21;color:#fff;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:340px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#FFE1CC;">빠진 것</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">"어디로 나가라"</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#FFF0E6;line-height:1.5;text-wrap:pretty;">출구 7개 중 지금·30분 뒤 덜 막히는 곳. 이걸 만든다.</p></div>
+    <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:380px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">지도앱</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">"가장 가까운 역"</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">통제를 모른다. 축제일 저녁에도 여의나루로 안내한다 — 막힌 길로 가는 안내.</p></div>
+    <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:380px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">서울시 실시간 도시데이터</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">"붐빔"</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">4단계 상태. 지금 붐빈다는 건 알지만 <b style="color:#191F28;">어디로 가라</b>는 없다.</p></div>
+    <div data-rv style="--i:4;background:#F36F21;color:#fff;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:380px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#FFE1CC;">빠진 것</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">"어디로 나가라"</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#FFF0E6;line-height:1.5;text-wrap:pretty;">출구 7개 중 지금·30분 뒤 덜 막히는 곳. 이걸 만든다.</p></div>
   </div>
-  <p data-rv style="--i:5;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;text-wrap:pretty;">통제를 피한 인파가 옆 역으로 — 여의도역 21시 승차는 평시 토요일의 12~17배. 관람객 최다 집단은 20·30대 여성(KT), 어두운 공원과 통신 폭주 속에서 판단한다.</p>
   <aside class="notes">문제를 정확히 하겠습니다. 지도앱은 가장 가까운 역을 주고, 서울시는 붐빔이라는 상태를 줍니다. 둘 다 어디로 나가라는 말은 없습니다. 빠진 건 행동입니다. 그걸 만들었습니다.</aside>
 </section>
 
-<!-- 3 ─ 관람객 화면 -->
-<section data-label="03 관람객 화면" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s3">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">해법 — 관람객 화면 「불꽃배웅」 (실제 배포본)</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>상태가 아니라 </span><span style="color:#F36F21;">행동</span><span> — 묻지 않는 귀가 내비</span></h2>
-  <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:60px;align-items:center;">
-    <figure class="embed" data-rv style="--i:2;margin:0;display:flex;justify-content:center;align-items:center;">
-      <div style="position:relative;width:369px;height:800px;border-radius:52px;overflow:hidden;background:#fff;border:9px solid #111;box-sizing:content-box;">
-        <iframe src="go.html?at=20260905T2206" title="관람객 화면 go.html (9/5 22:06 재생)" style="border:0;width:393px;height:852px;transform:scale(.9389);transform-origin:top left;display:block;background:#fff;"></iframe>
-        <img class="fb" data-src="deck/fallback_go.png" alt="관람객 화면 캡처" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" hidden>
-        <div class="fbmsg" hidden>라이브 화면 — 통신 필요</div>
-      </div>
-    </figure>
-    <div style="display:flex;flex-direction:column;gap:var(--gap-item);">
-      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--gap-item);font-size:var(--type-body);line-height:1.45;color:#4E5968;">
-        <li data-rv style="flex:none;--i:3;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">위치 자동</b> — 묻지 않는다. 권한이 없으면 이벤트광장 기준, 핀을 끌어 옮긴다</span></li>
-        <li data-rv style="flex:none;--i:4;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">1위 자동</b> — 도보 + 예상 대기가 가장 짧은 출구가 맨 위. 등급 4단계 · 대기 분</span></li>
-        <li data-rv style="flex:none;--i:5;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">시각 = 지금</b> — 차트를 문지르면 19~23시 예측으로 옮겨 간다</span></li>
-        <li data-rv style="flex:none;--i:6;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span>서버 없는 정적 페이지 — 링크 하나, 통신 폭주에도 <b style="color:#191F28;">기기 저장 폴백</b></span></li>
-      </ul>
-      <p data-rv style="--i:7;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;">실제 배포본 그대로 — <b style="color:#4E5968;">9/5 22:06 발행분 재생</b> (<span style="font-family:var(--mono);">…/go.html?at=20260905T2206</span>) · 위치는 이벤트광장 기준</p>
+<!-- 3 ─ 왜 예측 + 실측 -->
+<section data-label="03 왜 예측 + 실측" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s3">
+  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">왜 예측과 실측이 둘 다 필요한가</div>
+  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>예측만 하면 </span><span style="color:#F36F21;">오늘 규모</span><span>를 모르고, 실측만 하면 </span><span style="color:#F36F21;">늦다</span></h2>
+  <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:64px;align-items:center;">
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:40px 44px;display:flex;flex-direction:column;gap:10px;"><div style="font-size:var(--type-small);font-weight:600;color:#6B7684;">예측만</div><div style="font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">작년 모양은 알아도 오늘 몇 배인지는 모른다</div></div>
+      <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:40px 44px;display:flex;flex-direction:column;gap:10px;"><div style="font-size:var(--type-small);font-weight:600;color:#6B7684;">실측만</div><div style="font-size:40px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">붐빈 뒤에 안다 — 발행 시차 28.8분</div></div>
     </div>
-  </div>
-  <aside class="notes">실제 배포된 관람객 화면입니다. 묻지 않습니다. 위치는 자동, 지금 시각 기준으로 도보와 대기가 가장 짧은 출구가 맨 위에 옵니다. 서버가 없는 정적 페이지라 통신이 폭주해도 기기에 저장된 마지막 화면으로 버팁니다. 지금 보이는 건 9월 5일 22시 6분 발행분 그대로입니다.</aside>
-</section>
-
-<!-- 4 ─ 운영 화면 · 3층 -->
-<section data-label="04 운영 화면 · 3층" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s4">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">운영 화면 — 그리고 그 아래 3층</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>아래층이 죽어도 </span><span style="color:#F36F21;">위층이 산다</span></h2>
-  <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:56px;align-items:center;">
-    <figure class="embed" data-rv style="--i:2;margin:0;display:flex;justify-content:center;">
-      <div style="position:relative;width:960px;height:600px;border-radius:20px;overflow:hidden;background:#F2F4F6;border:9px solid #111;box-sizing:content-box;">
-        <iframe src="index.html?at=20260905T2206" title="운영 화면 index.html (9/5 22:06 재생)" style="border:0;width:1280px;height:800px;transform:scale(.75);transform-origin:top left;display:block;"></iframe>
-        <img class="fb" data-src="deck/fallback_ops.png" alt="운영 화면 캡처" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" hidden>
-        <div class="fbmsg" hidden>라이브 화면 — 통신 필요</div>
-      </div>
-    </figure>
     <div style="display:flex;flex-direction:column;gap:12px;">
-      <div data-rv style="--i:3;background:#F2F4F6;border-radius:22px;padding:26px 32px;display:flex;gap:24px;align-items:baseline;"><b style="flex:none;font-size:var(--type-body);font-weight:800;">화면층</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">정적 웹페이지 — LIVE / 오래됨 / 사전표 자동 전환 + 기기 저장 오프라인 폴백</span></div>
-      <div data-rv style="--i:4;text-align:center;font-size:var(--type-small);color:#8B95A1;">▲ 5분마다 발행 (끊겨도 아래가 받친다)</div>
-      <div data-rv style="--i:5;background:#F2F4F6;border-radius:22px;padding:26px 32px;display:flex;gap:24px;align-items:baseline;"><b style="flex:none;font-size:var(--type-body);font-weight:800;">당일층</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">도시데이터 API 5분 + CCTV 23대 60초 → α 보정 · 통제 이월 · 보행 지연 → 자동 발행</span></div>
-      <div data-rv style="--i:6;text-align:center;font-size:var(--type-small);color:#8B95A1;">▲ 규모만 보정 (없어도 서비스 성립)</div>
-      <div data-rv style="--i:7;background:#191F28;color:#fff;border-radius:22px;padding:26px 32px;display:flex;gap:24px;align-items:baseline;"><b style="flex:none;font-size:var(--type-body);font-weight:800;">사전층</b><span style="font-size:var(--type-small);color:#B0B8C1;line-height:1.45;">공공 실측 7종 → 예측 엔진 + 백테스트 — 행사 전에 완결</span></div>
-      <p data-rv style="--i:8;margin:12px 0 0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;">왼쪽은 9/5 22:06 발행분 재생. 다음 다섯 장이 층마다 "무엇을 · 어떻게 · 근거"다. 전 데이터 공개·합법 소스 · CCTV 는 프레임 미저장(집계만)</p>
+      <div data-rv style="--i:4;background:#F2F4F6;border-radius:22px;padding:28px 34px;display:flex;gap:24px;align-items:baseline;"><b style="flex:none;font-size:var(--type-body);font-weight:800;">화면층</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">정적 페이지 — LIVE / 오래됨 / 사전표 자동 전환 · 기기 저장 폴백</span></div>
+      <div data-rv style="--i:5;text-align:center;font-size:var(--type-small);color:#8B95A1;">▲ 5분마다 발행 (끊겨도 아래가 받친다)</div>
+      <div data-rv style="--i:6;background:#FFE1CC;border-radius:22px;padding:28px 34px;display:flex;gap:24px;align-items:baseline;"><b style="flex:none;font-size:var(--type-body);font-weight:800;color:#B0521C;">당일층</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">실측 API 3종 → 오늘 배율 α · 통제 이월 · 보행 지연</span></div>
+      <div data-rv style="--i:7;text-align:center;font-size:var(--type-small);color:#8B95A1;">▲ 규모만 보정 (없어도 서비스 성립)</div>
+      <div data-rv style="--i:8;background:#191F28;color:#fff;border-radius:22px;padding:28px 34px;display:flex;gap:24px;align-items:baseline;"><b style="flex:none;font-size:var(--type-body);font-weight:800;">사전층</b><span style="font-size:var(--type-small);color:#B0B8C1;line-height:1.45;">공공 실측 7종 → 예측 엔진 + 백테스트 — 행사 전에 완결</span></div>
     </div>
   </div>
-  <aside class="notes">운영 화면과 그 아래 구조입니다. 사전층이 행사 전에 예측표를 완성하고, 당일층이 오늘 규모만 보정하고, 화면층이 보여줍니다. 아래층이 죽어도 위층이 삽니다. 이제 층마다 무엇을 어떻게 만들었는지 다섯 장으로 보겠습니다.</aside>
+  <aside class="notes">예측만 하면 오늘 규모를 모르고, 실측만 하면 늦습니다. 그래서 세 층입니다. 사전층이 행사 전에 예측표를 완성하고, 당일층이 오늘 규모만 보정하고, 화면층이 보여줍니다. 아래층이 죽어도 위층이 삽니다.</aside>
 </section>
 
-<!-- 5 ─ 사전층 ① 수요식 -->
-<section data-label="05 사전층 ① 수요식" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s5">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">사전층 ① — 왜 머신러닝이 아닌가</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>수요 = </span><span style="color:#F36F21;">α</span><span> × E</span><sub style="font-size:.6em;">st</sub><span> × 도착형태</span></h2>
+<!-- 4 ─ 예측 ① 수요식 -->
+<section data-label="04 예측 ① 수요식" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:32px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s4">
+  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">예측 ① — 수요식</div>
+  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>수요 = 오늘 배율 × 작년 </span><span style="color:#F36F21;">출구 비중</span><span> × 도착 형태</span></h2>
   <div data-rv style="--i:2;background:#F2F4F6;border-radius:24px;padding:22px 40px;text-align:center;font-size:44px;font-weight:700;">\[ D_{s,h} \;=\; \alpha \cdot E_s \cdot f_s(h) \]</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;">
-    <div data-rv style="--i:3;display:flex;flex-direction:column;gap:6px;"><b style="font-size:var(--type-body);">E<sub style="font-size:.8em;">st</sub> — 실측 뼈대</b><p style="margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.45;">작년에 실제로 그 역으로 나간 인원(초과 승차). 비중까지 관측값.</p></div>
-    <div data-rv style="--i:4;display:flex;flex-direction:column;gap:6px;"><b style="font-size:var(--type-body);">f — 도착형태(물리)</b><p style="margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.45;">쇼 종료 앵커 + 거리÷보행속도(밀도 반영) 지연.</p></div>
-    <div data-rv style="--i:5;display:flex;flex-direction:column;gap:6px;"><b style="font-size:var(--type-body);">α — 당일 배율</b><p style="margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.45;">오늘이 예년의 몇 배인지, 5분마다 관측으로 갱신.</p></div>
+  <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:32px;align-items:stretch;">
+    <figure data-rv data-chart="exits" style="--i:3;margin:0;background:#F2F4F6;border-radius:24px;padding:24px 28px;display:flex;flex-direction:column;gap:12px;"><div style="font-size:var(--type-small);font-weight:600;color:#6B7684;">E<sub style="font-size:.8em;">s</sub> — 출구 7개 실측 비중 (2024·2025 초과 승차 평균)</div><canvas style="display:block;width:100%;height:330px;"></canvas></figure>
+    <div data-rv style="--i:4;background:#191F28;color:#fff;border-radius:24px;padding:40px 44px;display:flex;flex-direction:column;justify-content:center;gap:12px;"><div style="font-size:var(--type-small);font-weight:600;color:#FFB27A;">백테스트 — 한 해로 만들어 다른 해를 맞히다</div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:120px;font-weight:800;letter-spacing:-.04em;line-height:1;">88</span><span style="font-size:var(--type-subtitle);font-weight:700;color:#B0B8C1;">%</span></div><div style="font-size:var(--type-body);font-weight:700;">등급 적중 · 2025 교차연도</div></div>
   </div>
-  <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:32px;align-items:stretch;">
-    <figure data-rv data-chart="exits" style="--i:6;margin:0;background:#F2F4F6;border-radius:24px;padding:20px 24px;"><canvas style="display:block;width:100%;height:300px;"></canvas></figure>
-    <pre class="strip" data-strip="demand" data-rv style="--i:7;padding:28px 32px;border-radius:24px;font-size:20px;line-height:1.6;"></pre>
-  </div>
-  <p data-rv style="--i:8;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;text-wrap:pretty;">학습 표본이 축제일 단 2일 → ML 은 외우기가 된다. 실측 뼈대 + 물리 구조 모델 — 애틀랜타 MARTA 경기장 수요 예측(arXiv:2106.05359)과 같은 접근. 파라미터 6개, 전부 출처가 있다. 왼쪽 막대 = 출구 7개 실측 비중(2년 평균).</p>
-  <aside class="notes">사전층의 식입니다. 수요는 당일 배율 알파 곱하기 작년 실측 출구 비중 곱하기 도착 형태. 학습 표본이 축제일 이틀뿐이라 머신러닝은 외우기가 됩니다. 실측을 뼈대로 쓰고 물리로 지연을 넣었습니다. 아래는 실제 코드입니다.</aside>
+  <p data-rv style="--i:5;margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">학습 표본이 축제일 단 2일이라 ML 은 외우기가 된다 — 실측 뼈대에 물리(쇼 종료 앵커 + 거리÷보행속도)로 지연을 넣었다.</p>
+  <aside class="notes">수요는 오늘 배율 알파, 곱하기 작년 실측 출구 비중, 곱하기 도착 형태입니다. 학습 표본이 축제일 이틀뿐이라 머신러닝은 외우기가 됩니다. 실측을 뼈대로 쓰고 물리로 지연을 넣었고, 다른 해로 맞혀 보니 등급 적중 88퍼센트입니다.</aside>
 </section>
 
-<!-- 6 ─ 사전층 ② 피더 -->
-<section data-label="06 사전층 ② 피더" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s6">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">사전층 ② — 사람들은 어디서 타고 오나</div>
+<!-- 5 ─ 예측 ② 피더 -->
+<section data-label="05 예측 ② 피더" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:32px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s5">
+  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">예측 ② — 사람들은 어디서 타고 오나</div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>피더역 12곳이 여의도보다 </span><span style="color:#F36F21;">1시간 먼저</span><span> 움직인다</span></h2>
-  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:start;">
-    <figure data-rv data-chart="radial" style="--i:2;margin:0;background:#F2F4F6;border-radius:24px;padding:12px;height:560px;"><div class="radial" style="width:100%;height:100%;"></div></figure>
-    <div style="display:flex;flex-direction:column;gap:18px;">
-      <figure data-rv data-chart="feeder" style="--i:3;margin:0;background:#F2F4F6;border-radius:24px;padding:20px 24px 12px;"><canvas style="display:block;width:100%;height:280px;"></canvas></figure>
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:stretch;">
+    <figure data-rv data-chart="radial" style="--i:2;margin:0;background:#F2F4F6;border-radius:24px;padding:12px;height:600px;"><div class="radial" style="width:100%;height:100%;"></div></figure>
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <figure data-rv data-chart="feeder" style="--i:3;margin:0;background:#F2F4F6;border-radius:24px;padding:20px 24px 12px;"><canvas style="display:block;width:100%;height:330px;"></canvas></figure>
       <div data-rv style="--i:4;display:flex;gap:28px;flex-wrap:wrap;align-items:center;font-size:var(--type-small);font-weight:600;color:#4E5968;">
         <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:22px;height:8px;border-radius:4px;background:#F36F21;"></i>피더 12역 승차</span>
         <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:22px;height:0;border-top:3px dashed #3182F6;"></i>여의도 하차 초과</span>
         <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:22px;height:3px;background:#191F28;"></i>같은 무리, 1시간 뒤</span>
-        <span>상관계수 <b data-feeder-r style="color:#191F28;font-family:var(--mono);">—</b></span>
       </div>
-      <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px;font-size:var(--type-small);line-height:1.45;color:#4E5968;">
-        <li data-rv style="flex:none;--i:5;display:flex;gap:16px;"><span style="flex:none;width:32px;font-weight:800;color:#F36F21;">1</span><span><b style="color:#191F28;">초과 승차</b> — 서울 253역, 축제일 승차 − 평시 토요일 중앙값</span></li>
-        <li data-rv style="flex:none;--i:6;display:flex;gap:16px;"><span style="flex:none;width:32px;font-weight:800;color:#F36F21;">2</span><span><b style="color:#191F28;">2년 필터</b> — 2024·2025 둘 다 튄 역만 인정</span></li>
-        <li data-rv style="flex:none;--i:7;display:flex;gap:16px;"><span style="flex:none;width:32px;font-weight:800;color:#F36F21;">3</span><span><b style="color:#191F28;">KT 상한</b> — 휴대전화 이동 데이터의 구(區) 총량을 넘지 않게 배분</span></li>
-        <li data-rv style="flex:none;--i:8;display:flex;gap:16px;"><span style="flex:none;width:32px;font-weight:800;color:#F36F21;">4</span><span><b style="color:#191F28;">교차 검증</b> — 배분 합이 여의도 도착과 규모·시간 모양이 맞는가</span></li>
-      </ol>
+      <div data-rv style="--i:5;background:#191F28;color:#fff;border-radius:24px;padding:32px 40px;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;"><span style="font-size:var(--type-small);font-weight:600;color:#FFB27A;">상관계수</span><span style="font-family:var(--mono);font-size:56px;font-weight:600;letter-spacing:-.02em;line-height:1;">r 0.72 → <b style="color:#F36F21;font-weight:600;">0.98</b></span><span style="font-size:var(--type-small);color:#B0B8C1;">같은 시각 → 1시간 뒤 (2025)</span></div>
+      <p data-rv style="--i:6;margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">두 해 통합 0.988 · 당일엔 12곳을 5분마다 감시 — 여의도가 붐비기 30~40분 전 조기 신호.</p>
     </div>
   </div>
-  <p data-rv style="--i:9;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;text-wrap:pretty;">왼쪽 도식: 선 방향 = 실제 방위, 중심에서 거리 = 지하철 소요시간(추정, 링 10·20·30분), 원 크기 = 2년 귀속 인원. 오른쪽: 같은 시각 → 1시간 뒤 r 0.72 → 0.98 (2025) · 두 해 통합 0.988. 당일엔 12곳을 5분마다 감시 — 여의도가 붐비기 30~40분 전 조기 신호. 검증 전엔 예측에 안 넣는다.</p>
   <aside class="notes">사람들이 어디서 타고 오는지 서울 전 역의 초과 승차로 역추적했습니다. 두 해 연속 튄 역만 남기고 KT 이동 데이터 총량으로 상한을 걸었습니다. 이 열두 역의 승차가 여의도 도착보다 한 시간 먼저 움직입니다. 상관 0.98입니다.</aside>
 </section>
 
-<!-- 7 ─ 당일층 -->
-<section data-label="07 당일층" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:24px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s7">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">당일층 — 5분마다 오늘 규모를 다시 잰다</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>확신이 아니라 </span><span style="color:#F36F21;">범위</span><span>를 갱신한다</span></h2>
+<!-- 6 ─ 실측 API -->
+<section data-label="06 실측 API" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s6">
+  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">실측 — 당일층의 입력</div>
+  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>세 개의 눈 — </span><span style="color:#F36F21;">5분 · 틱 · 60초</span></h2>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
+    <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;min-height:460px;"><div style="font-size:var(--type-small);font-weight:600;color:#6B7684;">서울 실시간 도시데이터</div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:96px;font-weight:800;letter-spacing:-.04em;line-height:1;">5</span><span style="font-size:var(--type-subtitle);font-weight:700;color:#8B95A1;">분</span></div><div style="font-size:var(--type-body);font-weight:800;line-height:1.3;">구역 인구 · 혼잡 4단계 · 통제 · 여의나루 30분 승하차</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;">→ 오늘 배율 α 관측 · 혼잡장 배경 · 통제 알림</p></div>
+    <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;min-height:460px;"><div style="font-size:var(--type-small);font-weight:600;color:#6B7684;">실시간 지하철 도착 · 4역</div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:96px;font-weight:800;letter-spacing:-.04em;line-height:1;">틱</span><span style="font-size:var(--type-subtitle);font-weight:700;color:#8B95A1;">마다</span></div><div style="font-size:var(--type-body);font-weight:800;line-height:1.3;">여의나루 · 여의도 · 샛강 · 국회의사당 열차 도착</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;">→ 무정차 실측 확인 (9/5 18:10~22:05)</p></div>
+    <div data-rv style="--i:4;background:#191F28;color:#fff;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;min-height:460px;"><div style="font-size:var(--type-small);font-weight:600;color:#FFB27A;">TOPIS 교통 CCTV · 23대</div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:96px;font-weight:800;letter-spacing:-.04em;line-height:1;">60</span><span style="font-size:var(--type-subtitle);font-weight:700;color:#B0B8C1;">초</span></div><div style="font-size:var(--type-body);font-weight:800;line-height:1.3;">다리·진입로 보행 흐름 — 인원·점유 집계, 프레임 미저장</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#B0B8C1;line-height:1.5;">→ 밀도 등급 → 보행속도 · 혼잡장 관측</p></div>
+  </div>
+  <aside class="notes">당일에는 세 개의 눈으로 봅니다. 서울시 도시데이터가 5분마다 구역 인구와 통제를, 실시간 지하철 도착이 틱마다 무정차를, TOPIS CCTV 스물세 대가 60초마다 다리 위 보행 흐름을 줍니다. 전부 공개 소스입니다.</aside>
+</section>
+
+<!-- 7 ─ 실측 처리 -->
+<section data-label="07 실측 처리" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:32px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s7">
+  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">실측 처리 — 5분마다 오늘을 다시 잰다</div>
+  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>관측이 쌓일수록 </span><span style="color:#F36F21;">범위</span><span>가 좁아진다</span></h2>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;align-items:stretch;">
-    <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:32px 36px;display:flex;flex-direction:column;gap:14px;">
+    <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:32px 36px;display:flex;flex-direction:column;gap:16px;">
       <h3 style="margin:0;font-size:var(--type-body);font-weight:800;">① α — 베이즈 격자</h3>
-      <figure data-chart="alpha" style="margin:0;"><canvas style="display:block;width:100%;height:200px;"></canvas></figure>
+      <figure data-chart="alpha" style="margin:0;"><canvas style="display:block;width:100%;height:300px;"></canvas></figure>
       <div style="display:flex;flex-direction:column;gap:6px;font-size:24px;font-weight:600;color:#4E5968;">
         <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#8B95A1;"></i>사전 <b style="color:#191F28;font-family:var(--mono);">1.00 [0.73~1.38]</b></span>
         <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#F36F21;"></i>사후 <b data-alpha-now style="color:#191F28;font-family:var(--mono);">—</b></span>
       </div>
-      <p style="margin:auto 0 0;"><span style="display:inline-block;font-size:24px;font-weight:600;padding:6px 14px;border-radius:10px;background:#FFF4E8;color:#8A4A12;">관측 y 는 α=1.15 가정 · 사전·격자·σ 는 코드 값</span></p>
+      <p style="margin:auto 0 0;"><span style="display:inline-block;font-size:22px;font-weight:600;padding:6px 14px;border-radius:10px;background:#FFF4E8;color:#8A4A12;">관측 y 는 α=1.15 가정 · 사전·격자·σ 는 코드 값</span></p>
     </div>
-    <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:32px 36px;display:flex;flex-direction:column;gap:14px;">
-      <h3 style="margin:0;font-size:var(--type-body);font-weight:800;">② CCTV 23대 → 보행속도</h3>
-      <p style="margin:6px 0;text-align:center;font-size:26px;">\[ v(\rho)=\max\!\big(0.15,\;1.34\,[1-e^{-1.913(1/\rho-1/5.4)}]\big) \]</p>
-      <table style="border-collapse:collapse;width:100%;font-size:24px;">
-        <tr><th style="text-align:left;padding:10px 8px;border-top:2px solid #191F28;border-bottom:1px solid #E5E8EB;font-weight:700;">등급</th><th style="text-align:right;padding:10px 8px;border-top:2px solid #191F28;border-bottom:1px solid #E5E8EB;font-weight:700;font-family:var(--mono);">명/m²</th><th style="text-align:right;padding:10px 8px;border-top:2px solid #191F28;border-bottom:1px solid #E5E8EB;font-weight:700;font-family:var(--mono);">m/분</th></tr>
-        <tr><td style="padding:8px;border-bottom:1px solid #E5E8EB;"><span style="display:inline-block;padding:2px 12px;border-radius:6px;color:#fff;background:#2E7D5B;font-weight:700;">여유</span></td><td style="text-align:right;padding:8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">1.5</td><td style="text-align:right;padding:8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">80</td></tr>
-        <tr><td style="padding:8px;border-bottom:1px solid #E5E8EB;"><span style="display:inline-block;padding:2px 12px;border-radius:6px;color:#fff;background:#8A6400;font-weight:700;">주의</span></td><td style="text-align:right;padding:8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">3.0</td><td style="text-align:right;padding:8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">42</td></tr>
-        <tr><td style="padding:8px;border-bottom:1px solid #E5E8EB;"><span style="display:inline-block;padding:2px 12px;border-radius:6px;color:#fff;background:#B0521C;font-weight:700;">경계</span></td><td style="text-align:right;padding:8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">4.0</td><td style="text-align:right;padding:8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">20</td></tr>
-        <tr><td style="padding:8px;border-bottom:1px solid #E5E8EB;"><span style="display:inline-block;padding:2px 12px;border-radius:6px;color:#fff;background:#B3352B;font-weight:700;">심각</span></td><td style="text-align:right;padding:8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">5.0</td><td style="text-align:right;padding:8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">9</td></tr>
+    <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:32px 36px;display:flex;flex-direction:column;gap:16px;">
+      <h3 style="margin:0;font-size:var(--type-body);font-weight:800;">② 밀도 → 보행속도</h3>
+      <table style="border-collapse:collapse;width:100%;font-size:26px;">
+        <tr><th style="text-align:left;padding:12px 8px;border-top:2px solid #191F28;border-bottom:1px solid #E5E8EB;font-weight:700;">등급</th><th style="text-align:right;padding:12px 8px;border-top:2px solid #191F28;border-bottom:1px solid #E5E8EB;font-weight:700;font-family:var(--mono);">명/m²</th><th style="text-align:right;padding:12px 8px;border-top:2px solid #191F28;border-bottom:1px solid #E5E8EB;font-weight:700;font-family:var(--mono);">m/분</th></tr>
+        <tr><td style="padding:14px 8px;border-bottom:1px solid #E5E8EB;"><span style="display:inline-block;padding:2px 12px;border-radius:6px;color:#fff;background:#2E7D5B;font-weight:700;">여유</span></td><td style="text-align:right;padding:14px 8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">1.5</td><td style="text-align:right;padding:14px 8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">80</td></tr>
+        <tr><td style="padding:14px 8px;border-bottom:1px solid #E5E8EB;"><span style="display:inline-block;padding:2px 12px;border-radius:6px;color:#fff;background:#8A6400;font-weight:700;">주의</span></td><td style="text-align:right;padding:14px 8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">3.0</td><td style="text-align:right;padding:14px 8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">42</td></tr>
+        <tr><td style="padding:14px 8px;border-bottom:1px solid #E5E8EB;"><span style="display:inline-block;padding:2px 12px;border-radius:6px;color:#fff;background:#B0521C;font-weight:700;">경계</span></td><td style="text-align:right;padding:14px 8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">4.0</td><td style="text-align:right;padding:14px 8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">20</td></tr>
+        <tr><td style="padding:14px 8px;border-bottom:1px solid #E5E8EB;"><span style="display:inline-block;padding:2px 12px;border-radius:6px;color:#fff;background:#B3352B;font-weight:700;">심각</span></td><td style="text-align:right;padding:14px 8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">5.0</td><td style="text-align:right;padding:14px 8px;border-bottom:1px solid #E5E8EB;font-family:var(--mono);">9</td></tr>
       </table>
-      <p style="margin:auto 0 0;font-size:24px;color:#4E5968;line-height:1.45;">60초마다 프레임을 집계만 하고 버린다 · DM-Count 군중 계수 · Kladek 식(자유보행 1.34 m/s, 정체 5.4명/m²)</p>
+      <p style="margin:auto 0 0;font-size:22px;color:#4E5968;line-height:1.45;">CCTV 23대 · DM-Count 군중 계수 · Kladek 식(자유보행 1.34 m/s, 정체 5.4명/m²)</p>
     </div>
-    <div data-rv style="--i:4;background:#F2F4F6;border-radius:28px;padding:32px 36px;display:flex;flex-direction:column;gap:14px;">
-      <h3 style="margin:0;font-size:var(--type-body);font-weight:800;">③ 워치독 · 발행</h3>
-      <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px;font-size:24px;line-height:1.45;color:#4E5968;">
-        <li style="flex:none;display:flex;gap:14px;"><i style="flex:none;width:10px;height:10px;border-radius:3px;background:#F36F21;margin-top:12px;"></i><span>30초마다 프로세스 3개 생존 확인 → 죽으면 재기동(실측 17초)</span></li>
-        <li style="flex:none;display:flex;gap:14px;"><i style="flex:none;width:10px;height:10px;border-radius:3px;background:#F36F21;margin-top:12px;"></i><span><span style="font-family:var(--mono);">api_last_ok</span> 표식이 10분 넘게 안 바뀌면 경고 — 오류 레코드로는 못 속인다</span></li>
-        <li style="flex:none;display:flex;gap:14px;"><i style="flex:none;width:10px;height:10px;border-radius:3px;background:#F36F21;margin-top:12px;"></i><span>5분 발행 · 내용 같으면 커밋 안 함 · push 실패 시 rebase 재시도</span></li>
-        <li style="flex:none;display:flex;gap:14px;"><i style="flex:none;width:10px;height:10px;border-radius:3px;background:#F36F21;margin-top:12px;"></i><span>화면엔 "수집 끊김 · 마지막 수신 N분 전"</span></li>
-      </ul>
-    </div>
-  </div>
-  <pre class="strip" data-strip="alpha" data-rv style="--i:5;max-height:190px;"></pre>
-  <p data-rv style="--i:6;margin:0;font-size:24px;color:#8B95A1;line-height:1.5;text-wrap:pretty;">격자 61점(1/3~3) 로그 등간격, 사전 LogNormal(0, 0.25²). 학습이 아니라 갱신이라 축제일 2일로 성립한다. 밴드가 좁아지는 속도가 빠른 건 열린 결정(C1). 보행속도 표의 m/분은 위 식을 등급 대표 밀도에 넣은 값.</p>
-  <aside class="notes">당일층입니다. 오늘이 예년의 몇 배인지 5분마다 베이즈 격자로 갱신합니다. 확신이 아니라 범위를 갱신합니다. CCTV 스물세 대는 프레임을 저장하지 않고 밀도만 세서 보행속도로 바꾸고, 워치독이 30초마다 프로세스를 지킵니다.</aside>
-</section>
-
-<!-- 8 ─ 화면층 -->
-<section data-label="08 화면층" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:24px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s8">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">화면층 — 혼잡장 위에서 길을 고른다</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>못 본 곳은 </span><span style="color:#F36F21;">모른다고</span><span>, 길은 걸을 수 있는 길로</span></h2>
-  <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:32px;align-items:start;">
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <figure data-rv data-chart="field" style="--i:2;margin:0;background:#F2F4F6;border-radius:24px;padding:16px;"><canvas style="display:block;width:100%;height:360px;"></canvas></figure>
-      <div data-rv style="--i:3;display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:24px;font-weight:600;color:#4E5968;">
+    <div data-rv style="--i:4;background:#F2F4F6;border-radius:28px;padding:32px 36px;display:flex;flex-direction:column;gap:16px;">
+      <h3 style="margin:0;font-size:var(--type-body);font-weight:800;">③ 혼잡장 — 못 본 곳은 σ</h3>
+      <figure data-chart="field" style="margin:0;"><canvas style="display:block;width:100%;height:300px;"></canvas></figure>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:24px;font-weight:600;color:#4E5968;">
         <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#2E7D5B;"></i>여유</span><span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#8A6400;"></i>주의</span>
         <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#B0521C;"></i>경계</span><span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#B3352B;"></i>심각</span>
         <b data-field-n style="color:#191F28;font-family:var(--mono);">—</b>
-        <span style="display:inline-block;font-size:24px;font-weight:600;padding:4px 12px;border-radius:10px;background:#FFF4E8;color:#8A4A12;">등급 배치는 예시 · 좌표·커널·σ·GP 식은 실제 값</span>
       </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <figure data-rv data-chart="route" style="--i:4;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:16px;"><canvas data-mode="shortest" style="display:block;width:100%;height:392px;background:#F2F4F6;border-radius:24px;"></canvas><canvas data-mode="avoiding" style="display:block;width:100%;height:392px;background:#F2F4F6;border-radius:24px;"></canvas></figure>
-      <div data-rv style="--i:5;display:flex;gap:24px;flex-wrap:wrap;align-items:center;font-size:24px;font-weight:600;color:#4E5968;">
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#F36F21;"></i>최단 <b style="color:#191F28;font-family:var(--mono);">1,471m · 45분</b></span>
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#3182F6;"></i>혼잡 회피 <b style="color:#191F28;font-family:var(--mono);">1,677m · 21분</b></span>
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(179,53,43,.45);"></i>혼잡 봉우리(가정)</span>
-        <span>노드 <b style="color:#191F28;font-family:var(--mono);">9,219</b> · 간선 <b style="color:#191F28;font-family:var(--mono);">26,042</b> (OSM)</span>
-      </div>
+      <p style="margin:auto 0 0;"><span style="display:inline-block;font-size:22px;font-weight:600;padding:6px 14px;border-radius:10px;background:#FFF4E8;color:#8A4A12;">등급 배치는 예시 · 좌표·커널·σ·GP 식은 실제 값</span></p>
     </div>
   </div>
-  <pre class="strip" data-strip="blend" data-rv style="--i:6;padding:20px 32px;"></pre>
-  <p data-rv style="--i:7;margin:0;font-size:24px;color:#8B95A1;line-height:1.5;text-wrap:pretty;">가우시안 과정 회귀(커널 150m·1200m 이중). 관측 없는 곳은 배제가 아니라 <b style="color:#4E5968;">σ</b> 로 남긴다 — 흐릴수록 근거가 얇은 곳. 이벤트광장→여의도역 직선 1,120m, 걸으면 <b style="color:#4E5968;">1,471m(1.31배)</b> — 모델의 우회계수 1.3 과 같다. 경로 비용은 거리가 아니라 <b style="color:#4E5968;">그 간선을 걷는 시간</b>이라 206m 더 걷고 24분 빠른 길이 이긴다. 반경 150m 봉우리는 가정.</p>
-  <aside class="notes">화면층입니다. 관측 서른 점을 가우시안 과정으로 한 장의 면으로 만들되, 못 본 곳은 모른다고 흐리게 남깁니다. 경로는 실제 보행망 위에서 거리가 아니라 걷는 시간으로 고릅니다. 이백 미터 더 걷고 이십사 분 빠른 길이 이깁니다.</aside>
+  <aside class="notes">관측이 쌓일수록 범위가 좁아집니다. 오늘이 예년의 몇 배인지 5분마다 베이즈 격자로 갱신하고, CCTV 밀도는 보행속도로 바꾸고, 관측 서른 점을 한 장의 혼잡장으로 만들되 못 본 곳은 모른다고 흐리게 남깁니다.</aside>
 </section>
 
-<!-- 9 ─ 검증 -->
-<section data-label="09 검증" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s9">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">검증 — 맞혔는가, 그리고 깨지는가</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>타임머신으로 맞히고, </span><span style="color:#F36F21;">우리 것을 먼저 깼다</span></h2>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;">
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <figure data-rv data-chart="backtest" style="--i:2;margin:0;background:#F2F4F6;border-radius:24px;padding:20px;"><canvas style="display:block;width:100%;height:400px;"></canvas></figure>
-      <div data-rv style="--i:3;display:flex;gap:24px;flex-wrap:wrap;align-items:center;font-size:var(--type-small);font-weight:600;color:#4E5968;">
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#3182F6;"></i>등급 적중</span>
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#F36F21;"></i>등급 불일치</span>
-        <span><b data-bt-hit style="color:#191F28;font-family:var(--mono);">—</b> · 2025 교차연도 (B 모드)</span>
-      </div>
-    </div>
+<!-- 8 ─ 재현 -->
+<section data-label="08 재현" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s8">
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:40px;">
     <div style="display:flex;flex-direction:column;gap:20px;">
-      <figure data-rv data-chart="redteam" style="--i:4;margin:0;"><div class="rt" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;"></div></figure>
-      <p data-rv style="--i:5;margin:0;font-size:var(--type-body);line-height:1.5;color:#4E5968;text-wrap:pretty;">조치는 <b style="color:#191F28;">실패하는 테스트부터</b> — pytest 120건 상시 통과 · 다른 모델(Codex) 교차검증 포함 · 결함 대장 <span style="font-family:var(--mono);font-size:.85em;">redteam-20260901.md</span></p>
+      <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">재현 — 실제 데이터, 실제 화면</div>
+      <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span style="color:#F36F21;">9월 5일 22:06</span><span>, 화면 그대로</span></h2>
+    </div>
+    <div data-rv style="--i:2;display:flex;gap:14px;flex:none;">
+      <a class="btn" href="index.html?at=20260905T2206" target="_blank" rel="noopener">운영 화면 열기 ↗</a>
+      <a class="btn ghost" href="go.html?at=20260905T2206" target="_blank" rel="noopener">관람객 화면 열기 ↗</a>
     </div>
   </div>
-  <p data-rv style="--i:6;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;text-wrap:pretty;">한 해 데이터로 만든 모델이 다른 해를 맞히는가(B 모드) — 등급 적중 88%, 규모 오차 0.42/0.44. 오차가 남아도 화면이 말하는 단위는 등급이다. 오른쪽은 등급별 등재 건수 — 치명·높음은 전부 조치했고 보류·철회는 사유를 대장에 적었다.</p>
-  <aside class="notes">검증입니다. 한 해 데이터로 만든 모델이 다른 해를 맞히는지 봤고 등급 적중 88퍼센트입니다. 그리고 제출 전에 우리 것을 먼저 깼습니다. 다른 모델까지 붙여 결함 서른아홉 건을 등재하고 치명과 높음은 전부 조치했습니다.</aside>
+  <div style="display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center;">
+    <figure class="embed" data-rv style="--i:3;margin:0;display:flex;flex-direction:column;gap:14px;">
+      <div style="position:relative;width:1200px;height:690px;border-radius:20px;overflow:hidden;background:#F2F4F6;border:9px solid #111;box-sizing:content-box;">
+        <iframe src="index.html?at=20260905T2206" title="운영 화면 index.html (9/5 22:06 재생)" style="border:0;width:1600px;height:920px;transform:scale(.75);transform-origin:top left;display:block;"></iframe>
+        <img class="fb" data-src="deck/fallback_ops.png" alt="운영 화면 캡처" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" hidden>
+        <div class="fbmsg" hidden>라이브 화면 — 통신 필요</div>
+      </div>
+      <figcaption style="font-size:var(--type-small);color:#8B95A1;display:flex;gap:12px;"><span>운영 화면</span><span style="font-family:var(--mono);">…/index.html?at=20260905T2206</span></figcaption>
+    </figure>
+    <figure class="embed" data-rv style="--i:4;margin:0;display:flex;flex-direction:column;gap:14px;align-items:center;">
+      <div style="position:relative;width:330px;height:715px;border-radius:48px;overflow:hidden;background:#fff;border:9px solid #111;box-sizing:content-box;">
+        <iframe src="go.html?at=20260905T2206" title="관람객 화면 go.html (9/5 22:06 재생)" style="border:0;width:393px;height:852px;transform:scale(.8397);transform-origin:top left;display:block;background:#fff;"></iframe>
+        <img class="fb" data-src="deck/fallback_go.png" alt="관람객 화면 캡처" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" hidden>
+        <div class="fbmsg" hidden>라이브 화면 — 통신 필요</div>
+      </div>
+      <figcaption style="font-size:var(--type-small);color:#8B95A1;">관람객 화면</figcaption>
+    </figure>
+  </div>
+  <aside class="notes">9월 5일 22시 6분, 화면은 이랬습니다. 여의나루 재개통 직후, 하루 중 가장 붉었던 순간의 발행분을 그대로 재생한 것입니다. 왼쪽이 운영 화면, 오른쪽이 관람객 화면 — 둘 다 실제 배포본입니다.</aside>
 </section>
 
-<!-- 10 ─ 실전 결과 -->
-<section data-label="10 실전 결과" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s10">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">결과 — 9월 5일 실전</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>실전으로 </span><span style="color:#F36F21;">채점받았다</span><span> — 맞힌 것과 놓친 것</span></h2>
+<!-- 9 ─ 예측 vs 실측 -->
+<section data-label="09 예측 vs 실측" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s9">
+  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">예측 vs 실측 — 9월 5일 채점</div>
+  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>맞힌 것과 </span><span style="color:#F36F21;">놓친 것</span></h2>
   <figure data-rv data-chart="live" style="--i:2;margin:0;"><div class="live"></div></figure>
-  <p data-rv style="--i:3;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;text-wrap:pretty;">12:00~24:00 무중단 · <span style="font-family:var(--mono);">evaluate.py --date 20260905</span> 가 만든 숫자만 싣는다. 실측 승차는 핫스팟 합이라 규모가 달라 피크 시각·형태·꼬리 비율만 비교한다. 재기동 1회는 16:44 수집 간격 전환(계획).</p>
-  <aside class="notes">9월 5일 실전 결과입니다. 열두 시간 동안 스냅샷 287개를 발행했고, 유출 피크 시각 22시를 맞혔습니다. 쇼 종료 실시각을 현장에서 기입해 예측이 밀렸고, 서울시 12시간 예측은 피크를 9배 낮게 봤습니다. 놓친 건 23시 꼬리 — 우리 곡선이 너무 빨리 꺼졌습니다. 그대로 적었습니다.</aside>
+  <p data-rv style="--i:3;margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">12:00~24:00 무중단 · <span style="font-family:var(--mono);">evaluate.py --date 20260905</span> 가 만든 숫자만 싣는다.</p>
+  <aside class="notes">9월 5일 실전 채점입니다. 열두 시간 동안 스냅샷 287개를 발행했고 유출 피크 22시를 맞혔습니다. 쇼 종료 실시각을 현장에서 기입해 곡선이 밀렸고, 서울시 12시간 예측은 피크를 9배 낮게 봤습니다. 놓친 건 23시 꼬리 — 그대로 적었습니다.</aside>
 </section>
 
-<!-- 11 ─ AI 활용 · 확장 -->
-<section data-label="11 AI 활용 · 확장" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s11">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">AI 도구 활용 — 그리고 확장</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>판단은 사람이, </span><span style="color:#F36F21;">구현은 AI가</span></h2>
-  <div style="display:grid;grid-template-columns:1.15fr 1fr;gap:56px;align-items:start;">
-    <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:var(--gap-item);font-size:var(--type-body);line-height:1.45;color:#4E5968;align-self:start;">
-      <li data-rv style="flex:none;--i:2;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">데이터 파이프라인</b> — 공공 데이터 7종 수집·정제·검증</span></li>
-      <li data-rv style="flex:none;--i:3;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">예측 엔진</b> — 구조 모델 + 베이즈 α + 이월 규칙</span></li>
-      <li data-rv style="flex:none;--i:4;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">수집기 2종</b> — 도시데이터 5분 · CCTV 60초 (DM-Count)</span></li>
-      <li data-rv style="flex:none;--i:5;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">검증 3층</b> — 백테스트 · pytest · 당일 채점기</span></li>
-      <li data-rv style="flex:none;--i:6;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">산출물</b> — 대시보드 · 보고서 · 이 덱, 전부 코드로 생성·검증</span></li>
-      <li data-rv style="flex:none;--i:7;display:flex;gap:18px;"><i style="flex:none;width:12px;height:12px;border-radius:4px;background:#F36F21;margin-top:15px;"></i><span><b style="color:#191F28;">과정 기록</b> — 실패·정정 포함 커밋 로그, 버린 결정 문서화</span></li>
-    </ul>
-    <div data-rv style="--i:8;background:#F36F21;color:#fff;border-radius:28px;padding:48px;display:flex;flex-direction:column;gap:20px;">
+<!-- 10 ─ 다음 스텝 -->
+<section data-label="10 다음 스텝" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s10">
+  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">다음 스텝 — 보고서 §6.4</div>
+  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>현실화 플랜 — </span><span style="color:#F36F21;">놓친 것부터</span><span> 고친다</span></h2>
+  <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:stretch;">
+    <ol style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <li data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:36px 40px;display:flex;flex-direction:column;gap:12px;"><span style="font-size:var(--type-small);font-weight:800;color:#F36F21;">1 · 꼬리 형태</span><b style="font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.25;">감쇠 f(h) 를 3년으로 재적합</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">조기 무정차가 있는 해와 없는 해를 나눠 본다 (M15)</span></li>
+      <li data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:36px 40px;display:flex;flex-direction:column;gap:12px;"><span style="font-size:var(--type-small);font-weight:800;color:#F36F21;">2 · 혼잡장</span><b style="font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.25;">LOO 교차검증 + 보행망 커널</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">길이척도·σ 를 9/5 관측으로 고르고, 유클리드 대신 보행망 거리</span></li>
+      <li data-rv style="--i:4;background:#F2F4F6;border-radius:28px;padding:36px 40px;display:flex;flex-direction:column;gap:12px;"><span style="font-size:var(--type-small);font-weight:800;color:#F36F21;">3 · 순위</span><b style="font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.25;">부하율이 아니라 도착 시각 기준</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">"지금 출발 → 도착 시각"으로 정렬 (M1)</span></li>
+      <li data-rv style="--i:5;background:#F2F4F6;border-radius:28px;padding:36px 40px;display:flex;flex-direction:column;gap:12px;"><span style="font-size:var(--type-small);font-weight:800;color:#F36F21;">4 · CCTV</span><b style="font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.25;">근경 ROI 재측정</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">보정 카메라를 되살린다 (H6)</span></li>
+    </ol>
+    <div data-rv style="--i:6;background:#F36F21;color:#fff;border-radius:28px;padding:48px;display:flex;flex-direction:column;gap:20px;justify-content:center;">
       <h3 style="margin:0;font-size:var(--type-body);font-weight:800;">같은 뼈대로 다른 현장</h3>
       <p style="margin:0;font-size:var(--type-small);line-height:1.5;color:#FFF0E6;">실측 뼈대 + 당일 보정 + 검증 — 이 구조는 행사와 무관하다.</p>
       <p style="margin:0;font-size:var(--type-small);line-height:1.5;color:#FFF0E6;text-wrap:pretty;"><b style="color:#fff;">한화 적용안</b> — 오렌지세이프티(주최측 안전 관제)에 <b style="color:#fff;">관람객 귀가 레이어</b>를 얹는다. 행사 주최사가 관제와 관람객 안내를 한 데이터로 본다.</p>
     </div>
   </div>
-  <p data-rv style="--i:9;margin:0;font-size:var(--type-small);color:#8B95A1;line-height:1.5;">프롬프트·명령·실패·패치 기록: 저장소 문서 + 커밋 로그 (Claude Code)</p>
-  <aside class="notes">판단은 사람이 하고 구현은 AI가 했습니다. 파이프라인, 엔진, 수집기, 검증, 이 덱까지 전부 코드로 만들고 검증했고, 실패와 정정도 커밋 로그에 남겼습니다. 같은 뼈대는 다른 행사에도 그대로 갑니다. 한화에서는 오렌지세이프티에 관람객 레이어를 얹는 그림입니다.</aside>
+  <aside class="notes">현실화 플랜은 놓친 것부터 고칩니다. 꼬리 형태는 3년으로 재적합, 혼잡장은 LOO 교차검증과 보행망 커널, 순위는 도착 시각 기준, CCTV 는 ROI 재측정. 회귀 테스트 120건이 상시 통과하고, 같은 뼈대는 오렌지세이프티에 관람객 레이어로 얹습니다.</aside>
 </section>
 
-<!-- 12 ─ 클로징 -->
-<section data-label="12 클로징" style="background:#17171C;color:#fff;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s12">
+<!-- 11 ─ 클로징 -->
+<section data-label="11 클로징" style="background:#17171C;color:#fff;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s11">
   <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">클로징</div>
   <h1 data-rv style="--i:1;margin:0;font-size:92px;line-height:1.14;font-weight:800;letter-spacing:-.035em;max-width:1300px;"><span>예측은 </span><span style="color:#F36F21;">검증까지</span><span>가 제품이다</span></h1>
   <p data-rv style="--i:2;margin:0;font-size:var(--type-subtitle);line-height:1.4;color:#fff;font-weight:700;max-width:1100px;">불꽃배웅 <span style="color:#8B95A1;font-weight:500;">—</span> 눈부신 밤의 끝, 집으로 가는 길까지.</p>
-  <p data-rv style="--i:3;margin:0;font-size:var(--type-body);line-height:1.4;color:#D1D6DB;font-weight:500;max-width:1100px;text-wrap:pretty;">실측을 뼈대로, 불확실성은 밴드로, 당일 실전으로 채점 — 끝까지 숫자로 말한다.</p>
-  <p data-rv style="--i:4;margin:0;font-size:var(--type-small);color:#8B95A1;display:flex;gap:28px;flex-wrap:wrap;line-height:1.5;"><span>대시보드 <span style="font-family:var(--mono);">jaefit.github.io/hanwha-ai-challenge</span></span><span>팀 보고서 <span style="font-family:var(--mono);">…/report.html</span></span><span>저장소 <span style="font-family:var(--mono);">github.com/jaefit/hanwha-ai-challenge</span></span></p>
-  <aside class="notes">실측을 뼈대로, 불확실성은 밴드로, 당일 실전으로 채점했습니다. 예측은 검증까지가 제품입니다. 불꽃배웅 — 눈부신 밤의 끝, 집으로 가는 길까지. 감사합니다.</aside>
+  <p data-rv style="--i:3;margin:0;font-size:var(--type-small);color:#8B95A1;display:flex;gap:28px;flex-wrap:wrap;line-height:1.5;"><span>대시보드 <span style="font-family:var(--mono);">jaefit.github.io/hanwha-ai-challenge</span></span><span>팀 보고서 <span style="font-family:var(--mono);">…/report.html</span></span><span>저장소 <span style="font-family:var(--mono);">github.com/jaefit/hanwha-ai-challenge</span></span></p>
+  <aside class="notes">설계하고, 예측하고, 실전으로 검증했고, 후속 플랜까지 있습니다. 예측은 검증까지가 제품입니다. 불꽃배웅 — 눈부신 밤의 끝, 집으로 가는 길까지. 감사합니다.</aside>
 </section>
 
 </deck-stage>
@@ -332,19 +277,18 @@ body.notes #np{display:flex}
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
 <script type="module">
-import { countUp, playChart, loadStrips } from "./app/deck_charts.js";
+import { countUp, playChart } from "./app/deck_charts.js";
 const stage = document.querySelector("deck-stage");
 
-/* 슬라이드 진입마다 차트·카운트업·코드 스트립·노트 */
+/* 슬라이드 진입마다 차트·카운트업·노트 */
 function enter(slide) {
   if (!slide) return;
-  countUp(slide); playChart(slide); loadStrips(slide);
+  countUp(slide); playChart(slide);
   const a = slide.querySelector("aside.notes");
   document.querySelector("#np .np-text").textContent = a ? a.textContent.trim() : "";
 }
 stage.addEventListener("slidechange", (e) => enter(e.detail && e.detail.slide));
 enter(stage.querySelector("[data-deck-active]"));   // 모듈이 늦게 붙어 첫 slidechange 를 놓친 경우
-loadStrips(stage);
 
 /* 발표자 노트 — n 토글 · t 시계 리셋 · f 전체화면 (←→ 등 이동 키는 deck-stage 가 맡는다) */
 function toggleFullscreen() {

@@ -37,33 +37,16 @@ def test_deck_data_lives_outside_docs_data():
 
 
 CHART_FILES = {"exits": "exit_bars", "radial": "feeder_map", "feeder": "feeder_lag", "alpha": "alpha_grid",
-               "field": "field_grid", "route": "route_demo", "backtest": "backtest_bars",
-               "redteam": "redteam_counts", "live": "live_result"}
-# 2026-09-09 디자인 원안(Pitch Deck v2, 12장)으로 되돌림 — replay·sources·process·route_real 은 JSON 만 남고 덱엔 안 그린다
+               "field": "field_grid", "live": "live_result"}
+# 2026-09-09 v3(파이프라인 순서 11장) — route·backtest·redteam·replay·sources·process·route_real 은 JSON 과 데이터 테스트만 남고 덱엔 안 그린다
 
 
 def test_every_chart_has_its_data_file(html):
     keys = set(re.findall(r'data-chart="([a-z]+)"', html))
     assert keys <= set(CHART_FILES), keys - set(CHART_FILES)
-    assert keys == set(CHART_FILES), f"차트 9종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
+    assert keys == set(CHART_FILES), f"차트 6종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
     for k in keys:
         assert (DATA / f"{CHART_FILES[k]}.json").exists(), f"{CHART_FILES[k]}.json 이 없다"
-
-
-def test_route_numbers_in_copy_match_export(html):
-    """슬라이드 본문의 경로 수치가 내보내기와 같은가."""
-    d = _json("route_demo")
-    short = d["routes"]["shortest"]["meters"]
-    assert f"{short:,}m" in html, f"본문에 최단 {short:,}m 이 없다"
-    assert f"{d['straight_m']:,}m" in html, f"본문에 직선 {d['straight_m']:,}m 이 없다"
-    ratio = round(short / d["straight_m"], 2)
-    assert f"{ratio:.2f}배" in html, f"본문 우회비가 {ratio:.2f}배 와 다르다"
-    n, e = d["graph_size"]["nodes"], d["graph_size"]["edges"]
-    assert f"{n:,}" in html and f"{e:,}" in html
-    m = d["minutes"]
-    assert f"{short:,}m · {m['shortest']}분" in html, f"최단 보행시간 {m['shortest']}분 이 본문과 다르다 (÷1.4 hotfix 뒤 재생성했나)"
-    assert f"{d['routes']['avoiding']['meters']:,}m · {m['avoiding']}분" in html
-    assert f"{m['shortest'] - m['avoiding']}분 빠른" in html
 
 
 def test_route_export_reproduces_measured_distance():
@@ -78,9 +61,10 @@ def test_route_export_reproduces_measured_distance():
 def test_feeder_correlation_in_copy_matches_source(html):
     d = _json("feeder_lag")
     y = d["years"]["2025"]
-    assert f"{y['r_lag0']:.2f} → {y['r_lag1']:.2f}" in html, \
+    text = re.sub(r"<[^>]+>", "", html)     # v3 디자인은 0.98 만 <b> 로 강조한다
+    assert f"{y['r_lag0']:.2f} → {y['r_lag1']:.2f}" in text, \
         f"본문 상관계수가 원본({y['r_lag0']:.2f} → {y['r_lag1']:.2f})과 다르다"
-    assert str(d["pooled_r_lag1"]) in html, "두 해 통합 r 이 본문에 없다"
+    assert str(d["pooled_r_lag1"]) in text, "두 해 통합 r 이 본문에 없다"
     src = json.loads((DER / "feeder_leadlag.json").read_text(encoding="utf-8"))
     assert y["r_lag1"] == src["by_year"]["2025"]["pearson_lag1"], "내보내기가 derived 와 갈렸다"
 
@@ -88,7 +72,8 @@ def test_feeder_correlation_in_copy_matches_source(html):
 def test_backtest_hit_rate_in_copy_matches_source(html):
     d = _json("backtest_bars")
     hit = d["modes"]["B_cross_year"]["years"]["2025"]["grade_hit_rate"]
-    assert f"{round(hit * 100)}%" in html, f"본문에 등급 적중 {round(hit * 100)}% 이 없다"
+    text = re.sub(r"<[^>]+>", "", html)     # 디자인은 88 과 % 를 다른 span 에 둔다
+    assert f"{round(hit * 100)}%" in text, f"본문에 등급 적중 {round(hit * 100)}% 이 없다"
     src = json.loads((DER / "backtest.json").read_text(encoding="utf-8"))
     assert hit == src["modes"]["B_cross_year"]["2025"]["grade_hit_rate"]
 
@@ -272,8 +257,7 @@ def test_route_real_is_measured_not_scenario():
                 assert r["extra_m"] > 0 and r["saved_sec"] > 0, r
             else:
                 assert r["extra_m"] == 0 and r["saved_sec"] == 0, r
-    assert any(r["changed"] for f in d["frames"] for r in f["routes"]), "실측에서 하나도 안 바뀌면 8b 문구를 바꿔야 한다"
-    assert "봉우리(가정)" in DECK.read_text(encoding="utf-8"), "시나리오 패널에 가정 라벨"
+    assert any(r["changed"] for f in d["frames"] for r in f["routes"]), "실측에서 하나도 안 바뀌면 보고서 §3.10 문구를 바꿔야 한다"
 
 
 # ── v2 — 구조 ─────────────────────────────────────────────────────────
@@ -281,10 +265,10 @@ def _sections(html):
     return re.findall(r'<section [^>]*class="slide[^"]*" id="(s\d+)">(.*?)</section>', html, re.S)
 
 
-N_SLIDES = 12   # 2026-09-09 Claude Design 「Pitch Deck v2」 원안 12장으로 되돌림 (사용자 결정 — 14장 재편판은 07f6411 에 있다)
+N_SLIDES = 11   # 2026-09-09 v3 — 파이프라인 순서 11장 (스펙 docs/superpowers/specs/2026-09-09-deck-v3-design.md). 앞 판: v2 12장 7fd2a95 · 14장 07f6411
 
 
-def test_twelve_sections_each_with_heading_and_notes(html):
+def test_eleven_sections_each_with_heading_and_notes(html):
     secs = _sections(html)
     assert [s[0] for s in secs] == [f"s{i}" for i in range(1, N_SLIDES + 1)]
     for sid, body in secs:
@@ -325,12 +309,23 @@ def test_embeds_are_real_screens_replayed_without_geolocation_prompt(html):
     assert "deck/fallback_go.png" in html and "deck/fallback_ops.png" in html
 
 
-def test_code_strip_slots_match_export(html):
-    """디자인 원안대로 5·7·8장에 코드 스트립 3개 (2026-09-09 사용자 결정 — 9/6 의 코드 제거를 되돌림). 손 복사 금지 — 로더가 code_strips.json 을 읽는다."""
-    slots = re.findall(r'<pre class="strip[^"]*" data-strip="([a-z]+)"', html)
-    assert slots == ["demand", "alpha", "blend"]
-    assert "loadStrips" in html, "코드 스트립 로더 호출이 없다"
+def test_no_code_strips_on_deck(html):
+    """v3 스펙(2026-09-09) — 글 밀도를 줄이려 코드 스트립·부록 없음. 수식(KaTeX)은 유지. code_strips.json 은 보고서용으로 남는다."""
+    assert "data-strip=" not in html and "loadStrips" not in html, "코드 스트립이 남아 있다"
     assert html.count("katex") >= 2, "수식(KaTeX)은 남긴다"
+
+
+def test_next_steps_come_from_report_and_lag_from_sources(html):
+    """10장 다음 스텝 4항목은 보고서 §6.4 에 있는 것만 말한다. 3장의 발행 시차는 sources.json(9/5 실측)과 같은 값."""
+    rep_html = (ROOT / "docs" / "report.html").read_text(encoding="utf-8")
+    i = rep_html.index("6.4 다음 단계")
+    sec = re.sub(r"<[^>]+>", " ", rep_html[i:i + 4000])
+    for kw in ("M15", "LOO", "도착 시각", "ROI"):
+        assert kw in html, f"덱 10장에 {kw} 가 없다"
+        assert kw in sec, f"보고서 §6.4 에 {kw} 가 없다 — 덱이 보고서에 없는 계획을 말한다"
+    lag = re.search(r"발행 시차 ([\d.]+)분", html)
+    assert lag, "3장에 발행 시차가 없다"
+    assert any(f"발행 시차 {lag.group(1)}분" in r["limit"] for r in _json("sources")["rows"]), "발행 시차 값이 sources.json 과 다르다"
 
 
 def test_speaker_notes_fit_five_minutes(html):
