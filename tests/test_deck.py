@@ -36,16 +36,16 @@ def test_deck_data_lives_outside_docs_data():
     assert DATA.is_dir(), "docs/deck 이 없다"
 
 
-CHART_FILES = {"exits": "exit_bars", "feeder": "feeder_lag", "alpha": "alpha_grid",   # 방사형(feeder_map)은 보고서 그림 1 로 — 덱에서 뺐다(9/6)
+CHART_FILES = {"exits": "exit_bars", "radial": "feeder_map", "feeder": "feeder_lag", "alpha": "alpha_grid",
                "field": "field_grid", "route": "route_demo", "backtest": "backtest_bars",
-               "redteam": "redteam_counts", "live": "live_result", "replay": "replay_frames",
-               "sources": "sources", "process": "process", "routereal": "route_real"}
+               "redteam": "redteam_counts", "live": "live_result"}
+# 2026-09-09 디자인 원안(Pitch Deck v2, 12장)으로 되돌림 — replay·sources·process·route_real 은 JSON 만 남고 덱엔 안 그린다
 
 
 def test_every_chart_has_its_data_file(html):
     keys = set(re.findall(r'data-chart="([a-z]+)"', html))
     assert keys <= set(CHART_FILES), keys - set(CHART_FILES)
-    assert keys == set(CHART_FILES), f"차트 12종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
+    assert keys == set(CHART_FILES), f"차트 9종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
     for k in keys:
         assert (DATA / f"{CHART_FILES[k]}.json").exists(), f"{CHART_FILES[k]}.json 이 없다"
 
@@ -206,7 +206,7 @@ def test_live_result_numbers_come_from_evaluate():
 
 
 def test_replay_frames_are_verbatim_snapshots(html):
-    """s11 은 발행 스냅샷을 그대로 재생한다 — 재계산 금지. 맥에 원천이 있으면 값까지 대조한다."""
+    """발행 스냅샷을 그대로 옮긴 데이터다 — 재계산 금지. 맥에 원천이 있으면 값까지 대조한다. (12장 판엔 재생 장이 없어 데이터만 지킨다)"""
     d = _json("replay_frames")
     assert len(d["frames"]) == 6, "재생 시각 6개"
     ats = [f["at"] for f in d["frames"]]
@@ -214,7 +214,6 @@ def test_replay_frames_are_verbatim_snapshots(html):
     for f in d["frames"]:
         assert len(f["loads"]) == 7, f"{f['at']}: 출구 7개"
         assert set(f["outflow"]) == {"19", "20", "21", "22", "23"}
-    assert f'href="index.html?at=20260905T{d["peak"]}"' in html and f'href="go.html?at=20260905T{d["peak"]}"' in html
     hist = ROOT / "data" / "live" / "forecast_history" / "20260905"
     if not hist.exists():
         pytest.skip("발행 스냅샷 원천은 맥에만 있다")
@@ -232,13 +231,6 @@ def test_pytest_count_in_copy_is_current(html):
     assert m, "검증 장에 테스트 건수가 없다"
     n = sum(len(re.findall(r"^def test_", p.read_text(encoding="utf-8"), re.M)) for p in (ROOT / "tests").glob("test_*.py"))
     assert int(m.group(1)) == n, f"본문 pytest {m.group(1)}건 vs 실제 {n}건 — 덱 9장 숫자를 고쳐라"
-
-
-def test_acts_are_numbered_on_kickers(html):
-    """정리감의 근거 — 킥커에 막 번호. Ⅰ 문제 · Ⅱ 재료 · Ⅲ 구현 · Ⅳ 과정 · Ⅴ 결과."""
-    acts = re.findall(r'<span class="act">([ⅠⅡⅢⅣⅤ]) ([^<]+)</span>', html)
-    assert [a for a, _ in acts] == list("ⅠⅡⅡⅢⅢⅢⅢⅢⅣⅣⅤⅤⅤ"), [a for a, _ in acts]
-    assert dict(acts) == {"Ⅰ": "문제", "Ⅱ": "재료", "Ⅲ": "구현", "Ⅳ": "과정", "Ⅴ": "결과"}
 
 
 def test_sources_table_has_eight_public_rows():
@@ -269,7 +261,7 @@ def test_process_numbers_come_from_git_tests_and_ledger():
 
 
 def test_route_real_is_measured_not_scenario():
-    """8b 오른쪽 표 — 9/5 실측 장. 시각 6 × 목적지 6, changed 와 extra_m·saved_sec 가 서로 맞는가."""
+    """9/5 실측 장(route_real). 시각 6 × 목적지 6, changed 와 extra_m·saved_sec 가 서로 맞는가. 12장 판엔 안 그리지만 데이터는 지킨다."""
     d = _json("route_real")
     assert len(d["frames"]) == 6
     for f in d["frames"]:
@@ -281,7 +273,7 @@ def test_route_real_is_measured_not_scenario():
             else:
                 assert r["extra_m"] == 0 and r["saved_sec"] == 0, r
     assert any(r["changed"] for f in d["frames"] for r in f["routes"]), "실측에서 하나도 안 바뀌면 8b 문구를 바꿔야 한다"
-    assert "봉우리 가정" in DECK.read_text(encoding="utf-8"), "시나리오 패널에 가정 라벨"
+    assert "봉우리(가정)" in DECK.read_text(encoding="utf-8"), "시나리오 패널에 가정 라벨"
 
 
 # ── v2 — 구조 ─────────────────────────────────────────────────────────
@@ -289,10 +281,10 @@ def _sections(html):
     return re.findall(r'<section [^>]*class="slide[^"]*" id="(s\d+)">(.*?)</section>', html, re.S)
 
 
-N_SLIDES = 14   # 2026-09-06 재편(Task 13): Ⅰ 문제 2 · Ⅱ 재료 2 · Ⅲ 구현 5 · Ⅳ 과정 2 · Ⅴ 결과 3
+N_SLIDES = 12   # 2026-09-09 Claude Design 「Pitch Deck v2」 원안 12장으로 되돌림 (사용자 결정 — 14장 재편판은 07f6411 에 있다)
 
 
-def test_fourteen_sections_each_with_heading_and_notes(html):
+def test_twelve_sections_each_with_heading_and_notes(html):
     secs = _sections(html)
     assert [s[0] for s in secs] == [f"s{i}" for i in range(1, N_SLIDES + 1)]
     for sid, body in secs:
@@ -333,10 +325,11 @@ def test_embeds_are_real_screens_replayed_without_geolocation_prompt(html):
     assert "deck/fallback_go.png" in html and "deck/fallback_ops.png" in html
 
 
-def test_no_code_lines_on_deck(html):
-    """2026-09-06 사용자 결정 — 비전공 심사자 대상이라 실제 코드 라인은 덱에서 뺀다(수식은 유지). code_strips.json 은 보고서용으로 남는다."""
-    assert 'data-strip=' not in html, "덱에 코드 스트립이 남아 있다"
-    assert 'loadStrips' not in html, "코드 스트립 로더 호출이 남아 있다"
+def test_code_strip_slots_match_export(html):
+    """디자인 원안대로 5·7·8장에 코드 스트립 3개 (2026-09-09 사용자 결정 — 9/6 의 코드 제거를 되돌림). 손 복사 금지 — 로더가 code_strips.json 을 읽는다."""
+    slots = re.findall(r'<pre class="strip[^"]*" data-strip="([a-z]+)"', html)
+    assert slots == ["demand", "alpha", "blend"]
+    assert "loadStrips" in html, "코드 스트립 로더 호출이 없다"
     assert html.count("katex") >= 2, "수식(KaTeX)은 남긴다"
 
 

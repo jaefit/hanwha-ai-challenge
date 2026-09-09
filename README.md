@@ -11,7 +11,7 @@
 | **[▶ 관람객 화면](https://jaefit.github.io/hanwha-ai-challenge/go.html)** | 열면 답이 먼저 — 가장 빨리 닿는 출구 · 걸어서 N분 · 등급 · 시간대 스크럽. 묻는 것 0 |
 | **[운영 대시보드](https://jaefit.github.io/hanwha-ai-challenge/)** | 출구 상태판 · 유출 예측 · CCTV 23대 · 혼잡장(GP 회귀) · 오프라인 카드 |
 | **[9/5 22:06 재생](https://jaefit.github.io/hanwha-ai-challenge/index.html?at=20260905T2206)** · [관람객](https://jaefit.github.io/hanwha-ai-challenge/go.html?at=20260905T2206) | 실전 당일 발행분을 그 시각 그대로. 배너 칩으로 20:05 → 23:02 여섯 시점 이동 |
-| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 14장 · 5분 · 재료 → 구현 → 과정 → 결과. `n` 노트, `t` 시계 |
+| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 12장 · 5분 · 문제 → 화면 실물 → 3층 해부 → 검증 → 실전 결과. `n` 노트, `t` 시계 |
 | [팀 보고서](https://jaefit.github.io/hanwha-ai-challenge/report.html) · [쉬운 버전](https://jaefit.github.io/hanwha-ai-challenge/report_easy.html) | 모델 수식·실측표·외부 검증·적대적 검증 / 같은 내용을 수식 없이 |
 
 행사가 끝난 뒤 라이브 화면은 사전 예측표만 보여준다. 실물은 위 **재생** 링크로 본다.
@@ -44,7 +44,7 @@
 | 혼잡장 | `docs/app/field.js` | CCTV 23대 + 서울시 구역등급을 가우시안 과정 회귀로 한 면에. 못 본 곳은 흐리게 |
 | 보행 경로탐색 | `routing/` | OSM 보행망 A*, 비용 = 거리 × (1 + 1.25 × 혼잡위험). 9/5 실측 장에서 36건 중 11건 경로가 바뀜(`tools/route_real.mjs`) |
 | 채점 | `src/evaluate.py` → `data/derived/eval_20260905.json` | 서울시 12h 기준선 · α 추이 · 지하철 형태 상관 · 꼬리 비율 |
-| 피치 덱 | `docs/deck.html` + `docs/deck/*.json` | 14장. 숫자는 전부 `tools/deck_data.py` 가 git·tests·대장·평가 파일에서 셈 — 손 숫자 없음, `tests/test_deck.py` 가 대조 |
+| 피치 덱 | `docs/deck.html` + `docs/deck/*.json` | 12장(Claude Design 「Pitch Deck v2」 원안). 숫자는 전부 `tools/deck_data.py` 가 git·tests·대장·평가 파일에서 셈 — 손 숫자 없음, `tests/test_deck.py` 가 대조 |
 | 소개 영상 | `video/` | 대본 12블록 · 녹화본(3:30, 프레임 그대로) 위에 TTS·자막을 얹는 파이프라인. 영상 파일은 레포 밖 |
 | 결함 대장 | [redteam-20260901.md](redteam-20260901.md) | 7회차 39건. 다른 모델(Codex) 교차검증 포함. **05의 결함은 여기에만 적는다** |
 | 회귀 테스트 | `tests/` | 122건 — `.venv/bin/python -m pytest tests -q`. `field_spec.mjs` 는 배포 중인 `field.js` 를 node 로 직접 검증 |
