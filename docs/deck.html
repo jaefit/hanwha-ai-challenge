@@ -258,7 +258,7 @@ body.notes #np{display:flex}
       <p style="margin:0;font-size:var(--type-small);line-height:1.5;color:#FFF0E6;text-wrap:pretty;"><b style="color:#fff;">한화 적용안</b> — 오렌지세이프티(주최측 안전 관제)에 <b style="color:#fff;">관람객 귀가 레이어</b>를 얹는다. 행사 주최사가 관제와 관람객 안내를 한 데이터로 본다.</p>
     </div>
   </div>
-  <aside class="notes">현실화 플랜은 놓친 것부터 고칩니다. 꼬리 형태는 3년으로 재적합, 혼잡장은 LOO 교차검증과 보행망 커널, 순위는 도착 시각 기준, CCTV 는 ROI 재측정. 회귀 테스트 121건이 상시 통과하고, 같은 뼈대는 오렌지세이프티에 관람객 레이어로 얹습니다.</aside>
+  <aside class="notes">현실화 플랜은 놓친 것부터 고칩니다. 꼬리 형태는 3년으로 재적합, 혼잡장은 LOO 교차검증과 보행망 커널, 순위는 도착 시각 기준, CCTV 는 ROI 재측정. 회귀 테스트 122건이 상시 통과하고, 같은 뼈대는 오렌지세이프티에 관람객 레이어로 얹습니다.</aside>
 </section>
 
 <!-- 11 ─ 클로징 -->
@@ -300,6 +300,13 @@ function toggleFullscreen() {
   const r = req ? req.call(el) : null;   // Safari 구판은 Promise 를 안 돌려준다
   if (r && r.catch) r.catch(() => {});
 }
+/* 전체화면이면 왼쪽 썸네일 레일을 뗀다 — no-rail 은 deck-stage 의 관찰 속성이라 붙이면 무대 폭도 다시 잰다 */
+function syncRail() {
+  const fs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+  if (fs) stage.setAttribute("no-rail", ""); else stage.removeAttribute("no-rail");
+}
+document.addEventListener("fullscreenchange", syncRail);
+document.addEventListener("webkitfullscreenchange", syncRail);
 let T0 = Date.now();
 setInterval(() => {
   const t = Math.floor((Date.now() - T0) / 1000);

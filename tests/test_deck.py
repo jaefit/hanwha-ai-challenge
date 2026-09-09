@@ -336,6 +336,13 @@ def test_embed_fallback_message_respects_hidden(html):
         "fbmsg 의 display 규칙이 [hidden] 을 덮어쓴다 — .fbmsg[hidden]{display:none} 이 필요하다"
 
 
+def test_fullscreen_hides_thumbnail_rail(html):
+    """f 전체화면(9/9) 에서 왼쪽 썸네일 레일이 남으면 발표 화면이 아니다 — deck-stage 의 관찰 속성 `no-rail` 을 fullscreenchange 마다 맞춘다."""
+    assert "toggleFullscreen" in html
+    assert re.search(r'addEventListener\("fullscreenchange"', html), "fullscreenchange 리스너가 없다"
+    assert 'setAttribute("no-rail"' in html and 'removeAttribute("no-rail")' in html, "no-rail 토글이 없다"
+
+
 def test_speaker_notes_fit_five_minutes(html):
     """장당 25초 — 한국어 발화 ≈ 분당 300자. 60~140자면 20~30초. 빈 노트는 발표 중 화면이 침묵한다."""
     notes = re.findall(r'<aside class="notes">(.*?)</aside>', html, re.S)
