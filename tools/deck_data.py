@@ -247,15 +247,15 @@ def live_result():
         {"v": str(len(snaps)), "label": "발행 스냅샷", "sub": "5분 간격 · 12:00~24:00 자동"},
         {"v": f"{ev['n_records']:,}", "label": "API 수집 레코드", "sub": (f"CCTV 판독 {cctv_n:,}" if cctv_n else "CCTV 23대 60초")},
         {"v": f"{a_last[1]:.2f}", "label": "당일 인원 배율 α 최종 [p10~p90]", "sub": f"{a_last[0]:.2f}~{a_last[2]:.2f} · 사전 1.00 · 최고 {a_max:.2f}"},
-        {"v": f"{sh['peak_obs']}시", "label": "유출 정점 시각 일치", "sub": f"예측 {sh['peak_pred']}시 · 형태 상관 r {sh['pearson']:.2f}"},
+        {"v": f"{sh['peak_obs']}시", "label": "빠져나가는 흐름 정점 일치", "sub": f"예측 {sh['peak_pred']}시 · 형태 상관 r {sh['pearson']:.2f}"},
     ]
     cards = [
         {"kind": "hit", "kicker": "실제 행사 종료 시각 반영", "title": f"계획 21:10 · 실제 종료 {show_end} (+{int(show_end[:2]) * 60 + int(show_end[3:]) - 21 * 60 - 10}분)",
-         "body": "현장 입력 후 유출 예측 시점을 조정했습니다 — 21:36 발행분부터 21시 유출 예측 76.6천 → 88.3천."},
-        {"kind": "hit", "kicker": "서울시 선행 예측의 오차", "title": f"MAPE {ev['seoul_12h']['mape']:.2f} · 22시 5.75천 vs 실측 53천",
+         "body": "현장 입력 후 빠져나가는 흐름의 예측 시점을 조정했습니다 — 21:36 발행분부터 21시 예측 76.6천 → 88.3천."},
+        {"kind": "hit", "kicker": "서울시가 미리 내놓은 예측의 오차", "title": f"MAPE {ev['seoul_12h']['mape']:.2f} · 22시 5.75천 vs 실측 53천",
          "body": "서울시 12시간 예측은 저녁 정점 인원을 실측의 약 1/9 수준으로 추정했습니다. 본 모델은 5분마다 관측으로 배율을 갱신합니다."},
-        {"kind": "miss", "kicker": "23시 유출 인원 과소 추정", "title": f"정점 대비 실측 {round(tail_obs * 100)}%, 예측 {round(tail_pred * 100)}%",
-         "body": "예측보다 많은 인원이 늦은 시간까지 이동했습니다. 여의나루역 조기 무정차(18:10~22:05)와 겹쳐 22시 이후 승차가 길게 이어졌습니다. 결함 대장에 등재."},
+        {"kind": "miss", "kicker": "23시에 빠져나간 인원 과소 추정", "title": f"정점 대비 실측 {round(tail_obs * 100)}%, 예측 {round(tail_pred * 100)}%",
+         "body": "예측보다 많은 인원이 늦은 시간까지 이동했습니다. 행사 종료 후 빠져나가는 흐름의 분포를 보정할 필요가 있습니다. 결함 대장에 등재."},
     ]
     return {"filled": True, "date": "2026-09-05",
             "grade_hit": f"피크 {sh['peak_obs']}시 일치 · r {sh['pearson']:.2f}", "alpha_final": f"{a_last[1]:.2f} [{a_last[0]:.2f}~{a_last[2]:.2f}]",
