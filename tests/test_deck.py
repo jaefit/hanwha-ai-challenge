@@ -376,6 +376,19 @@ def test_presenter_view_wired(html):
     assert 'stage.goTo(' in html, "팝업의 ←→ 가 본창을 넘겨야 한다"
 
 
+def test_progress_chain_marks_pipeline_step(html):
+    """2~11장 상단 진행 사슬(디자인 항목 6, 2026-09-09) — 7단계 중 현재 단계 하나만 점등, 표지·클로징엔 없음. 되돌리면 이 테스트도 revert 된다."""
+    want = {2: "문제", 3: "구성", 4: "예측", 5: "예측", 6: "실측", 7: "실측", 8: "경로", 9: "검증", 10: "검증", 11: "계획"}
+    for sid, body in _sections(html):
+        i = int(sid[1:])
+        ons = re.findall(r'<span class="on">([^<]+)</span>', body)
+        if i in want:
+            assert ons == [want[i]], f"s{i}: 점등 {ons} ≠ {want[i]}"
+            assert body.count('class="chain"') == 1 and len(re.findall(r'<div class="chain"[^>]*>(.*?)</div>', body)[0].split("<i>›</i>")) == 7
+        else:
+            assert 'class="chain"' not in body, f"s{i} 에는 사슬이 없어야 한다"
+
+
 def test_speaker_notes_fit_five_minutes(html):
     """한국어 발화 ≈ 분당 300자. 2026-09-09 교정본(deck_copy_formal.md)은 장당 200~330자라 리허설에서 줄이기로 하고
     상한을 340자로 두되, 합계로 시간을 지킨다 — 3,500자 ≈ 11.7분은 상한, 목표는 5분(1,500자). 빈 노트는 발표 중 화면이 침묵한다."""

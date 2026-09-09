@@ -41,6 +41,14 @@ aside.notes{display:none}
 .btn{display:inline-flex;align-items:center;gap:12px;padding:16px 28px;border-radius:999px;background:#191F28;color:#fff;font-size:24px;font-weight:700;text-decoration:none;line-height:1}
 .btn:hover{background:#F36F21;color:#fff}
 .btn.ghost{background:#F2F4F6;color:#191F28}
+/* 진행 사슬 — 2~11장 상단, 파이프라인 7단계 중 현재 단계 점등 (2026-09-09 디자인 항목 6). 되돌리려면 이 커밋을 revert */
+.topline{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.topline .kick{font-size:var(--type-small);font-weight:600;color:#F36F21}
+.chain{display:flex;align-items:center;gap:6px}
+.chain span{padding:6px 16px;border-radius:999px;background:#F2F4F6;color:#8B95A1;font-size:21px;font-weight:600;line-height:1.2;white-space:nowrap}
+.chain span.done{color:#4E5968}
+.chain span.on{background:#F36F21;color:#fff}
+.chain i{font-style:normal;color:#C5CAD1;font-size:20px;line-height:1}
 /* 임베드 — 실물 화면. 통신이 없거나 8초 넘게 안 뜨면 캡처(deck/fallback_*.png)로 */
 .embed .fbmsg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#8B95A1;background:#F2F4F6}
 .embed .fbmsg[hidden]{display:none}   /* 저자 display:flex 가 UA [hidden] 을 이긴다 — 9/9 실기기 결함 */
@@ -86,7 +94,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 2 ─ 문제 정의 -->
 <section data-label="02 문제 정의" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s2">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">관람객의 귀가 경로 선택</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="on">문제</span><i>›</i><span>구성</span><i>›</i><span>예측</span><i>›</i><span>실측</span><i>›</i><span>경로</span><i>›</i><span>검증</span><i>›</i><span>계획</span></div><span class="kick">관람객의 귀가 경로 선택</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>혼잡도와 통제를 반영한 </span><span style="color:#F36F21;">출구 안내</span><span>가 필요합니다</span></h2>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
     <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">지도앱</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">역 위치와 이동 경로</div><p style="margin:0;font-size:28px;color:#4E5968;line-height:1.5;text-wrap:pretty;">행사 당일 통제가 경로에 반영되는지 확인이 필요합니다.</p></div>
@@ -98,7 +106,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 3 ─ 왜 예측 + 실측 -->
 <section data-label="03 왜 예측 + 실측" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s3">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">행사 전에 만든 예측과 행사 당일 실제 상황 반영</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="on">구성</span><i>›</i><span>예측</span><i>›</i><span>실측</span><i>›</i><span>경로</span><i>›</i><span>검증</span><i>›</i><span>계획</span></div><span class="kick">행사 전에 만든 예측과 행사 당일 실제 상황 반영</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>과거 자료로 </span><span style="color:#F36F21;">미리 준비</span><span>하고, 당일 상황으로 </span><span style="color:#F36F21;">고칩니다</span></h2>
   <div style="display:grid;grid-template-columns:1fr 1.1fr;gap:64px;align-items:center;">
     <div style="display:flex;flex-direction:column;gap:20px;">
@@ -118,7 +126,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 4 ─ 예측 ① 수요식 -->
 <section data-label="04 예측 ① 수요식" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:32px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s4">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">예측 모델</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="done">구성</span><i>›</i><span class="on">예측</span><i>›</i><span>실측</span><i>›</i><span>경로</span><i>›</i><span>검증</span><i>›</i><span>계획</span></div><span class="kick">예측 모델</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>작년 이동 패턴에 </span><span style="color:#F36F21;">오늘 인원 규모</span><span>를 반영합니다</span></h2>
   <div data-rv style="--i:2;background:#F2F4F6;border-radius:24px;padding:22px 40px;text-align:center;font-size:44px;font-weight:700;">\[ D_{s,h} \;=\; \alpha \cdot E_s \cdot f_s(h) \]</div>
   <p data-rv style="--i:2;margin:-18px 0 0;font-size:var(--type-small);color:#8B95A1;text-align:center;">오늘 전체 인원 × 출구별 이용 비율 × 시간대별 도착 비율</p>
@@ -132,7 +140,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 5 ─ 예측 ② 피더 -->
 <section data-label="05 예측 ② 피더" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:32px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s5">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">주요 출발역 분석</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="done">구성</span><i>›</i><span class="on">예측</span><i>›</i><span>실측</span><i>›</i><span>경로</span><i>›</i><span>검증</span><i>›</i><span>계획</span></div><span class="kick">주요 출발역 분석</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>사람이 출발한 역의 변화가 </span><span style="color:#F36F21;">여의도보다 먼저</span><span> 나타납니다</span></h2>
   <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:stretch;">
     <figure data-rv data-chart="radial" style="--i:2;margin:0;background:#F2F4F6;border-radius:24px;padding:12px;height:600px;"><div class="radial" style="width:100%;height:100%;"></div></figure>
@@ -152,7 +160,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 6 ─ 실측 API -->
 <section data-label="06 실측 API" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s6">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">실측 데이터</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="done">구성</span><i>›</i><span class="done">예측</span><i>›</i><span class="on">실측</span><i>›</i><span>경로</span><i>›</i><span>검증</span><i>›</i><span>계획</span></div><span class="kick">실측 데이터</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>세 가지 </span><span style="color:#F36F21;">공개 데이터</span><span>를 함께 봅니다</span></h2>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
     <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;min-height:460px;"><div style="font-size:var(--type-small);font-weight:600;color:#6B7684;">서울 실시간 도시데이터</div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:96px;font-weight:800;letter-spacing:-.04em;line-height:1;">5</span><span style="font-size:var(--type-subtitle);font-weight:700;color:#8B95A1;">분</span></div><div style="font-size:var(--type-body);font-weight:800;line-height:1.3;">구역 인구 · 4단계 혼잡도 · 통제 정보 · 여의나루역 30분 단위 승하차</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;">→ 당일 규모 보정과 구역별 혼잡도 추정에 활용</p></div>
@@ -165,7 +173,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 7 ─ 실측 처리 -->
 <section data-label="07 실측 처리" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:32px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s7">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">규모 보정과 혼잡도 추정</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="done">구성</span><i>›</i><span class="done">예측</span><i>›</i><span class="on">실측</span><i>›</i><span>경로</span><i>›</i><span>검증</span><i>›</i><span>계획</span></div><span class="kick">규모 보정과 혼잡도 추정</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>새로 들어오는 정보로 </span><span style="color:#F36F21;">혼잡도</span><span>를 계속 업데이트합니다</span></h2>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;align-items:stretch;">
     <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:32px 36px;display:flex;flex-direction:column;gap:16px;">
@@ -206,7 +214,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 8 ─ 화면층 · 최단시간 경로 3패널 (버튼 재생) -->
 <section data-label="08 최단시간 경로" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:26px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s8">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">혼잡도를 반영한 이동시간 계산</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="done">구성</span><i>›</i><span class="done">예측</span><i>›</i><span class="done">실측</span><i>›</i><span class="on">경로</span><i>›</i><span>검증</span><i>›</i><span>계획</span></div><span class="kick">혼잡도를 반영한 이동시간 계산</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>조금 돌아가도 </span><span style="color:#F36F21;">빨리 도착하는 길</span><span>을 추천합니다</span></h2>
   <figure data-rv data-chart="route" data-play="manual" style="--i:2;margin:0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
     <div style="display:flex;flex-direction:column;gap:14px;align-items:center;"><canvas data-mode="shortest" style="display:block;width:100%;height:560px;background:#F2F4F6;border-radius:24px;"></canvas><button type="button" class="btn" data-play>▶ 재생</button></div>
@@ -226,7 +234,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 <section data-label="09 재현" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:28px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s9">
   <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:40px;">
     <div style="display:flex;flex-direction:column;gap:20px;">
-      <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">행사 당일 기록 재생</div>
+      <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="done">구성</span><i>›</i><span class="done">예측</span><i>›</i><span class="done">실측</span><i>›</i><span class="done">경로</span><i>›</i><span class="on">검증</span><i>›</i><span>계획</span></div><span class="kick">행사 당일 기록 재생</span></div>
       <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span style="color:#F36F21;">9월 5일 22:06</span><span> 운영 화면</span></h2>
     </div>
     <div data-rv style="--i:2;display:flex;gap:14px;flex:none;">
@@ -258,7 +266,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 10 ─ 예측 vs 실측 -->
 <section data-label="10 예측 vs 실측" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s10">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">9월 5일 예측과 실측 비교</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="done">구성</span><i>›</i><span class="done">예측</span><i>›</i><span class="done">실측</span><i>›</i><span class="done">경로</span><i>›</i><span class="on">검증</span><i>›</i><span>계획</span></div><span class="kick">9월 5일 예측과 실측 비교</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>가장 붐빈 시각은 맞혔지만, </span><span style="color:#F36F21;">늦은 시간 이동</span><span>은 적게 예상했습니다</span></h2>
   <figure data-rv data-chart="live" style="--i:2;margin:0;"><div class="live"></div></figure>
   <p data-rv style="--i:3;margin:0;font-size:28px;color:#4E5968;line-height:1.5;text-wrap:pretty;">12:00~24:00 운영 · 9월 5일 자동 평가(<span style="font-family:var(--mono);">evaluate.py</span>) 결과 기준 · 서울시가 12시간 전에 미리 내놓은 예측은 예측 조건이 달라 직접적인 성능 비교로 해석하지 않습니다.</p>
@@ -267,7 +275,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 
 <!-- 11 ─ 다음 스텝 -->
 <section data-label="11 다음 스텝" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s11">
-  <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">후속 개발 계획 — 보고서 §6.4</div>
+  <div class="topline" data-rv style="--i:0;"><div class="chain" aria-label="발표 흐름"><span class="done">문제</span><i>›</i><span class="done">구성</span><i>›</i><span class="done">예측</span><i>›</i><span class="done">실측</span><i>›</i><span class="done">경로</span><i>›</i><span class="done">검증</span><i>›</i><span class="on">계획</span></div><span class="kick">후속 개발 계획 — 보고서 §6.4</span></div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>실제 오차를 기준으로 </span><span style="color:#F36F21;">다음 기능</span><span>을 개선하겠습니다</span></h2>
   <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:48px;align-items:stretch;">
     <ol style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:20px;">

@@ -53,7 +53,7 @@ def main():
              "**숫자는 고치지 말 것** — 전부 `docs/deck/*.json` 과 테스트가 대조한다. 문장·어순·조사·톤만.", ""]
     for n, cm, lab, body in secs:
         heads = [strip(x) for x in re.findall(r"<h[12][^>]*>(.*?)</h[12]>", body, re.S)]
-        kick = re.search(r"<div (?:class=\"kicker\" )?data-rv style=\"--i:0;[^\"]*\">(.*?)</div>", body, re.S)
+        kick = re.search(r"<span class=\"kick\">(.*?)</span>", body, re.S) or re.search(r"<div (?:class=\"kicker\" )?data-rv style=\"--i:0;[^\"]*\">(.*?)</div>", body, re.S)
         notes = re.search(r"<aside class=\"notes\">(.*?)</aside>", body, re.S)
         lines.append(f"## {int(n)}. {lab[3:]}")
         lines.append("")
