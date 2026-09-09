@@ -557,7 +557,7 @@ function drawLive(cv, d, slide, fig) {
     var miss = k.kind === "miss";
     return '<div style="background:' + (miss ? '#191F28' : '#F2F4F6') + ';color:' + (miss ? '#fff' : '#191F28') + ';border-radius:28px;padding:30px 34px;display:flex;flex-direction:column;gap:10px">'
       + '<div style="font-size:22px;font-weight:600;color:' + (miss ? '#FFB27A' : '#F36F21') + '">' + esc(k.kicker) + '</div>'
-      + '<div style="font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.25">' + esc(k.title) + '</div>'
+      + '<div style="font-size:34px;font-weight:800;letter-spacing:-.03em;line-height:1.25">' + esc(k.title).replace(/\n/g, "<br>") + '</div>'
       + '<p style="margin:0;font-size:22px;line-height:1.45;color:' + (miss ? '#D1D6DB' : '#4E5968') + '">' + esc(k.body) + '</p></div>';
   }).join("") + '</div>';
 }

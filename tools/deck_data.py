@@ -250,9 +250,9 @@ def live_result():
         {"v": f"{sh['peak_obs']}시", "label": "빠져나가는 흐름 정점 일치", "sub": f"예측 {sh['peak_pred']}시 · 형태 상관 r {sh['pearson']:.2f}"},
     ]
     cards = [
-        {"kind": "hit", "kicker": "실제 행사 종료 시각 반영", "title": f"실제 종료 {show_end} · 계획보다 {int(show_end[:2]) * 60 + int(show_end[3:]) - 21 * 60 - 10}분 늦음",
+        {"kind": "hit", "kicker": "실제 행사 종료 시각 반영", "title": f"실제 종료 {show_end}\n계획보다 {int(show_end[:2]) * 60 + int(show_end[3:]) - 21 * 60 - 10}분 늦음",
          "body": "현장 입력 후 빠져나가는 흐름의 예측 시점을 조정했습니다 — 21:36 발행분부터 21시 예측 76.6천 → 88.3천."},
-        {"kind": "hit", "kicker": "서울시가 미리 내놓은 예측의 오차", "title": f"MAPE {ev['seoul_12h']['mape']:.2f} · 22시 5.75천 vs 실측 53천",
+        {"kind": "hit", "kicker": "서울시가 미리 내놓은 예측의 오차", "title": f"MAPE {ev['seoul_12h']['mape']:.2f}\n22시 예측 5.75천 vs 실측 53천",
          "body": "서울시 12시간 예측은 저녁 정점 인원을 실측의 약 1/9 수준으로 추정했습니다. 본 모델은 5분마다 관측으로 배율을 갱신합니다."},
         {"kind": "miss", "kicker": "23시에 빠져나간 인원 과소 추정", "title": f"정점 대비 실측 {round(tail_obs * 100)}%, 예측 {round(tail_pred * 100)}%",
          "body": "예측보다 많은 인원이 늦은 시간까지 이동했습니다. 행사 종료 후 빠져나가는 흐름의 분포를 보정할 필요가 있습니다. 결함 대장에 등재."},

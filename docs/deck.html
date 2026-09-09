@@ -34,7 +34,7 @@ body{margin:0;background:#0F1115;color:var(--ink);font-family:var(--sans);-webki
 a{color:var(--ink)}a:hover{color:var(--accent)}
 deck-stage:not(:defined){visibility:hidden}
 deck-stage{display:block;width:100vw;height:100vh}
-.slide{overflow:hidden}
+.slide{overflow:hidden;word-break:keep-all;overflow-wrap:anywhere}   /* 한국어를 어절 단위로 꺾는다 — "늦/음" 방지 (9/9) */
 aside.notes{display:none}
 .katex{font-size:1.15em}
 .katex-display{margin:0}
