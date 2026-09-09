@@ -346,7 +346,15 @@ stage.addEventListener("slidechange", (e) => enter(e.detail && e.detail.slide));
 enter(stage.querySelector("[data-deck-active]"));   // 모듈이 늦게 붙어 첫 slidechange 를 놓친 경우
 loadStrips(stage);
 
-/* 발표자 노트 — n 토글 · t 시계 리셋 (←→ 등 이동 키는 deck-stage 가 맡는다) */
+/* 발표자 노트 — n 토글 · t 시계 리셋 · f 전체화면 (←→ 등 이동 키는 deck-stage 가 맡는다) */
+function toggleFullscreen() {
+  const el = document.documentElement;
+  const fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+  if (fsEl) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); return; }
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  const r = req ? req.call(el) : null;   // Safari 구판은 Promise 를 안 돌려준다
+  if (r && r.catch) r.catch(() => {});
+}
 let T0 = Date.now();
 setInterval(() => {
   const t = Math.floor((Date.now() - T0) / 1000);
@@ -355,6 +363,7 @@ setInterval(() => {
 document.addEventListener("keydown", (e) => {
   if (e.key === "n") document.body.classList.toggle("notes");
   else if (e.key === "t") T0 = Date.now();
+  else if (e.key === "f" || e.key === "F") toggleFullscreen();
 });
 
 /* 실물 임베드 — 오프라인이거나 8초 넘게 안 뜨면 캡처(deck/fallback_*.png)로.
