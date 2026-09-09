@@ -11,7 +11,7 @@
 | **[▶ 관람객 화면](https://jaefit.github.io/hanwha-ai-challenge/go.html)** | 열면 답이 먼저 — 가장 빨리 닿는 출구 · 걸어서 N분 · 등급 · 시간대 스크럽. 묻는 것 0 |
 | **[운영 대시보드](https://jaefit.github.io/hanwha-ai-challenge/)** | 출구 상태판 · 유출 예측 · CCTV 23대 · 혼잡장(GP 회귀) · 오프라인 카드 |
 | **[9/5 22:06 재생](https://jaefit.github.io/hanwha-ai-challenge/index.html?at=20260905T2206)** · [관람객](https://jaefit.github.io/hanwha-ai-challenge/go.html?at=20260905T2206) | 실전 당일 발행분을 그 시각 그대로. 배너 칩으로 20:05 → 23:02 여섯 시점 이동 |
-| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 12장 · 5분 · 문제 → 왜 예측+실측 → 예측 방법 → 실측 API·처리 → 최단시간 경로 → 22:06 재현 → 예측 vs 실측 → 다음 스텝. `n` 노트, `t` 시계, `f` 전체화면 |
+| **[피치 덱](https://jaefit.github.io/hanwha-ai-challenge/deck.html)** | 12장 · 5분 · 문제 → 왜 예측+실측 → 예측 방법 → 실측 API·처리 → 최단시간 경로 → 22:06 재현 → 예측 vs 실측 → 다음 스텝. `n` 노트, `t` 시계, `f` 전체화면, `p` 발표자 보기(팝업: 현재·다음·노트·시계, ←→ 로 본창 제어) |
 | [팀 보고서](https://jaefit.github.io/hanwha-ai-challenge/report.html) · [쉬운 버전](https://jaefit.github.io/hanwha-ai-challenge/report_easy.html) | 모델 수식·실측표·외부 검증·적대적 검증 / 같은 내용을 수식 없이 |
 
 행사가 끝난 뒤 라이브 화면은 사전 예측표만 보여준다. 실물은 위 **재생** 링크로 본다.

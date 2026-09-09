@@ -374,6 +374,16 @@ def test_radial_has_feeder_particle_flow():
     assert "y25.x[h]" in body and "s.share" in body, "유입 속도가 실측 시간대 × 역별 비중이어야 한다"
 
 
+def test_presenter_view_wired(html):
+    """p 키 → presenter.html 팝업, BroadcastChannel("deck") 로 본창·팝업·미리보기(role=cur|next) 동기화 (2026-09-09)."""
+    assert (ROOT / "docs" / "presenter.html").exists()
+    pres = (ROOT / "docs" / "presenter.html").read_text(encoding="utf-8")
+    assert 'new BroadcastChannel("deck")' in html and 'new BroadcastChannel("deck")' in pres
+    assert 'window.open("presenter.html"' in html, "p 키가 발표자 보기를 열어야 한다"
+    assert 'role=cur' in pres and 'role=next' in pres and '_snthumb=1' in pres, "미리보기 iframe 은 레일 없는 role 모드"
+    assert 'stage.goTo(' in html, "팝업의 ←→ 가 본창을 넘겨야 한다"
+
+
 def test_speaker_notes_fit_five_minutes(html):
     """장당 25초 — 한국어 발화 ≈ 분당 300자. 60~140자면 20~30초. 빈 노트는 발표 중 화면이 침묵한다."""
     notes = re.findall(r'<aside class="notes">(.*?)</aside>', html, re.S)

@@ -47,12 +47,13 @@ aside.notes{display:none}
 /* 등장 애니 — 끝 상태가 기본, 활성 슬라이드에서만 숨김에서 올라온다 (인쇄·모션 축소는 그대로 보임) */
 @keyframes rv{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:no-preference){[data-deck-active] [data-rv]{animation:rv .6s cubic-bezier(.2,.7,.2,1) both;animation-delay:calc(.08s + var(--i,0)*.09s)}}
-/* 발표자 노트 — n 토글 · t 시계 리셋 */
+/* 발표자 노트 — n 토글 · t 시계 리셋 · p 발표자 보기 팝업 */
 #np{position:fixed;left:0;right:0;bottom:0;z-index:50;display:none;gap:24px;align-items:flex-start;padding:14px 22px;background:rgba(15,17,21,.94);color:#F2F4F6;font-size:17px;line-height:1.5;border-top:1px solid rgba(255,255,255,.12)}
 body.notes #np{display:flex}
 #np .np-time{flex:none;font:600 17px var(--mono);color:#F36F21;padding-top:2px}
 #np .np-text{max-width:1400px}
 @media print{#np{display:none !important}}
+body.role-cur #np,body.role-next #np{display:none !important}
 </style>
 </head>
 <body>
@@ -276,7 +277,7 @@ body.notes #np{display:flex}
       <p style="margin:0;font-size:var(--type-small);line-height:1.5;color:#FFF0E6;text-wrap:pretty;"><b style="color:#fff;">한화 적용안</b> — 오렌지세이프티(주최측 안전 관제)에 <b style="color:#fff;">관람객 귀가 레이어</b>를 얹는다. 행사 주최사가 관제와 관람객 안내를 한 데이터로 본다.</p>
     </div>
   </div>
-  <aside class="notes">현실화 플랜은 놓친 것부터 고칩니다. 꼬리 형태는 3년으로 재적합, 혼잡장은 LOO 교차검증과 보행망 커널, 순위는 도착 시각 기준, CCTV 는 ROI 재측정. 회귀 테스트 124건이 상시 통과하고, 같은 뼈대는 오렌지세이프티에 관람객 레이어로 얹습니다.</aside>
+  <aside class="notes">현실화 플랜은 놓친 것부터 고칩니다. 꼬리 형태는 3년으로 재적합, 혼잡장은 LOO 교차검증과 보행망 커널, 순위는 도착 시각 기준, CCTV 는 ROI 재측정. 회귀 테스트 125건이 상시 통과하고, 같은 뼈대는 오렌지세이프티에 관람객 레이어로 얹습니다.</aside>
 </section>
 
 <!-- 12 ─ 클로징 -->
@@ -299,15 +300,43 @@ body.notes #np{display:flex}
 import { countUp, playChart } from "./app/deck_charts.js";
 const stage = document.querySelector("deck-stage");
 
+/* 발표자 보기 — p 키로 presenter.html 팝업. BroadcastChannel("deck") 로 양방향 동기화.
+   본창(ROLE 없음)은 {index,total,labels,notes} 를 방송하고 {goTo} 를 받는다.
+   팝업 안 미리보기는 이 파일을 role=cur|next 로 띄운 것 — 방송은 안 하고 goTo 만 따라간다(next 는 한 장 앞서). */
+const ROLE = new URLSearchParams(location.search).get("role");
+const SLIDES = [...stage.querySelectorAll("section.slide")];
+const CH = ("BroadcastChannel" in window) ? new BroadcastChannel("deck") : null;
+function broadcast() {
+  if (!CH) return;
+  CH.postMessage({ index: stage.index, total: SLIDES.length,
+    labels: SLIDES.map((s) => s.getAttribute("data-label")),
+    notes: SLIDES.map((s) => { const a = s.querySelector("aside.notes"); return a ? a.textContent.trim() : ""; }) });
+}
+if (CH) CH.onmessage = (e) => {
+  const d = e.data || {};
+  if (d.hello && !ROLE) broadcast();
+  if (typeof d.goTo === "number") {
+    const n = Math.max(0, Math.min(SLIDES.length - 1, d.goTo));
+    if (!ROLE) stage.goTo(n);
+  }
+  if (typeof d.index === "number" && ROLE) {
+    const n = Math.max(0, Math.min(SLIDES.length - 1, d.index + (ROLE === "next" ? 1 : 0)));
+    if (stage.index !== n) stage.goTo(n);
+  }
+};
+if (ROLE) document.body.classList.add("role-" + ROLE);
+
 /* 슬라이드 진입마다 차트·카운트업·노트 */
 function enter(slide) {
   if (!slide) return;
   countUp(slide); playChart(slide);
   const a = slide.querySelector("aside.notes");
   document.querySelector("#np .np-text").textContent = a ? a.textContent.trim() : "";
+  if (!ROLE) broadcast();
 }
 stage.addEventListener("slidechange", (e) => enter(e.detail && e.detail.slide));
 enter(stage.querySelector("[data-deck-active]"));   // 모듈이 늦게 붙어 첫 slidechange 를 놓친 경우
+
 
 /* 발표자 노트 — n 토글 · t 시계 리셋 · f 전체화면 (←→ 등 이동 키는 deck-stage 가 맡는다) */
 function toggleFullscreen() {
@@ -334,6 +363,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "n") document.body.classList.toggle("notes");
   else if (e.key === "t") T0 = Date.now();
   else if (e.key === "f" || e.key === "F") toggleFullscreen();
+  else if ((e.key === "p" || e.key === "P") && !ROLE) window.open("presenter.html", "deck-presenter", "width=1280,height=800");
 });
 
 /* 실물 임베드 — 오프라인이거나 8초 넘게 안 뜨면 캡처(deck/fallback_*.png)로.
