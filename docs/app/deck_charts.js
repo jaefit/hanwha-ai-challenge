@@ -315,8 +315,9 @@ function drawFieldCanvas(cv, d, slide) {
         // 위→아래 뒤집기: 격자는 위도가 커질수록 인덱스가 크고, 캔버스는 아래로 간다
         var o = ((g.rows - 1 - iy) * g.cols + ix) * 4;
         img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2];
-        // 불확실할수록 투명 = "모른다". sd 는 0.24~0.50 구간이라 그 폭에 맞춰 편다
-        var fade = Math.max(0, Math.min(0.55, (sd - 0.24) / 0.26 * 0.55));
+        // 불확실할수록 투명 = "모른다". sd 는 0.24~0.50 구간이라 그 폭에 맞춰 편다.
+        // 라이트 바탕에선 최대 투명도 0.55 가 파스텔로 씻겨 0.35 로 (2026-09-09) — "모른다" 의 흐림은 남긴다
+        var fade = Math.max(0, Math.min(0.35, (sd - 0.24) / 0.26 * 0.35));
         img.data[o + 3] = Math.round(255 * (1 - fade));
       }
     }
