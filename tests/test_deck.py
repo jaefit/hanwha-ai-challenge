@@ -65,6 +65,9 @@ def test_route_numbers_in_copy_match_export(html):
     assert f"{m['shortest'] - m['avoiding']}분 빠른" in html
     modes = re.findall(r'<canvas data-mode="([a-z]+)"', html)
     assert modes == ["shortest", "avoiding", "both"], "① 최단 ② 회피 ③ 겹쳐 보기 세 패널 (사용자 결정 9/9)"
+    assert 'data-chart="route" data-play="manual"' in html and html.count('<button type="button" class="btn') == 3, "패널마다 ▶ 재생 버튼 (사용자 결정 9/9)"
+    js = (ROOT / "docs" / "app" / "deck_charts.js").read_text(encoding="utf-8")
+    assert 'getAttribute("data-play") === "manual"' in js and 'button[data-play]' in js
 
 
 def test_route_export_reproduces_measured_distance():

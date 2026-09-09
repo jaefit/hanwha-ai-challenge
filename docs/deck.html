@@ -199,32 +199,22 @@ body.notes #np{display:flex}
   <aside class="notes">관측이 쌓일수록 범위가 좁아집니다. 오늘이 예년의 몇 배인지 5분마다 베이즈 격자로 갱신하고, CCTV 밀도는 보행속도로 바꾸고, 관측 서른 점을 한 장의 혼잡장으로 만들되 못 본 곳은 모른다고 흐리게 남깁니다.</aside>
 </section>
 
-<!-- 8 ─ 화면층 · 혼잡장 위에서 길 고르기 (v2 8장 구조, 경로 3패널) -->
-<section data-label="08 화면층 · 경로" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:24px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s8">
+<!-- 8 ─ 화면층 · 최단시간 경로 3패널 (버튼 재생) -->
+<section data-label="08 최단시간 경로" style="background:#fff;color:#191F28;display:flex;flex-direction:column;justify-content:center;gap:26px;padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s8">
   <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">화면층 — 혼잡장 위에서 길을 고른다</div>
-  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>못 본 곳은 </span><span style="color:#F36F21;">모른다고</span><span>, 길은 </span><span style="color:#F36F21;">가장 빨리 닿는 길</span><span>로</span></h2>
-  <div style="display:grid;grid-template-columns:1fr 1.6fr;gap:32px;align-items:start;">
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <figure data-rv data-chart="field" style="--i:2;margin:0;background:#F2F4F6;border-radius:24px;padding:16px;"><canvas style="display:block;width:100%;height:392px;"></canvas></figure>
-      <div data-rv style="--i:3;display:flex;gap:18px;flex-wrap:wrap;align-items:center;font-size:24px;font-weight:600;color:#4E5968;">
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#2E7D5B;"></i>여유</span><span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#8A6400;"></i>주의</span>
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#B0521C;"></i>경계</span><span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#B3352B;"></i>심각</span>
-        <b data-field-n style="color:#191F28;font-family:var(--mono);">—</b>
-        <span style="display:inline-block;font-size:22px;font-weight:600;padding:4px 12px;border-radius:10px;background:#FFF4E8;color:#8A4A12;">등급 배치는 예시 · 좌표·커널·σ 는 실제 값</span>
-      </div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <figure data-rv data-chart="route" style="--i:4;margin:0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;"><canvas data-mode="shortest" style="display:block;width:100%;height:392px;background:#F2F4F6;border-radius:24px;"></canvas><canvas data-mode="avoiding" style="display:block;width:100%;height:392px;background:#F2F4F6;border-radius:24px;"></canvas><canvas data-mode="both" style="display:block;width:100%;height:392px;background:#F2F4F6;border-radius:24px;"></canvas></figure>
-      <div data-rv style="--i:5;display:flex;gap:24px;flex-wrap:wrap;align-items:center;font-size:24px;font-weight:600;color:#4E5968;">
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#F36F21;"></i>가장 짧은 길 <b style="color:#191F28;font-family:var(--mono);">1,471m · 45분</b></span>
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#3182F6;"></i>가장 빨리 닿는 길 <b style="color:#191F28;font-family:var(--mono);">1,677m · 21분</b></span>
-        <span style="display:flex;align-items:center;gap:8px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(179,53,43,.45);"></i>혼잡 봉우리(가정)</span>
-        <span>노드 <b style="color:#191F28;font-family:var(--mono);">9,219</b> · 간선 <b style="color:#191F28;font-family:var(--mono);">26,042</b> (OSM)</span>
-      </div>
-    </div>
+  <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>가장 짧은 길이 아니라, </span><span style="color:#F36F21;">가장 빨리 닿는 길</span></h2>
+  <figure data-rv data-chart="route" data-play="manual" style="--i:2;margin:0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
+    <div style="display:flex;flex-direction:column;gap:14px;align-items:center;"><canvas data-mode="shortest" style="display:block;width:100%;height:560px;background:#F2F4F6;border-radius:24px;"></canvas><button type="button" class="btn" data-play>▶ 재생</button></div>
+    <div style="display:flex;flex-direction:column;gap:14px;align-items:center;"><canvas data-mode="avoiding" style="display:block;width:100%;height:560px;background:#F2F4F6;border-radius:24px;"></canvas><button type="button" class="btn ghost" data-play>▶ 재생</button></div>
+    <div style="display:flex;flex-direction:column;gap:14px;align-items:center;"><canvas data-mode="both" style="display:block;width:100%;height:560px;background:#F2F4F6;border-radius:24px;"></canvas><button type="button" class="btn ghost" data-play>▶ 재생</button></div>
+  </figure>
+  <div data-rv style="--i:3;display:flex;gap:28px;flex-wrap:wrap;align-items:center;font-size:var(--type-small);font-weight:600;color:#4E5968;">
+    <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:22px;height:8px;border-radius:4px;background:#F36F21;"></i>가장 짧은 길 <b style="color:#191F28;font-family:var(--mono);">1,471m · 45분</b></span>
+    <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:22px;height:0;border-top:3px dashed #3182F6;"></i>가장 빨리 닿는 길 <b style="color:#191F28;font-family:var(--mono);">1,677m · 21분</b></span>
+    <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(179,53,43,.45);"></i>혼잡 봉우리(가정)</span>
+    <span>보행망 <b style="color:#191F28;font-family:var(--mono);">9,219</b> 노드 · <b style="color:#191F28;font-family:var(--mono);">26,042</b> 간선 (OSM) · 직선 1,120m → 걸으면 1,471m(1.31배) · 206m 더 걷고 24분 빠른 길이 이긴다</span>
   </div>
-  <p data-rv style="--i:6;margin:0;font-size:24px;color:#4E5968;line-height:1.5;text-wrap:pretty;">가우시안 과정 회귀(커널 150m·1200m 이중) — 관측 없는 곳은 배제가 아니라 <b style="color:#191F28;">σ</b> 로 남긴다. 이벤트광장→여의도역 직선 1,120m, 걸으면 <b style="color:#191F28;">1,471m(1.31배)</b>. 경로 비용은 거리가 아니라 <b style="color:#191F28;">그 간선을 걷는 시간</b>이라 206m 더 걷고 24분 빠른 길이 이긴다. 반경 150m 봉우리는 가정.</p>
-  <aside class="notes">화면층입니다. 관측을 한 장의 혼잡장으로 만들되 못 본 곳은 모른다고 흐리게 남기고, 그 장 위에서 길을 고릅니다. 왼쪽부터 가장 짧은 길, 혼잡을 피해 도는 길, 둘을 같이 — 이백 미터 더 걷는 쪽이 이십사 분 먼저 닿습니다. 봉우리는 가정입니다.</aside>
+  <aside class="notes">경로는 실제 보행망 위에서 거리가 아니라 그 간선을 걷는 시간으로 고릅니다. 왼쪽부터 가장 짧은 길, 혼잡을 피해 도는 길, 그리고 둘을 같이 — 재생을 누르면 두 사람이 동시에 출발해 이백 미터 더 걷는 쪽이 이십사 분 먼저 닿습니다. 봉우리는 가정입니다.</aside>
 </section>
 
 <!-- 9 ─ 재현 -->

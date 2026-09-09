@@ -353,7 +353,8 @@ function drawRoute(cv, d, slide) {
     .catch(function () { drawRouteOn(cv, d, null); });
 }
 function drawRouteOn(cv, d, fd) {
-  var fig = cv.parentNode, cvs = [].slice.call(fig.querySelectorAll("canvas"));
+  var fig = cv.closest("[data-chart]") || cv.parentNode, cvs = [].slice.call(fig.querySelectorAll("canvas"));
+  var manual = fig.getAttribute("data-play") === "manual";   // 패널마다 ▶ 버튼으로 재생 (덱 8장, 2026-09-09)
   var b = d.bbox, fcv = null;
   if (fd) {                                  // 장을 격자 크기 캔버스에 한 번만 그려 둔다 (패널이 공유)
     var fg = fd.grid, last = fd.frames[fd.frames.length - 1], ramp = apfRamp();
@@ -382,9 +383,8 @@ function drawRouteOn(cv, d, fd) {
     avoiding: A ? fmt(A.meters) + "m · " + M.avoiding + "분" : "",
     both: A ? "+" + fmt(A.meters - S.meters) + "m 더 걷고 " + (M.shortest - M.avoiding) + "분 빠르다" : "",
   };
-  // 패널을 왼쪽부터 차례로 그린다 — 패널 i 는 p∈[i/2,(i+1)/2] 에서 자기 경로를 늘린다
-  animate(cvs[0], 1800 * cvs.length, function (p) {   // 패널당 1.8초 — 2패널이든 3패널이든
-    cvs.forEach(function (canvas, idx) {
+  // 패널 하나를 진행도 ph(0..1)로 그린다. 자동 모드는 왼쪽부터 차례로, 수동 모드는 버튼마다 따로.
+  function drawPanel(canvas, idx, ph) {
       var mode = canvas.getAttribute("data-mode") || "both";
       var out = fitCanvas(canvas), c = out.ctx, w = out.w, h = out.h;
       var kx = Math.cos((b[1] + b[3]) / 2 * Math.PI / 180);
@@ -404,7 +404,6 @@ function drawRouteOn(cv, d, fd) {
       c.beginPath();
       d.background_edges.forEach(function (e) { c.moveTo(X(e[0]), Y(e[1])); c.lineTo(X(e[2]), Y(e[3])); });
       c.stroke();
-      var ph = Math.max(0, Math.min(1, p * cvs.length - idx));      // 이 패널의 진행도 — 왼쪽부터 차례로
       if (idx === 0 && d.visited) {                          // 탐색이 번지는 건 ① 에서만
         var vs = Math.floor(Math.min(1, ph / 0.55) * d.visited.length);
         c.fillStyle = "#C9C4BA";
@@ -459,8 +458,22 @@ function drawRouteOn(cv, d, fd) {
       });
       label(c, TITLE[mode], 16, 26, cssVar("--ink"), "left", 12.5, "sans");
       label(c, STAT[mode], 16, 58, cssVar("--sub"), "left", 11);
+  }
+  if (manual) {
+    cvs.forEach(function (canvas, idx) {
+      if (canvas.__raf) cancelAnimationFrame(canvas.__raf);
+      drawPanel(canvas, idx, 0);                          // 바탕(혼잡장·보행망·봉우리·출발·도착)만 — 경로는 버튼으로
+      var btn = canvas.parentNode.querySelector("button[data-play]");
+      if (btn && !btn.__wired) {
+        btn.__wired = true;
+        btn.addEventListener("click", function () { animate(canvas, 3600, function (p) { drawPanel(canvas, idx, p); }); });
+      }
     });
-  });
+  } else {
+    animate(cvs[0], 1800 * cvs.length, function (p) {   // 패널당 1.8초 — 2패널이든 3패널이든
+      cvs.forEach(function (canvas, idx) { drawPanel(canvas, idx, Math.max(0, Math.min(1, p * cvs.length - idx))); });
+    });
+  }
 }
 CHARTS.alpha = ["alpha_grid", drawAlpha];
 CHARTS.field = ["field_grid", drawFieldCanvas];
