@@ -250,7 +250,7 @@ def live_result():
         {"v": f"{sh['peak_obs']}시", "label": "빠져나가는 흐름 정점 일치", "sub": f"예측 {sh['peak_pred']}시 · 형태 상관 r {sh['pearson']:.2f}"},
     ]
     cards = [
-        {"kind": "hit", "kicker": "실제 행사 종료 시각 반영", "title": f"계획 21:10 · 실제 종료 {show_end} (+{int(show_end[:2]) * 60 + int(show_end[3:]) - 21 * 60 - 10}분)",
+        {"kind": "hit", "kicker": "실제 행사 종료 시각 반영", "title": f"실제 종료 {show_end} · 계획보다 {int(show_end[:2]) * 60 + int(show_end[3:]) - 21 * 60 - 10}분 늦음",
          "body": "현장 입력 후 빠져나가는 흐름의 예측 시점을 조정했습니다 — 21:36 발행분부터 21시 예측 76.6천 → 88.3천."},
         {"kind": "hit", "kicker": "서울시가 미리 내놓은 예측의 오차", "title": f"MAPE {ev['seoul_12h']['mape']:.2f} · 22시 5.75천 vs 실측 53천",
          "body": "서울시 12시간 예측은 저녁 정점 인원을 실측의 약 1/9 수준으로 추정했습니다. 본 모델은 5분마다 관측으로 배율을 갱신합니다."},

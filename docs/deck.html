@@ -89,9 +89,9 @@ body.role-cur #np,body.role-next #np{display:none !important}
   <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">관람객의 귀가 경로 선택</div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>혼잡도와 통제를 반영한 </span><span style="color:#F36F21;">출구 안내</span><span>가 필요합니다</span></h2>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;">
-    <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:380px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">지도앱</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">역 위치와 이동 경로</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">행사 당일 통제가 경로에 반영되는지 확인이 필요합니다.</p></div>
-    <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:380px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">서울시 실시간 도시데이터</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">구역별 혼잡도</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">4단계 혼잡 정보만으로는 이용할 출구를 선택하기 어렵습니다.</p></div>
-    <div data-rv style="--i:4;background:#F36F21;color:#fff;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:16px;min-height:380px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#FFE1CC;">불꽃배웅</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">출구별 혼잡 전망과 경로</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#FFF0E6;line-height:1.5;text-wrap:pretty;">출구 7곳의 현재와 30분 뒤 혼잡도를 비교해 안내합니다.</p></div>
+    <div data-rv style="--i:2;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">지도앱</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">역 위치와 이동 경로</div><p style="margin:0;font-size:28px;color:#4E5968;line-height:1.5;text-wrap:pretty;">행사 당일 통제가 경로에 반영되는지 확인이 필요합니다.</p></div>
+    <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#6B7684;">서울시 실시간 도시데이터</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">구역별 혼잡도</div><p style="margin:0;font-size:28px;color:#4E5968;line-height:1.5;text-wrap:pretty;">4단계 혼잡 정보만으로는 이용할 출구를 선택하기 어렵습니다.</p></div>
+    <div data-rv style="--i:4;background:#F36F21;color:#fff;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;"><h3 style="margin:0;font-size:var(--type-small);font-weight:600;color:#FFE1CC;">불꽃배웅</h3><div style="font-size:48px;font-weight:800;letter-spacing:-.03em;line-height:1.2;">출구별 혼잡 전망과 경로</div><p style="margin:0;font-size:28px;color:#FFF0E6;line-height:1.5;text-wrap:pretty;">출구 7곳의 현재와 30분 뒤 혼잡도를 비교해 안내합니다.</p></div>
   </div>
   <aside class="notes">관람객의 귀가 의사결정 과정을 기준으로 문제를 정의했습니다. 지도앱은 평상시의 최단 경로를 제공하고, 서울시 실시간 도시데이터는 구역별 혼잡도를 제공합니다. 그러나 축제일에는 역이 무정차로 운영될 수 있고, 혼잡도가 낮은 출구가 어느 곳인지 직접 비교해야 합니다. 불꽃배웅은 출구 7곳의 현재 혼잡도와 단기 전망을 같은 화면에 보여주고, 출구까지의 예상 도보시간을 포함해 선택 가능한 경로로 변환합니다.</aside>
 </section>
@@ -126,7 +126,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
     <figure data-rv data-chart="exits" style="--i:3;margin:0;background:#F2F4F6;border-radius:24px;padding:24px 28px;display:flex;flex-direction:column;gap:12px;"><div style="font-size:var(--type-small);font-weight:600;color:#6B7684;">출구 7곳의 이용 비중 — 2024·2025년 초과 승차 인원 평균</div><canvas style="display:block;width:100%;height:330px;"></canvas></figure>
     <div data-rv style="--i:4;background:#191F28;color:#fff;border-radius:24px;padding:40px 44px;display:flex;flex-direction:column;justify-content:center;gap:12px;"><div style="font-size:var(--type-small);font-weight:600;color:#FFB27A;">혼잡도 단계 일치율</div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:120px;font-weight:800;letter-spacing:-.04em;line-height:1;">88</span><span style="font-size:var(--type-subtitle);font-weight:700;color:#B0B8C1;">%</span></div><div style="font-size:var(--type-body);font-weight:700;">2025년 데이터로 교차연도 검증</div></div>
   </div>
-  <p data-rv style="--i:5;margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">축제일 표본이 2일로 제한돼, 실측 패턴에 행사 종료 시각과 도보 이동시간을 반영했습니다.</p>
+  <p data-rv style="--i:5;margin:0;font-size:28px;color:#4E5968;line-height:1.5;text-wrap:pretty;">축제일 표본이 2일로 제한돼, 실측 패턴에 행사 종료 시각과 도보 이동시간을 반영했습니다.</p>
   <aside class="notes">출구별, 시간대별 예상 인원은 오늘 전체 인원 규모에 출구별 이용 비율과 시간대별 도착 비율을 곱해 계산했습니다. 수식으로 표현하면 슬라이드와 같습니다. 출구별 비중은 2024년과 2025년 역별 승하차 실측에서 추출했고, 행사 종료 시각과 출구까지의 보행시간을 반영해 시간 분포를 조정했습니다. 축제일 데이터가 2일뿐이어서 복잡한 머신러닝 모델보다 관측 패턴과 이동 물리를 명시적으로 사용하는 편이 적절하다고 판단했습니다. 2025년을 교차연도로 검증했을 때 혼잡 등급 일치율은 88%였습니다.</aside>
 </section>
 
@@ -144,7 +144,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
         <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:22px;height:3px;background:#191F28;"></i>같은 무리, 1시간 뒤</span>
       </div>
       <div data-rv style="--i:5;background:#191F28;color:#fff;border-radius:24px;padding:32px 40px;display:flex;align-items:baseline;gap:20px;flex-wrap:wrap;"><span style="font-size:var(--type-small);font-weight:600;color:#FFB27A;">상관계수</span><span style="font-family:var(--mono);font-size:56px;font-weight:600;letter-spacing:-.02em;line-height:1;">r 0.72 → <b style="color:#F36F21;font-weight:600;">0.98</b></span><span style="font-size:var(--type-small);color:#B0B8C1;">같은 시각 비교 → 1시간 시차 적용 (2025)</span></div>
-      <p data-rv style="--i:6;margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">2개년 통합 상관계수 0.988 · 당일에는 출발역 12곳을 5분마다 관측 — 혼잡 30~40분 전 안내를 위한 후보 지표(9월 5일은 관측만 수행, 예측 모델에는 미반영).</p>
+      <p data-rv style="--i:6;margin:0;font-size:28px;color:#4E5968;line-height:1.5;text-wrap:pretty;">2개년 통합 상관계수 0.988 · 당일에는 출발역 12곳을 5분마다 관측 — 혼잡 30~40분 전 안내를 위한 후보 지표(9월 5일은 관측만 수행, 예측 모델에는 미반영).</p>
     </div>
   </div>
   <aside class="notes">관람객이 여의도에 도착하기 전에 어느 역에서 승차했는지 확인하기 위해 서울 전 역의 평소 대비 초과 승차를 분석했습니다. 두 해 연속으로 패턴이 나타난 12개 역을 주요 출발역으로 선정했습니다. 2025년 자료에서 같은 시각의 상관계수는 0.72였지만, 출발역 승차를 한 시간 앞당겨 비교하면 0.98로 높아졌습니다. 2개년 통합값은 0.988입니다. 다만 9월 5일에는 분 단위 예측 성능을 충분히 검증하지 못했기 때문에 이 신호를 모델에 직접 넣지 않고 5분 단위 관측 지표로만 운영했습니다.</aside>
@@ -159,7 +159,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
     <div data-rv style="--i:3;background:#F2F4F6;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;min-height:460px;"><div style="font-size:var(--type-small);font-weight:600;color:#6B7684;">실시간 지하철 도착 정보 · 4역</div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:96px;font-weight:800;letter-spacing:-.04em;line-height:1;">주기</span><span style="font-size:var(--type-subtitle);font-weight:700;color:#8B95A1;">마다</span></div><div style="font-size:var(--type-body);font-weight:800;line-height:1.3;">여의나루·여의도·샛강·국회의사당역의 열차 도착 상태</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#4E5968;line-height:1.5;">→ 무정차 운행 여부 확인에 활용</p></div>
     <div data-rv style="--i:4;background:#191F28;color:#fff;border-radius:28px;padding:44px;display:flex;flex-direction:column;gap:18px;min-height:460px;"><div style="font-size:var(--type-small);font-weight:600;color:#FFB27A;">TOPIS 교통 CCTV · 23대</div><div style="display:flex;align-items:baseline;gap:8px;"><span style="font-size:96px;font-weight:800;letter-spacing:-.04em;line-height:1;">60</span><span style="font-size:var(--type-subtitle);font-weight:700;color:#B0B8C1;">초</span></div><div style="font-size:var(--type-body);font-weight:800;line-height:1.3;">다리와 진입로의 보행 인원 및 점유 정도</div><p style="margin:auto 0 0;font-size:var(--type-small);color:#B0B8C1;line-height:1.5;">→ 혼잡도와 보행속도 추정에 활용</p></div>
   </div>
-  <p data-rv style="--i:5;margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.5;">여의나루역 무정차 관측: 9월 5일 18:10~22:05 · CCTV는 집계 결과만 사용하며 영상 프레임은 저장하지 않습니다.</p>
+  <p data-rv style="--i:5;margin:0;font-size:28px;color:#4E5968;line-height:1.5;">여의나루역 무정차 관측: 9월 5일 18:10~22:05 · CCTV는 집계 결과만 사용하며 영상 프레임은 저장하지 않습니다.</p>
   <aside class="notes">당일 운영에서는 서로 다른 시간 간격의 공개 데이터를 결합했습니다. 서울시 도시데이터는 구역 인구, 4단계 혼잡도, 통제 정보와 여의나루역 승하차를 5분 단위로 제공합니다. 지하철 도착 정보는 여의나루, 여의도, 샛강, 국회의사당역의 열차 도착 상태를 확인해 무정차 운행 여부를 판단하는 데 사용했습니다. TOPIS CCTV 23대는 다리와 진입로의 보행 인원과 점유 정도를 60초 단위로 집계했습니다. 영상 프레임은 저장하지 않고 분석 결과만 사용했습니다.</aside>
 </section>
 
@@ -213,7 +213,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
     <div style="display:flex;flex-direction:column;gap:14px;align-items:center;"><canvas data-mode="avoiding" style="display:block;width:100%;height:560px;background:#F2F4F6;border-radius:24px;"></canvas><button type="button" class="btn ghost" data-play>▶ 재생</button></div>
     <div style="display:flex;flex-direction:column;gap:14px;align-items:center;"><canvas data-mode="both" style="display:block;width:100%;height:560px;background:#F2F4F6;border-radius:24px;"></canvas><button type="button" class="btn ghost" data-play>▶ 재생</button></div>
   </figure>
-  <div data-rv style="--i:3;display:flex;gap:28px;flex-wrap:wrap;align-items:center;font-size:var(--type-small);font-weight:600;color:#4E5968;">
+  <div data-rv style="--i:3;display:flex;gap:28px;flex-wrap:wrap;align-items:center;font-size:28px;font-weight:600;color:#4E5968;">
     <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:22px;height:8px;border-radius:4px;background:#F36F21;"></i>최단거리 경로 <b style="color:#191F28;font-family:var(--mono);">1,471m · 45분</b></span>
     <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:22px;height:0;border-top:3px dashed #3182F6;"></i>혼잡 회피 경로 <b style="color:#191F28;font-family:var(--mono);">1,677m · 21분</b></span>
     <span style="display:flex;align-items:center;gap:10px;"><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:rgba(179,53,43,.45);"></i>가정한 혼잡 구간</span>
@@ -252,7 +252,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
       <figcaption style="font-size:var(--type-small);color:#8B95A1;">관람객 화면 — 출구 선택과 귀가 경로</figcaption>
     </figure>
   </div>
-  <p data-rv style="--i:5;margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.5;">여의나루역 운행 재개 직후의 저장된 발행 데이터를 재생합니다.</p>
+  <p data-rv style="--i:5;margin:0;font-size:28px;color:#4E5968;line-height:1.5;">여의나루역 운행 재개 직후의 저장된 발행 데이터를 재생합니다.</p>
   <aside class="notes">이 장은 설명을 이어가기보다 실제 화면을 팝업으로 띄워 시연하겠습니다. 먼저 발표 화면에서 “운영자 화면 열기”를 클릭해 출구별 상태, 관람객이 행사장을 빠져나가는 흐름 예측, CCTV 기반 혼잡도를 보여드리겠습니다. 이어 “관람객 화면 열기”를 클릭해 같은 시각에 관람객이 보는 출구 추천과 경로를 확인하겠습니다. 두 화면 모두 9월 5일 22시 6분에 저장한 발행 데이터를 재생하며, 여의나루역 운행 재개 직후의 상태를 담고 있습니다. 운영자는 전체 상황을 보고 관람객은 자신의 이동 경로를 확인한다는 차이를 보시면 됩니다.</aside>
 </section>
 
@@ -261,7 +261,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
   <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">9월 5일 예측과 실측 비교</div>
   <h2 data-rv style="--i:1;margin:0;font-size:var(--type-title);line-height:1.2;font-weight:800;letter-spacing:-.03em;"><span>가장 붐빈 시각은 맞혔지만, </span><span style="color:#F36F21;">늦은 시간 이동</span><span>은 적게 예상했습니다</span></h2>
   <figure data-rv data-chart="live" style="--i:2;margin:0;"><div class="live"></div></figure>
-  <p data-rv style="--i:3;margin:0;font-size:var(--type-small);color:#4E5968;line-height:1.5;text-wrap:pretty;">12:00~24:00 운영 · 9월 5일 자동 평가(<span style="font-family:var(--mono);">evaluate.py</span>) 결과 기준 · 서울시가 12시간 전에 미리 내놓은 예측은 예측 조건이 달라 직접적인 성능 비교로 해석하지 않습니다.</p>
+  <p data-rv style="--i:3;margin:0;font-size:28px;color:#4E5968;line-height:1.5;text-wrap:pretty;">12:00~24:00 운영 · 9월 5일 자동 평가(<span style="font-family:var(--mono);">evaluate.py</span>) 결과 기준 · 서울시가 12시간 전에 미리 내놓은 예측은 예측 조건이 달라 직접적인 성능 비교로 해석하지 않습니다.</p>
   <aside class="notes">9월 5일에는 12시부터 24시까지 5분 간격으로 287개의 스냅샷을 발행했습니다. 예측과 실측 모두 관람객이 행사장을 빠져나가는 흐름의 정점 시각을 22시로 맞혔고, 현장에서 입력한 실제 행사 종료 시각 21시 27분을 반영해 이후 곡선을 조정했습니다. 반면 23시 이후 빠져나가는 흐름은 예측이 충분히 길게 이어지지 않았습니다. 실측 인원은 정점의 92%였지만 예측은 41%였습니다. 서울시가 12시간 전에 미리 내놓은 예측도 저녁 정점을 크게 낮게 추정했지만, 데이터 조건이 다르므로 두 모델의 우열을 직접 비교하기보다 행사 당일 실제 상황 반영의 필요성을 보여주는 기준선으로 해석했습니다.</aside>
 </section>
 
@@ -276,10 +276,10 @@ body.role-cur #np,body.role-next #np{display:none !important}
       <li data-rv style="--i:4;background:#F2F4F6;border-radius:28px;padding:36px 40px;display:flex;flex-direction:column;gap:12px;"><span style="font-size:var(--type-small);font-weight:800;color:#F36F21;">3 · 출구 추천 순위</span><b style="font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.25;">출구 도착 시각의 혼잡도 기준</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">현재 부하율이 아니라 도착 시점 기준으로 정렬 (M1)</span></li>
       <li data-rv style="--i:5;background:#F2F4F6;border-radius:28px;padding:36px 40px;display:flex;flex-direction:column;gap:12px;"><span style="font-size:var(--type-small);font-weight:800;color:#F36F21;">4 · CCTV 밀도 추정</span><b style="font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1.25;">근거리 관측 영역(ROI) 재측정</b><span style="font-size:var(--type-small);color:#4E5968;line-height:1.45;">보정 카메라를 다시 활용 (H6)</span></li>
     </ol>
-    <div data-rv style="--i:6;background:#F36F21;color:#fff;border-radius:28px;padding:48px;display:flex;flex-direction:column;gap:20px;justify-content:center;">
-      <h3 style="margin:0;font-size:var(--type-body);font-weight:800;">적용 제안</h3>
-      <p style="margin:0;font-size:var(--type-small);line-height:1.5;color:#FFF0E6;">사전 예측 + 당일 보정 + 검증 구조는 행사와 무관하게 적용할 수 있습니다.</p>
-      <p style="margin:0;font-size:var(--type-small);line-height:1.5;color:#FFF0E6;text-wrap:pretty;"><b style="color:#fff;">오렌지세이프티</b>와의 연계를 검토해, 행사 주최 측 관제 정보에 <b style="color:#fff;">관람객 귀가 안내</b>를 추가하는 방안을 제안합니다.</p>
+    <div data-rv style="--i:6;background:#F36F21;color:#fff;border-radius:28px;padding:40px 44px;display:flex;flex-direction:column;gap:22px;">
+      <h3 style="margin:0;font-size:44px;font-weight:800;letter-spacing:-.02em;line-height:1.2;">적용 제안</h3>
+      <p style="margin:0;font-size:28px;line-height:1.5;color:#FFF0E6;">사전 예측 + 당일 보정 + 검증 구조는 행사와 무관하게 적용할 수 있습니다.</p>
+      <p style="margin:0;font-size:28px;line-height:1.5;color:#FFF0E6;text-wrap:pretty;"><b style="color:#fff;">오렌지세이프티</b>와의 연계를 검토해, 행사 주최 측 관제 정보에 <b style="color:#fff;">관람객 귀가 안내</b>를 추가하는 방안을 제안합니다.</p>
     </div>
   </div>
   <aside class="notes">개선 계획은 실제 운영에서 확인한 오차를 기준으로 정했습니다. 첫째, 23시 이후 관람객이 행사장을 빠져나가는 흐름의 분포를 3개년 자료로 다시 추정하고 조기 무정차가 있었던 해와 없었던 해를 나눠 보겠습니다. 둘째, 혼잡도 추정은 관측 지점을 하나씩 빼고 다시 맞혀보는 검증과 실제 걸을 수 있는 길의 지도 거리를 적용해 개선하겠습니다. 셋째, 출구의 현재 부하율이 아니라 관람객이 도착할 시점의 혼잡도를 기준으로 순위를 매기겠습니다. 넷째, CCTV가 실제로 보고 있는 가까운 영역을 다시 측정하겠습니다. 이후 오렌지세이프티 관제에 관람객 귀가 레이어를 추가하는 적용을 검토하겠습니다.</aside>
@@ -288,7 +288,7 @@ body.role-cur #np,body.role-next #np{display:none !important}
 <!-- 12 ─ 클로징 -->
 <section data-label="12 클로징" style="background:#17171C;color:#fff;display:flex;flex-direction:column;justify-content:center;gap:var(--gap-title);padding:var(--pad-top) var(--pad-x) var(--pad-bottom);" class="slide" id="s12">
   <div data-rv style="--i:0;font-size:var(--type-small);font-weight:600;color:#F36F21;">불꽃배웅</div>
-  <h1 data-rv style="--i:1;margin:0;font-size:92px;line-height:1.14;font-weight:800;letter-spacing:-.035em;max-width:1300px;"><span>축제 관람객을 위한 </span><span style="color:#F36F21;">혼잡도 기반 귀가 안내</span></h1>
+  <h1 data-rv style="--i:1;margin:0;font-size:88px;line-height:1.14;font-weight:800;letter-spacing:-.035em;"><span>축제 관람객을 위한</span><br><span style="color:#F36F21;">혼잡도 기반 귀가 안내</span></h1>
   <p data-rv style="--i:2;margin:0;font-size:var(--type-subtitle);line-height:1.4;color:#fff;font-weight:700;max-width:1100px;">불꽃배웅 <span style="color:#8B95A1;font-weight:500;">—</span> 눈부신 밤의 끝, 집으로 가는 길까지.</p>
   <p data-rv style="--i:3;margin:0;font-size:var(--type-body);line-height:1.4;color:#D1D6DB;font-weight:500;max-width:1100px;text-wrap:pretty;">출구별 혼잡 전망과 이동 경로를 제공하는 불꽃배웅을 구현하고, 행사 당일 데이터로 예측 결과를 검증했습니다.</p>
   <p data-rv style="--i:4;margin:0;font-size:var(--type-small);color:#8B95A1;display:flex;gap:28px;flex-wrap:wrap;line-height:1.5;"><span>대시보드 <span style="font-family:var(--mono);">jaefit.github.io/hanwha-ai-challenge</span></span><span>팀 보고서 <span style="font-family:var(--mono);">…/report.html</span></span><span>GitHub 저장소 <span style="font-family:var(--mono);">github.com/jaefit/hanwha-ai-challenge</span></span></p>
