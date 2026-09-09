@@ -390,14 +390,15 @@ def test_progress_chain_marks_pipeline_step(html):
 
 
 def test_speaker_notes_fit_five_minutes(html):
-    """장당 ≈25초 — 한국어 발화 ≈ 분당 300자. 60~180자(1장은 인사 포함 178). 합계 ≤ 2,000자(≈6.7분, 시연 시간 포함 상한). 빈 노트는 발표 중 화면이 침묵한다.
+    """장당 ≈25초 — 한국어 발화 ≈ 분당 300자. 60~180자. 1장만 260자(인사·제품명·문제 제기까지 도입부, 2026-09-10 사용자 교체본 246자 ≈ 49초). 합계 ≤ 2,000자(≈6.7분, 시연 시간 포함 상한). 빈 노트는 발표 중 화면이 침묵한다.
     2026-09-09 밤 교정본 3차(짧은 노트)로 원래 상한 복귀."""
     notes = re.findall(r'<aside class="notes">(.*?)</aside>', html, re.S)
     assert len(notes) == N_SLIDES
     total = 0
     for i, n in enumerate(notes, 1):
         t = re.sub(r"\s+", " ", n).strip()
-        assert 60 <= len(t) <= 180, f"s{i} 노트 {len(t)}자 — 60~180자로"
+        cap = 260 if i == 1 else 180
+        assert 60 <= len(t) <= cap, f"s{i} 노트 {len(t)}자 — 60~{cap}자로"
         total += len(t)
     assert total <= 2000, f"노트 합계 {total}자 ≈ {total / 300:.1f}분 — 5분 발표에 못 맞춘다"
 
