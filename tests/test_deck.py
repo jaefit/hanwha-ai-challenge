@@ -37,16 +37,34 @@ def test_deck_data_lives_outside_docs_data():
 
 
 CHART_FILES = {"exits": "exit_bars", "radial": "feeder_map", "feeder": "feeder_lag", "alpha": "alpha_grid",
-               "field": "field_grid", "live": "live_result"}
+               "field": "field_grid", "route": "route_demo", "live": "live_result"}
 # 2026-09-09 v3(파이프라인 순서 11장) — route·backtest·redteam·replay·sources·process·route_real 은 JSON 과 데이터 테스트만 남고 덱엔 안 그린다
 
 
 def test_every_chart_has_its_data_file(html):
     keys = set(re.findall(r'data-chart="([a-z]+)"', html))
     assert keys <= set(CHART_FILES), keys - set(CHART_FILES)
-    assert keys == set(CHART_FILES), f"차트 6종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
+    assert keys == set(CHART_FILES), f"차트 7종이 전부 있어야 한다 — 빠진 것: {set(CHART_FILES) - keys}"
     for k in keys:
         assert (DATA / f"{CHART_FILES[k]}.json").exists(), f"{CHART_FILES[k]}.json 이 없다"
+
+
+def test_route_numbers_in_copy_match_export(html):
+    """8장(최단시간 경로 3패널) 본문의 경로 수치가 내보내기와 같은가."""
+    d = _json("route_demo")
+    short = d["routes"]["shortest"]["meters"]
+    assert f"{short:,}m" in html, f"본문에 최단 {short:,}m 이 없다"
+    assert f"{d['straight_m']:,}m" in html, f"본문에 직선 {d['straight_m']:,}m 이 없다"
+    ratio = round(short / d["straight_m"], 2)
+    assert f"{ratio:.2f}배" in html, f"본문 우회비가 {ratio:.2f}배 와 다르다"
+    n, e = d["graph_size"]["nodes"], d["graph_size"]["edges"]
+    assert f"{n:,}" in html and f"{e:,}" in html
+    m = d["minutes"]
+    assert f"{short:,}m · {m['shortest']}분" in html, f"최단 보행시간 {m['shortest']}분 이 본문과 다르다"
+    assert f"{d['routes']['avoiding']['meters']:,}m · {m['avoiding']}분" in html
+    assert f"{m['shortest'] - m['avoiding']}분 빠른" in html
+    modes = re.findall(r'<canvas data-mode="([a-z]+)"', html)
+    assert modes == ["shortest", "avoiding", "both"], "① 최단 ② 회피 ③ 겹쳐 보기 세 패널 (사용자 결정 9/9)"
 
 
 def test_route_export_reproduces_measured_distance():
@@ -265,10 +283,10 @@ def _sections(html):
     return re.findall(r'<section [^>]*class="slide[^"]*" id="(s\d+)">(.*?)</section>', html, re.S)
 
 
-N_SLIDES = 11   # 2026-09-09 v3 — 파이프라인 순서 11장 (스펙 docs/superpowers/specs/2026-09-09-deck-v3-design.md). 앞 판: v2 12장 7fd2a95 · 14장 07f6411
+N_SLIDES = 12   # 2026-09-09 v3 — 파이프라인 순서 11장 + 8장 최단시간 경로(3패널, 같은 날 추가) (스펙 docs/superpowers/specs/2026-09-09-deck-v3-design.md). 앞 판: v2 12장 7fd2a95 · 14장 07f6411
 
 
-def test_eleven_sections_each_with_heading_and_notes(html):
+def test_twelve_sections_each_with_heading_and_notes(html):
     secs = _sections(html)
     assert [s[0] for s in secs] == [f"s{i}" for i in range(1, N_SLIDES + 1)]
     for sid, body in secs:

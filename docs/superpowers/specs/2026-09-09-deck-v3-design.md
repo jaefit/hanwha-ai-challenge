@@ -34,6 +34,8 @@
 
 시간 배분: 11장 × ≈27초 = 5분. 1·11장은 15초, 8·9장은 35초.
 
+**(같은 날 저녁 추가) 8장 「최단시간 경로」** — 7장(혼잡장)과 재현 장 사이. 옛 판(`6220155`·`f5d3179`)의 ① 최단 ② 혼잡 회피 ③ 겹쳐 보기 3패널을 사용자가 지정. 시나리오(봉우리 가정) 라벨 유지, 숫자는 `route_demo.json` 대조. 이로써 12장.
+
 ## 4. 데이터·테스트 영향
 
 - `docs/deck/*.json` 은 그대로. 덱이 읽는 것은 exit_bars · feeder_map · feeder_lag · alpha_grid · field_grid · backtest_bars(숫자만) · live_result. route_demo · route_real · replay_frames · redteam_counts · sources · process · code_strips 는 파일과 데이터 테스트만 남고 덱엔 안 그린다.

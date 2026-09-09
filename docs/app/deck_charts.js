@@ -383,7 +383,7 @@ function drawRouteOn(cv, d, fd) {
     both: A ? "+" + fmt(A.meters - S.meters) + "m 더 걷고 " + (M.shortest - M.avoiding) + "분 빠르다" : "",
   };
   // 패널을 왼쪽부터 차례로 그린다 — 패널 i 는 p∈[i/2,(i+1)/2] 에서 자기 경로를 늘린다
-  animate(cvs[0], 3600, function (p) {
+  animate(cvs[0], 1800 * cvs.length, function (p) {   // 패널당 1.8초 — 2패널이든 3패널이든
     cvs.forEach(function (canvas, idx) {
       var mode = canvas.getAttribute("data-mode") || "both";
       var out = fitCanvas(canvas), c = out.ctx, w = out.w, h = out.h;
@@ -404,7 +404,7 @@ function drawRouteOn(cv, d, fd) {
       c.beginPath();
       d.background_edges.forEach(function (e) { c.moveTo(X(e[0]), Y(e[1])); c.lineTo(X(e[2]), Y(e[3])); });
       c.stroke();
-      var ph = Math.max(0, Math.min(1, p * 2 - idx));      // 이 패널의 진행도 (2패널)
+      var ph = Math.max(0, Math.min(1, p * cvs.length - idx));      // 이 패널의 진행도 — 왼쪽부터 차례로
       if (idx === 0 && d.visited) {                          // 탐색이 번지는 건 ① 에서만
         var vs = Math.floor(Math.min(1, ph / 0.55) * d.visited.length);
         c.fillStyle = "#C9C4BA";
